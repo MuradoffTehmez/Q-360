@@ -1,0 +1,320 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}İdarə Paneli - Q360{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-home me-2"></i>
+        Xoş gəlmisiniz, {{ user.get_full_name|default:user.username }}!
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Çap et
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <!-- Pending Evaluations -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Gözləyən Qiymətləndirmələr
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ pending_evaluations_count }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Evaluations -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Tamamlanmış
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ completed_evaluations_count }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Campaigns -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Aktiv Kampaniyalar
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ active_campaigns_count }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Score -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Ortalama Balım
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ average_score|default:"N/A" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-star fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Row -->
+<div class="row">
+    <!-- My Assignments -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-tasks me-2"></i>
+                    Mənim Tapşırıqlarım
+                </h6>
+                <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-sm btn-primary">
+                    Hamısını Gör
+                </a>
+            </div>
+            <div class="card-body">
+                {% if pending_assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Qiymətləndirilən</th>
+                                    <th>Kampaniya</th>
+                                    <th>Növ</th>
+                                    <th>Status</th>
+                                    <th>Əməliyyat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in pending_assignments %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                {{ assignment.evaluatee.first_name.0 }}
+                                            </div>
+                                            {{ assignment.evaluatee.get_full_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ assignment.campaign.title }}</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ assignment.get_relationship_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">
+                                            {{ assignment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'evaluations:assignment-detail' assignment.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit me-1"></i> Doldur
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Gözləyən qiymətləndirmə yoxdur</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Notifications -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bell me-2"></i>
+                    Son Bildirişlər
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                        <div class="notification-item p-3 mb-2 border-start border-3 border-{{ notification.notification_type }} bg-light">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ notification.title }}</strong>
+                                <small class="text-muted">{{ notification.created_at|timesince }}</small>
+                            </div>
+                            <p class="mb-0 mt-1">{{ notification.message|truncatewords:15 }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Bildiriş yoxdur</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bolt me-2"></i>
+                    Sürətli Əməliyyatlar
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-clipboard-list me-2"></i> Qiymətləndirmə Doldur
+                    </a>
+                    <a href="{% url 'reports:my-reports' %}" class="btn btn-outline-info">
+                        <i class="fas fa-chart-bar me-2"></i> Hesabatlarımı Gör
+                    </a>
+                    <a href="{% url 'development-plans:my-goals' %}" class="btn btn-outline-success">
+                        <i class="fas fa-bullseye me-2"></i> İnkişaf Məqsədlərim
+                    </a>
+                    {% if user.is_admin %}
+                        <a href="/admin/" class="btn btn-outline-secondary">
+                            <i class="fas fa-tools me-2"></i> Admin Panel
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+{% if user_stats %}
+<div class="row">
+    <!-- Performance Trend -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Performans Trendi
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceTrendChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Distribution -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Bal Paylanması
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="scoreDistributionChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Performance Trend Chart
+    {% if user_stats %}
+    const trendCtx = document.getElementById('performanceTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels|safe }},
+            datasets: [{
+                label: 'Ortalama Bal',
+                data: {{ trend_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Score Distribution Chart
+    const distCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    new Chart(distCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Özüm', 'Rəhbər', 'Həmkar', 'Tabelik'],
+            datasets: [{
+                data: {{ score_distribution|safe }},
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

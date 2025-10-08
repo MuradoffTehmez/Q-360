@@ -1,0 +1,112 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
+            <i class="fas fa-chart-pie me-2"></i>
+            <span class="fw-bold">Q360</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="fas fa-home me-1"></i> Əsas Səhifə
+                        </a>
+                    </li>
+
+                    {% if user.is_manager %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="evaluationsDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-clipboard-check me-1"></i> Qiymətləndirmələr
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
+                                <li><a class="dropdown-item" href="{% url 'evaluations:my-assignments' %}">Mənim Tapşırıqlarım</a></li>
+                                {% if user.is_admin %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'evaluations:campaign-create' %}">Yeni Kampaniya</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reports:my-reports' %}">
+                            <i class="fas fa-chart-bar me-1"></i> Hesabatlar
+                        </a>
+                    </li>
+
+                    {% if user.is_admin %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog me-1"></i> İdarəetmə
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'accounts:user-list' %}">İstifadəçilər</a></li>
+                                <li><a class="dropdown-item" href="{% url 'departments:department-list' %}">Şöbələr</a></li>
+                                <li><a class="dropdown-item" href="{% url 'evaluations:question-list' %}">Suallar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/admin/">Admin Panel</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <!-- User Menu -->
+                <ul class="navbar-nav">
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">
+                                0
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
+                            <li><h6 class="dropdown-header">Bildirişlər</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-muted" href="#">Bildiriş yoxdur</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- User Profile -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                            {% else %}
+                                <i class="fas fa-user-circle fa-2x me-2"></i>
+                            {% endif %}
+                            <span>{{ user.get_full_name|default:user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-2"></i> Profil
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
+                                <i class="fas fa-cog me-2"></i> Tənzimləmələr
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i> Çıxış
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            {% else %}
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Giriş
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>

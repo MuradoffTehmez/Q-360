@@ -1,0 +1,257 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Qiymətləndirmə Forması - Q360{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-clipboard-check me-2"></i>
+        Qiymətləndirmə Forması
+    </h1>
+    <div class="progress" style="width: 200px; height: 30px;">
+        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" id="progressBar">
+            {{ progress }}%
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Assignment Info -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Qiymətləndirmə Məlumatları
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Kampaniya:</strong> {{ assignment.campaign.title }}</p>
+                        <p><strong>Qiymətləndirilən:</strong> {{ assignment.evaluatee.get_full_name }}</p>
+                        <p><strong>Vəzifə:</strong> {{ assignment.evaluatee.position }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Şöbə:</strong> {{ assignment.evaluatee.department }}</p>
+                        <p><strong>Növ:</strong>
+                            <span class="badge bg-info">{{ assignment.get_relationship_display }}</span>
+                        </p>
+                        <p><strong>Son tarix:</strong> {{ assignment.campaign.end_date }}</p>
+                    </div>
+                </div>
+
+                {% if assignment.campaign.is_anonymous %}
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-user-secret me-2"></i>
+                    Bu qiymətləndirmə <strong>anонimdir</strong>. Cavablarınız məxfi saxlanılacaq.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Evaluation Form -->
+        <form method="post" id="evaluationForm">
+            {% csrf_token %}
+
+            {% regroup questions by category as question_categories %}
+
+            {% for category in question_categories %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-folder-open me-2"></i>
+                        {{ category.grouper.name }}
+                    </h5>
+                    {% if category.grouper.description %}
+                        <small class="text-muted">{{ category.grouper.description }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% for question in category.list %}
+                    <div class="question-item mb-4 pb-4 border-bottom" data-question-id="{{ question.id }}">
+                        <div class="question-header mb-3">
+                            <span class="badge bg-secondary me-2">{{ forloop.counter }}</span>
+                            <strong>{{ question.text }}</strong>
+                            {% if question.is_required %}
+                                <span class="text-danger">*</span>
+                            {% endif %}
+                        </div>
+
+                        {% if question.question_type == 'scale' %}
+                        <!-- Rating Scale -->
+                        <div class="rating-container">
+                            <div class="btn-group btn-group-lg d-flex" role="group">
+                                {% for i in "12345"|make_list %}
+                                <input type="radio"
+                                       class="btn-check"
+                                       name="question_{{ question.id }}_score"
+                                       id="q{{ question.id }}_{{ forloop.counter }}"
+                                       value="{{ forloop.counter }}"
+                                       {% if question.is_required %}required{% endif %}>
+                                <label class="btn btn-outline-primary flex-fill"
+                                       for="q{{ question.id }}_{{ forloop.counter }}">
+                                    {{ forloop.counter }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">Zəif</small>
+                                <small class="text-muted">Əla</small>
+                            </div>
+                        </div>
+
+                        {% elif question.question_type == 'boolean' %}
+                        <!-- Yes/No -->
+                        <div class="btn-group btn-group-lg d-flex" role="group">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="question_{{ question.id }}_boolean"
+                                   id="q{{ question.id }}_yes"
+                                   value="true"
+                                   {% if question.is_required %}required{% endif %}>
+                            <label class="btn btn-outline-success flex-fill" for="q{{ question.id }}_yes">
+                                <i class="fas fa-check me-2"></i> Bəli
+                            </label>
+
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="question_{{ question.id }}_boolean"
+                                   id="q{{ question.id }}_no"
+                                   value="false"
+                                   {% if question.is_required %}required{% endif %}>
+                            <label class="btn btn-outline-danger flex-fill" for="q{{ question.id }}_no">
+                                <i class="fas fa-times me-2"></i> Xeyr
+                            </label>
+                        </div>
+
+                        {% elif question.question_type == 'text' %}
+                        <!-- Text Answer -->
+                        <textarea class="form-control"
+                                  name="question_{{ question.id }}_text"
+                                  rows="4"
+                                  placeholder="Cavabınızı buraya yazın..."
+                                  {% if question.is_required %}required{% endif %}></textarea>
+                        {% endif %}
+
+                        <!-- Comment Field -->
+                        <div class="mt-3">
+                            <label class="form-label">
+                                <i class="fas fa-comment me-1"></i>
+                                Əlavə şərh (opsional)
+                            </label>
+                            <textarea class="form-control"
+                                      name="question_{{ question.id }}_comment"
+                                      rows="2"
+                                      placeholder="Əlavə qeydlərinizi bura yaza bilərsiniz..."></textarea>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                            <i class="fas fa-save me-2"></i>
+                            Qaralama olaraq Saxla
+                        </button>
+
+                        <div>
+                            <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-outline-danger me-2">
+                                <i class="fas fa-times me-2"></i>
+                                Ləğv et
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Göndər
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-save functionality
+let autoSaveTimer;
+
+document.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('change', function() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(saveDraft, 2000);
+        updateProgress();
+    });
+});
+
+// Calculate progress
+function updateProgress() {
+    const totalQuestions = document.querySelectorAll('.question-item').length;
+    let answeredQuestions = 0;
+
+    document.querySelectorAll('.question-item').forEach(item => {
+        const questionId = item.dataset.questionId;
+        const hasAnswer = item.querySelector('input:checked, textarea:not([name*="_comment"]):not(:placeholder-shown)');
+        if (hasAnswer) answeredQuestions++;
+    });
+
+    const progress = Math.round((answeredQuestions / totalQuestions) * 100);
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressBar').textContent = progress + '%';
+}
+
+// Save draft
+function saveDraft() {
+    const formData = new FormData(document.getElementById('evaluationForm'));
+
+    fetch('{% url "evaluations:assignment-save-draft" assignment.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Qaralama saxlanıldı', 'success');
+        }
+    });
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    // Simple toast implementation
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.textContent = message;
+    toast.style.zIndex = 9999;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Form validation
+document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+    if (!this.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+        showToast('Zəhmət olmasa bütün məcburi sualları cavablandırın', 'danger');
+    }
+    this.classList.add('was-validated');
+});
+
+// Initialize progress
+updateProgress();
+</script>
+{% endblock %}
