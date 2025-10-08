@@ -1,0 +1,295 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ goal.title }} - Məqsəd Detalları{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ goal.title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'development-plans:my-goals' %}">Məqsədlərim</a></li>
+                    <li class="breadcrumb-item active">{{ goal.title }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{% url 'development-plans:goal-edit' goal.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Redaktə et
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Goal Details -->
+        <div class="col-md-8 mb-4">
+            <!-- Main Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header {% if goal.status == 'completed' %}bg-success{% elif goal.status == 'active' %}bg-primary{% else %}bg-secondary{% endif %} text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bullseye"></i> Məqsəd Məlumatları
+                        </h5>
+                        <span class="badge {% if goal.status == 'completed' %}bg-light text-success{% elif goal.status == 'active' %}bg-light text-primary{% else %}bg-light text-dark{% endif %}">
+                            {% if goal.status == 'draft' %}
+                                Layihə
+                            {% elif goal.status == 'active' %}
+                                Aktiv
+                            {% elif goal.status == 'completed' %}
+                                Tamamlandı
+                            {% elif goal.status == 'archived' %}
+                                Arxiv
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-2">Təsvir</h6>
+                        <p class="text-muted">{{ goal.description }}</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-2">Kateqoriya</h6>
+                            <span class="badge bg-secondary fs-6">{{ goal.category }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-2">Hədəf Tarix</h6>
+                            <p class="mb-0">
+                                <i class="far fa-calendar"></i> {{ goal.target_date|date:"d.m.Y" }}
+                                {% if goal.target_date %}
+                                    {% now "Y-m-d" as today %}
+                                    {% if goal.target_date|date:"Y-m-d" < today and goal.status != 'completed' %}
+                                        <span class="badge bg-danger ms-2">Vaxt keçib</span>
+                                    {% elif days_remaining <= 7 and goal.status != 'completed' %}
+                                        <span class="badge bg-warning ms-2">{{ days_remaining }} gün qalıb</span>
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-2">Yaradılıb</h6>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-user"></i> {{ goal.created_by.get_full_name }}
+                                <br>
+                                <small>{{ goal.created_at|date:"d.m.Y H:i" }}</small>
+                            </p>
+                        </div>
+                        {% if goal.completion_date %}
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-2">Tamamlanma Tarixi</h6>
+                            <p class="text-success mb-0">
+                                <i class="fas fa-check-circle"></i> {{ goal.completion_date|date:"d.m.Y" }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    {% if goal.status != 'completed' %}
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'development-plans:add-progress' goal.pk %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> İrəliləyiş Əlavə Et
+                            </a>
+                            <a href="{% url 'development-plans:goal-complete' goal.pk %}" class="btn btn-success"
+                               onclick="return confirm('Bu məqsədi tamamlandı kimi qeyd etmək istəyirsiniz?')">
+                                <i class="fas fa-check-circle"></i> Tamamlandı Qeyd Et
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Progress Log -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-alt"></i> İrəliləyiş Qeydləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if progress_logs %}
+                        <div class="timeline">
+                            {% for log in progress_logs %}
+                            <div class="timeline-item mb-4">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">{{ log.logged_by.get_full_name }}</h6>
+                                            <small class="text-muted">
+                                                <i class="far fa-clock"></i> {{ log.created_at|date:"d.m.Y H:i" }}
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-info">{{ log.progress_percentage }}%</span>
+                                    </div>
+                                    <p class="mb-0 text-muted">{{ log.note }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Hələ irəliləyiş qeydi yoxdur</p>
+                            {% if goal.status != 'completed' %}
+                            <a href="{% url 'development-plans:add-progress' goal.pk %}" class="btn btn-sm btn-primary mt-3">
+                                <i class="fas fa-plus"></i> İlk qeydi əlavə et
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4 mb-4">
+            <!-- Progress Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-line"></i> İrəliləyiş
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="progress-circle mb-3">
+                        <canvas id="progressChart" width="200" height="200"></canvas>
+                    </div>
+                    <h2 class="mb-0">{{ current_progress }}%</h2>
+                    <p class="text-muted mb-0">Tamamlanma</p>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Statistika
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                        <span class="text-muted">İrəliləyiş qeydləri</span>
+                        <strong>{{ progress_logs.count }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                        <span class="text-muted">Başlama tarixi</span>
+                        <strong>{{ goal.created_at|date:"d.m.Y" }}</strong>
+                    </div>
+                    {% if goal.target_date %}
+                    <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                        <span class="text-muted">Hədəf tarix</span>
+                        <strong>{{ goal.target_date|date:"d.m.Y" }}</strong>
+                    </div>
+                    {% endif %}
+                    {% if days_remaining %}
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Qalan günlər</span>
+                        <strong {% if days_remaining < 0 %}class="text-danger"{% endif %}>
+                            {% if days_remaining < 0 %}
+                                {{ days_remaining|abs }} gün keçmişdir
+                            {% else %}
+                                {{ days_remaining }} gün
+                            {% endif %}
+                        </strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Tövsiyələr
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0 small">
+                        <li class="mb-2">Hər həftə irəliləyişinizi qeyd edin</li>
+                        <li class="mb-2">Konkret nəticələri qeyd etməyi unutmayın</li>
+                        <li class="mb-2">Çətinliklərlə üzləşdiyinizdə dəstək istəyin</li>
+                        <li class="mb-0">Məqsədinizi kiçik addımlara bölün</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline-item {
+        position: relative;
+    }
+    .timeline-marker {
+        position: absolute;
+        left: -30px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        top: 5px;
+    }
+    .timeline-item:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 17px;
+        width: 2px;
+        height: calc(100% + 10px);
+        background-color: #dee2e6;
+    }
+    .progress-circle {
+        position: relative;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Progress Circle Chart
+    const ctx = document.getElementById('progressChart');
+    if (ctx) {
+        const progress = {{ current_progress }};
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [progress, 100 - progress],
+                    backgroundColor: [
+                        progress >= 75 ? '#28a745' : progress >= 50 ? '#17a2b8' : progress >= 25 ? '#ffc107' : '#dc3545',
+                        '#e9ecef'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

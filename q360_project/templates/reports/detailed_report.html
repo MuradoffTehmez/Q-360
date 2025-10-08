@@ -1,0 +1,375 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Ətraflı Hesabat - {{ result.evaluatee.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .strength-item {
+        border-left: 4px solid #28a745;
+        background: #f0f9f4;
+    }
+    .improvement-item {
+        border-left: 4px solid #ffc107;
+        background: #fffbf0;
+    }
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto;
+    }
+    .category-bar {
+        height: 30px;
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+    }
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        .card {
+            page-break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header with Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-file-alt"></i> Ətraflı Qiymətləndirmə Hesabatı
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'reports:my-reports' %}">Hesabatlar</a></li>
+                    <li class="breadcrumb-item active">Ətraflı Hesabat</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print"></i> Çap et
+            </button>
+            <a href="{% url 'reports:export-pdf' result.pk %}" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> PDF Yüklə
+            </a>
+        </div>
+    </div>
+
+    <!-- Employee Info Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4 class="mb-3">{{ result.evaluatee.get_full_name }}</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong><i class="fas fa-building"></i> Şöbə:</strong>
+                                {{ result.evaluatee.department|default:"-" }}
+                            </p>
+                            <p class="mb-2">
+                                <strong><i class="fas fa-briefcase"></i> Vəzifə:</strong>
+                                {{ result.evaluatee.position|default:"-" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong><i class="fas fa-trophy"></i> Kampaniya:</strong>
+                                {{ result.campaign.title }}
+                            </p>
+                            <p class="mb-2">
+                                <strong><i class="fas fa-calendar"></i> Qiymətləndirmə Tarixi:</strong>
+                                {{ result.calculated_at|date:"d.m.Y" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="score-circle bg-success text-white">
+                        {{ result.overall_score|floatformat:2 }}
+                    </div>
+                    <p class="mt-2 mb-0"><strong>Ümumi Bal</strong></p>
+                    <small class="text-muted">{{ result.total_evaluators }} qiymətləndirən</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Scores by Relationship -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users"></i> Qiymətləndirən Qruplar üzrə Nəticələr
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-user text-primary"></i> Özünüdəyərləndirmə</span>
+                            <strong>{{ result.self_score|floatformat:2|default:"-" }}</strong>
+                        </div>
+                        {% if result.self_score %}
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 style="width: {{ result.self_score|floatformat:0|add:'0' }}0%">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary py-1 mb-0 small">Qiymətləndirmə aparılmayıb</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-user-tie text-info"></i> Rəhbər qiymətləndirməsi</span>
+                            <strong>{{ result.supervisor_score|floatformat:2|default:"-" }}</strong>
+                        </div>
+                        {% if result.supervisor_score %}
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: {{ result.supervisor_score|floatformat:0|add:'0' }}0%">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary py-1 mb-0 small">Qiymətləndirmə aparılmayıb</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-users text-success"></i> Həmkar qiymətləndirməsi</span>
+                            <strong>{{ result.peer_score|floatformat:2|default:"-" }}</strong>
+                        </div>
+                        {% if result.peer_score %}
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ result.peer_score|floatformat:0|add:'0' }}0%">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary py-1 mb-0 small">Qiymətləndirmə aparılmayıb</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-user-friends text-warning"></i> Tabelik qiymətləndirməsi</span>
+                            <strong>{{ result.subordinate_score|floatformat:2|default:"-" }}</strong>
+                        </div>
+                        {% if result.subordinate_score %}
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-warning" role="progressbar"
+                                 style="width: {{ result.subordinate_score|floatformat:0|add:'0' }}0%">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary py-1 mb-0 small">Qiymətləndirmə aparılmayıb</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radar Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-area"></i> Kompetensiya Profili
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scores by Category -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Kateqoriya üzrə Nəticələr
+            </h5>
+        </div>
+        <div class="card-body">
+            {% for category, score in category_scores.items %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <strong>{{ category }}</strong>
+                    <span class="badge bg-primary">{{ score|floatformat:2 }}</span>
+                </div>
+                <div class="category-bar bg-light">
+                    <div class="h-100 {% if score >= 4 %}bg-success{% elif score >= 3 %}bg-info{% elif score >= 2 %}bg-warning{% else %}bg-danger{% endif %}"
+                         style="width: {{ score|floatformat:0|add:'0' }}0%">
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">Kateqoriya məlumatı mövcud deyil</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Strengths and Improvements -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-success h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle"></i> Güclü Tərəflər
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if strengths %}
+                        {% for strength in strengths %}
+                        <div class="strength-item p-3 mb-3 rounded">
+                            <h6 class="mb-2">{{ strength.category }}</h6>
+                            <p class="mb-1">{{ strength.description }}</p>
+                            <small class="text-success">
+                                <i class="fas fa-star"></i> Bal: {{ strength.score|floatformat:2 }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Güclü tərəflər haqqında məlumat əlavə edildikdən sonra burada görünəcək
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-warning h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-arrow-up"></i> İnkişaf Sahələri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if improvements %}
+                        {% for improvement in improvements %}
+                        <div class="improvement-item p-3 mb-3 rounded">
+                            <h6 class="mb-2">{{ improvement.category }}</h6>
+                            <p class="mb-1">{{ improvement.description }}</p>
+                            <small class="text-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Bal: {{ improvement.score|floatformat:2 }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            İnkişaf sahələri haqqında məlumat əlavə edildikdən sonra burada görünəcək
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Responses / Comments -->
+    {% if text_responses %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-comments"></i> Rəy və Təkliflər
+            </h5>
+        </div>
+        <div class="card-body">
+            {% for response in text_responses %}
+            <div class="mb-4 pb-3 border-bottom">
+                <div class="d-flex justify-content-between mb-2">
+                    <h6 class="text-primary mb-0">{{ response.question }}</h6>
+                    <span class="badge bg-secondary">{{ response.relationship_display }}</span>
+                </div>
+                <p class="mb-0 text-muted">{{ response.answer }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Development Goals Link -->
+    <div class="card shadow-sm border-primary no-print">
+        <div class="card-body text-center py-4">
+            <h5 class="mb-3">
+                <i class="fas fa-bullseye"></i> İnkişaf Planı Hazırlayın
+            </h5>
+            <p class="text-muted mb-3">
+                Bu qiymətləndirmə nəticələrinə əsasən inkişaf məqsədlərinizi müəyyənləşdirin
+            </p>
+            <a href="{% url 'development-plans:goal-templates' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> İnkişaf Məqsədi Yarat
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Radar Chart
+    const radarCtx = document.getElementById('radarChart');
+    if (radarCtx && {{ radar_data|safe }}) {
+        const radarData = {{ radar_data|safe }};
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: radarData.categories,
+                datasets: [
+                    {
+                        label: 'Özüm',
+                        data: radarData.self,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)'
+                    },
+                    {
+                        label: 'Başqaları',
+                        data: radarData.others,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        pointBackgroundColor: 'rgb(255, 99, 132)'
+                    },
+                    {
+                        label: 'Ortalama',
+                        data: radarData.average,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        pointBackgroundColor: 'rgb(75, 192, 192)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 5,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

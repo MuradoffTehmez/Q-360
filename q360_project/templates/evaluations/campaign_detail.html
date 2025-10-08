@@ -1,0 +1,400 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ campaign.title }} - Kampaniya Detalları{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ campaign.title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
+                    <li class="breadcrumb-item active">{{ campaign.title }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            {% if perms.evaluations.change_evaluationcampaign %}
+            <a href="{% url 'evaluations:campaign-edit' campaign.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Redaktə et
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Campaign Status Banner -->
+    <div class="alert alert-{{ campaign.status|yesno:'success,info,warning' }} mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="alert-heading mb-2">
+                    <i class="fas fa-info-circle"></i> Status:
+                    {% if campaign.status == 'draft' %}
+                        Layihə
+                    {% elif campaign.status == 'active' %}
+                        Aktiv
+                    {% elif campaign.status == 'completed' %}
+                        Tamamlandı
+                    {% elif campaign.status == 'archived' %}
+                        Arxivləşdirildi
+                    {% endif %}
+                </h5>
+                <p class="mb-0">{{ campaign.description }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="mb-2">
+                    <strong>Başlama:</strong> {{ campaign.start_date|date:"d.m.Y" }}
+                </div>
+                <div>
+                    <strong>Bitmə:</strong> {{ campaign.end_date|date:"d.m.Y" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Statistics -->
+        <div class="col-md-3 mb-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Ümumi Tapşırıq</p>
+                            <h3 class="mb-0">{{ total_assignments }}</h3>
+                        </div>
+                        <div class="stat-icon bg-primary">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Tamamlanmış</p>
+                            <h3 class="mb-0">{{ completed_assignments }}</h3>
+                        </div>
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Gözləyən</p>
+                            <h3 class="mb-0">{{ pending_assignments }}</h3>
+                        </div>
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Tamamlanma %</p>
+                            <h3 class="mb-0">{{ completion_rate|floatformat:0 }}%</h3>
+                        </div>
+                        <div class="stat-icon bg-info">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ completion_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="campaignTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="assignments-tab" data-bs-toggle="tab" data-bs-target="#assignments" type="button">
+                <i class="fas fa-tasks"></i> Tapşırıqlar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions" type="button">
+                <i class="fas fa-question-circle"></i> Suallar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="participants-tab" data-bs-toggle="tab" data-bs-target="#participants" type="button">
+                <i class="fas fa-users"></i> İştirakçılar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button">
+                <i class="fas fa-chart-bar"></i> Nəticələr
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="campaignTabsContent">
+        <!-- Assignments Tab -->
+        <div class="tab-pane fade show active" id="assignments" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Qiymətləndirmə Tapşırıqları</h5>
+                        {% if perms.evaluations.add_evaluationassignment %}
+                        <a href="{% url 'evaluations:bulk-assign' campaign.pk %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> Toplu Təyin Et
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Qiymətləndirən</th>
+                                    <th>Qiymətləndirilən</th>
+                                    <th>Əlaqə</th>
+                                    <th>Status</th>
+                                    <th>Tamamlanma</th>
+                                    <th>Tarix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>{{ assignment.evaluator.get_full_name }}</td>
+                                    <td>{{ assignment.evaluatee.get_full_name }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ assignment.get_relationship_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if assignment.status == 'completed' %}
+                                            <span class="badge bg-success">Tamamlandı</span>
+                                        {% elif assignment.status == 'in_progress' %}
+                                            <span class="badge bg-warning">Davam edir</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Gözləyir</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px; min-width: 100px;">
+                                            <div class="progress-bar" role="progressbar"
+                                                 style="width: {{ assignment.completion_percentage }}%"
+                                                 aria-valuenow="{{ assignment.completion_percentage }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ assignment.completion_percentage|floatformat:0 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if assignment.completed_at %}
+                                            {{ assignment.completed_at|date:"d.m.Y H:i" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        Hələ tapşırıq təyin edilməyib
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Tab -->
+        <div class="tab-pane fade" id="questions" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Kampaniya Sualları</h5>
+                </div>
+                <div class="card-body">
+                    {% for category, questions in questions_by_category.items %}
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-folder"></i> {{ category }}
+                        </h6>
+                        <div class="list-group">
+                            {% for question in questions %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="mb-1">{{ question.text }}</p>
+                                        <small class="text-muted">
+                                            Növ: {{ question.get_question_type_display }}
+                                            {% if question.is_required %}
+                                                <span class="badge bg-danger ms-2">Məcburi</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-info">Çəki: {{ question.weight }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-4">Bu kampaniyada sual yoxdur</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Participants Tab -->
+        <div class="tab-pane fade" id="participants" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">İştirakçılar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ad Soyad</th>
+                                    <th>Şöbə</th>
+                                    <th>Vəzifə</th>
+                                    <th>Qiymətləndirildi</th>
+                                    <th>Qiymətləndirir</th>
+                                    <th>İrəliləyiş</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in participants %}
+                                <tr>
+                                    <td>{{ participant.get_full_name }}</td>
+                                    <td>{{ participant.department|default:"-" }}</td>
+                                    <td>{{ participant.position|default:"-" }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ participant.received_count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ participant.given_count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px; min-width: 100px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ participant.progress }}%">
+                                                {{ participant.progress|floatformat:0 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        İştirakçı yoxdur
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div class="tab-pane fade" id="results" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Kampaniya Nəticələri</h5>
+                        {% if campaign.status == 'completed' %}
+                        <a href="{% url 'reports:export-excel' campaign.pk %}" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel"></i> Excel Export
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if campaign.status == 'completed' %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>İşçi</th>
+                                        <th>Ümumi Bal</th>
+                                        <th>Özüm</th>
+                                        <th>Rəhbər</th>
+                                        <th>Həmkar</th>
+                                        <th>Tabelik</th>
+                                        <th>Əməliyyatlar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in results %}
+                                    <tr>
+                                        <td>{{ result.evaluatee.get_full_name }}</td>
+                                        <td><strong>{{ result.overall_score|floatformat:2 }}</strong></td>
+                                        <td>{{ result.self_score|floatformat:2|default:"-" }}</td>
+                                        <td>{{ result.supervisor_score|floatformat:2|default:"-" }}</td>
+                                        <td>{{ result.peer_score|floatformat:2|default:"-" }}</td>
+                                        <td>{{ result.subordinate_score|floatformat:2|default:"-" }}</td>
+                                        <td>
+                                            <a href="{% url 'reports:detailed-report' result.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> Detallar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            Nəticə yoxdur
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Nəticələr kampaniya tamamlandıqdan sonra görünəcək
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh every 30 seconds for active campaigns
+    {% if campaign.status == 'active' %}
+    setTimeout(() => {
+        location.reload();
+    }, 30000);
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,10 +1,23 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from . import template_views
 
 router = DefaultRouter()
 
 app_name = 'reports'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Report views
+    path('my-reports/', template_views.my_reports, name='my-reports'),
+    path('team-reports/', template_views.team_reports, name='team-reports'),
+    path('detailed/<int:result_pk>/', template_views.detailed_report, name='detailed-report'),
+    path('comparison/', template_views.comparison_report, name='comparison-report'),
+    path('analytics/', template_views.analytics_dashboard, name='analytics-dashboard'),
+
+    # Export
+    path('export/pdf/<int:result_pk>/', template_views.export_pdf, name='export-pdf'),
+    path('export/excel/<int:campaign_pk>/', template_views.export_excel, name='export-excel'),
+
+    # API
+    path('api/', include(router.urls)),
 ]

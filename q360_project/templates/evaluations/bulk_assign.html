@@ -1,0 +1,371 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Toplu Tapşırıq Təyini - {{ campaign.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="mb-4">
+                <h1 class="h3 mb-1">
+                    <i class="fas fa-users-cog"></i> Toplu Tapşırıq Təyini
+                </h1>
+                <p class="text-muted">{{ campaign.title }} kampaniyası üçün qiymətləndirmə tapşırıqları yaradın</p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-detail' campaign.pk %}">{{ campaign.title }}</a></li>
+                        <li class="breadcrumb-item active">Toplu Təyin</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Info Alert -->
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">
+                    <i class="fas fa-info-circle"></i> Necə işləyir?
+                </h5>
+                <p class="mb-0">
+                    Bu alət avtomatik olaraq seçilmiş işçilər üçün 360° qiymətləndirmə tapşırıqları yaradır.
+                    Hər işçi üçün özünüdəyərləndirmə, rəhbər, həmkarlar və tabeliklər tərəfindən qiymətləndirmələr əlavə olunacaq.
+                </p>
+            </div>
+
+            <!-- Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-check"></i> Təyin Parametrləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bulkAssignForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ form.non_field_errors }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Select Employees -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-users"></i> İşçiləri Seçin
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="{{ form.evaluatees.id_for_label }}" class="form-label">
+                                    Qiymətləndiriləcək İşçilər <span class="text-danger">*</span>
+                                </label>
+                                {{ form.evaluatees }}
+                                {% if form.evaluatees.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.evaluatees.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Çoxlu işçi seçmək üçün Ctrl (Windows) və ya Cmd (Mac) düyməsini basılı saxlayın.
+                                    <a href="#" id="selectAll" class="ms-2">Hamısını seç</a> |
+                                    <a href="#" id="deselectAll" class="ms-1">Heç birini seçmə</a>
+                                </small>
+                            </div>
+
+                            <!-- Filter Options -->
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="mb-3">Filtr seçimləri:</h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="departmentFilter" class="form-label">Şöbəyə görə</label>
+                                            <select id="departmentFilter" class="form-select">
+                                                <option value="">Hamısı</option>
+                                                {% for dept in departments %}
+                                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="roleFilter" class="form-label">Rola görə</label>
+                                            <select id="roleFilter" class="form-select">
+                                                <option value="">Hamısı</option>
+                                                <option value="admin">Admin</option>
+                                                <option value="manager">Menecer</option>
+                                                <option value="employee">İşçi</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assignment Options -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-cogs"></i> Təyin Parametrləri
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        {{ form.include_self }}
+                                        <label class="form-check-label" for="{{ form.include_self.id_for_label }}">
+                                            <strong>Özünüdəyərləndirmə</strong>
+                                            <br>
+                                            <small class="text-muted">Hər işçi özünü qiymətləndirəcək</small>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        {{ form.include_supervisor }}
+                                        <label class="form-check-label" for="{{ form.include_supervisor.id_for_label }}">
+                                            <strong>Rəhbər qiymətləndirməsi</strong>
+                                            <br>
+                                            <small class="text-muted">Birbaşa rəhbər tərəfindən</small>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        {{ form.include_peers }}
+                                        <label class="form-check-label" for="{{ form.include_peers.id_for_label }}">
+                                            <strong>Həmkar qiymətləndirməsi</strong>
+                                            <br>
+                                            <small class="text-muted">Eyni şöbədəki həmkarlar</small>
+                                        </label>
+                                        {% if form.peer_count %}
+                                        <div class="mt-2 ms-4">
+                                            <label for="{{ form.peer_count.id_for_label }}" class="form-label-sm">
+                                                Həmkar sayı:
+                                            </label>
+                                            {{ form.peer_count }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        {{ form.include_subordinates }}
+                                        <label class="form-check-label" for="{{ form.include_subordinates.id_for_label }}">
+                                            <strong>Tabelik qiymətləndirməsi</strong>
+                                            <br>
+                                            <small class="text-muted">Tabelikdə olan işçilər</small>
+                                        </label>
+                                        {% if form.subordinate_count %}
+                                        <div class="mt-2 ms-4">
+                                            <label for="{{ form.subordinate_count.id_for_label }}" class="form-label-sm">
+                                                Tabelik sayı:
+                                            </label>
+                                            {{ form.subordinate_count }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Options -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-bell"></i> Əlavə Seçimlər
+                            </h6>
+
+                            <div class="form-check form-switch mb-3">
+                                {{ form.send_notifications }}
+                                <label class="form-check-label" for="{{ form.send_notifications.id_for_label }}">
+                                    Email bildirişi göndər
+                                </label>
+                                <br>
+                                <small class="text-muted ms-4">
+                                    İştirakçılara email ilə qiymətləndirmə tapşırığı bildirişi göndərilsin
+                                </small>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                {{ form.override_existing }}
+                                <label class="form-check-label" for="{{ form.override_existing.id_for_label }}">
+                                    Mövcud tapşırıqları əvəz et
+                                </label>
+                                <br>
+                                <small class="text-muted ms-4">
+                                    <strong class="text-warning">Diqqət:</strong> Artıq mövcud olan tapşırıqlar silinəcək
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="alert alert-light border" id="previewSection" style="display: none;">
+                            <h6 class="mb-3">
+                                <i class="fas fa-eye"></i> Əməliyyat Özəti
+                            </h6>
+                            <div id="previewContent">
+                                <!-- Dynamic content will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'evaluations:campaign-detail' campaign.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Ləğv et
+                            </a>
+                            <div>
+                                <button type="button" id="previewBtn" class="btn btn-info me-2">
+                                    <i class="fas fa-eye"></i> Önizləmə
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <i class="fas fa-check"></i> Tapşırıqları Yarat
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Progress Section (Hidden by default) -->
+            <div class="card shadow-sm" id="progressSection" style="display: none;">
+                <div class="card-body text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Yüklənir...</span>
+                    </div>
+                    <h5>Tapşırıqlar yaradılır...</h5>
+                    <p class="text-muted mb-0">Zəhmət olmasa gözləyin</p>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-exclamation-triangle"></i> Əhəmiyyətli Qeydlər
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Tapşırıq yaratma prosesi bir neçə dəqiqə çəkə bilər</strong> (işçi sayından asılı olaraq)</li>
+                        <li>Həmkar və tabelik seçimləri <strong>təsadüfi</strong> olaraq edilir</li>
+                        <li>Rəhbəri olmayan işçilər üçün rəhbər qiymətləndirməsi əlavə edilməyəcək</li>
+                        <li>Tabeliyi olmayan işçilər üçün tabelik qiymətləndirməsi əlavə edilməyəcək</li>
+                        <li>Artıq başlanmış və ya tamamlanmış tapşırıqlar <strong>silinməyəcək</strong> (override seçilsə belə)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('bulkAssignForm');
+        const evaluateesSelect = document.querySelector('select[name="evaluatees"]');
+        const previewBtn = document.getElementById('previewBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const previewSection = document.getElementById('previewSection');
+        const previewContent = document.getElementById('previewContent');
+        const progressSection = document.getElementById('progressSection');
+
+        // Select All / Deselect All
+        document.getElementById('selectAll').addEventListener('click', function(e) {
+            e.preventDefault();
+            Array.from(evaluateesSelect.options).forEach(option => option.selected = true);
+        });
+
+        document.getElementById('deselectAll').addEventListener('click', function(e) {
+            e.preventDefault();
+            Array.from(evaluateesSelect.options).forEach(option => option.selected = false);
+        });
+
+        // Filter by department
+        document.getElementById('departmentFilter').addEventListener('change', function() {
+            const deptId = this.value;
+            // This would need AJAX call to filter users by department
+            // For now, just a placeholder
+            console.log('Filter by department:', deptId);
+        });
+
+        // Preview button
+        previewBtn.addEventListener('click', function() {
+            const selectedCount = evaluateesSelect.selectedOptions.length;
+
+            if (selectedCount === 0) {
+                alert('Zəhmət olmasa ən azı bir işçi seçin');
+                return;
+            }
+
+            const includeSelf = document.querySelector('input[name="include_self"]').checked;
+            const includeSupervisor = document.querySelector('input[name="include_supervisor"]').checked;
+            const includePeers = document.querySelector('input[name="include_peers"]').checked;
+            const includeSubordinates = document.querySelector('input[name="include_subordinates"]').checked;
+
+            let tasksPerEmployee = 0;
+            if (includeSelf) tasksPerEmployee += 1;
+            if (includeSupervisor) tasksPerEmployee += 1;
+            if (includePeers) {
+                const peerCount = parseInt(document.querySelector('input[name="peer_count"]')?.value || 3);
+                tasksPerEmployee += peerCount;
+            }
+            if (includeSubordinates) {
+                const subCount = parseInt(document.querySelector('input[name="subordinate_count"]')?.value || 2);
+                tasksPerEmployee += subCount;
+            }
+
+            const totalTasks = selectedCount * tasksPerEmployee;
+
+            previewContent.innerHTML = `
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="text-primary">${selectedCount}</h3>
+                        <p class="text-muted mb-0">Seçilmiş işçi</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-info">${tasksPerEmployee}</h3>
+                        <p class="text-muted mb-0">Hər işçi üçün təxmini tapşırıq</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-success">~${totalTasks}</h3>
+                        <p class="text-muted mb-0">Təxmini ümumi tapşırıq</p>
+                    </div>
+                </div>
+                <hr>
+                <p class="text-muted mb-0 small">
+                    <i class="fas fa-info-circle"></i>
+                    Dəqiq tapşırıq sayı işçilərin təşkilat strukturundakı mövqeyindən asılı olaraq dəyişə bilər
+                </p>
+            `;
+
+            previewSection.style.display = 'block';
+            previewSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            const selectedCount = evaluateesSelect.selectedOptions.length;
+
+            if (selectedCount === 0) {
+                e.preventDefault();
+                alert('Zəhmət olmasa ən azı bir işçi seçin');
+                return;
+            }
+
+            const override = document.querySelector('input[name="override_existing"]').checked;
+
+            if (override) {
+                if (!confirm('Mövcud tapşırıqlar silinəcək. Davam etmək istədiyinizə əminsiniz?')) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            if (!confirm(`${selectedCount} işçi üçün toplu tapşırıq yaradılacaq. Davam edək?`)) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show progress
+            form.closest('.card').style.display = 'none';
+            progressSection.style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% load static %}
+
+<div class="dept-card card mb-2 {% if level > 0 %}tree-node{% endif %}"
+     onclick="window.location.href='{% url 'departments:department-detail' dept.pk %}'">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center">
+            <div class="dept-icon {% if level == 0 %}bg-primary{% elif level == 1 %}bg-info{% else %}bg-secondary{% endif %} text-white me-3">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h6 class="mb-0">{{ dept.name }}</h6>
+                <small class="text-muted">
+                    {% if dept.manager %}
+                        <i class="fas fa-user-tie"></i> {{ dept.manager.get_full_name }}
+                    {% else %}
+                        <i class="fas fa-user-slash text-muted"></i> Rəhbər təyin edilməyib
+                    {% endif %}
+                    <span class="ms-2">
+                        <i class="fas fa-users"></i>
+                        {{ dept.users.count }} işçi
+                    </span>
+                </small>
+            </div>
+            {% if dept.get_children.count > 0 %}
+            <div class="text-end">
+                <span class="badge bg-secondary">
+                    {{ dept.get_children.count }} alt şöbə
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% for child in dept.get_children %}
+    {% if child.is_active %}
+        {% include 'departments/_department_tree_node.html' with dept=child level=level|add:1 %}
+    {% endif %}
+{% endfor %}

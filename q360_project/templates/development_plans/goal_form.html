@@ -1,0 +1,301 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}Məqsədi Redaktə Et{% else %}Yeni İnkişaf Məqsədi{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="mb-4">
+                <h1 class="h3 mb-1">
+                    {% if form.instance.pk %}
+                        <i class="fas fa-edit"></i> Məqsədi Redaktə Et
+                    {% else %}
+                        <i class="fas fa-plus-circle"></i> Yeni İnkişaf Məqsədi
+                    {% endif %}
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'development-plans:my-goals' %}">Məqsədlərim</a></li>
+                        <li class="breadcrumb-item active">
+                            {% if form.instance.pk %}Redaktə{% else %}Yeni{% endif %}
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" id="goalForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ form.non_field_errors }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <!-- SMART Goal Info -->
+                        <div class="alert alert-info mb-4">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-lightbulb"></i> SMART Məqsəd Qoyun
+                            </h6>
+                            <p class="mb-0 small">
+                                <strong>S</strong>pecific (Konkret) •
+                                <strong>M</strong>easurable (Ölçülə bilən) •
+                                <strong>A</strong>chievable (Əldə edilə bilən) •
+                                <strong>R</strong>elevant (Uyğun) •
+                                <strong>T</strong>ime-bound (Vaxt çərçivəsi olan)
+                            </p>
+                        </div>
+
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-primary"></i> Əsas Məlumatlar
+                            </h5>
+
+                            <div class="mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    Məqsəd Başlığı <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.title.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Məsələn: "Python proqramlaşdırma dilini öyrənmək", "Lidership bacarıqlarını inkişaf etdirmək"
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    Ətraflı Təsvir <span class="text-danger">*</span>
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Məqsədinizi, nə üçün vacib olduğunu və necə nail olmağı planlaşdırdığınızı ətraflı izah edin
+                                </small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                                        Kateqoriya <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Məsələn: Texniki Bacarıqlar, Lidership, Kommunikasiya
+                                    </small>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.target_date.id_for_label }}" class="form-label">
+                                        Hədəf Tarix <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.target_date }}
+                                    {% if form.target_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.target_date.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Məqsədi nail olmaq üçün realist bir tarix seçin
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    Status <span class="text-danger">*</span>
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.status.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    <strong>Layihə:</strong> Planlaşdırma mərhələsində |
+                                    <strong>Aktiv:</strong> Üzərində işləyirsiniz |
+                                    <strong>Tamamlandı:</strong> Məqsədə nail oldunuz
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Action Steps (Optional) -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-tasks text-primary"></i> Fəaliyyət Addımları
+                                <small class="text-muted">(İstəyə bağlı)</small>
+                            </h5>
+
+                            <div class="mb-3">
+                                <div id="actionSteps">
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" placeholder="1. Addım: ...">
+                                        <button class="btn btn-outline-danger" type="button">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="addStepBtn">
+                                    <i class="fas fa-plus"></i> Addım əlavə et
+                                </button>
+                                <small class="form-text text-muted d-block mt-2">
+                                    Məqsədinizə nail olmaq üçün atmalı olduğunuz konkret addımları siyahıya alın
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Resources (Optional) -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-book text-primary"></i> Resurslar və Dəstək
+                                <small class="text-muted">(İstəyə bağlı)</small>
+                            </h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Lazım olan resurslar</label>
+                                <textarea class="form-control" rows="3"
+                                          placeholder="Məsələn: Online kurslar, kitablar, mentor dəstəyi, maliyyə, vaxt..."></textarea>
+                                <small class="form-text text-muted">
+                                    Məqsədinizə nail olmaq üçün lazım olan resursları qeyd edin
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Success Criteria -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-check-circle text-primary"></i> Uğur Kriteriyaları
+                                <small class="text-muted">(İstəyə bağlı)</small>
+                            </h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Məqsədə nail olduğunuzu necə anlayacaqsınız?</label>
+                                <textarea class="form-control" rows="3"
+                                          placeholder="Məsələn: Python ilə real layihə hazırlaya biləcəyəm, sertifikat alacağam..."></textarea>
+                                <small class="form-text text-muted">
+                                    Məqsədinizin tamamlandığını göstərəcək konkret nəticələri təsvir edin
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'development-plans:my-goals' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Ləğv et
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i>
+                                {% if form.instance.pk %}Yeniləmələri Saxla{% else %}Məqsəd Yarat{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card border-warning mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Effektiv Məqsəd Qoymaq Üçün Tövsiyələr
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Konkret olun:</strong> "Bacarıqlarımı inkişaf etdirmək" əvəzinə "6 ay ərzində Python proqramlaşdırma dilində sertifikat almaq"</li>
+                        <li><strong>Ölçülə bilən olun:</strong> İrəliləyişi izləməyə imkan verən göstəricilər təyin edin</li>
+                        <li><strong>Realist olun:</strong> Mövcud imkan və resurslarınızı nəzərə alın</li>
+                        <li><strong>Vaxt çərçivəsi təyin edin:</strong> Konkret başlama və bitmə tarixləri müəyyənləşdirin</li>
+                        <li><strong>Karyeranızla əlaqələndirin:</strong> Məqsədlərinizin karyera planlarınızla uyğun olduğundan əmin olun</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date validation
+        const targetDate = document.querySelector('input[name="target_date"]');
+        if (targetDate) {
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            targetDate.setAttribute('min', today);
+
+            targetDate.addEventListener('change', function() {
+                if (this.value && this.value < today) {
+                    alert('Hədəf tarix bugündən əvvəl ola bilməz!');
+                    this.value = '';
+                }
+            });
+        }
+
+        // Action steps functionality
+        let stepCount = 1;
+        const addStepBtn = document.getElementById('addStepBtn');
+        const actionSteps = document.getElementById('actionSteps');
+
+        if (addStepBtn) {
+            addStepBtn.addEventListener('click', function() {
+                stepCount++;
+                const newStep = document.createElement('div');
+                newStep.className = 'input-group mb-2';
+                newStep.innerHTML = `
+                    <input type="text" class="form-control" placeholder="${stepCount}. Addım: ...">
+                    <button class="btn btn-outline-danger remove-step" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                actionSteps.appendChild(newStep);
+            });
+
+            // Remove step functionality
+            actionSteps.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-step')) {
+                    e.target.closest('.input-group').remove();
+                    // Renumber remaining steps
+                    const steps = actionSteps.querySelectorAll('input');
+                    steps.forEach((step, index) => {
+                        step.placeholder = `${index + 1}. Addım: ...`;
+                    });
+                    stepCount = steps.length;
+                }
+            });
+        }
+
+        // Form submission validation
+        const form = document.getElementById('goalForm');
+        form.addEventListener('submit', function(e) {
+            const title = document.querySelector('input[name="title"]').value;
+            const description = document.querySelector('textarea[name="description"]').value;
+
+            if (!title || !description) {
+                e.preventDefault();
+                alert('Zəhmət olmasa bütün məcburi sahələri doldurun!');
+                return false;
+            }
+
+            if (title.length < 10) {
+                e.preventDefault();
+                alert('Məqsəd başlığı ən azı 10 simvol olmalıdır!');
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}

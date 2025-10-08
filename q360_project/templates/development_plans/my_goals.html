@@ -1,0 +1,314 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Mənim İnkişaf Məqsədlərim{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-bullseye"></i> Mənim İnkişaf Məqsədlərim
+            </h1>
+            <p class="text-muted">Fərdi İnkişaf Planı (IDP - Individual Development Plan)</p>
+        </div>
+        <div>
+            <a href="{% url 'development-plans:goal-templates' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-lightbulb"></i> Təkliflər
+            </a>
+            <a href="{% url 'development-plans:goal-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Yeni Məqsəd
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Ümumi Məqsəd</p>
+                            <h3 class="mb-0">{{ total_goals }}</h3>
+                        </div>
+                        <div class="stat-icon bg-primary">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Tamamlanmış</p>
+                            <h3 class="mb-0">{{ completed_count }}</h3>
+                        </div>
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Aktiv</p>
+                            <h3 class="mb-0">{{ active_goals.count }}</h3>
+                        </div>
+                        <div class="stat-icon bg-info">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Uğur Nisbəti</p>
+                            <h3 class="mb-0">{{ completion_rate|floatformat:0 }}%</h3>
+                        </div>
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Goals -->
+    {% if active_goals %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-tasks"></i> Aktiv Məqsədlər
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for goal in active_goals %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-left-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ goal.title }}</h5>
+                                <span class="badge bg-primary">{{ goal.category }}</span>
+                            </div>
+                            <p class="card-text text-muted small mb-3">{{ goal.description|truncatewords:20 }}</p>
+
+                            <!-- Progress -->
+                            {% if goal.progress_logs.exists %}
+                                {% with latest=goal.progress_logs.first %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-muted">İrəliləyiş</small>
+                                        <small class="text-muted">{{ latest.progress_percentage }}%</small>
+                                    </div>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if latest.progress_percentage >= 75 %}bg-success{% elif latest.progress_percentage >= 50 %}bg-info{% elif latest.progress_percentage >= 25 %}bg-warning{% else %}bg-danger{% endif %}"
+                                             role="progressbar"
+                                             style="width: {{ latest.progress_percentage }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            {% else %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-muted">İrəliləyiş</small>
+                                        <small class="text-muted">0%</small>
+                                    </div>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Target Date -->
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar"></i> Hədəf tarix: {{ goal.target_date|date:"d.m.Y" }}
+                                    {% if goal.target_date %}
+                                        {% now "Y-m-d" as today %}
+                                        {% if goal.target_date|date:"Y-m-d" < today %}
+                                            <span class="badge bg-danger ms-2">Vaxt keçib</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </small>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'development-plans:goal-detail' goal.pk %}" class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="fas fa-eye"></i> Bax
+                                </a>
+                                <a href="{% url 'development-plans:add-progress' goal.pk %}" class="btn btn-sm btn-primary flex-fill">
+                                    <i class="fas fa-plus"></i> İrəliləyiş
+                                </a>
+                                <a href="{% url 'development-plans:goal-complete' goal.pk %}" class="btn btn-sm btn-success"
+                                   onclick="return confirm('Bu məqsədi tamamlandı kimi qeyd etmək istəyirsiniz?')">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Draft Goals -->
+    {% if draft_goals %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-file"></i> Layihə Məqsədlər
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for goal in draft_goals %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ goal.title }}</h6>
+                            <small class="text-muted">{{ goal.category }}</small>
+                        </div>
+                        <div>
+                            <a href="{% url 'development-plans:goal-edit' goal.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Redaktə
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Completed Goals -->
+    {% if completed_goals %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-check-double"></i> Tamamlanmış Məqsədlər (Son 5)
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Məqsəd</th>
+                            <th>Kateqoriya</th>
+                            <th>Başlama</th>
+                            <th>Tamamlanma</th>
+                            <th>Əməliyyat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for goal in completed_goals %}
+                        <tr>
+                            <td>
+                                <strong>{{ goal.title }}</strong>
+                                <br>
+                                <small class="text-muted">{{ goal.description|truncatewords:10 }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ goal.category }}</span>
+                            </td>
+                            <td>{{ goal.created_at|date:"d.m.Y" }}</td>
+                            <td>
+                                <span class="text-success">
+                                    <i class="fas fa-check"></i> {{ goal.completion_date|date:"d.m.Y" }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'development-plans:goal-detail' goal.pk %}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if not active_goals and not draft_goals and not completed_goals %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-bullseye fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted mb-3">Hələ İnkişaf Məqsədiniz Yoxdur</h4>
+            <p class="text-muted mb-4">
+                Fərdi inkişafınız üçün məqsədlər müəyyənləşdirin və irəliləyişinizi izləyin
+            </p>
+            <a href="{% url 'development-plans:goal-templates' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-lightbulb"></i> Təkliflərdən Seçin
+            </a>
+            <a href="{% url 'development-plans:goal-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Yeni Məqsəd Yarat
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Help Card -->
+    <div class="card border-info mt-4">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0">
+                <i class="fas fa-info-circle"></i> İnkişaf Planı Haqqında
+            </h6>
+        </div>
+        <div class="card-body">
+            <p class="mb-2">
+                <strong>Fərdi İnkişaf Planı (IDP)</strong> - karyera və professional inkişafınız üçün
+                strukturlaşdırılmış yanaşma təklif edir.
+            </p>
+            <ul class="mb-0">
+                <li>360° qiymətləndirmə nəticələrinizə əsasən inkişaf sahələrini müəyyənləşdirin</li>
+                <li>SMART məqsədlər qoyun (Specific, Measurable, Achievable, Relevant, Time-bound)</li>
+                <li>İrəliləyişinizi mütəmadi olaraq qeyd edin və izləyin</li>
+                <li>Rəhbərinizlə məqsədlərinizi müzakirə edin və dəstək alın</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh progress bars animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => {
+                bar.style.transition = 'width 1s ease-in-out';
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}
