@@ -1,0 +1,330 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Ana Səhifə - 360° Qiymətləndirmə Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        border-radius: 15px;
+    }
+    .feature-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+    }
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    .campaign-card {
+        border-left: 5px solid #0d6efd;
+        transition: all 0.3s;
+    }
+    .campaign-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateX(5px);
+    }
+    .action-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+    }
+    .stats-number {
+        font-size: 3rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section shadow-lg">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">
+                        360° Qiymətləndirmə Sistemi
+                    </h1>
+                    <p class="lead mb-4">
+                        Dövlət qurumları üçün peşəkar və effektiv performans qiymətləndirmə platforması.
+                        İşçilərin inkişafını dəstəkləyin, güclü tərəfləri müəyyənləşdirin və komandanızı irəliyə aparın.
+                    </p>
+                    <div class="d-flex gap-3">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-clipboard-list"></i> Qiymətləndirmələrim
+                            </a>
+                            <a href="{% url 'reports:my-reports' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-chart-line"></i> Hesabatlarım
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Daxil Ol
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center d-none d-lg-block">
+                    <i class="fas fa-chart-line" style="font-size: 200px; opacity: 0.2;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-tasks text-primary mb-3" style="font-size: 40px;"></i>
+                        <div class="stats-number text-primary">{{ pending_assignments|default:0 }}</div>
+                        <p class="text-muted mb-0">Gözləyən Tapşırıq</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle text-success mb-3" style="font-size: 40px;"></i>
+                        <div class="stats-number text-success">{{ completed_assignments|default:0 }}</div>
+                        <p class="text-muted mb-0">Tamamlanmış</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-trophy text-warning mb-3" style="font-size: 40px;"></i>
+                        <div class="stats-number text-warning">{{ active_campaigns|default:0 }}</div>
+                        <p class="text-muted mb-0">Aktiv Kampaniya</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-star text-info mb-3" style="font-size: 40px;"></i>
+                        <div class="stats-number text-info">{{ average_score|default:"N/A" }}</div>
+                        <p class="text-muted mb-0">Ortalama Bal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Campaigns -->
+        {% if campaigns %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bullhorn"></i> Aktiv Kampaniyalar
+                            </h5>
+                            <a href="{% url 'evaluations:campaign-list' %}" class="btn btn-sm btn-outline-primary">
+                                Hamısını Gör <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for campaign in campaigns %}
+                        <div class="campaign-card card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="mb-2">{{ campaign.title }}</h5>
+                                        <p class="text-muted mb-2">{{ campaign.description|truncatewords:20 }}</p>
+                                        <div class="d-flex gap-3">
+                                            <small class="text-muted">
+                                                <i class="far fa-calendar"></i>
+                                                {{ campaign.start_date|date:"d.m.Y" }} - {{ campaign.end_date|date:"d.m.Y" }}
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="fas fa-users"></i>
+                                                {{ campaign.assignments_count|default:0 }} iştirakçı
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="mb-2">
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                     style="width: {{ campaign.completion_rate|default:0 }}%">
+                                                    {{ campaign.completion_rate|default:0|floatformat:0 }}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'evaluations:campaign-detail' campaign.pk %}" class="btn btn-primary">
+                                            <i class="fas fa-eye"></i> Detallar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card action-card shadow-lg h-100">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-clipboard-check fa-4x mb-3"></i>
+                        <h4 class="mb-3">Qiymətləndirmə Başlat</h4>
+                        <p class="mb-4">Sizə təyin edilmiş qiymətləndirmələri tamamlayın</p>
+                        <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-arrow-right"></i> Tapşırıqlara Get
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card action-card shadow-lg h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bullseye fa-4x mb-3"></i>
+                        <h4 class="mb-3">İnkişaf Məqsədi Qoy</h4>
+                        <p class="mb-4">Karyera inkişafınız üçün yeni məqsədlər yaradın</p>
+                        <a href="{% url 'development-plans:goal-create' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-plus"></i> Məqsəd Yarat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Sistemin İmkanları</h2>
+            <p class="text-muted">360° qiymətləndirmə sistemi ilə komandanızın potensialını üzə çıxarın</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary text-white mx-auto">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h5 class="mb-3">360° Qiymətləndirmə</h5>
+                    <p class="text-muted mb-0">
+                        Özünüqiymətləndirmə, rəhbər, həmkar və tabelik qiymətləndirməsi ilə
+                        əhatəli performans analizi
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success text-white mx-auto">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h5 class="mb-3">Ətraflı Hesabatlar</h5>
+                    <p class="text-muted mb-0">
+                        Radar diaqramları, trend analizi və kateqoriya üzrə detallı
+                        statistika ilə vizual hesabatlar
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-info text-white mx-auto">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h5 class="mb-3">İnkişaf Planları</h5>
+                    <p class="text-muted mb-0">
+                        Qiymətləndirmə nəticələrinə əsasən fərdi inkişaf məqsədləri
+                        və irəliləyiş izləmə
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-warning text-white mx-auto">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h5 class="mb-3">Təşkilat Strukturu</h5>
+                    <p class="text-muted mb-0">
+                        Şöbə və departament strukturu ilə inteqrasiya,
+                        orqan sxemi və iyerarxiya idarəetməsi
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-danger text-white mx-auto">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h5 class="mb-3">Bildirişlər</h5>
+                    <p class="text-muted mb-0">
+                        Email və sistem bildirişləri ilə avtomatik xatırlatmalar,
+                        deadline yaxınlaşdığında xəbərdarlıqlar
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-secondary text-white mx-auto">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h5 class="mb-3">Export Funksiyası</h5>
+                    <p class="text-muted mb-0">
+                        PDF və Excel formatında hesabat export, print-friendly
+                        dizayn və data arxivləşdirmə
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not user.is_authenticated %}
+    <!-- CTA Section -->
+    <div class="card shadow-lg border-0 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div class="card-body text-center py-5">
+            <h2 class="fw-bold mb-3">Hazırsınız?</h2>
+            <p class="lead mb-4">
+                Sistemə daxil olaraq qiymətləndirmələrinizi tamamlayın və inkişaf yolunuza başlayın
+            </p>
+            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-sign-in-alt"></i> İndi Daxil Ol
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
