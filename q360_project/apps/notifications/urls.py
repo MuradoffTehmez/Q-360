@@ -11,6 +11,7 @@ urlpatterns = [
     path('inbox/', template_views.inbox, name='inbox'),
     path('<int:pk>/', template_views.notification_detail, name='notification-detail'),
     path('<int:pk>/read/', template_views.mark_as_read, name='mark-as-read'),
+    path('<int:pk>/mark-read/', template_views.mark_as_read, name='mark-read'),  # Alternative URL
     path('mark-all-read/', template_views.mark_all_as_read, name='mark-all-as-read'),
     path('<int:pk>/delete/', template_views.delete_notification, name='delete-notification'),
     path('settings/', template_views.notification_settings, name='settings'),

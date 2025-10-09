@@ -168,3 +168,22 @@ class BulkAssignmentForm(forms.Form):
         initial=True,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
+
+
+class CampaignQuestionForm(forms.Form):
+    """Form for assigning questions to a campaign."""
+
+    question = forms.ModelChoiceField(
+        queryset=Question.objects.filter(is_active=True),
+        label='Sual',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Kampaniyaya əlavə etmək istədiyiniz sualı seçin'
+    )
+
+    order = forms.IntegerField(
+        label='Sıra',
+        initial=1,
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+        help_text='Sualın kampaniyadakı sırası'
+    )

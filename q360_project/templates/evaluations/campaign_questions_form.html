@@ -1,0 +1,292 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Sual Təyini - {{ campaign.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="mb-4">
+                <h1 class="h3 mb-1">
+                    <i class="fas fa-question-circle"></i> Kampaniyaya Sual Təyini
+                </h1>
+                <p class="text-muted">{{ campaign.title }} kampaniyası üçün sualları seçin və sıralarını müəyyən edin</p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-detail' campaign.pk %}">{{ campaign.title }}</a></li>
+                        <li class="breadcrumb-item active">Sual Təyini</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="row">
+                <!-- Left Column - Add Question Form -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-plus-circle"></i> Sual Əlavə Et
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <div class="mb-3">
+                                    <label for="{{ form.question.id_for_label }}" class="form-label">
+                                        {{ form.question.label }}
+                                    </label>
+                                    {{ form.question }}
+                                    {% if form.question.help_text %}
+                                    <small class="form-text text-muted">{{ form.question.help_text }}</small>
+                                    {% endif %}
+                                    {% if form.question.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.question.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.order.id_for_label }}" class="form-label">
+                                        {{ form.order.label }}
+                                    </label>
+                                    {{ form.order }}
+                                    {% if form.order.help_text %}
+                                    <small class="form-text text-muted">{{ form.order.help_text }}</small>
+                                    {% endif %}
+                                    {% if form.order.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.order.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Sualı Əlavə Et
+                                    </button>
+                                    <a href="{% url 'evaluations:campaign-detail' campaign.pk %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left"></i> Geri Qayıt
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Help Card -->
+                    <div class="card border-info mt-3">
+                        <div class="card-header bg-info text-white">
+                            <i class="fas fa-lightbulb"></i> Tövsiyələr
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0 small">
+                                <li>Sualı seçin və sırasını müəyyən edin</li>
+                                <li>Sıra nömrəsi sualın kampaniyadakı yerini göstərir</li>
+                                <li>Eyni sıra nömrəsi olan suallar ola bilər</li>
+                                <li>Sağ tərəfdə əlavə edilmiş sualların siyahısını görə bilərsiniz</li>
+                                <li>Sualı silmək üçün sağdakı siyahıdan silin</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Assigned Questions List -->
+                <div class="col-md-7 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list-check"></i> Təyin Edilmiş Suallar
+                                </h5>
+                                <span class="badge bg-white text-success">
+                                    {{ assigned_questions.count }} sual
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if assigned_questions %}
+                                <div class="list-group">
+                                    {% for cq in assigned_questions %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="badge bg-primary me-2">Sıra: {{ cq.order }}</span>
+                                                    <span class="badge bg-secondary me-2">{{ cq.question.category.name }}</span>
+                                                    {% if cq.question.question_type == 'scale' %}
+                                                        <span class="badge bg-info"><i class="fas fa-star"></i> Bal</span>
+                                                    {% elif cq.question.question_type == 'boolean' %}
+                                                        <span class="badge bg-warning"><i class="fas fa-check-circle"></i> Bəli/Xeyr</span>
+                                                    {% elif cq.question.question_type == 'text' %}
+                                                        <span class="badge bg-dark"><i class="fas fa-align-left"></i> Mətn</span>
+                                                    {% endif %}
+                                                </div>
+                                                <p class="mb-1">{{ cq.question.text }}</p>
+                                                <small class="text-muted">
+                                                    {% if cq.question.is_required %}
+                                                        <i class="fas fa-exclamation-circle text-danger"></i> Məcburi
+                                                    {% else %}
+                                                        <i class="fas fa-info-circle"></i> İxtiyari
+                                                    {% endif %}
+                                                    | Max bal: {{ cq.question.max_score|default:"N/A" }}
+                                                </small>
+                                            </div>
+                                            <div class="ms-3">
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="removeQuestion({{ cq.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Hələ heç bir sual təyin edilməyib</p>
+                                    <p class="small text-muted">Sol tərəfdəki formdan sual əlavə edin</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions by Category - Reference Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book"></i> Mövcud Suallar (Kataloq)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                        <div class="accordion" id="categoriesAccordion">
+                            {% for category in categories %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ category.id }}">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#collapse{{ category.id }}"
+                                            aria-expanded="false"
+                                            aria-controls="collapse{{ category.id }}">
+                                        <i class="fas fa-folder me-2"></i> {{ category.name }}
+                                        <span class="badge bg-secondary ms-2">{{ category.questions.count }} sual</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ category.id }}"
+                                     class="accordion-collapse collapse"
+                                     aria-labelledby="heading{{ category.id }}"
+                                     data-bs-parent="#categoriesAccordion">
+                                    <div class="accordion-body">
+                                        {% if category.description %}
+                                        <p class="text-muted small mb-3">{{ category.description }}</p>
+                                        {% endif %}
+
+                                        {% if category.questions.all %}
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Sual</th>
+                                                            <th>Növ</th>
+                                                            <th>Max Bal</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for question in category.questions.all %}
+                                                        {% if question.is_active %}
+                                                        <tr>
+                                                            <td>{{ question.text }}</td>
+                                                            <td>
+                                                                {% if question.question_type == 'scale' %}
+                                                                    <span class="badge bg-info">Bal</span>
+                                                                {% elif question.question_type == 'boolean' %}
+                                                                    <span class="badge bg-warning">Bəli/Xeyr</span>
+                                                                {% elif question.question_type == 'text' %}
+                                                                    <span class="badge bg-dark">Mətn</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>{{ question.max_score|default:"-" }}</td>
+                                                            <td>
+                                                                {% if question.is_required %}
+                                                                    <span class="badge bg-danger">Məcburi</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-secondary">İxtiyari</span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted mb-0">Bu kateqoriyada aktiv sual yoxdur</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Aktiv sual kateqoriyası tapılmadı.
+                            <a href="{% url 'evaluations:category-list' %}" class="alert-link">Buradan</a> kateqoriya yarada bilərsiniz.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-group-item {
+        border-left: 4px solid #198754;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: #e7f3ff;
+        color: #0a58ca;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function removeQuestion(campaignQuestionId) {
+        if (!confirm('Bu sualı kampaniyadan silmək istədiyinizə əminsiniz?')) {
+            return;
+        }
+
+        fetch(`/evaluations/campaign-questions/${campaignQuestionId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta baş verdi: ' + (data.error || 'Naməlum xəta'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Xəta baş verdi');
+        });
+    }
+</script>
+{% endblock %}

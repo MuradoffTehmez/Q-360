@@ -34,6 +34,7 @@ urlpatterns = [
     path('assignments/<int:pk>/', template_views.assignment_detail, name='assignment-detail'),
     path('assignments/<int:pk>/save-draft/', template_views.assignment_save_draft, name='assignment-save-draft'),
     path('assignments/<int:pk>/cancel/', template_views.assignment_cancel, name='assignment-cancel'),
+    path('assignments/<int:pk>/delete/', template_views.AssignmentDeleteView.as_view(), name='assignment-delete'),
     path('bulk-assign/', template_views.bulk_assign, name='bulk-assign'),
     path('api/filter-users/', template_views.filter_users_by_department, name='filter-users'),
 

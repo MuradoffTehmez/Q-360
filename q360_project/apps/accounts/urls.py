@@ -30,6 +30,9 @@ urlpatterns = [
     path('password-reset/<uidb64>/<token>/', template_views.password_reset_confirm, name='password-reset-confirm'),
     path('password-reset/complete/', template_views.password_reset_complete, name='password-reset-complete'),
 
+    # Password change (for logged in users)
+    path('change-password/', template_views.change_password, name='change-password'),
+
     # API routes
     path('', include(router.urls)),
 ]

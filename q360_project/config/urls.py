@@ -14,6 +14,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 from apps.accounts.template_views import dashboard_view
+from apps.notifications.template_views import get_recent_notifications
 
 urlpatterns = [
     # Language switcher (must be outside i18n_patterns)
@@ -36,6 +37,9 @@ urlpatterns = [
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    # API endpoints (must come before template URLs)
+    path('api/notifications/', get_recent_notifications, name='api-notifications'),
 
     # Template-based app URLs (must come before API URLs to avoid conflicts)
     path('evaluations/', include('apps.evaluations.urls', namespace='evaluations')),

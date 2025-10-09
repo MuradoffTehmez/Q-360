@@ -19,7 +19,7 @@ from .models import (
 )
 from .forms import (
     EvaluationCampaignForm, QuestionForm, QuestionCategoryForm,
-    ResponseForm, BulkAssignmentForm
+    ResponseForm, BulkAssignmentForm, CampaignQuestionForm
 )
 from apps.accounts.models import User
 
@@ -164,45 +164,43 @@ def campaign_questions_assign(request, campaign_pk):
         return redirect('evaluations:campaign-detail', pk=campaign_pk)
 
     if request.method == 'POST':
-        # Get selected questions
-        question_ids = request.POST.getlist('questions')
+        form = CampaignQuestionForm(request.POST)
+        if form.is_valid():
+            question = form.cleaned_data['question']
+            order = form.cleaned_data['order']
 
-        if not question_ids:
-            messages.error(request, 'Heç bir sual seçilməyib.')
+            # Check if question is already assigned
+            if CampaignQuestion.objects.filter(campaign=campaign, question=question).exists():
+                messages.error(request, 'Bu sual artıq kampaniyaya əlavə edilib.')
+            else:
+                # Create campaign question assignment
+                CampaignQuestion.objects.create(
+                    campaign=campaign,
+                    question=question,
+                    order=order
+                )
+                messages.success(request, f'Sual kampaniyaya əlavə edildi.')
+
             return redirect('evaluations:campaign-questions', campaign_pk=campaign_pk)
-
-        # Clear existing questions
-        CampaignQuestion.objects.filter(campaign=campaign).delete()
-
-        # Add new questions
-        order = 0
-        for question_id in question_ids:
-            question = get_object_or_404(Question, pk=question_id)
-            CampaignQuestion.objects.create(
-                campaign=campaign,
-                question=question,
-                order=order
-            )
-            order += 1
-
-        messages.success(request, f'{len(question_ids)} sual kampaniyaya əlavə edildi.')
-        return redirect('evaluations:campaign-detail', pk=campaign_pk)
+    else:
+        form = CampaignQuestionForm()
 
     # Get all active questions grouped by category
     categories = QuestionCategory.objects.filter(is_active=True).prefetch_related('questions')
 
-    # Get currently assigned questions
+    # Get currently assigned questions with their order
     assigned_questions = CampaignQuestion.objects.filter(
         campaign=campaign
-    ).values_list('question_id', flat=True)
+    ).select_related('question', 'question__category').order_by('order')
 
     context = {
         'campaign': campaign,
+        'form': form,
         'categories': categories,
-        'assigned_questions': list(assigned_questions),
+        'assigned_questions': assigned_questions,
     }
 
-    return render(request, 'evaluations/campaign_questions.html', context)
+    return render(request, 'evaluations/campaign_questions_form.html', context)
 
 
 # ==================== Assignment Views ====================
@@ -370,6 +368,57 @@ def assignment_cancel(request, pk):
 
     messages.success(request, 'Tapşırıq ləğv edildi.')
     return redirect('evaluations:campaign-detail', pk=assignment.campaign.pk)
+
+
+class AssignmentDeleteView(LoginRequiredMixin, DeleteView):
+    """Delete an evaluation assignment (CBV approach)."""
+    model = EvaluationAssignment
+    success_url = reverse_lazy('evaluations:my-assignments')
+
+    def dispatch(self, request, *args, **kwargs):
+        """Check permissions before processing."""
+        assignment = self.get_object()
+
+        # Check permission - only admin or campaign creator can delete
+        if not (request.user.is_admin() or assignment.campaign.created_by == request.user):
+            messages.error(request, 'Bu tapşırığı silmək icazəniz yoxdur.')
+            return redirect('evaluations:my-assignments')
+
+        # Check if assignment can be deleted
+        if assignment.status == 'completed':
+            messages.error(request, 'Tamamlanmış tapşırıq silinə bilməz.')
+            return redirect('evaluations:campaign-detail', pk=assignment.campaign.pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """Override delete to also delete related responses."""
+        assignment = self.get_object()
+        campaign_pk = assignment.campaign.pk
+
+        # Delete all related responses
+        Response.objects.filter(assignment=assignment).delete()
+
+        messages.success(request, 'Tapşırıq silindi.')
+        self.success_url = reverse_lazy('evaluations:campaign-detail', kwargs={'pk': campaign_pk})
+
+        return super().delete(request, *args, **kwargs)
+
+
+@login_required
+def campaign_question_delete(request, pk):
+    """Delete a question from campaign."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    campaign_question = get_object_or_404(CampaignQuestion, pk=pk)
+    campaign_question.delete()
+
+    messages.success(request, 'Sual kampaniyadan silindi.')
+    return JsonResponse({'success': True, 'message': 'Sual silindi'})
 
 
 # ==================== Question Management ====================

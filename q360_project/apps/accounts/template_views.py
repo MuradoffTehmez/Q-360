@@ -320,3 +320,7 @@ def password_reset_confirm(request, uidb64, token):
 def password_reset_complete(request):
     """Password reset complete."""
     return render(request, 'accounts/password_reset_complete.html')
+
+
+# Alias for change_password (same as security_settings)
+change_password = security_settings
