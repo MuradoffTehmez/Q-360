@@ -194,3 +194,28 @@ def user_list_view(request):
     }
 
     return render(request, 'accounts/user_list.html', context)
+
+
+@login_required
+def security_settings(request):
+    """Security settings - change password."""
+    from django.contrib.auth.forms import PasswordChangeForm
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Şifrəniz uğurla dəyişdirildi.')
+            return redirect('accounts:security')
+        else:
+            messages.error(request, 'Zəhmət olmasa xətaları düzəldin.')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    context = {
+        'form': form
+    }
+
+    return render(request, 'accounts/security.html', context)

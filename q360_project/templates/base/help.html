@@ -1,0 +1,123 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Help" %} - Q360{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-question-circle me-2"></i>{% trans "Help & Support" %}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                                    <h5 class="card-title">{% trans "User Guide" %}</h5>
+                                    <p class="card-text">{% trans "Learn how to use the Q360 system effectively" %}</p>
+                                    <a href="#" class="btn btn-primary">{% trans "Read Guide" %}</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-video fa-3x text-success mb-3"></i>
+                                    <h5 class="card-title">{% trans "Video Tutorials" %}</h5>
+                                    <p class="card-text">{% trans "Watch video guides for common tasks" %}</p>
+                                    <a href="#" class="btn btn-success">{% trans "Watch Videos" %}</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-envelope fa-3x text-info mb-3"></i>
+                                    <h5 class="card-title">{% trans "Contact Support" %}</h5>
+                                    <p class="card-text">{% trans "Get help from our support team" %}</p>
+                                    <a href="mailto:support@q360.gov.az" class="btn btn-info">{% trans "Email Us" %}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h4 class="mb-3">{% trans "Frequently Asked Questions" %}</h4>
+
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                    {% trans "How do I complete an evaluation?" %}
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {% trans "Go to 'My Assignments' in the navigation menu, select the evaluation you want to complete, and fill out all required questions. Click 'Submit' when finished." %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                    {% trans "How do I view my reports?" %}
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {% trans "Click on 'Reports' in the main menu to view your evaluation results and performance trends." %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                    {% trans "How do I reset my password?" %}
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {% trans "Go to Settings > Security and use the 'Change Password' form to update your password." %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq4">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                    {% trans "Who can I evaluate?" %}
+                                </button>
+                            </h2>
+                            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {% trans "You can evaluate colleagues assigned to you through active evaluation campaigns. Your assignments appear in 'My Assignments'." %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>{% trans "Need More Help?" %}</h5>
+                        <p class="mb-0">
+                            {% trans "Contact system administrator:" %} <strong>admin@q360.gov.az</strong><br>
+                            {% trans "Technical support:" %} <strong>support@q360.gov.az</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

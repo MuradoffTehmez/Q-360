@@ -26,18 +26,18 @@
                                 <i class="fas fa-clipboard-check me-1"></i> {% trans "Evaluations" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Campaigns" %}</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "My Assignments" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'evaluations:campaign-list' %}">{% trans "Campaigns" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'evaluations:my-assignments' %}">{% trans "My Assignments" %}</a></li>
                                 {% if user.is_admin %}
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "New Campaign" %}</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'evaluations:campaign-create' %}">{% trans "New Campaign" %}</a></li>
                                 {% endif %}
                             </ul>
                         </li>
                     {% endif %}
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <a class="nav-link" href="{% url 'reports:my-reports' %}">
                             <i class="fas fa-chart-bar me-1"></i> {% trans "Reports" %}
                         </a>
                     </li>
@@ -48,9 +48,9 @@
                                 <i class="fas fa-cog me-1"></i> {% trans "Management" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Users" %}</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Departments" %}</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Questions" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:user-list' %}">{% trans "Users" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'departments:department-list' %}">{% trans "Departments" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'evaluations:question-list' %}">{% trans "Questions" %}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/admin/">{% trans "Admin Panel" %}</a></li>
                             </ul>
@@ -71,7 +71,7 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow" id="notificationList" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                             <li class="dropdown-header d-flex justify-content-between align-items-center">
                                 <span>{% trans "Notifications" %}</span>
-                                <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="badge bg-primary text-decoration-none">
+                                <a href="{% url 'notifications:inbox' %}" class="badge bg-primary text-decoration-none">
                                     {% trans "All" %}
                                 </a>
                             </li>
@@ -112,22 +112,22 @@
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
                                 <i class="fas fa-user me-2"></i> {% trans "Profile" %}
                             </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
                                 <i class="fas fa-sliders-h me-2"></i> {% trans "Settings" %}
                             </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <li><a class="dropdown-item" href="{% url 'accounts:security' %}">
                                 <i class="fas fa-shield-alt me-2"></i> {% trans "Security" %}
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <li><a class="dropdown-item" href="{% url 'notifications:inbox' %}">
                                 <i class="fas fa-bell me-2"></i> {% trans "Notifications" %}
                                 <span class="badge bg-primary ms-2" id="navUnreadCount">0</span>
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
                                 <i class="fas fa-sign-out-alt me-2"></i> {% trans "Logout" %}
                             </a></li>
                         </ul>

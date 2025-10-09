@@ -15,6 +15,7 @@ app_name = 'departments'
 
 urlpatterns = [
     # Template views
+    path('', template_views.organization_structure, name='department-list'),  # Alias for compatibility
     path('structure/', template_views.organization_structure, name='organization-structure'),
     path('chart/', template_views.department_chart, name='department-chart'),
     path('department/<int:pk>/', template_views.DepartmentDetailView.as_view(), name='department-detail'),

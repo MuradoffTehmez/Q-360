@@ -34,13 +34,13 @@
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                <a class="nav-link" href="{% url 'evaluations:my-assignments' %}">
                     <i class="fas fa-tasks me-2"></i> {% trans "My Assignments" %}
                     <span class="badge bg-danger ms-auto" id="pendingAssignmentsCount">0</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                <a class="nav-link" href="{% url 'evaluations:campaign-list' %}">
                     <i class="fas fa-calendar-alt me-2"></i> {% trans "Campaigns" %}
                 </a>
             </li>
@@ -52,13 +52,13 @@
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                <a class="nav-link" href="{% url 'reports:my-reports' %}">
                     <i class="fas fa-chart-line me-2"></i> {% trans "My Reports" %}
                 </a>
             </li>
             {% if user.is_manager %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <a class="nav-link" href="{% url 'reports:team-reports' %}">
                         <i class="fas fa-users me-2"></i> {% trans "Team Reports" %}
                     </a>
                 </li>
@@ -71,14 +71,14 @@
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                <a class="nav-link" href="{% url 'notifications:inbox' %}">
                     <i class="fas fa-inbox me-2"></i> {% trans "Inbox" %}
                     <span class="badge bg-primary ms-auto" id="unreadNotificationsCount">0</span>
                 </a>
             </li>
             {% if user.is_admin %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <a class="nav-link" href="{% url 'notifications:email-templates' %}">
                         <i class="fas fa-file-alt me-2"></i> {% trans "Templates" %}
                     </a>
                 </li>
@@ -91,7 +91,7 @@
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                <a class="nav-link" href="{% url 'development-plans:my-goals' %}">
                     <i class="fas fa-bullseye me-2"></i> {% trans "My Goals" %}
                 </a>
             </li>
@@ -104,17 +104,17 @@
                     </h6>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <a class="nav-link" href="{% url 'accounts:user-list' %}">
                         <i class="fas fa-users me-2"></i> {% trans "Users" %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <a class="nav-link" href="{% url 'departments:department-list' %}">
                         <i class="fas fa-building me-2"></i> {% trans "Departments" %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <a class="nav-link" href="{% url 'evaluations:question-list' %}">
                         <i class="fas fa-question-circle me-2"></i> {% trans "Questions" %}
                     </a>
                 </li>
@@ -128,10 +128,10 @@
 
         <!-- Bottom Links -->
         <div class="position-absolute bottom-0 w-100 p-3 border-top bg-white">
-            <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="btn btn-outline-primary btn-sm w-100 mb-2">
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
                 <i class="fas fa-user me-1"></i> {% trans "Profile" %}
             </a>
-            <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
                 <i class="fas fa-cog me-1"></i> {% trans "Settings" %}
             </a>
             <small class="text-muted d-block text-center mt-2">{% trans "Version" %} 1.0.0</small>

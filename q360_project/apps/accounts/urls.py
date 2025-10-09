@@ -22,6 +22,7 @@ urlpatterns = [
     path('profile/edit/', template_views.ProfileUpdateView.as_view(), name='profile-edit'),
     path('users/', template_views.user_list_view, name='user-list'),
     path('settings/', template_views.ProfileUpdateView.as_view(), name='settings'),
+    path('security/', template_views.security_settings, name='security'),
 
     # API routes
     path('', include(router.urls)),
