@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<!-- Language Switcher Component -->
+<div class="language-switcher">
+    <form action="{% url 'set_language' %}" method="post" id="languageForm">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ redirect_to }}">
+        <select name="language" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+            {% get_current_language as CURRENT_LANGUAGE %}
+            {% get_available_languages as LANGUAGES %}
+            {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                    {% if lang_code == 'az' %}
+                        <span class="fi fi-az"></span> AZ
+                    {% elif lang_code == 'en' %}
+                        <span class="fi fi-gb"></span> EN
+                    {% endif %}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<style>
+.language-switcher {
+    display: inline-block;
+}
+.language-switcher select {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.language-switcher select:hover {
+    border-color: #0d6efd;
+}
+</style>

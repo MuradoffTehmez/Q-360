@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
     <div class="position-sticky pt-3">
         <!-- User Info -->
@@ -22,43 +23,43 @@
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'dashboard' %}">
-                    <i class="fas fa-home me-2"></i> Əsas Səhifə
+                    <i class="fas fa-home me-2"></i> {% trans "Home" %}
                 </a>
             </li>
 
             <!-- Evaluations Section -->
             <li class="nav-item">
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>Qiymətləndirmə</span>
+                    <span>{% trans "Evaluations" %}</span>
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'evaluations:my-assignments' %}">
-                    <i class="fas fa-tasks me-2"></i> Mənim Tapşırıqlarım
+                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <i class="fas fa-tasks me-2"></i> {% trans "My Assignments" %}
                     <span class="badge bg-danger ms-auto" id="pendingAssignmentsCount">0</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'evaluations:campaign-list' %}">
-                    <i class="fas fa-calendar-alt me-2"></i> Kampaniyalar
+                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <i class="fas fa-calendar-alt me-2"></i> {% trans "Campaigns" %}
                 </a>
             </li>
 
             <!-- Reports Section -->
             <li class="nav-item">
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>Hesabatlar</span>
+                    <span>{% trans "Reports" %}</span>
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'reports:my-reports' %}">
-                    <i class="fas fa-chart-line me-2"></i> Fərdi Hesabatım
+                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <i class="fas fa-chart-line me-2"></i> {% trans "My Reports" %}
                 </a>
             </li>
             {% if user.is_manager %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'reports:team-reports' %}">
-                        <i class="fas fa-users me-2"></i> Komanda Hesabatları
+                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <i class="fas fa-users me-2"></i> {% trans "Team Reports" %}
                     </a>
                 </li>
             {% endif %}
@@ -66,19 +67,19 @@
             <!-- Notifications Section -->
             <li class="nav-item">
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>Bildirişlər</span>
+                    <span>{% trans "Notifications" %}</span>
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'notifications:inbox' %}">
-                    <i class="fas fa-inbox me-2"></i> Gələn Qutum
+                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <i class="fas fa-inbox me-2"></i> {% trans "Inbox" %}
                     <span class="badge bg-primary ms-auto" id="unreadNotificationsCount">0</span>
                 </a>
             </li>
             {% if user.is_admin %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'notifications:templates' %}">
-                        <i class="fas fa-file-alt me-2"></i> Şablonlar
+                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <i class="fas fa-file-alt me-2"></i> {% trans "Templates" %}
                     </a>
                 </li>
             {% endif %}
@@ -86,12 +87,12 @@
             <!-- Development Plans -->
             <li class="nav-item">
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>İnkişaf</span>
+                    <span>{% trans "Development" %}</span>
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'development-plans:my-goals' %}">
-                    <i class="fas fa-bullseye me-2"></i> Məqsədlərim
+                <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                    <i class="fas fa-bullseye me-2"></i> {% trans "My Goals" %}
                 </a>
             </li>
 
@@ -99,27 +100,27 @@
             {% if user.is_admin %}
                 <li class="nav-item">
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>İdarəetmə</span>
+                        <span>{% trans "Management" %}</span>
                     </h6>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:user-list' %}">
-                        <i class="fas fa-users me-2"></i> İstifadəçilər
+                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <i class="fas fa-users me-2"></i> {% trans "Users" %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'departments:department-list' %}">
-                        <i class="fas fa-building me-2"></i> Şöbələr
+                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <i class="fas fa-building me-2"></i> {% trans "Departments" %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'evaluations:question-list' %}">
-                        <i class="fas fa-question-circle me-2"></i> Suallar
+                    <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                        <i class="fas fa-question-circle me-2"></i> {% trans "Questions" %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/">
-                        <i class="fas fa-tools me-2"></i> Admin Panel
+                        <i class="fas fa-tools me-2"></i> {% trans "Admin Panel" %}
                     </a>
                 </li>
             {% endif %}
@@ -127,13 +128,13 @@
 
         <!-- Bottom Links -->
         <div class="position-absolute bottom-0 w-100 p-3 border-top bg-white">
-            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
-                <i class="fas fa-user me-1"></i> Profil
+            <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                <i class="fas fa-user me-1"></i> {% trans "Profile" %}
             </a>
-            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                <i class="fas fa-cog me-1"></i> Tənzimləmələr
+            <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                <i class="fas fa-cog me-1"></i> {% trans "Settings" %}
             </a>
-            <small class="text-muted d-block text-center mt-2">Versiya 1.0.0</small>
+            <small class="text-muted d-block text-center mt-2">{% trans "Version" %} 1.0.0</small>
         </div>
     </div>
 </nav>

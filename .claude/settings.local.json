@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(python manage.py makemessages:*)",
+      "Bash(python manage.py runserver:*)",
+      "Bash(timeout:*)",
+      "Bash(pip install:*)",
+      "Bash(psql:*)",
+      "Bash(python manage.py:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

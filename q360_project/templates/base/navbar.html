@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
@@ -15,43 +16,43 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="fas fa-home me-1"></i> Əsas Səhifə
+                            <i class="fas fa-home me-1"></i> {% trans "Home" %}
                         </a>
                     </li>
 
                     {% if user.is_manager %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="evaluationsDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-clipboard-check me-1"></i> Qiymətləndirmələr
+                                <i class="fas fa-clipboard-check me-1"></i> {% trans "Evaluations" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
-                                <li><a class="dropdown-item" href="{% url 'evaluations:my-assignments' %}">Mənim Tapşırıqlarım</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Campaigns" %}</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "My Assignments" %}</a></li>
                                 {% if user.is_admin %}
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{% url 'evaluations:campaign-create' %}">Yeni Kampaniya</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "New Campaign" %}</a></li>
                                 {% endif %}
                             </ul>
                         </li>
                     {% endif %}
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'reports:my-reports' %}">
-                            <i class="fas fa-chart-bar me-1"></i> Hesabatlar
+                        <a class="nav-link" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                            <i class="fas fa-chart-bar me-1"></i> {% trans "Reports" %}
                         </a>
                     </li>
 
                     {% if user.is_admin %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-cog me-1"></i> İdarəetmə
+                                <i class="fas fa-cog me-1"></i> {% trans "Management" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'accounts:user-list' %}">İstifadəçilər</a></li>
-                                <li><a class="dropdown-item" href="{% url 'departments:department-list' %}">Şöbələr</a></li>
-                                <li><a class="dropdown-item" href="{% url 'evaluations:question-list' %}">Suallar</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Users" %}</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Departments" %}</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">{% trans "Questions" %}</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/admin/">Admin Panel</a></li>
+                                <li><a class="dropdown-item" href="/admin/">{% trans "Admin Panel" %}</a></li>
                             </ul>
                         </li>
                     {% endif %}
@@ -69,9 +70,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow" id="notificationList" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                             <li class="dropdown-header d-flex justify-content-between align-items-center">
-                                <span>Bildirişlər</span>
-                                <a href="{% url 'notifications:inbox' %}" class="badge bg-primary text-decoration-none">
-                                    Hamısı
+                                <span>{% trans "Notifications" %}</span>
+                                <a href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;" class="badge bg-primary text-decoration-none">
+                                    {% trans "All" %}
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -79,7 +80,7 @@
                                 <div id="notificationItems" class="px-2">
                                     <div class="text-center py-3 text-muted">
                                         <i class="fas fa-bell-slash fa-2x mb-2"></i>
-                                        <p class="mb-0 small">Bildiriş yoxdur</p>
+                                        <p class="mb-0 small">{% trans "No notifications" %}</p>
                                     </div>
                                 </div>
                             </li>
@@ -111,23 +112,23 @@
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                <i class="fas fa-user me-2"></i> Profil
+                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                                <i class="fas fa-user me-2"></i> {% trans "Profile" %}
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:preferences' %}">
-                                <i class="fas fa-sliders-h me-2"></i> Tənzimləmələr
+                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                                <i class="fas fa-sliders-h me-2"></i> {% trans "Settings" %}
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:security' %}">
-                                <i class="fas fa-shield-alt me-2"></i> Təhlükəsizlik
+                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                                <i class="fas fa-shield-alt me-2"></i> {% trans "Security" %}
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'notifications:inbox' %}">
-                                <i class="fas fa-bell me-2"></i> Bildirişlər
+                            <li><a class="dropdown-item" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                                <i class="fas fa-bell me-2"></i> {% trans "Notifications" %}
                                 <span class="badge bg-primary ms-2" id="navUnreadCount">0</span>
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
-                                <i class="fas fa-sign-out-alt me-2"></i> Çıxış
+                            <li><a class="dropdown-item text-danger" href="#" onclick="alert('Tezliklə əlavə ediləcək'); return false;">
+                                <i class="fas fa-sign-out-alt me-2"></i> {% trans "Logout" %}
                             </a></li>
                         </ul>
                     </li>
@@ -136,7 +137,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'accounts:login' %}">
-                            <i class="fas fa-sign-in-alt me-1"></i> Giriş
+                            <i class="fas fa-sign-in-alt me-1"></i> {% trans "Login" %}
                         </a>
                     </li>
                 </ul>

@@ -5,7 +5,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls.i18n import i18n_patterns
 from django.views.generic import TemplateView
+from django.views.i18n import set_language
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -14,11 +16,15 @@ from rest_framework_simplejwt.views import (
 from apps.accounts.template_views import dashboard_view
 
 urlpatterns = [
+    # Language switcher (must be outside i18n_patterns)
+    path('i18n/setlang/', set_language, name='set_language'),
+
     # Admin Panel
     path('admin/', admin.site.urls),
 
     # Main pages
-    path('', dashboard_view, name='dashboard'),
+    path('', TemplateView.as_view(template_name='landing.html'), name='home'),
+    path('dashboard/', dashboard_view, name='dashboard'),
     path('help/', TemplateView.as_view(template_name='base/help.html'), name='help'),
     path('privacy/', TemplateView.as_view(template_name='base/privacy.html'), name='privacy'),
     path('terms/', TemplateView.as_view(template_name='base/terms.html'), name='terms'),

@@ -1,0 +1,128 @@
+# Azərbaycan Translation for Q360
+# Copyright (C) 2024
+# This file is distributed under the same license as the Q360 package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Q360 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-09 10:00+0400\n"
+"PO-Revision-Date: 2024-10-09 10:00+0400\n"
+"Last-Translator: Q360 Team\n"
+"Language-Team: Azerbaijani\n"
+"Language: az\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Navigation
+msgid "360° Performance Evaluation System"
+msgstr "360° Qiymətləndirmə Sistemi"
+
+msgid "Home"
+msgstr "Əsas Səhifə"
+
+msgid "Dashboard"
+msgstr "İdarə Paneli"
+
+msgid "Evaluations"
+msgstr "Qiymətləndirmələr"
+
+msgid "Campaigns"
+msgstr "Kampaniyalar"
+
+msgid "My Assignments"
+msgstr "Mənim Tapşırıqlarım"
+
+msgid "New Campaign"
+msgstr "Yeni Kampaniya"
+
+msgid "Reports"
+msgstr "Hesabatlar"
+
+msgid "Management"
+msgstr "İdarəetmə"
+
+msgid "Users"
+msgstr "İstifadəçilər"
+
+msgid "Departments"
+msgstr "Şöbələr"
+
+msgid "Questions"
+msgstr "Suallar"
+
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+msgid "Notifications"
+msgstr "Bildirişlər"
+
+msgid "All"
+msgstr "Hamısı"
+
+msgid "No notifications"
+msgstr "Bildiriş yoxdur"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Settings"
+msgstr "Tənzimləmələr"
+
+msgid "Security"
+msgstr "Təhlükəsizlik"
+
+msgid "Logout"
+msgstr "Çıxış"
+
+msgid "Login"
+msgstr "Giriş"
+
+# Common Actions
+msgid "Save"
+msgstr "Saxla"
+
+msgid "Cancel"
+msgstr "Ləğv et"
+
+msgid "Delete"
+msgstr "Sil"
+
+msgid "Edit"
+msgstr "Redaktə et"
+
+msgid "Create"
+msgstr "Yarat"
+
+msgid "Update"
+msgstr "Yenilə"
+
+msgid "Search"
+msgstr "Axtar"
+
+msgid "Filter"
+msgstr "Filtrlə"
+
+msgid "Submit"
+msgstr "Göndər"
+
+msgid "Back"
+msgstr "Geri"
+
+msgid "Next"
+msgstr "Növbəti"
+
+msgid "Previous"
+msgstr "Əvvəlki"
+
+msgid "Close"
+msgstr "Bağla"
+
+# Languages
+msgid "Azərbaycan"
+msgstr "Azərbaycan"
+
+msgid "English"
+msgstr "İngilis"

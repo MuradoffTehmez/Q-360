@@ -1,0 +1,327 @@
+# FULL Azərbaycan Translation for Q360
+# Copyright (C) 2024
+msgid ""
+msgstr ""
+"Project-Id-Version: Q360 1.0\n"
+"Language: az\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# System
+msgid "360° Performance Evaluation System"
+msgstr "360° Qiymətləndirmə Sistemi"
+
+msgid "Version"
+msgstr "Versiya"
+
+# Navigation
+msgid "Home"
+msgstr "Əsas Səhifə"
+
+msgid "Dashboard"
+msgstr "İdarə Paneli"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Settings"
+msgstr "Tənzimləmələr"
+
+msgid "Security"
+msgstr "Təhlükəsizlik"
+
+msgid "Logout"
+msgstr "Çıxış"
+
+msgid "Login"
+msgstr "Giriş"
+
+# Evaluations
+msgid "Evaluations"
+msgstr "Qiymətləndirmələr"
+
+msgid "Campaigns"
+msgstr "Kampaniyalar"
+
+msgid "My Assignments"
+msgstr "Mənim Tapşırıqlarım"
+
+msgid "New Campaign"
+msgstr "Yeni Kampaniya"
+
+msgid "Self Assessment"
+msgstr "Özünüqiymətləndirmə"
+
+# Reports
+msgid "Reports"
+msgstr "Hesabatlar"
+
+msgid "My Reports"
+msgstr "Fərdi Hesabatım"
+
+msgid "Team Reports"
+msgstr "Komanda Hesabatları"
+
+msgid "Performance Report"
+msgstr "Performans Hesabatı"
+
+# Notifications
+msgid "Notifications"
+msgstr "Bildirişlər"
+
+msgid "Inbox"
+msgstr "Gələn Qutu"
+
+msgid "Templates"
+msgstr "Şablonlar"
+
+msgid "No notifications"
+msgstr "Bildiriş yoxdur"
+
+msgid "All"
+msgstr "Hamısı"
+
+msgid "Unread"
+msgstr "Oxunmamış"
+
+msgid "Mark as read"
+msgstr "Oxunmuş et"
+
+msgid "Delete"
+msgstr "Sil"
+
+# Development
+msgid "Development"
+msgstr "İnkişaf"
+
+msgid "My Goals"
+msgstr "Məqsədlərim"
+
+msgid "Development Plans"
+msgstr "İnkişaf Planları"
+
+# Management
+msgid "Management"
+msgstr "İdarəetmə"
+
+msgid "Users"
+msgstr "İstifadəçilər"
+
+msgid "Departments"
+msgstr "Şöbələr"
+
+msgid "Questions"
+msgstr "Suallar"
+
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+# Actions
+msgid "Save"
+msgstr "Saxla"
+
+msgid "Cancel"
+msgstr "Ləğv et"
+
+msgid "Edit"
+msgstr "Redaktə et"
+
+msgid "Create"
+msgstr "Yarat"
+
+msgid "Update"
+msgstr "Yenilə"
+
+msgid "Search"
+msgstr "Axtar"
+
+msgid "Filter"
+msgstr "Filtrlə"
+
+msgid "Submit"
+msgstr "Göndər"
+
+msgid "Back"
+msgstr "Geri"
+
+msgid "Next"
+msgstr "Növbəti"
+
+msgid "Previous"
+msgstr "Əvvəlki"
+
+msgid "Close"
+msgstr "Bağla"
+
+msgid "View Details"
+msgstr "Ətraflı Bax"
+
+msgid "Download"
+msgstr "Yüklə"
+
+msgid "Export"
+msgstr "İxrac Et"
+
+msgid "Print"
+msgstr "Çap Et"
+
+# Profile & Settings
+msgid "Personal Information"
+msgstr "Şəxsi Məlumatlar"
+
+msgid "Change Password"
+msgstr "Şifrəni Dəyiş"
+
+msgid "Preferences"
+msgstr "Tənzimləmələr"
+
+msgid "Privacy Settings"
+msgstr "Məxfilik Tənzimləmələri"
+
+msgid "Language"
+msgstr "Dil"
+
+msgid "Azərbaycan"
+msgstr "Azərbaycan"
+
+msgid "English"
+msgstr "İngilis"
+
+# Security
+msgid "Current Password"
+msgstr "Cari Şifrə"
+
+msgid "New Password"
+msgstr "Yeni Şifrə"
+
+msgid "Confirm Password"
+msgstr "Şifrəni Təsdiq Et"
+
+msgid "Two-Factor Authentication"
+msgstr "İki Faktorlu Autentifikasiya"
+
+msgid "Active Sessions"
+msgstr "Aktiv Sesiyalar"
+
+msgid "Login History"
+msgstr "Giriş Tarixçəsi"
+
+# Reports
+msgid "Overall Score"
+msgstr "Ümumi Bal"
+
+msgid "Strengths"
+msgstr "Güclü Tərəflər"
+
+msgid "Areas for Improvement"
+msgstr "İnkişaf Sahələri"
+
+msgid "Recommendations"
+msgstr "Tövsiyələr"
+
+msgid "Comments"
+msgstr "Rəylər"
+
+# Time
+msgid "Today"
+msgstr "Bu Gün"
+
+msgid "Yesterday"
+msgstr "Dünən"
+
+msgid "This Week"
+msgstr "Bu Həftə"
+
+msgid "This Month"
+msgstr "Bu Ay"
+
+msgid "ago"
+msgstr "əvvəl"
+
+# Messages
+msgid "Success"
+msgstr "Uğurlu"
+
+msgid "Error"
+msgstr "Xəta"
+
+msgid "Warning"
+msgstr "Xəbərdarlıq"
+
+msgid "Info"
+msgstr "Məlumat"
+
+msgid "Are you sure?"
+msgstr "Əminsiniz?"
+
+msgid "This action cannot be undone"
+msgstr "Bu əməliyyat geri alına bilməz"
+
+msgid "Please confirm"
+msgstr "Zəhmət olmasa təsdiq edin"
+
+# Empty States
+msgid "No data available"
+msgstr "Məlumat yoxdur"
+
+msgid "No items found"
+msgstr "Heç bir element tapılmadı"
+
+msgid "No results"
+msgstr "Nəticə yoxdur"
+
+# Common
+msgid "Loading..."
+msgstr "Yüklənir..."
+
+msgid "Please wait"
+msgstr "Zəhmət olmasa gözləyin"
+
+msgid "Required"
+msgstr "Məcburi"
+
+msgid "Optional"
+msgstr "İstəyə bağlı"
+
+msgid "Yes"
+msgstr "Bəli"
+
+msgid "No"
+msgstr "Xeyr"
+
+msgid "Total"
+msgstr "Ümumi"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Inactive"
+msgstr "Deaktiv"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Date"
+msgstr "Tarix"
+
+msgid "Time"
+msgstr "Vaxt"
+
+msgid "Name"
+msgstr "Ad"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Address"
+msgstr "Ünvan"
+
+msgid "Description"
+msgstr "Açıqlama"
+
+msgid "Actions"
+msgstr "Əməliyyatlar"

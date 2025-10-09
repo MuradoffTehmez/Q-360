@@ -1,0 +1,327 @@
+# FULL English Translation for Q360
+# Copyright (C) 2024
+msgid ""
+msgstr ""
+"Project-Id-Version: Q360 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# System
+msgid "360° Performance Evaluation System"
+msgstr "360° Performance Evaluation System"
+
+msgid "Version"
+msgstr "Version"
+
+# Navigation
+msgid "Home"
+msgstr "Home"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Security"
+msgstr "Security"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Login"
+msgstr "Login"
+
+# Evaluations
+msgid "Evaluations"
+msgstr "Evaluations"
+
+msgid "Campaigns"
+msgstr "Campaigns"
+
+msgid "My Assignments"
+msgstr "My Assignments"
+
+msgid "New Campaign"
+msgstr "New Campaign"
+
+msgid "Self Assessment"
+msgstr "Self Assessment"
+
+# Reports
+msgid "Reports"
+msgstr "Reports"
+
+msgid "My Reports"
+msgstr "My Reports"
+
+msgid "Team Reports"
+msgstr "Team Reports"
+
+msgid "Performance Report"
+msgstr "Performance Report"
+
+# Notifications
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Inbox"
+msgstr "Inbox"
+
+msgid "Templates"
+msgstr "Templates"
+
+msgid "No notifications"
+msgstr "No notifications"
+
+msgid "All"
+msgstr "All"
+
+msgid "Unread"
+msgstr "Unread"
+
+msgid "Mark as read"
+msgstr "Mark as read"
+
+msgid "Delete"
+msgstr "Delete"
+
+# Development
+msgid "Development"
+msgstr "Development"
+
+msgid "My Goals"
+msgstr "My Goals"
+
+msgid "Development Plans"
+msgstr "Development Plans"
+
+# Management
+msgid "Management"
+msgstr "Management"
+
+msgid "Users"
+msgstr "Users"
+
+msgid "Departments"
+msgstr "Departments"
+
+msgid "Questions"
+msgstr "Questions"
+
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+# Actions
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Next"
+msgstr "Next"
+
+msgid "Previous"
+msgstr "Previous"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "View Details"
+msgstr "View Details"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Print"
+msgstr "Print"
+
+# Profile & Settings
+msgid "Personal Information"
+msgstr "Personal Information"
+
+msgid "Change Password"
+msgstr "Change Password"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Privacy Settings"
+msgstr "Privacy Settings"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Azərbaycan"
+msgstr "Azerbaijani"
+
+msgid "English"
+msgstr "English"
+
+# Security
+msgid "Current Password"
+msgstr "Current Password"
+
+msgid "New Password"
+msgstr "New Password"
+
+msgid "Confirm Password"
+msgstr "Confirm Password"
+
+msgid "Two-Factor Authentication"
+msgstr "Two-Factor Authentication"
+
+msgid "Active Sessions"
+msgstr "Active Sessions"
+
+msgid "Login History"
+msgstr "Login History"
+
+# Reports
+msgid "Overall Score"
+msgstr "Overall Score"
+
+msgid "Strengths"
+msgstr "Strengths"
+
+msgid "Areas for Improvement"
+msgstr "Areas for Improvement"
+
+msgid "Recommendations"
+msgstr "Recommendations"
+
+msgid "Comments"
+msgstr "Comments"
+
+# Time
+msgid "Today"
+msgstr "Today"
+
+msgid "Yesterday"
+msgstr "Yesterday"
+
+msgid "This Week"
+msgstr "This Week"
+
+msgid "This Month"
+msgstr "This Month"
+
+msgid "ago"
+msgstr "ago"
+
+# Messages
+msgid "Success"
+msgstr "Success"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+msgid "This action cannot be undone"
+msgstr "This action cannot be undone"
+
+msgid "Please confirm"
+msgstr "Please confirm"
+
+# Empty States
+msgid "No data available"
+msgstr "No data available"
+
+msgid "No items found"
+msgstr "No items found"
+
+msgid "No results"
+msgstr "No results"
+
+# Common
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Please wait"
+msgstr "Please wait"
+
+msgid "Required"
+msgstr "Required"
+
+msgid "Optional"
+msgstr "Optional"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Time"
+msgstr "Time"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Phone"
+
+msgid "Address"
+msgstr "Address"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Actions"
+msgstr "Actions"
