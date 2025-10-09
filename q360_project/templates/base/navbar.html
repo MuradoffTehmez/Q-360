@@ -62,15 +62,27 @@
                     <!-- Notifications -->
                     <li class="nav-item dropdown">
                         <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-bell"></i>
+                            <i class="fas fa-bell fa-lg"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">
                                 0
                             </span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" id="notificationList">
-                            <li><h6 class="dropdown-header">Bildirişlər</h6></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" id="notificationList" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <span>Bildirişlər</span>
+                                <a href="{% url 'notifications:inbox' %}" class="badge bg-primary text-decoration-none">
+                                    Hamısı
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-muted" href="#">Bildiriş yoxdur</a></li>
+                            <li>
+                                <div id="notificationItems" class="px-2">
+                                    <div class="text-center py-3 text-muted">
+                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                        <p class="mb-0 small">Bildiriş yoxdur</p>
+                                    </div>
+                                </div>
+                            </li>
                         </ul>
                     </li>
 
@@ -82,17 +94,39 @@
                             {% else %}
                                 <i class="fas fa-user-circle fa-2x me-2"></i>
                             {% endif %}
-                            <span>{{ user.get_full_name|default:user.username }}</span>
+                            <span class="d-none d-md-inline">{{ user.get_full_name|default:user.username }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li class="dropdown-header">
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle me-2" width="40" height="40">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-2x me-2"></i>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
                                 <i class="fas fa-user me-2"></i> Profil
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
-                                <i class="fas fa-cog me-2"></i> Tənzimləmələr
+                            <li><a class="dropdown-item" href="{% url 'accounts:preferences' %}">
+                                <i class="fas fa-sliders-h me-2"></i> Tənzimləmələr
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:security' %}">
+                                <i class="fas fa-shield-alt me-2"></i> Təhlükəsizlik
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                            <li><a class="dropdown-item" href="{% url 'notifications:inbox' %}">
+                                <i class="fas fa-bell me-2"></i> Bildirişlər
+                                <span class="badge bg-primary ms-2" id="navUnreadCount">0</span>
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
                                 <i class="fas fa-sign-out-alt me-2"></i> Çıxış
                             </a></li>
                         </ul>

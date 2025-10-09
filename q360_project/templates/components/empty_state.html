@@ -1,0 +1,46 @@
+{% comment %}
+Empty State Component
+Usage: {% include 'components/empty_state.html' with icon='fa-inbox' title='No items' message='No items found' action_url='/add/' action_text='Add Item' %}
+{% endcomment %}
+
+<div class="empty-state text-center py-5">
+    <div class="empty-state-icon mb-4">
+        <i class="fas {{ icon|default:'fa-inbox' }} text-muted" style="font-size: 80px; opacity: 0.3;"></i>
+    </div>
+
+    {% if title %}
+    <h4 class="text-muted mb-3">{{ title }}</h4>
+    {% endif %}
+
+    {% if message %}
+    <p class="text-muted mb-4">{{ message }}</p>
+    {% endif %}
+
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="btn btn-primary">
+        {% if action_icon %}
+            <i class="fas {{ action_icon }} me-2"></i>
+        {% endif %}
+        {{ action_text }}
+    </a>
+    {% endif %}
+</div>
+
+<style>
+.empty-state {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-state-icon {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>

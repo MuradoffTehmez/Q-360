@@ -1,0 +1,33 @@
+{% comment %}
+Breadcrumb Component
+Usage: {% include 'components/breadcrumb.html' with items=breadcrumb_items %}
+
+breadcrumb_items structure:
+[
+    {'title': 'Home', 'url': '/'},
+    {'title': 'Page', 'url': '/page/'},
+    {'title': 'Current Page', 'active': True}
+]
+{% endcomment %}
+
+<nav aria-label="breadcrumb" class="mt-3 mb-3">
+    <ol class="breadcrumb bg-light p-3 rounded shadow-sm">
+        {% for item in items %}
+            {% if item.active %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas {{ item.icon|default:'fa-file' }} me-1"></i>
+                    {{ item.title }}
+                </li>
+            {% else %}
+                <li class="breadcrumb-item">
+                    <a href="{{ item.url }}" class="text-decoration-none">
+                        {% if item.icon %}
+                            <i class="fas {{ item.icon }} me-1"></i>
+                        {% endif %}
+                        {{ item.title }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>

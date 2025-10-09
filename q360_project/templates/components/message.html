@@ -1,0 +1,35 @@
+{% comment %}
+Message Component
+Usage: {% include 'components/message.html' with type='success' title='Success!' message='Operation completed' dismissible=True %}
+
+Available types: success, error, warning, info
+{% endcomment %}
+
+{% if message %}
+<div class="alert alert-{{ type|default:'info' }}
+    {% if dismissible %}alert-dismissible fade show{% endif %}
+    shadow-sm mb-3" role="alert">
+
+    <!-- Icon based on type -->
+    <i class="fas
+        {% if type == 'success' %}fa-check-circle
+        {% elif type == 'error' or type == 'danger' %}fa-exclamation-circle
+        {% elif type == 'warning' %}fa-exclamation-triangle
+        {% else %}fa-info-circle
+        {% endif %} me-2"></i>
+
+    <!-- Title if provided -->
+    {% if title %}
+        <strong>{{ title }}</strong>
+        {% if message %}<br>{% endif %}
+    {% endif %}
+
+    <!-- Message content -->
+    {{ message|safe }}
+
+    <!-- Close button if dismissible -->
+    {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endif %}
+</div>
+{% endif %}

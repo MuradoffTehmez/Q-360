@@ -1,0 +1,433 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Bildirişlər - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notification-item {
+        transition: all 0.3s;
+        border-left: 4px solid transparent;
+    }
+    .notification-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    .notification-item.unread {
+        background-color: #e7f3ff;
+        border-left-color: #0d6efd;
+    }
+    .notification-item.unread:hover {
+        background-color: #d0e8ff;
+    }
+    .notification-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .notification-time {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .filter-chip {
+        transition: all 0.2s;
+    }
+    .filter-chip:hover {
+        transform: scale(1.05);
+    }
+    .filter-chip.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Əsas Səhifə</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Bildirişlər</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-bell"></i> Bildirişlər
+            </h1>
+            <p class="text-muted mb-0">
+                Sizə ünvanlanan bütün sistem bildirişləri
+            </p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" id="markAllReadBtn">
+                <i class="fas fa-check-double"></i> Hamısını Oxunmuş Et
+            </button>
+            <button class="btn btn-outline-danger" id="deleteAllBtn">
+                <i class="fas fa-trash"></i> Hamısını Sil
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope text-primary mb-2" style="font-size: 30px;"></i>
+                    <h3 class="mb-0 text-primary">{{ unread_count|default:0 }}</h3>
+                    <small class="text-muted">Oxunmamış</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope-open text-success mb-2" style="font-size: 30px;"></i>
+                    <h3 class="mb-0 text-success">{{ read_count|default:0 }}</h3>
+                    <small class="text-muted">Oxunmuş</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock text-warning mb-2" style="font-size: 30px;"></i>
+                    <h3 class="mb-0 text-warning">{{ today_count|default:0 }}</h3>
+                    <small class="text-muted">Bu Gün</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-list text-info mb-2" style="font-size: 30px;"></i>
+                    <h3 class="mb-0 text-info">{{ total_count|default:0 }}</h3>
+                    <small class="text-muted">Ümumi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput"
+                               placeholder="Bildirişlərdə axtar...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 flex-wrap justify-content-end">
+                        <span class="badge bg-secondary filter-chip active" data-filter="all">
+                            <i class="fas fa-list"></i> Hamısı
+                        </span>
+                        <span class="badge bg-primary filter-chip" data-filter="unread">
+                            <i class="fas fa-envelope"></i> Oxunmamış
+                        </span>
+                        <span class="badge bg-success filter-chip" data-filter="evaluation">
+                            <i class="fas fa-clipboard-check"></i> Qiymətləndirmə
+                        </span>
+                        <span class="badge bg-warning filter-chip" data-filter="deadline">
+                            <i class="fas fa-clock"></i> Deadline
+                        </span>
+                        <span class="badge bg-info filter-chip" data-filter="report">
+                            <i class="fas fa-chart-bar"></i> Hesabat
+                        </span>
+                        <span class="badge bg-danger filter-chip" data-filter="system">
+                            <i class="fas fa-cog"></i> Sistem
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            {% if notifications %}
+                <div class="list-group list-group-flush" id="notificationsList">
+                    {% for notification in notifications %}
+                    <div class="list-group-item notification-item {% if not notification.is_read %}unread{% endif %}"
+                         data-type="{{ notification.notification_type }}"
+                         data-notification-id="{{ notification.id }}">
+                        <div class="d-flex align-items-start">
+                            <!-- Notification Icon -->
+                            <div class="notification-icon me-3
+                                {% if notification.notification_type == 'evaluation' %}bg-success text-white
+                                {% elif notification.notification_type == 'deadline' %}bg-warning text-dark
+                                {% elif notification.notification_type == 'report' %}bg-info text-white
+                                {% elif notification.notification_type == 'system' %}bg-danger text-white
+                                {% else %}bg-primary text-white{% endif %}">
+                                <i class="fas
+                                    {% if notification.notification_type == 'evaluation' %}fa-clipboard-check
+                                    {% elif notification.notification_type == 'deadline' %}fa-clock
+                                    {% elif notification.notification_type == 'report' %}fa-chart-bar
+                                    {% elif notification.notification_type == 'system' %}fa-cog
+                                    {% else %}fa-bell{% endif %}"></i>
+                            </div>
+
+                            <!-- Notification Content -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0">
+                                        {% if not notification.is_read %}
+                                        <span class="badge bg-primary me-2">Yeni</span>
+                                        {% endif %}
+                                        {{ notification.title }}
+                                    </h6>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-primary mark-read-btn"
+                                                data-id="{{ notification.id }}"
+                                                title="Oxunmuş et">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-btn"
+                                                data-id="{{ notification.id }}"
+                                                title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-2">{{ notification.message|truncatewords:30 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="notification-time">
+                                        <i class="far fa-clock"></i>
+                                        {{ notification.created_at|timesince }} əvvəl
+                                    </div>
+                                    {% if notification.action_url %}
+                                    <a href="{{ notification.action_url }}" class="btn btn-sm btn-link">
+                                        Ətraflı <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="card-footer bg-white">
+                    <nav aria-label="Notifications pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">İlk</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Əvvəlki</a>
+                            </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Növbəti</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <i class="fas fa-bell-slash text-muted" style="font-size: 80px; opacity: 0.3;"></i>
+                    <h4 class="text-muted mt-3">Bildiriş Yoxdur</h4>
+                    <p class="text-muted">Sizə ünvanlanan heç bir bildiriş tapılmadı</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const notificationItems = document.querySelectorAll('.notification-item');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+
+        notificationItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Filter functionality
+    const filterChips = document.querySelectorAll('.filter-chip');
+
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            // Remove active class from all chips
+            filterChips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.dataset.filter;
+
+            notificationItems.forEach(item => {
+                if (filter === 'all') {
+                    item.style.display = '';
+                } else if (filter === 'unread') {
+                    item.style.display = item.classList.contains('unread') ? '' : 'none';
+                } else {
+                    item.style.display = item.dataset.type === filter ? '' : 'none';
+                }
+            });
+        });
+    });
+
+    // Mark as read
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const notificationId = this.dataset.id;
+            markAsRead(notificationId);
+        });
+    });
+
+    // Delete notification
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (confirm('Bu bildirişi silmək istədiyinizə əminsiniz?')) {
+                const notificationId = this.dataset.id;
+                deleteNotification(notificationId);
+            }
+        });
+    });
+
+    // Mark all as read
+    document.getElementById('markAllReadBtn').addEventListener('click', function() {
+        if (confirm('Bütün bildirişləri oxunmuş etmək istədiyinizə əminsiniz?')) {
+            markAllAsRead();
+        }
+    });
+
+    // Delete all
+    document.getElementById('deleteAllBtn').addEventListener('click', function() {
+        if (confirm('Bütün bildirişləri silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz.')) {
+            deleteAllNotifications();
+        }
+    });
+
+    // AJAX Functions
+    function markAsRead(notificationId) {
+        fetch(`/notifications/${notificationId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                item.classList.remove('unread');
+                const badge = item.querySelector('.badge.bg-primary');
+                if (badge) badge.remove();
+                showToast('Bildiriş oxunmuş olaraq işarələndi', 'success');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function deleteNotification(notificationId) {
+        fetch(`/notifications/${notificationId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                item.style.opacity = '0';
+                setTimeout(() => item.remove(), 300);
+                showToast('Bildiriş silindi', 'success');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function markAllAsRead() {
+        fetch('/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function deleteAllNotifications() {
+        fetch('/notifications/delete-all/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+        toast.style.zIndex = '9999';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 3000);
+    }
+});
+</script>
+{% endblock %}

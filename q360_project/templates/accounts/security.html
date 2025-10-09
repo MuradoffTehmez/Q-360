@@ -1,0 +1,492 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Təhlükəsizlik - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .security-section {
+        border-left: 4px solid #198754;
+    }
+    .security-alert {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+    }
+    .session-card {
+        transition: all 0.3s;
+    }
+    .session-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .password-strength {
+        height: 8px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .strength-weak { background: #dc3545; width: 33%; }
+    .strength-medium { background: #ffc107; width: 66%; }
+    .strength-strong { background: #198754; width: 100%; }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Əsas Səhifə</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Profil</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Təhlükəsizlik</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-1">
+                <i class="fas fa-shield-alt"></i> Təhlükəsizlik
+            </h1>
+            <p class="text-muted mb-0">Hesabınızın təhlükəsizlik tənzimləmələri</p>
+        </div>
+    </div>
+
+    <!-- Security Status -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <i class="fas fa-check-circle text-success mb-2" style="font-size: 40px;"></i>
+                    <h6 class="mb-0">Təhlükəsizlik Səviyyəsi</h6>
+                    <h3 class="text-success mb-0">Yüksək</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock text-info mb-2" style="font-size: 40px;"></i>
+                    <h6 class="mb-0">Son Şifrə Dəyişikliyi</h6>
+                    <p class="mb-0">{{ password_changed_days|default:0 }} gün əvvəl</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-mobile-alt text-warning mb-2" style="font-size: 40px;"></i>
+                    <h6 class="mb-0">Aktiv Sesiyalar</h6>
+                    <h3 class="text-warning mb-0">{{ active_sessions|default:1 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-key text-primary mb-2" style="font-size: 40px;"></i>
+                    <h6 class="mb-0">2FA Status</h6>
+                    <p class="mb-0">
+                        {% if user.two_factor_enabled %}
+                        <span class="badge bg-success">Aktiv</span>
+                        {% else %}
+                        <span class="badge bg-danger">Deaktiv</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change -->
+    <div class="card shadow-sm mb-4 security-section">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-lock"></i> Şifrə Dəyişikliyi
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" id="passwordChangeForm">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Cari Şifrə</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="current_password" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Yeni Şifrə</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="new_password" id="newPassword" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength mt-2"></div>
+                        <small class="text-muted" id="passwordStrength"></small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Yeni Şifrə (Təkrar)</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="confirm_password" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mb-3">
+                    <strong>Şifrə Tələbləri:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Minimum 8 simvol</li>
+                        <li>Ən azı 1 böyük hərf</li>
+                        <li>Ən azı 1 kiçik hərf</li>
+                        <li>Ən azı 1 rəqəm</li>
+                        <li>Ən azı 1 xüsusi simvol (@, #, $, vb.)</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Şifrəni Dəyiş
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Two-Factor Authentication -->
+    <div class="card shadow-sm mb-4 security-section">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-mobile-alt"></i> İki Faktorlu Autentifikasiya (2FA)
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if user.two_factor_enabled %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    2FA aktivdir. Hesabınız əlavə qorunur.
+                </div>
+                <button class="btn btn-danger" onclick="disable2FA()">
+                    <i class="fas fa-times"></i> 2FA-nı Deaktiv Et
+                </button>
+                <button class="btn btn-outline-secondary" onclick="showBackupCodes()">
+                    <i class="fas fa-qrcode"></i> Ehtiyat Kodları
+                </button>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    2FA aktiv deyil. Hesabınızı daha yaxşı qorumaq üçün 2FA-nı aktivləşdirin.
+                </div>
+                <p class="text-muted">
+                    İki faktorlu autentifikasiya hesabınıza əlavə təhlükəsizlik təbəqəsi əlavə edir.
+                    Giriş zamanı şifrənizlə yanaşı mobil cihazınızdan kod tələb olunur.
+                </p>
+                <button class="btn btn-success" onclick="enable2FA()">
+                    <i class="fas fa-shield-alt"></i> 2FA-nı Aktivləşdir
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="card shadow-sm mb-4 security-section">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-laptop"></i> Aktiv Sesiyalar
+                </h5>
+                <button class="btn btn-sm btn-outline-danger" onclick="terminateAllSessions()">
+                    <i class="fas fa-sign-out-alt"></i> Hamısını Sonlandır
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if sessions %}
+                {% for session in sessions %}
+                <div class="session-card card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-1 text-center">
+                                <i class="fas {% if 'Mobile' in session.device %}fa-mobile-alt{% else %}fa-laptop{% endif %} fa-2x text-primary"></i>
+                            </div>
+                            <div class="col-md-8">
+                                <h6 class="mb-1">
+                                    {{ session.device }}
+                                    {% if session.is_current %}
+                                    <span class="badge bg-success">Cari Sesiya</span>
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ session.location|default:"Naməlum yer" }}
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <small>
+                                        <i class="far fa-clock me-1"></i>Son aktivlik: {{ session.last_activity|timesince }} əvvəl
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-network-wired me-1"></i>IP: {{ session.ip_address }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                {% if not session.is_current %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="terminateSession('{{ session.id }}')">
+                                    <i class="fas fa-times"></i> Sonlandır
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center mb-0">Aktiv sesiya yoxdur</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Login History -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-history"></i> Giriş Tarixçəsi
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Tarix</th>
+                            <th>Cihaz</th>
+                            <th>Yer</th>
+                            <th>IP Ünvan</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for login in login_history %}
+                        <tr>
+                            <td>{{ login.timestamp|date:"d.m.Y H:i" }}</td>
+                            <td>{{ login.device }}</td>
+                            <td>{{ login.location|default:"-" }}</td>
+                            <td>{{ login.ip_address }}</td>
+                            <td>
+                                {% if login.success %}
+                                <span class="badge bg-success">Uğurlu</span>
+                                {% else %}
+                                <span class="badge bg-danger">Uğursuz</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Giriş tarixçəsi yoxdur</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Recommendations -->
+    <div class="card shadow-sm border-warning mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-lightbulb"></i> Təhlükəsizlik Tövsiyələri
+            </h5>
+        </div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li class="mb-2">Şifrənizi mümkün qədər mürəkkəb edin və heç kimə deməyin</li>
+                <li class="mb-2">İki faktorlu autentifikasiyanı (2FA) aktiv edin</li>
+                <li class="mb-2">Şifrənizi 90 gündə bir dəfə dəyişdirin</li>
+                <li class="mb-2">Naməlum cihazlardan və şəbəkələrdən istifadə etməyin</li>
+                <li class="mb-2">Şübhəli aktivlik gördükdə dərhal bildirin</li>
+                <li>Eyni şifrəni fərqli platformalarda istifadə etməyin</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- 2FA Setup Modal -->
+<div class="modal fade" id="setup2FAModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-mobile-alt"></i> 2FA Aktivləşdirmə
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Authenticator tətbiqiniz ilə bu QR kodu skan edin:</p>
+                <div class="my-4">
+                    <img src="data:image/svg+xml;base64,..." alt="QR Code" class="img-fluid" style="max-width: 250px;">
+                </div>
+                <p class="text-muted">və ya bu kodu əl ilə daxil edin:</p>
+                <code class="bg-light p-2 rounded">ABCD EFGH IJKL MNOP</code>
+
+                <div class="mt-4">
+                    <label class="form-label">Authenticator kodunu daxil edin:</label>
+                    <input type="text" class="form-control text-center" maxlength="6" placeholder="000000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                <button type="button" class="btn btn-success" onclick="verify2FA()">
+                    <i class="fas fa-check"></i> Təsdiq Et
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle password visibility
+function togglePassword(button) {
+    const input = button.previousElementSibling;
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Password strength checker
+document.getElementById('newPassword')?.addEventListener('input', function() {
+    const password = this.value;
+    const strengthBar = document.querySelector('.password-strength');
+    const strengthText = document.getElementById('passwordStrength');
+
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+    strengthBar.className = 'password-strength mt-2';
+    if (strength <= 2) {
+        strengthBar.classList.add('strength-weak');
+        strengthText.textContent = 'Şifrə gücü: Zəif';
+        strengthText.className = 'text-danger';
+    } else if (strength <= 4) {
+        strengthBar.classList.add('strength-medium');
+        strengthText.textContent = 'Şifrə gücü: Orta';
+        strengthText.className = 'text-warning';
+    } else {
+        strengthBar.classList.add('strength-strong');
+        strengthText.textContent = 'Şifrə gücü: Güclü';
+        strengthText.className = 'text-success';
+    }
+});
+
+// Password change form
+document.getElementById('passwordChangeForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    if (formData.get('new_password') !== formData.get('confirm_password')) {
+        alert('Şifrələr uyğun gəlmir!');
+        return;
+    }
+
+    fetch('/accounts/change-password/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Şifrə uğurla dəyişdirildi');
+            this.reset();
+        } else {
+            alert(data.message || 'Xəta baş verdi');
+        }
+    });
+});
+
+// 2FA functions
+function enable2FA() {
+    const modal = new bootstrap.Modal(document.getElementById('setup2FAModal'));
+    modal.show();
+}
+
+function disable2FA() {
+    if (confirm('2FA-nı deaktiv etmək istədiyinizə əminsiniz?')) {
+        fetch('/accounts/disable-2fa/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) location.reload();
+        });
+    }
+}
+
+function verify2FA() {
+    const code = document.querySelector('#setup2FAModal input').value;
+
+    fetch('/accounts/verify-2fa/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Kod yanlışdır');
+        }
+    });
+}
+
+// Session management
+function terminateSession(sessionId) {
+    if (confirm('Bu sesiyanı sonlandırmaq istədiyinizə əminsiniz?')) {
+        fetch(`/accounts/terminate-session/${sessionId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) location.reload();
+        });
+    }
+}
+
+function terminateAllSessions() {
+    if (confirm('Bütün digər sesiyaları sonlandırmaq istədiyinizə əminsiniz?')) {
+        fetch('/accounts/terminate-all-sessions/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) location.reload();
+        });
+    }
+}
+
+function showBackupCodes() {
+    window.open('/accounts/backup-codes/', '_blank', 'width=500,height=600');
+}
+</script>
+{% endblock %}
