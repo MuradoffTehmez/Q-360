@@ -1,0 +1,376 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Sual Kateqoriyaları - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-left: 5px solid;
+    }
+    .category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    .category-card.leadership { border-color: #6f42c1; }
+    .category-card.communication { border-color: #0d6efd; }
+    .category-card.teamwork { border-color: #198754; }
+    .category-card.technical { border-color: #20c997; }
+    .category-card.innovation { border-color: #fd7e14; }
+    .category-card.performance { border-color: #dc3545; }
+    .category-card.default { border-color: #6c757d; }
+
+    .category-icon {
+        font-size: 3.5rem;
+        opacity: 0.15;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
+    .question-count-badge {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .stat-mini {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'evaluations:question-list' %}">Suallar</a></li>
+            <li class="breadcrumb-item active">Kateqoriyalar</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-folder-open me-2"></i>Sual Kateqoriyaları</h2>
+            <p class="text-muted mb-0">Qiymətləndirmə suallarının kateqoriyalarını idarə edin</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                <i class="fas fa-plus me-2"></i>Yeni Kateqoriya
+            </button>
+            <a href="{% url 'evaluations:question-list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-question-circle me-2"></i>Suallar
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistics Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-mini shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ categories.count }}</h3>
+                    <p class="mb-0">Toplam Kateqoriya</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-mini shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-question fa-2x mb-2"></i>
+                    <h3 class="mb-0">
+                        {% for cat in categories %}{{ cat.question_count|add:0 }}{% if not forloop.last %}+{% endif %}{% endfor %}
+                    </h3>
+                    <p class="mb-0">Toplam Sual</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-mini shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ categories|length }}</h3>
+                    <p class="mb-0">Aktiv</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-mini shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-2x mb-2"></i>
+                    <h3 class="mb-0">
+                        {% if categories %}
+                            {% with max_cat=categories|first %}{{ max_cat.question_count }}{% endwith %}
+                        {% else %}0{% endif %}
+                    </h3>
+                    <p class="mb-0">Ən Çox Sual</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card category-card shadow-sm h-100 {{ category.name|lower|default:'default' }}">
+                <div class="card-body position-relative">
+                    <!-- Category Icon -->
+                    <i class="fas fa-{{ category.name|lower|default:'folder' }} category-icon"></i>
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">
+                                <i class="fas fa-folder me-2"></i>{{ category.name }}
+                            </h5>
+                            {% if category.description %}
+                            <p class="text-muted small mb-0">{{ category.description|truncatewords:15 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="editCategory({{ category.id }})">
+                                    <i class="fas fa-edit me-2"></i>Redaktə
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="viewQuestions({{ category.id }})">
+                                    <i class="fas fa-question-circle me-2"></i>Sualları Gör
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteCategory({{ category.id }})">
+                                    <i class="fas fa-trash me-2"></i>Sil
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Question Count -->
+                    <div class="text-center my-4">
+                        <div class="question-count-badge text-primary mb-2">
+                            {{ category.question_count }}
+                        </div>
+                        <p class="text-muted mb-0">Sual</p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="row small text-muted">
+                        <div class="col-6">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ category.created_at|date:"d.m.Y" }}
+                        </div>
+                        <div class="col-6 text-end">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ category.updated_at|date:"d.m.Y" }}
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="mt-3">
+                        <a href="{% url 'evaluations:question-list' %}?category={{ category.id }}"
+                           class="btn btn-sm btn-outline-primary w-100">
+                            <i class="fas fa-arrow-right me-2"></i>Sualları Gör
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                <h5>Hələ heç bir kateqoriya yoxdur</h5>
+                <p class="mb-3">İlk kateqoriyanı yaratmaq üçün yuxarıdakı düyməni klikləyin</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <i class="fas fa-plus me-2"></i>İlk Kateqoriyanı Yarat
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Popular Categories Chart -->
+    {% if categories %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Kateqoriya Paylanması</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="categoryChart" height="80"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Best Practices -->
+    <div class="card shadow-sm mt-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Kateqoriya Təşkili Məsləhətləri</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Tövsiyə Edilən Kateqoriyalar</h6>
+                    <ul class="small">
+                        <li><strong>Liderlik:</strong> Rəhbərlik və qərar qəbul bacarıqları</li>
+                        <li><strong>Ünsiyyət:</strong> Yazılı və şifahi ünsiyyət</li>
+                        <li><strong>Komanda İşi:</strong> Əməkdaşlıq və komanda ruhı</li>
+                        <li><strong>Texniki Biliklər:</strong> Peşəkar və texniki bacarıqlar</li>
+                        <li><strong>İnnovasiya:</strong> Yaradıcılıq və problem həlli</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-star text-warning me-2"></i>Uğur üçün Məsləhətlər</h6>
+                    <ul class="small">
+                        <li>Hər kateqoriya konkret bir sahəni əhatə etməlidir</li>
+                        <li>Kateqoriya adları aydın və başadüşülən olmalıdır</li>
+                        <li>5-10 arası kateqoriya optimal sayıdır</li>
+                        <li>Hər kateqoriyada 3-8 sual tövsiyə olunur</li>
+                        <li>Kateqoriyalar düzenli olaraq yenilənməlidir</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Category Modal -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Yeni Kateqoriya</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">
+                            <strong>Kateqoriya Adı <span class="text-danger">*</span></strong>
+                        </label>
+                        <input type="text" class="form-control" id="categoryName" name="name" required
+                               placeholder="məs: Liderlik">
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">
+                            <strong>Təsvir</strong>
+                        </label>
+                        <textarea class="form-control" id="categoryDescription" name="description" rows="3"
+                                  placeholder="Kateqoriya haqqında qısa məlumat..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryOrder" class="form-label">
+                            <strong>Sıra</strong>
+                        </label>
+                        <input type="number" class="form-control" id="categoryOrder" name="order" value="0">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="categoryActive" name="is_active" checked>
+                        <label class="form-check-label" for="categoryActive">
+                            <strong>Aktiv</strong>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Ləğv et
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">
+                    <i class="fas fa-save me-2"></i>Yadda saxla
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Category Chart
+{% if categories %}
+const ctx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for cat in categories %}'{{ cat.name|truncatewords:3 }}',{% endfor %}],
+        datasets: [{
+            label: 'Sual Sayı',
+            data: [{% for cat in categories %}{{ cat.question_count }},{% endfor %}],
+            backgroundColor: [
+                'rgba(111, 66, 193, 0.8)',
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(25, 135, 84, 0.8)',
+                'rgba(32, 201, 151, 0.8)',
+                'rgba(253, 126, 20, 0.8)',
+                'rgba(220, 53, 69, 0.8)',
+                'rgba(108, 117, 125, 0.8)',
+            ],
+            borderColor: [
+                'rgba(111, 66, 193, 1)',
+                'rgba(13, 110, 253, 1)',
+                'rgba(25, 135, 84, 1)',
+                'rgba(32, 201, 151, 1)',
+                'rgba(253, 126, 20, 1)',
+                'rgba(220, 53, 69, 1)',
+                'rgba(108, 117, 125, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+{% endif %}
+
+function saveCategory() {
+    const form = document.getElementById('categoryForm');
+    const formData = new FormData(form);
+
+    // In production, this would be an AJAX request
+    alert('Kateqoriya yaradılması funksiyası tezliklə əlavə ediləcək');
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
+}
+
+function editCategory(id) {
+    alert('Kateqoriya redaktəsi: ' + id);
+    // In production, open edit modal
+}
+
+function viewQuestions(id) {
+    window.location.href = '{% url "evaluations:question-list" %}?category=' + id;
+}
+
+function deleteCategory(id) {
+    if (confirm('Bu kateqoriyanı silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.')) {
+        // In production, AJAX delete request
+        alert('Silmə funksiyası tezliklə əlavə ediləcək');
+    }
+}
+</script>
+{% endblock %}

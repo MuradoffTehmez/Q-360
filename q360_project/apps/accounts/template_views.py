@@ -143,7 +143,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             evaluatee=user
         ).order_by('-calculated_at').first()
 
-        if latest_result:
+        if latest_result and latest_result.overall_score:
             context['average_score'] = f"{latest_result.overall_score:.2f}"
         else:
             context['average_score'] = "N/A"

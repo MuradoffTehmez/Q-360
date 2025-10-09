@@ -173,7 +173,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-bold">Telefon:</div>
-                        <div class="col-md-8">{{ user.phone|default:"-" }}</div>
+                        <div class="col-md-8">{{ user.phone_number|default:"-" }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-bold">Vəzifə:</div>
@@ -185,11 +185,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-bold">Rəhbər:</div>
-                        <div class="col-md-8">{{ user.manager.get_full_name|default:"-" }}</div>
+                        <div class="col-md-8">{% if user.supervisor %}{{ user.supervisor.get_full_name }}{% else %}-{% endif %}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-bold">İşə Başlama Tarixi:</div>
-                        <div class="col-md-8">{{ user.hire_date|date:"d.m.Y"|default:"-" }}</div>
+                        <div class="col-md-8">{% if profile.hire_date %}{{ profile.hire_date|date:"d.m.Y" }}{% else %}-{% endif %}</div>
                     </div>
                     <div class="row">
                         <div class="col-md-4 fw-bold">Rol:</div>
@@ -327,7 +327,7 @@
                         <a href="{% url 'evaluations:my-assignments' %}" class="btn btn-outline-info">
                             <i class="fas fa-tasks me-2"></i>Tapşırıqlarım
                         </a>
-                        <a href="{% url 'accounts:change-password' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'accounts:security' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-key me-2"></i>Şifrəni Dəyiş
                         </a>
                     </div>
