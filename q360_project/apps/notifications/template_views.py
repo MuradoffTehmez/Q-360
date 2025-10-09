@@ -175,6 +175,12 @@ class EmailTemplateDetailView(LoginRequiredMixin, DetailView):
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add statistics
+        context['statistics'] = self.object.get_statistics()
+        return context
+
 
 class EmailTemplateCreateView(LoginRequiredMixin, CreateView):
     """Create new email template."""
@@ -226,9 +232,12 @@ def get_unread_count(request):
 @login_required
 def get_recent_notifications(request):
     """Get recent notifications (AJAX endpoint)."""
+    # Get limit from query params
+    limit = int(request.GET.get('limit', 10))
+
     notifications = Notification.objects.filter(
         user=request.user
-    ).order_by('-created_at')[:10]
+    ).order_by('-created_at')[:limit]
 
     data = [{
         'id': n.id,
@@ -240,4 +249,4 @@ def get_recent_notifications(request):
         'created_at': n.created_at.isoformat(),
     } for n in notifications]
 
-    return JsonResponse({'notifications': data})
+    return JsonResponse({'notifications': data, 'count': len(data)})

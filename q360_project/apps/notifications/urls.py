@@ -24,7 +24,8 @@ urlpatterns = [
     # AJAX endpoints
     path('api/unread-count/', template_views.get_unread_count, name='api-unread-count'),
     path('api/recent/', template_views.get_recent_notifications, name='api-recent'),
+    path('api/notifications/', template_views.get_recent_notifications, name='api-notifications-list'),
 
-    # API
+    # API (Router-based endpoints)
     path('api/', include(router.urls)),
 ]

@@ -220,21 +220,62 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Göndərilən:</span>
-                        <strong>0</strong>
+                        <strong class="text-primary">{{ statistics.total_sent }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Açılan:</span>
-                        <strong>0</strong>
+                        <strong class="text-success">{{ statistics.total_opened }}</strong>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Kliklənən:</span>
-                        <strong>0</strong>
+                        <strong class="text-warning">{{ statistics.total_clicked }}</strong>
                     </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Uğursuz:</span>
+                        <strong class="text-danger">{{ statistics.total_failed }}</strong>
+                    </div>
+                    <hr>
+
+                    <!-- Performance Metrics -->
+                    <h6 class="mb-3 mt-3">Performans Göstəriciləri:</h6>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Açılma dərəcəsi:</small>
+                            <small><strong>{{ statistics.open_rate }}%</strong></small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ statistics.open_rate }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Klik dərəcəsi:</small>
+                            <small><strong>{{ statistics.click_rate }}%</strong></small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ statistics.click_rate }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Uğursuzluq dərəcəsi:</small>
+                            <small><strong>{{ statistics.failure_rate }}%</strong></small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: {{ statistics.failure_rate }}%"></div>
+                        </div>
+                    </div>
+
+                    {% if statistics.total_sent == 0 %}
                     <hr>
                     <small class="text-muted">
                         <i class="fas fa-info-circle me-1"></i>
-                        Statistika funksiyası tezliklə əlavə ediləcək
+                        Bu şablon istifadə edilməyib
                     </small>
+                    {% endif %}
                 </div>
             </div>
         </div>

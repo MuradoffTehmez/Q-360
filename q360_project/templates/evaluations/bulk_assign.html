@@ -276,13 +276,52 @@
             Array.from(evaluateesSelect.options).forEach(option => option.selected = false);
         });
 
-        // Filter by department
-        document.getElementById('departmentFilter').addEventListener('change', function() {
-            const deptId = this.value;
-            // This would need AJAX call to filter users by department
-            // For now, just a placeholder
-            console.log('Filter by department:', deptId);
-        });
+        // Filter by department and role
+        const departmentFilter = document.getElementById('departmentFilter');
+        const roleFilter = document.getElementById('roleFilter');
+
+        function filterUsers() {
+            const deptId = departmentFilter.value;
+            const role = roleFilter.value;
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            if (deptId) params.append('department_id', deptId);
+            if (role) params.append('role', role);
+
+            // Fetch filtered users
+            fetch(`{% url 'evaluations:filter-users' %}?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear current options
+                        evaluateesSelect.innerHTML = '';
+
+                        // Add filtered users
+                        data.users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = `${user.full_name} (${user.username})`;
+                            if (user.department) {
+                                option.textContent += ` - ${user.department}`;
+                            }
+                            evaluateesSelect.appendChild(option);
+                        });
+
+                        // Show count
+                        console.log(`${data.count} istifadəçi tapıldı`);
+                    } else {
+                        alert('Xəta: ' + (data.error || 'Naməlum xəta'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Filtr xətası:', error);
+                    alert('Filtrasiya zamanı xəta baş verdi');
+                });
+        }
+
+        departmentFilter.addEventListener('change', filterUsers);
+        roleFilter.addEventListener('change', filterUsers);
 
         // Preview button
         previewBtn.addEventListener('click', function() {

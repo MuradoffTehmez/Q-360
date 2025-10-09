@@ -35,6 +35,7 @@ urlpatterns = [
     path('assignments/<int:pk>/save-draft/', template_views.assignment_save_draft, name='assignment-save-draft'),
     path('assignments/<int:pk>/cancel/', template_views.assignment_cancel, name='assignment-cancel'),
     path('bulk-assign/', template_views.bulk_assign, name='bulk-assign'),
+    path('api/filter-users/', template_views.filter_users_by_department, name='filter-users'),
 
     # Question URLs
     path('questions/', template_views.QuestionListView.as_view(), name='question-list'),

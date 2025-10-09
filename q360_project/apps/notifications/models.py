@@ -49,3 +49,65 @@ class EmailTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_statistics(self):
+        """Get email statistics for this template."""
+        logs = self.email_logs.all()
+        total_sent = logs.count()
+        total_opened = logs.filter(opened_at__isnull=False).count()
+        total_clicked = logs.filter(clicked_at__isnull=False).count()
+        total_failed = logs.filter(status='failed').count()
+
+        return {
+            'total_sent': total_sent,
+            'total_opened': total_opened,
+            'total_clicked': total_clicked,
+            'total_failed': total_failed,
+            'open_rate': round((total_opened / total_sent * 100), 2) if total_sent > 0 else 0,
+            'click_rate': round((total_clicked / total_sent * 100), 2) if total_sent > 0 else 0,
+            'failure_rate': round((total_failed / total_sent * 100), 2) if total_sent > 0 else 0,
+        }
+
+
+class EmailLog(models.Model):
+    """Log for tracking sent emails."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Gözləyir'),
+        ('sent', 'Göndərildi'),
+        ('failed', 'Uğursuz'),
+    ]
+
+    template = models.ForeignKey(
+        EmailTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_logs',
+        verbose_name=_('Şablon')
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='received_emails',
+        verbose_name=_('Alıcı')
+    )
+    recipient_email = models.EmailField(verbose_name=_('E-poçt'))
+    subject = models.CharField(max_length=200, verbose_name=_('Mövzu'))
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    error_message = models.TextField(blank=True, verbose_name=_('Xəta Mesajı'))
+
+    # Tracking fields
+    sent_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    clicked_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('E-poçt Loqu')
+        verbose_name_plural = _('E-poçt Loqları')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.recipient_email} - {self.subject}"

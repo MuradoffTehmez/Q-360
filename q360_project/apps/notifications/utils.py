@@ -5,7 +5,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import Notification, EmailTemplate
+from django.utils import timezone
+from .models import Notification, EmailTemplate, EmailLog
 
 
 def send_notification(recipient, title, message, notification_type='info', link='', send_email=True):
@@ -39,7 +40,8 @@ def send_notification(recipient, title, message, notification_type='info', link=
                 recipient_email=recipient.email,
                 subject=title,
                 message=message,
-                recipient_name=recipient.get_full_name()
+                recipient_name=recipient.get_full_name(),
+                recipient_user=recipient
             )
         except Exception as e:
             print(f"Email sending failed: {e}")
@@ -47,7 +49,7 @@ def send_notification(recipient, title, message, notification_type='info', link=
     return notification
 
 
-def send_simple_email(recipient_email, subject, message, recipient_name=''):
+def send_simple_email(recipient_email, subject, message, recipient_name='', recipient_user=None):
     """
     Send a simple email using default template.
 
@@ -56,30 +58,56 @@ def send_simple_email(recipient_email, subject, message, recipient_name=''):
         subject: Email subject
         message: Email message body
         recipient_name: Recipient's full name
+        recipient_user: User object (optional, for logging)
     """
-    # Prepare context
-    context = {
-        'recipient_name': recipient_name,
-        'message': message,
-        'year': 2024,
-    }
+    # Create email log
+    email_log = None
+    if recipient_user:
+        email_log = EmailLog.objects.create(
+            recipient=recipient_user,
+            recipient_email=recipient_email,
+            subject=f'Q360 - {subject}',
+            status='pending'
+        )
 
-    # Render HTML content
-    html_message = render_to_string('notifications/simple_email.html', context)
-    plain_message = strip_tags(html_message)
+    try:
+        # Prepare context
+        context = {
+            'recipient_name': recipient_name,
+            'message': message,
+            'year': 2024,
+        }
 
-    # Send email
-    send_mail(
-        subject=f'Q360 - {subject}',
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[recipient_email],
-        html_message=html_message,
-        fail_silently=False,
-    )
+        # Render HTML content
+        html_message = render_to_string('notifications/simple_email.html', context)
+        plain_message = strip_tags(html_message)
+
+        # Send email
+        send_mail(
+            subject=f'Q360 - {subject}',
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+
+        # Update log status
+        if email_log:
+            email_log.status = 'sent'
+            email_log.sent_at = timezone.now()
+            email_log.save()
+
+    except Exception as e:
+        # Update log with error
+        if email_log:
+            email_log.status = 'failed'
+            email_log.error_message = str(e)
+            email_log.save()
+        raise
 
 
-def send_template_email(recipient_email, template_name, context):
+def send_template_email(recipient_email, template_name, context, recipient_user=None):
     """
     Send an email using a predefined template.
 
@@ -87,7 +115,9 @@ def send_template_email(recipient_email, template_name, context):
         recipient_email: Recipient email address
         template_name: Name of the email template
         context: Dictionary of context variables
+        recipient_user: User object (optional, for logging)
     """
+    email_log = None
     try:
         template = EmailTemplate.objects.get(name=template_name, is_active=True)
 
@@ -109,6 +139,16 @@ def send_template_email(recipient_email, template_name, context):
         else:
             text_content = strip_tags(html_content)
 
+        # Create email log
+        if recipient_user:
+            email_log = EmailLog.objects.create(
+                template=template,
+                recipient=recipient_user,
+                recipient_email=recipient_email,
+                subject=subject,
+                status='pending'
+            )
+
         # Send email
         send_mail(
             subject=subject,
@@ -119,10 +159,24 @@ def send_template_email(recipient_email, template_name, context):
             fail_silently=False,
         )
 
+        # Update log status
+        if email_log:
+            email_log.status = 'sent'
+            email_log.sent_at = timezone.now()
+            email_log.save()
+
     except EmailTemplate.DoesNotExist:
         print(f"Email template '{template_name}' not found")
+        if email_log:
+            email_log.status = 'failed'
+            email_log.error_message = f"Template '{template_name}' not found"
+            email_log.save()
     except Exception as e:
         print(f"Email sending failed: {e}")
+        if email_log:
+            email_log.status = 'failed'
+            email_log.error_message = str(e)
+            email_log.save()
 
 
 def send_bulk_notification(recipients, title, message, notification_type='info', link=''):
