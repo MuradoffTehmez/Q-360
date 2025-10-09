@@ -461,6 +461,110 @@ class QuestionCategoryListView(LoginRequiredMixin, ListView):
         ).filter(is_active=True)
 
 
+@login_required
+def category_create(request):
+    """Create new question category."""
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    order = request.POST.get('order', 0)
+
+    if not name:
+        return JsonResponse({'success': False, 'error': 'Kateqoriya adı tələb olunur'})
+
+    try:
+        category = QuestionCategory.objects.create(
+            name=name,
+            description=description,
+            order=int(order) if order else 0
+        )
+        messages.success(request, f'"{name}" kateqoriyası yaradıldı.')
+        return JsonResponse({
+            'success': True,
+            'message': 'Kateqoriya yaradıldı',
+            'category': {
+                'id': category.id,
+                'name': category.name,
+                'description': category.description,
+                'order': category.order
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+def category_update(request, pk):
+    """Update question category."""
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    category = get_object_or_404(QuestionCategory, pk=pk)
+
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    order = request.POST.get('order', category.order)
+
+    if not name:
+        return JsonResponse({'success': False, 'error': 'Kateqoriya adı tələb olunur'})
+
+    try:
+        category.name = name
+        category.description = description
+        category.order = int(order) if order else 0
+        category.save()
+
+        messages.success(request, f'"{name}" kateqoriyası yeniləndi.')
+        return JsonResponse({
+            'success': True,
+            'message': 'Kateqoriya yeniləndi',
+            'category': {
+                'id': category.id,
+                'name': category.name,
+                'description': category.description,
+                'order': category.order
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+def category_delete(request, pk):
+    """Delete (deactivate) a question category."""
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    category = get_object_or_404(QuestionCategory, pk=pk)
+
+    # Check if category has active questions
+    active_questions_count = category.questions.filter(is_active=True).count()
+
+    if active_questions_count > 0:
+        return JsonResponse({
+            'success': False,
+            'error': f'Bu kateqoriyada {active_questions_count} aktiv sual var. Əvvəlcə sualları silməlisiniz.'
+        })
+
+    # Soft delete
+    category.is_active = False
+    category.save()
+
+    messages.success(request, f'"{category.name}" kateqoriyası silindi.')
+    return JsonResponse({'success': True, 'message': 'Kateqoriya silindi'})
+
+
 # ==================== Results Views ====================
 
 @login_required

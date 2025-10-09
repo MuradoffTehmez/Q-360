@@ -222,11 +222,14 @@
                                 <button type="button" class="btn btn-outline-primary me-2" onclick="saveAsDraft()">
                                     <i class="fas fa-save me-2"></i>Layihə kimi saxla
                                 </button>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" name="save_as_draft" value="false">
                                     <i class="fas fa-check me-2"></i>İrəliləyiş Qeyd Et
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Hidden input for draft saving -->
+                        <input type="hidden" name="save_as_draft" id="save_as_draft_input" value="false">
                     </form>
                 </div>
             </div>
@@ -289,8 +292,11 @@ function setProgress(percentage, notePrefix) {
 }
 
 function saveAsDraft() {
-    // Add logic to save as draft if needed
-    alert('Layihə funksiyası tezliklə əlavə ediləcək');
+    // Set the hidden input to true for draft saving
+    document.getElementById('save_as_draft_input').value = 'true';
+
+    // Submit the form
+    document.getElementById('progressForm').submit();
 }
 
 // Form validation

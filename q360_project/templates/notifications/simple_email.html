@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q360 Bildiriş</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Q360</h1>
+                            <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">360° Qiymətləndirmə Sistemi</p>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            {% if recipient_name %}
+                            <p style="color: #666666; line-height: 1.6; margin: 0 0 20px 0;">
+                                Salam {{ recipient_name }},
+                            </p>
+                            {% endif %}
+
+                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; border-left: 4px solid #667eea; margin: 20px 0;">
+                                <p style="color: #333333; line-height: 1.8; margin: 0;">
+                                    {{ message }}
+                                </p>
+                            </div>
+
+                            <p style="color: #666666; line-height: 1.6; margin: 20px 0;">
+                                Ətraflı məlumat üçün sistemə daxil olun.
+                            </p>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ protocol }}://{{ domain }}"
+                                           style="display: inline-block; padding: 15px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+                                            Sistemə Daxil Ol
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="color: #999999; font-size: 12px; margin: 0 0 5px 0;">
+                                © {% now "Y" %} Q360 - 360° Qiymətləndirmə Sistemi
+                            </p>
+                            <p style="color: #999999; font-size: 12px; margin: 0;">
+                                Bu avtomatik e-poçtdur, cavab verməyin.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

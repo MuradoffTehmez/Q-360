@@ -351,15 +351,54 @@ function saveCategory() {
     const form = document.getElementById('categoryForm');
     const formData = new FormData(form);
 
-    // In production, this would be an AJAX request
-    alert('Kateqoriya yaradılması funksiyası tezliklə əlavə ediləcək');
-    // Close modal
-    bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
+    fetch('{% url "evaluations:category-create" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Kateqoriya yaradıldı!');
+            window.location.reload();
+        } else {
+            alert('Xəta: ' + (data.error || 'Naməlum xəta'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
 }
 
 function editCategory(id) {
-    alert('Kateqoriya redaktəsi: ' + id);
-    // In production, open edit modal
+    const name = prompt('Yeni kateqoriya adı:');
+    if (!name) return;
+
+    const description = prompt('Təsvir (ixtiyari):');
+
+    const formData = new FormData();
+    formData.append('name', name);
+    if (description) formData.append('description', description);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch(`/evaluations/categories/${id}/edit/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Kateqoriya yeniləndi!');
+            window.location.reload();
+        } else {
+            alert('Xəta: ' + (data.error || 'Naməlum xəta'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
 }
 
 function viewQuestions(id) {
@@ -367,10 +406,29 @@ function viewQuestions(id) {
 }
 
 function deleteCategory(id) {
-    if (confirm('Bu kateqoriyanı silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.')) {
-        // In production, AJAX delete request
-        alert('Silmə funksiyası tezliklə əlavə ediləcək');
+    if (!confirm('Bu kateqoriyanı silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.')) {
+        return;
     }
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch(`/evaluations/categories/${id}/delete/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Kateqoriya silindi!');
+            window.location.reload();
+        } else {
+            alert('Xəta: ' + (data.error || 'Naməlum xəta'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
 }
 </script>
 {% endblock %}

@@ -135,22 +135,49 @@ def add_progress(request, goal_pk):
     """Add progress log to a goal."""
     goal = get_object_or_404(DevelopmentGoal, pk=goal_pk, user=request.user)
 
+    # Check for existing draft
+    draft_progress = ProgressLog.objects.filter(
+        goal=goal,
+        logged_by=request.user,
+        is_draft=True
+    ).first()
+
     if request.method == 'POST':
-        form = ProgressLogForm(request.POST)
+        is_draft = request.POST.get('save_as_draft') == 'true'
+
+        # If editing draft, update it; otherwise create new
+        if draft_progress and is_draft:
+            form = ProgressLogForm(request.POST, instance=draft_progress)
+        else:
+            form = ProgressLogForm(request.POST)
+
         if form.is_valid():
             progress = form.save(commit=False)
             progress.goal = goal
             progress.logged_by = request.user
+            progress.is_draft = is_draft
             progress.save()
 
-            messages.success(request, 'İrəliləyiş qeyd edildi.')
+            if is_draft:
+                messages.success(request, 'İrəliləyiş layihə kimi saxlanıldı.')
+            else:
+                # If there was a draft, delete it after final save
+                if draft_progress and draft_progress.pk != progress.pk:
+                    draft_progress.delete()
+                messages.success(request, 'İrəliləyiş qeyd edildi.')
+
             return redirect('development-plans:goal-detail', pk=goal_pk)
     else:
-        form = ProgressLogForm()
+        # Load draft if exists
+        if draft_progress:
+            form = ProgressLogForm(instance=draft_progress)
+        else:
+            form = ProgressLogForm()
 
     context = {
         'form': form,
-        'goal': goal
+        'goal': goal,
+        'draft_progress': draft_progress
     }
 
     return render(request, 'development_plans/add_progress.html', context)
@@ -222,3 +249,87 @@ def goal_templates(request):
     }
 
     return render(request, 'development_plans/goal_templates.html', context)
+
+
+@login_required
+def goal_approve(request, pk):
+    """Approve or reject a development goal (managers only)."""
+    if not (request.user.is_manager() or request.user.is_admin()):
+        messages.error(request, 'Bu əməliyyatı yerinə yetirmək icazəniz yoxdur.')
+        return redirect('development-plans:my-goals')
+
+    goal = get_object_or_404(DevelopmentGoal, pk=pk)
+
+    # Check if user is the goal owner's manager
+    if not request.user.is_admin():
+        subordinates = request.user.get_subordinates()
+        if goal.user not in subordinates:
+            messages.error(request, 'Bu məqsədi təsdiqləmək icazəniz yoxdur.')
+            return redirect('development-plans:team-goals')
+
+    # Check if goal is in pending approval status
+    if goal.status != 'pending_approval':
+        messages.warning(request, 'Bu məqsəd təsdiq gözləmir.')
+        return redirect('development-plans:team-goals')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        approval_note = request.POST.get('approval_note', '')
+
+        if action == 'approve':
+            goal.status = 'active'
+            goal.approved_by = request.user
+            goal.approved_at = timezone.now()
+            goal.approval_note = approval_note
+            goal.save()
+
+            messages.success(request, f'{goal.user.get_full_name()} - "{goal.title}" məqsədi təsdiqləndi.')
+
+            # Send notification to goal owner
+            from apps.notifications.utils import send_notification
+            notification_message = f'"{goal.title}" məqsədiniz {request.user.get_full_name()} tərəfindən təsdiqləndi.'
+            if approval_note:
+                notification_message += f'\n\nQeyd: {approval_note}'
+
+            send_notification(
+                recipient=goal.user,
+                title='Məqsəd Təsdiqləndi',
+                message=notification_message,
+                notification_type='success',
+                link=f'/development-plans/goals/{goal.pk}/',
+                send_email=True
+            )
+
+        elif action == 'reject':
+            goal.status = 'rejected'
+            goal.approved_by = request.user
+            goal.approved_at = timezone.now()
+            goal.approval_note = approval_note
+            goal.save()
+
+            messages.success(request, f'{goal.user.get_full_name()} - "{goal.title}" məqsədi rədd edildi.')
+
+            # Send notification to goal owner
+            from apps.notifications.utils import send_notification
+            notification_message = f'"{goal.title}" məqsədiniz {request.user.get_full_name()} tərəfindən rədd edildi.'
+            if approval_note:
+                notification_message += f'\n\nSəbəb: {approval_note}'
+            else:
+                notification_message += '\n\nZəhmət olmasa məqsədi yenidən nəzərdən keçirin və düzəliş edin.'
+
+            send_notification(
+                recipient=goal.user,
+                title='Məqsəd Rədd Edildi',
+                message=notification_message,
+                notification_type='warning',
+                link=f'/development-plans/goals/{goal.pk}/',
+                send_email=True
+            )
+
+        return redirect('development-plans:team-goals')
+
+    context = {
+        'goal': goal
+    }
+
+    return render(request, 'development_plans/goal_approve.html', context)

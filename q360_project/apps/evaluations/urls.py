@@ -41,7 +41,12 @@ urlpatterns = [
     path('questions/create/', template_views.QuestionCreateView.as_view(), name='question-create'),
     path('questions/<int:pk>/edit/', template_views.QuestionUpdateView.as_view(), name='question-edit'),
     path('questions/<int:pk>/delete/', template_views.question_delete, name='question-delete'),
+
+    # Category URLs
     path('categories/', template_views.QuestionCategoryListView.as_view(), name='category-list'),
+    path('categories/create/', template_views.category_create, name='category-create'),
+    path('categories/<int:pk>/edit/', template_views.category_update, name='category-edit'),
+    path('categories/<int:pk>/delete/', template_views.category_delete, name='category-delete'),
 
     # Results URLs
     path('results/<int:campaign_pk>/', template_views.evaluation_results, name='results'),

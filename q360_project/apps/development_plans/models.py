@@ -9,9 +9,11 @@ class DevelopmentGoal(models.Model):
 
     STATUS_CHOICES = [
         ('draft', 'Qaralama'),
+        ('pending_approval', 'Təsdiq Gözləyir'),
         ('active', 'Aktiv'),
         ('completed', 'Tamamlanmış'),
         ('cancelled', 'Ləğv Edilmiş'),
+        ('rejected', 'Rədd Edilmiş'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='development_goals')
@@ -21,6 +23,12 @@ class DevelopmentGoal(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     target_date = models.DateField(verbose_name=_('Hədəf Tarixi'))
     completion_date = models.DateField(null=True, blank=True)
+
+    # Approval workflow
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_goals')
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approval_note = models.TextField(blank=True, verbose_name=_('Təsdiq Qeydi'))
+
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_goals')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,7 +49,9 @@ class ProgressLog(models.Model):
     note = models.TextField(verbose_name=_('Qeyd'))
     progress_percentage = models.IntegerField(default=0, verbose_name=_('İrəliləyiş %'))
     logged_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    is_draft = models.BooleanField(default=False, verbose_name=_('Layihə'))
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _('İrəliləyiş Qeydi')
