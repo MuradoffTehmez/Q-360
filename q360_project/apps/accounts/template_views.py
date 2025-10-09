@@ -262,3 +262,61 @@ def security_settings(request):
     }
 
     return render(request, 'accounts/security.html', context)
+
+
+def password_reset_request(request):
+    """Password reset request form."""
+    from django.contrib.auth.forms import PasswordResetForm
+
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='accounts/password_reset_email.html',
+                subject_template_name='accounts/password_reset_subject.txt'
+            )
+            return redirect('accounts:password-reset-done')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'accounts/password_reset.html', {'form': form})
+
+
+def password_reset_done(request):
+    """Password reset request submitted."""
+    return render(request, 'accounts/password_reset_done.html')
+
+
+def password_reset_confirm(request, uidb64, token):
+    """Password reset confirmation."""
+    from django.contrib.auth.forms import SetPasswordForm
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_decode
+    from django.utils.encoding import force_str
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('accounts:password-reset-complete')
+        else:
+            form = SetPasswordForm(user)
+
+        return render(request, 'accounts/password_reset_confirm.html', {'form': form})
+    else:
+        messages.error(request, 'Şifrə sıfırlama linki etibarsızdır.')
+        return redirect('accounts:login')
+
+
+def password_reset_complete(request):
+    """Password reset complete."""
+    return render(request, 'accounts/password_reset_complete.html')

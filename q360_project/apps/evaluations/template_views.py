@@ -154,6 +154,57 @@ def campaign_complete(request, pk):
     return redirect('evaluations:campaign-detail', pk=pk)
 
 
+@login_required
+def campaign_questions_assign(request, campaign_pk):
+    """Assign questions to a campaign."""
+    campaign = get_object_or_404(EvaluationCampaign, pk=campaign_pk)
+
+    if not request.user.is_admin():
+        messages.error(request, 'Bu əməliyyatı yerinə yetirmək icazəniz yoxdur.')
+        return redirect('evaluations:campaign-detail', pk=campaign_pk)
+
+    if request.method == 'POST':
+        # Get selected questions
+        question_ids = request.POST.getlist('questions')
+
+        if not question_ids:
+            messages.error(request, 'Heç bir sual seçilməyib.')
+            return redirect('evaluations:campaign-questions', campaign_pk=campaign_pk)
+
+        # Clear existing questions
+        CampaignQuestion.objects.filter(campaign=campaign).delete()
+
+        # Add new questions
+        order = 0
+        for question_id in question_ids:
+            question = get_object_or_404(Question, pk=question_id)
+            CampaignQuestion.objects.create(
+                campaign=campaign,
+                question=question,
+                order=order
+            )
+            order += 1
+
+        messages.success(request, f'{len(question_ids)} sual kampaniyaya əlavə edildi.')
+        return redirect('evaluations:campaign-detail', pk=campaign_pk)
+
+    # Get all active questions grouped by category
+    categories = QuestionCategory.objects.filter(is_active=True).prefetch_related('questions')
+
+    # Get currently assigned questions
+    assigned_questions = CampaignQuestion.objects.filter(
+        campaign=campaign
+    ).values_list('question_id', flat=True)
+
+    context = {
+        'campaign': campaign,
+        'categories': categories,
+        'assigned_questions': list(assigned_questions),
+    }
+
+    return render(request, 'evaluations/campaign_questions.html', context)
+
+
 # ==================== Assignment Views ====================
 
 @login_required
@@ -294,6 +345,33 @@ def assignment_save_draft(request, pk):
     return JsonResponse({'success': True, 'message': 'Qaralama saxlanıldı'})
 
 
+@login_required
+def assignment_cancel(request, pk):
+    """Cancel an evaluation assignment."""
+    if request.method != 'POST':
+        messages.error(request, 'Yanlış sorğu.')
+        return redirect('evaluations:my-assignments')
+
+    assignment = get_object_or_404(EvaluationAssignment, pk=pk)
+
+    # Check permission - only admin or campaign creator can cancel
+    if not (request.user.is_admin() or assignment.campaign.created_by == request.user):
+        messages.error(request, 'Bu tapşırığı ləğv etmək icazəniz yoxdur.')
+        return redirect('evaluations:my-assignments')
+
+    # Check if assignment can be cancelled
+    if assignment.status == 'completed':
+        messages.error(request, 'Tamamlanmış tapşırıq ləğv edilə bilməz.')
+        return redirect('evaluations:campaign-detail', pk=assignment.campaign.pk)
+
+    # Delete assignment and all related responses
+    Response.objects.filter(assignment=assignment).delete()
+    assignment.delete()
+
+    messages.success(request, 'Tapşırıq ləğv edildi.')
+    return redirect('evaluations:campaign-detail', pk=assignment.campaign.pk)
+
+
 # ==================== Question Management ====================
 
 class QuestionListView(LoginRequiredMixin, ListView):
@@ -335,6 +413,40 @@ class QuestionCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, 'Sual yaradıldı.')
         return super().form_valid(form)
+
+
+class QuestionUpdateView(LoginRequiredMixin, UpdateView):
+    """Update existing question."""
+    model = Question
+    form_class = QuestionForm
+    template_name = 'evaluations/question_form.html'
+    success_url = reverse_lazy('evaluations:question-list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Sual yeniləndi.')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_edit'] = True
+        return context
+
+
+@login_required
+def question_delete(request, pk):
+    """Delete (deactivate) a question."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    question = get_object_or_404(Question, pk=pk)
+    question.is_active = False
+    question.save()
+
+    messages.success(request, f'Sual "{question.text[:50]}..." deaktiv edildi.')
+    return JsonResponse({'success': True, 'message': 'Sual silindi'})
 
 
 class QuestionCategoryListView(LoginRequiredMixin, ListView):

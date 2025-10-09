@@ -3,107 +3,465 @@
 
 {% block title %}Giriş - Q360{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    /* Login Container */
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+        animation: shimmer 20s linear infinite;
+    }
+
+    /* Login Card */
+    .login-card {
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.98);
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+    }
+
+    .login-card-body {
+        padding: 3rem 2.5rem;
+    }
+
+    /* Logo Animation */
+    .logo-container {
+        animation: fadeIn 1s ease-out 0.2s both;
+    }
+
+    .logo-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .logo-icon:hover {
+        transform: rotate(5deg) scale(1.05);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .login-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 1.5rem;
+        animation: slideInRight 0.6s ease-out both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.3s; }
+    .form-group:nth-child(2) { animation-delay: 0.4s; }
+    .form-group:nth-child(3) { animation-delay: 0.5s; }
+    .form-group:nth-child(4) { animation-delay: 0.6s; }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control-custom {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-control-custom:focus {
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .form-control-custom::placeholder {
+        color: #adb5bd;
+    }
+
+    .input-group-custom {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 5;
+        transition: color 0.3s ease;
+    }
+
+    .form-control-custom:focus ~ .input-icon {
+        color: #667eea;
+    }
+
+    .input-with-icon {
+        padding-left: 3rem;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 5;
+    }
+
+    .toggle-password:hover {
+        color: #667eea;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Checkbox */
+    .form-check-custom {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input-custom {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+        border: 2px solid #dee2e6;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input-custom:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-check-label {
+        color: #6c757d;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    /* Submit Button */
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(-1px);
+    }
+
+    /* Links */
+    .forgot-password-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .forgot-password-link:hover {
+        color: #764ba2;
+        transform: translateX(3px);
+    }
+
+    /* Card Footer */
+    .login-card-footer {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 50px;
+        color: #28a745;
+        font-size: 0.9rem;
+        font-weight: 500;
+        box-shadow: 0 2px 10px rgba(40, 167, 69, 0.1);
+    }
+
+    /* Help Section */
+    .help-section {
+        animation: fadeIn 1s ease-out 0.8s both;
+    }
+
+    .help-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+    }
+
+    .help-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* Alert */
+    .alert-custom {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.25rem;
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    .alert-danger-custom {
+        background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+        color: #dc3545;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+        .login-card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0">
-                <div class="card-body p-5">
-                    <!-- Logo and Title -->
-                    <div class="text-center mb-4">
-                        <i class="fas fa-chart-pie fa-4x text-primary mb-3"></i>
-                        <h2 class="fw-bold">Q360</h2>
-                        <p class="text-muted">360° Qiymətləndirmə Sistemi</p>
+<div class="login-container d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-card card">
+                    <div class="login-card-body">
+                        <!-- Logo and Title -->
+                        <div class="logo-container text-center">
+                            <div class="logo-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <h1 class="login-title">Q360</h1>
+                            <p class="login-subtitle">360° Qiymətləndirmə Sistemi</p>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger-custom alert-custom mb-4">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                            <!-- Username -->
+                            <div class="form-group">
+                                <label for="id_username" class="form-label">
+                                    <i class="fas fa-user me-2"></i>İstifadəçi adı və ya E-poçt
+                                </label>
+                                <div class="input-group-custom">
+                                    <input type="text"
+                                           class="form-control form-control-custom input-with-icon {% if form.username.errors %}is-invalid{% endif %}"
+                                           id="id_username"
+                                           name="username"
+                                           placeholder="İstifadəçi adınızı daxil edin"
+                                           required
+                                           autofocus>
+                                    <i class="fas fa-user input-icon"></i>
+                                    {% if form.username.errors %}
+                                        <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="form-group">
+                                <label for="id_password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Şifrə
+                                </label>
+                                <div class="input-group-custom">
+                                    <input type="password"
+                                           class="form-control form-control-custom input-with-icon {% if form.password.errors %}is-invalid{% endif %}"
+                                           id="id_password"
+                                           name="password"
+                                           placeholder="Şifrənizi daxil edin"
+                                           required>
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <button class="toggle-password" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if form.password.errors %}
+                                        <div class="invalid-feedback">{{ form.password.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Remember Me & Forgot Password -->
+                            <div class="form-group d-flex justify-content-between align-items-center">
+                                <div class="form-check-custom">
+                                    <input type="checkbox" class="form-check-input form-check-input-custom" id="remember" name="remember">
+                                    <label class="form-check-label" for="remember">
+                                        Məni xatırla
+                                    </label>
+                                </div>
+                                <a href="{% url 'accounts:password-reset' %}" class="forgot-password-link">
+                                    Şifrəni unutmusunuz?
+                                </a>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-login">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Daxil Ol
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
-                    <!-- Login Form -->
-                    <form method="post" action="{% url 'accounts:login' %}">
-                        {% csrf_token %}
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-
-                        <!-- Username -->
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">
-                                <i class="fas fa-user me-1"></i> İstifadəçi adı və ya E-poçt
-                            </label>
-                            <input type="text"
-                                   class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}"
-                                   id="id_username"
-                                   name="username"
-                                   placeholder="İstifadəçi adınızı daxil edin"
-                                   required
-                                   autofocus>
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
-                            {% endif %}
+                    <!-- Card Footer -->
+                    <div class="login-card-footer text-center">
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Təhlükəsiz Giriş</span>
                         </div>
-
-                        <!-- Password -->
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">
-                                <i class="fas fa-lock me-1"></i> Şifrə
-                            </label>
-                            <div class="input-group">
-                                <input type="password"
-                                       class="form-control form-control-lg {% if form.password.errors %}is-invalid{% endif %}"
-                                       id="id_password"
-                                       name="password"
-                                       placeholder="Şifrənizi daxil edin"
-                                       required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                {% if form.password.errors %}
-                                    <div class="invalid-feedback">{{ form.password.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Remember Me -->
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">
-                                Məni xatırla
-                            </label>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2 mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i> Daxil Ol
-                            </button>
-                        </div>
-
-                        <!-- Forgot Password -->
-                        <div class="text-center">
-                            <a href="#" class="text-decoration-none text-muted">
-                                Şifrəni unutmusunuz? (Tezliklə)
-                            </a>
-                        </div>
-                    </form>
+                    </div>
                 </div>
 
-                <!-- Card Footer -->
-                <div class="card-footer bg-light text-center py-3">
-                    <small class="text-muted">
-                        <i class="fas fa-shield-alt me-1"></i>
-                        Təhlükəsiz giriş
-                    </small>
+                <!-- Help Section -->
+                <div class="help-section text-center mt-4">
+                    <a href="{% url 'help' %}" class="help-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Kömək lazımdır?</span>
+                    </a>
                 </div>
-            </div>
-
-            <!-- Help Text -->
-            <div class="text-center mt-4">
-                <p class="text-muted">
-                    <i class="fas fa-question-circle me-1"></i>
-                    Problemlə qarşılaşdınız?
-                    <a href="{% url 'help' %}" class="text-decoration-none">Kömək</a>
-                </p>
             </div>
         </div>
     </div>
@@ -126,6 +484,18 @@
             icon.classList.remove('fa-eye-slash');
             icon.classList.add('fa-eye');
         }
+    });
+
+    // Add focus animations to inputs
+    const inputs = document.querySelectorAll('.form-control-custom');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.01)';
+        });
+
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
     });
 </script>
 {% endblock %}

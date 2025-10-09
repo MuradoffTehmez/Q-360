@@ -24,6 +24,12 @@ urlpatterns = [
     path('settings/', template_views.ProfileUpdateView.as_view(), name='settings'),
     path('security/', template_views.security_settings, name='security'),
 
+    # Password reset
+    path('password-reset/', template_views.password_reset_request, name='password-reset'),
+    path('password-reset/done/', template_views.password_reset_done, name='password-reset-done'),
+    path('password-reset/<uidb64>/<token>/', template_views.password_reset_confirm, name='password-reset-confirm'),
+    path('password-reset/complete/', template_views.password_reset_complete, name='password-reset-complete'),
+
     # API routes
     path('', include(router.urls)),
 ]
