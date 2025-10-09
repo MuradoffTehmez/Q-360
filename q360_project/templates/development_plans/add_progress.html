@@ -121,6 +121,16 @@
                         {% endfor %}
                     {% endif %}
 
+                    {% if draft_progress %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Layihə yükləndi!</strong> Əvvəlki layihəniz yüklənib. Dəyişikliklərinizi davam etdirə bilərsiniz.
+                        <br>
+                        <small class="text-muted">Son yenilənmə: {{ draft_progress.updated_at|date:"d.m.Y H:i" }}</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+
                     <form method="post" id="progressForm">
                         {% csrf_token %}
 

@@ -61,12 +61,19 @@ class GoalDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         goal = self.object
 
-        # Progress logs
-        context['progress_logs'] = goal.progress_logs.order_by('-created_at')
+        # Progress logs (exclude drafts)
+        context['progress_logs'] = goal.progress_logs.filter(is_draft=False).order_by('-created_at')
 
-        # Calculate progress
-        if goal.progress_logs.exists():
-            latest_log = goal.progress_logs.first()
+        # Draft progress
+        context['draft_progress'] = goal.progress_logs.filter(
+            is_draft=True,
+            logged_by=self.request.user
+        ).first()
+
+        # Calculate progress (only from non-draft logs)
+        non_draft_logs = goal.progress_logs.filter(is_draft=False)
+        if non_draft_logs.exists():
+            latest_log = non_draft_logs.first()
             context['current_progress'] = latest_log.progress_percentage
         else:
             context['current_progress'] = 0

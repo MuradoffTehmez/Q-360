@@ -752,9 +752,58 @@ def bulk_assign(request):
     else:
         form = BulkAssignmentForm()
 
+    # Get departments for filter
+    from apps.departments.models import Department
+    departments = Department.objects.filter(is_active=True).order_by('name')
+
     context = {
         'form': form,
-        'page_title': 'Toplu Tapşırıq Yaratma'
+        'page_title': 'Toplu Tapşırıq Yaratma',
+        'departments': departments
     }
 
     return render(request, 'evaluations/bulk_assign.html', context)
+
+
+@login_required
+def filter_users_by_department(request):
+    """AJAX endpoint to filter users by department."""
+    if not request.user.is_admin():
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    department_id = request.GET.get('department_id')
+    role = request.GET.get('role')
+
+    # Base queryset
+    users = User.objects.filter(is_active=True)
+
+    # Filter by department
+    if department_id:
+        users = users.filter(department_id=department_id)
+
+    # Filter by role
+    if role:
+        if role == 'admin':
+            users = users.filter(role='admin')
+        elif role == 'manager':
+            users = users.filter(role='manager')
+        elif role == 'employee':
+            users = users.filter(role='employee')
+
+    # Prepare response data
+    user_list = []
+    for user in users:
+        user_list.append({
+            'id': user.id,
+            'username': user.username,
+            'full_name': user.get_full_name(),
+            'email': user.email,
+            'department': user.department.name if user.department else '',
+            'role': user.role
+        })
+
+    return JsonResponse({
+        'success': True,
+        'users': user_list,
+        'count': len(user_list)
+    })

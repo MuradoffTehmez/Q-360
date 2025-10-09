@@ -71,10 +71,17 @@ def team_reports(request):
         # Manager sees subordinates
         team_members = user.get_subordinates()
 
-    # Get latest campaign
-    latest_campaign = EvaluationCampaign.objects.filter(
-        status__in=['active', 'completed']
-    ).order_by('-created_at').first()
+    # Get campaign from query parameter or latest
+    campaign_id = request.GET.get('campaign')
+    if campaign_id:
+        latest_campaign = EvaluationCampaign.objects.filter(
+            pk=campaign_id,
+            status__in=['active', 'completed']
+        ).first()
+    else:
+        latest_campaign = EvaluationCampaign.objects.filter(
+            status__in=['active', 'completed']
+        ).order_by('-created_at').first()
 
     # Get results for team members
     results = []

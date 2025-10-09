@@ -310,15 +310,13 @@
             </div>
             <div class="modal-body">
                 <p class="text-muted">Başqa kampaniyanın nəticələrini görmək üçün seçin:</p>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active">
-                        2024 İllik Qiymətləndirmə
-                        <span class="badge bg-success float-end">Aktiv</span>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        2023 Q4 Qiymətləndirmə
-                        <span class="badge bg-secondary float-end">Tamamlandı</span>
-                    </a>
+                <div class="list-group" id="campaignList">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Yüklənir...</span>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">Kampaniyalar yüklənir...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -362,6 +360,66 @@ function exportToExcel() {
 
 function exportToPDF() {
     window.print();
+}
+
+// Load campaigns when modal is opened
+document.getElementById('campaignSelectModal').addEventListener('show.bs.modal', function () {
+    loadCampaigns();
+});
+
+function loadCampaigns() {
+    const campaignList = document.getElementById('campaignList');
+
+    // Fetch campaigns via AJAX
+    fetch('/evaluations/api/campaigns/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                campaignList.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>Kampaniya tapılmadı</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            data.forEach(campaign => {
+                const isActive = campaign.id == {{ latest_campaign.pk|default:0 }};
+                const statusBadge = campaign.status === 'active'
+                    ? '<span class="badge bg-success float-end">Aktiv</span>'
+                    : campaign.status === 'completed'
+                    ? '<span class="badge bg-secondary float-end">Tamamlandı</span>'
+                    : '<span class="badge bg-warning float-end">Layihə</span>';
+
+                html += `
+                    <a href="?campaign=${campaign.id}"
+                       class="list-group-item list-group-item-action ${isActive ? 'active' : ''}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${campaign.title}</strong>
+                                <br>
+                                <small class="${isActive ? 'text-white-50' : 'text-muted'}">
+                                    ${campaign.start_date} - ${campaign.end_date}
+                                </small>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                    </a>
+                `;
+            });
+
+            campaignList.innerHTML = html;
+        })
+        .catch(error => {
+            campaignList.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Xəta baş verdi: ${error.message}
+                </div>
+            `;
+        });
 }
 </script>
 {% endblock %}
