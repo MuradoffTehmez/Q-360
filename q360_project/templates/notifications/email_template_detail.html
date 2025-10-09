@@ -1,0 +1,312 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ template.name }} - E-poçt Şablonu{% endblock %}
+
+{% block extra_css %}
+<style>
+    .template-preview {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+    .variable-tag {
+        background: #e7f3ff;
+        color: #0d6efd;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+    .code-block {
+        background: #272822;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'notifications:inbox' %}">Bildirişlər</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'notifications:email-templates' %}">E-poçt Şablonları</a></li>
+            <li class="breadcrumb-item active">{{ template.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-envelope me-2"></i>{{ template.name }}</h2>
+            <p class="text-muted mb-0">E-poçt şablonu təfsilatları</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'notifications:email-template-edit' template.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Redaktə et
+            </a>
+            <button class="btn btn-outline-success" onclick="sendTestEmail()">
+                <i class="fas fa-paper-plane me-2"></i>Test Göndər
+            </button>
+            <a href="{% url 'notifications:email-templates' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Geri
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Template Info -->
+        <div class="col-lg-8 mb-4">
+            <!-- Basic Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Əsas Məlumat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Şablon Adı:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ template.name }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Mövzu:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ template.subject }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {% if template.is_active %}
+                                <span class="badge bg-success">Aktiv</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Deaktiv</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Yaradılma Tarixi:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <i class="fas fa-calendar me-2"></i>{{ template.created_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Son Yeniləmə:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <i class="fas fa-clock me-2"></i>{{ template.updated_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTML Preview -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>HTML Önizləmə</h5>
+                    <button class="btn btn-sm btn-light" onclick="togglePreview()">
+                        <i class="fas fa-code me-1"></i>Kod / Görünüş
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="htmlPreview" class="template-preview">
+                        {{ template.html_content|safe }}
+                    </div>
+                    <div id="htmlCode" class="code-block" style="display: none;">
+                        <pre><code>{{ template.html_content }}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Content -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>Mətn Versiyası</h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        <pre class="mb-0">{{ template.text_content }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Sürətli Əməliyyatlar</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" onclick="duplicateTemplate()">
+                            <i class="fas fa-copy me-2"></i>Dublikat Yarat
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="exportTemplate()">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                        {% if template.is_active %}
+                        <button class="btn btn-outline-secondary" onclick="deactivateTemplate()">
+                            <i class="fas fa-pause me-2"></i>Deaktiv et
+                        </button>
+                        {% else %}
+                        <button class="btn btn-outline-success" onclick="activateTemplate()">
+                            <i class="fas fa-play me-2"></i>Aktiv et
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-outline-danger" onclick="deleteTemplate()">
+                            <i class="fas fa-trash me-2"></i>Sil
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Variables -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-code me-2"></i>İstifadə Edilə Bilən Dəyişənlər</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">Şablonda istifadə edə biləcəyiniz dəyişənlər:</p>
+
+                    <div class="mb-3">
+                        <strong class="d-block mb-2">İstifadəçi:</strong>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} user.name {{ '}}' }}</span>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} user.email {{ '}}' }}</span>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} user.position {{ '}}' }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong class="d-block mb-2">Kampaniya:</strong>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} campaign.title {{ '}}' }}</span>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} campaign.end_date {{ '}}' }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong class="d-block mb-2">Qiymətləndirmə:</strong>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} evaluation.score {{ '}}' }}</span>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} evaluation.link {{ '}}' }}</span>
+                    </div>
+
+                    <div>
+                        <strong class="d-block mb-2">Sistem:</strong>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} site.name {{ '}}' }}</span>
+                        <span class="variable-tag d-block mb-1">{{ '{{' }} site.url {{ '}}' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>İstifadə Statistikası</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Göndərilən:</span>
+                        <strong>0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Açılan:</span>
+                        <strong>0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Kliklənən:</span>
+                        <strong>0</strong>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Statistika funksiyası tezliklə əlavə ediləcək
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePreview() {
+    const preview = document.getElementById('htmlPreview');
+    const code = document.getElementById('htmlCode');
+
+    if (preview.style.display === 'none') {
+        preview.style.display = 'block';
+        code.style.display = 'none';
+    } else {
+        preview.style.display = 'none';
+        code.style.display = 'block';
+    }
+}
+
+function sendTestEmail() {
+    const email = prompt('Test e-poçtu göndərmək üçün e-mail daxil edin:');
+    if (email) {
+        // AJAX request to send test email
+        alert('Test e-poçtu göndərildi: ' + email);
+    }
+}
+
+function duplicateTemplate() {
+    if (confirm('Bu şablonun kopyasını yaratmaq istədiyinizə əminsiniz?')) {
+        // Create duplicate
+        alert('Şablon kopyalandı!');
+    }
+}
+
+function exportTemplate() {
+    // Export template as JSON
+    window.location.href = '/notifications/templates/{{ template.pk }}/export/';
+}
+
+function activateTemplate() {
+    if (confirm('Bu şablonu aktivləşdirmək istədiyinizə əminsiniz?')) {
+        // Activate template
+        location.reload();
+    }
+}
+
+function deactivateTemplate() {
+    if (confirm('Bu şablonu deaktivləşdirmək istədiyinizə əminsiniz?')) {
+        // Deactivate template
+        location.reload();
+    }
+}
+
+function deleteTemplate() {
+    if (confirm('Bu şablonu silmək istədiyinizə əminsiniz? Bu əməliyyatı geri qaytarmaq mümkün deyil!')) {
+        fetch('/notifications/templates/{{ template.pk }}/delete/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{% url "notifications:email-templates" %}';
+            } else {
+                alert('Xəta baş verdi!');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

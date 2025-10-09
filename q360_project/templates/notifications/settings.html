@@ -1,0 +1,341 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Bildiriş Parametrləri - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-card {
+        transition: transform 0.2s;
+    }
+    .settings-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #0d6efd;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'notifications:inbox' %}">Bildirişlər</a></li>
+            <li class="breadcrumb-item active">Parametrlər</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-cog me-2"></i>Bildiriş Parametrləri</h2>
+            <p class="text-muted mb-0">Bildiriş növlərini və göndərmə üsullarını idarə edin</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="notificationSettingsForm">
+        {% csrf_token %}
+
+        <div class="row">
+            <!-- Email Notifications -->
+            <div class="col-lg-6 mb-4">
+                <div class="card settings-card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>E-poçt Bildirişləri</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">E-poçt vasitəsilə hansı bildirişləri almaq istədiyinizi seçin</p>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Qiymətləndirmə Təyinatları</strong>
+                                <p class="small text-muted mb-0">Yeni qiymətləndirmə tapşırığı alanda</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="email_evaluation_assigned" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Qiymətləndirmə Son Tarixi</strong>
+                                <p class="small text-muted mb-0">Son tarix yaxınlaşdıqda xatırlatma</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="email_evaluation_reminder" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Nəticələr Hazır</strong>
+                                <p class="small text-muted mb-0">Qiymətləndirmə nəticələri hazır olduqda</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="email_results_ready" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Yeni Hesabat</strong>
+                                <p class="small text-muted mb-0">Yeni hesabat yaradıldıqda</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="email_new_report" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Sistem Bildirişləri</strong>
+                                <p class="small text-muted mb-0">Sistem yeniləmələri və duyurular</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="email_system_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In-App Notifications -->
+            <div class="col-lg-6 mb-4">
+                <div class="card settings-card shadow-sm h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Sistem Daxili Bildirişlər</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">Sistemdə hansı bildirişləri görmək istədiyinizi seçin</p>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Qiymətləndirmə Bildirişləri</strong>
+                                <p class="small text-muted mb-0">Qiymətləndirmə prosesi ilə bağlı</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="app_evaluation_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>İnkişaf Planı</strong>
+                                <p class="small text-muted mb-0">Məqsəd və irəliləyiş bildirişləri</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="app_development_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Komanda Bildirişləri</strong>
+                                <p class="small text-muted mb-0">Komanda üzvləri ilə bağlı</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="app_team_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Mention Bildirişləri</strong>
+                                <p class="small text-muted mb-0">Şərhlərdə qeyd edildiyinizdə</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="app_mention_notifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Sistem Yeniləmələri</strong>
+                                <p class="small text-muted mb-0">Yeni funksiyalar və təkmilləşdirmələr</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="app_system_updates" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Frequency -->
+        <div class="card settings-card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Bildiriş Tezliyi</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>E-poçt Xülasəsi</strong></label>
+                        <select class="form-select" name="email_digest_frequency">
+                            <option value="none">Xülasə göndərmə</option>
+                            <option value="daily" selected>Gündəlik</option>
+                            <option value="weekly">Həftəlik</option>
+                            <option value="monthly">Aylıq</option>
+                        </select>
+                        <small class="text-muted">Bildirişlərin xülasəsini nə vaxt almaq istəyirsiniz?</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>Sakit Saatlar</strong></label>
+                        <div class="input-group">
+                            <input type="time" class="form-control" name="quiet_hours_start" value="22:00">
+                            <span class="input-group-text">-</span>
+                            <input type="time" class="form-control" name="quiet_hours_end" value="08:00">
+                        </div>
+                        <small class="text-muted">Bu saatlarda bildiriş gəlməyəcək</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS/Push Notifications (Future Feature) -->
+        <div class="card settings-card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-mobile-alt me-2"></i>Mobil Bildirişlər</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tezliklə!</strong> SMS və Push bildiriş xüsusiyyətləri yaxın vaxtda əlavə ediləcək.
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="text-end mb-4">
+            <a href="{% url 'notifications:inbox' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-times me-2"></i>Ləğv et
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Yadda saxla
+            </button>
+        </div>
+    </form>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm border-primary">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Sürətli Əməliyyatlar</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-success w-100" onclick="enableAll()">
+                        <i class="fas fa-check-double me-2"></i>Hamısını Aktiv Et
+                    </button>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-danger w-100" onclick="disableAll()">
+                        <i class="fas fa-times-circle me-2"></i>Hamısını Deaktiv Et
+                    </button>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-primary w-100" onclick="resetDefaults()">
+                        <i class="fas fa-undo me-2"></i>Standart Parametrlərə Qayıt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function enableAll() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+function disableAll() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+function resetDefaults() {
+    if (confirm('Standart parametrlərə qayıtmaq istədiyinizə əminsiniz?')) {
+        enableAll();
+        document.querySelector('select[name="email_digest_frequency"]').value = 'daily';
+        document.querySelector('input[name="quiet_hours_start"]').value = '22:00';
+        document.querySelector('input[name="quiet_hours_end"]').value = '08:00';
+    }
+}
+
+// Auto-save indication
+document.getElementById('notificationSettingsForm').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Yadda saxlanılır...';
+    submitBtn.disabled = true;
+
+    // Re-enable after form submission
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 2000);
+});
+</script>
+{% endblock %}

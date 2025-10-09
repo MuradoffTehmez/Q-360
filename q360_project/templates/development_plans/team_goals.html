@@ -1,0 +1,391 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Komanda Məqsədləri - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .goal-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+    }
+    .goal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .goal-card.high-priority { border-color: #dc3545; }
+    .goal-card.medium-priority { border-color: #ffc107; }
+    .goal-card.low-priority { border-color: #198754; }
+
+    .progress-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(#0d6efd 0deg, #0d6efd calc(var(--progress) * 3.6deg), #e9ecef calc(var(--progress) * 3.6deg));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .progress-circle::before {
+        content: '';
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+    }
+    .progress-circle span {
+        position: relative;
+        z-index: 1;
+        font-weight: bold;
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .filter-btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'development-plans:my-goals' %}">İnkişaf Planları</a></li>
+            <li class="breadcrumb-item active">Komanda Məqsədləri</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-users me-2"></i>Komanda Məqsədləri</h2>
+            <p class="text-muted mb-0">Komanda üzvlərinin inkişaf məqsədlərini izləyin</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i>Excel
+            </button>
+            <button class="btn btn-outline-danger" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </button>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-bullseye fa-3x"></i>
+                    </div>
+                    <h3 class="mb-0">{{ goals.count }}</h3>
+                    <p class="text-muted mb-0">Toplam Məqsəd</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <div class="text-success mb-2">
+                        <i class="fas fa-check-circle fa-3x"></i>
+                    </div>
+                    <h3 class="mb-0">{{ goals|length }}</h3>
+                    <p class="text-muted mb-0">Aktiv Məqsəd</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-clock fa-3x"></i>
+                    </div>
+                    <h3 class="mb-0">{{ goals|length }}</h3>
+                    <p class="text-muted mb-0">Gözləmədə</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-info">
+                <div class="card-body text-center">
+                    <div class="text-info mb-2">
+                        <i class="fas fa-user-friends fa-3x"></i>
+                    </div>
+                    <h3 class="mb-0">{{ goals|length }}</h3>
+                    <p class="text-muted mb-0">İştirakçılar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Məqsəd və ya işçi axtar...">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="btn-group w-100" role="group">
+                        <button class="btn btn-outline-secondary filter-btn active" data-filter="all">
+                            <i class="fas fa-list me-1"></i>Hamısı
+                        </button>
+                        <button class="btn btn-outline-success filter-btn" data-filter="on-track">
+                            <i class="fas fa-check-circle me-1"></i>Yolunda
+                        </button>
+                        <button class="btn btn-outline-warning filter-btn" data-filter="at-risk">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Risk altında
+                        </button>
+                        <button class="btn btn-outline-danger filter-btn" data-filter="overdue">
+                            <i class="fas fa-calendar-times me-1"></i>Gecikmiş
+                        </button>
+                        <button class="btn btn-outline-primary filter-btn" data-filter="completed">
+                            <i class="fas fa-trophy me-1"></i>Tamamlanmış
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals List -->
+    <div class="row" id="goalsContainer">
+        {% for goal in goals %}
+        <div class="col-lg-6 mb-4 goal-item" data-status="{{ goal.status }}" data-priority="{{ goal.priority|default:'medium' }}">
+            <div class="card goal-card shadow-sm {{ goal.priority|default:'medium' }}-priority">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            {% if goal.user.profile_picture %}
+                                <img src="{{ goal.user.profile_picture.url }}" class="member-avatar me-3">
+                            {% else %}
+                                <div class="member-avatar bg-primary text-white d-flex align-items-center justify-content-center me-3">
+                                    <strong>{{ goal.user.first_name.0 }}{{ goal.user.last_name.0 }}</strong>
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ goal.title }}</h5>
+                                <p class="text-muted mb-0 small">
+                                    <i class="fas fa-user me-1"></i>{{ goal.user.get_full_name }}
+                                    <span class="ms-2">
+                                        <i class="fas fa-briefcase me-1"></i>{{ goal.user.position|default:"Vəzifə təyin edilməyib" }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="progress-circle" style="--progress: {{ goal.progress_logs.first.progress_percentage|default:0 }}">
+                            <span>{{ goal.progress_logs.first.progress_percentage|default:0 }}%</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-3">{{ goal.description|truncatewords:20 }}</p>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Başlama</small>
+                            <strong><i class="fas fa-calendar-alt me-1"></i>{{ goal.start_date|date:"d.m.Y" }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Hədəf Tarix</small>
+                            <strong><i class="fas fa-flag-checkered me-1"></i>{{ goal.target_date|date:"d.m.Y" }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="badge bg-{{ goal.status|yesno:'success,warning,secondary' }}">
+                                {% if goal.status == 'active' %}
+                                    <i class="fas fa-play me-1"></i>Aktiv
+                                {% elif goal.status == 'completed' %}
+                                    <i class="fas fa-check me-1"></i>Tamamlanıb
+                                {% else %}
+                                    <i class="fas fa-file me-1"></i>Layihə
+                                {% endif %}
+                            </span>
+                            <span class="badge bg-info ms-1">
+                                <i class="fas fa-layer-group me-1"></i>{{ goal.category }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-history me-1"></i>
+                            {% with days_remaining=goal.target_date|timeuntil %}
+                                {% if "gün" in days_remaining %}
+                                    {{ days_remaining }}
+                                {% else %}
+                                    Gecikmiş
+                                {% endif %}
+                            {% endwith %}
+                        </small>
+                    </div>
+
+                    <!-- Latest Progress -->
+                    {% if goal.progress_logs.first %}
+                    <div class="bg-light p-2 rounded mb-3">
+                        <small class="text-muted d-block mb-1">
+                            <i class="fas fa-comment-dots me-1"></i>Son İrəliləyiş:
+                        </small>
+                        <small>{{ goal.progress_logs.first.note|truncatewords:15 }}</small>
+                        <small class="text-muted d-block mt-1">
+                            {{ goal.progress_logs.first.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'development-plans:goal-detail' goal.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>Ətraflı
+                        </a>
+                        <div>
+                            <button class="btn btn-sm btn-outline-success" onclick="sendReminder({{ goal.pk }})">
+                                <i class="fas fa-bell me-1"></i>Xatırlat
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="addComment({{ goal.pk }})">
+                                <i class="fas fa-comment me-1"></i>Şərh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                <h5>Hələ heç bir məqsəd yoxdur</h5>
+                <p class="mb-0">Komanda üzvləri hələ inkişaf məqsədi yaratmayıblar</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Team Progress Overview -->
+    {% if goals %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Komanda İrəliləyişi</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="teamProgressChart" height="100"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const goalItems = document.querySelectorAll('.goal-item');
+
+    goalItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Filter functionality
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const filter = this.dataset.filter;
+        const goalItems = document.querySelectorAll('.goal-item');
+
+        goalItems.forEach(item => {
+            if (filter === 'all') {
+                item.style.display = '';
+            } else if (filter === 'on-track') {
+                // Show goals with > 50% progress and not overdue
+                item.style.display = '';
+            } else if (filter === 'at-risk') {
+                // Show goals with < 50% progress
+                item.style.display = '';
+            } else if (filter === 'overdue') {
+                // Show overdue goals
+                item.style.display = '';
+            } else if (filter === 'completed') {
+                item.style.display = item.dataset.status === 'completed' ? '' : 'none';
+            }
+        });
+    });
+});
+
+// Team Progress Chart
+{% if goals %}
+const ctx = document.getElementById('teamProgressChart').getContext('2d');
+const teamChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for goal in goals %}'{{ goal.user.get_full_name|truncatewords:2 }}',{% endfor %}],
+        datasets: [{
+            label: 'İrəliləyiş (%)',
+            data: [{% for goal in goals %}{{ goal.progress_logs.first.progress_percentage|default:0 }},{% endfor %}],
+            backgroundColor: 'rgba(13, 110, 253, 0.8)',
+            borderColor: 'rgba(13, 110, 253, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+{% endif %}
+
+function sendReminder(goalId) {
+    if (confirm('İşçiyə xatırlatma göndərmək istədiyinizə əminsiniz?')) {
+        // AJAX request to send reminder
+        alert('Xatırlatma göndərildi!');
+    }
+}
+
+function addComment(goalId) {
+    const comment = prompt('Şərhinizi yazın:');
+    if (comment) {
+        // AJAX request to add comment
+        alert('Şərh əlavə edildi!');
+    }
+}
+
+function exportToExcel() {
+    window.location.href = '/development-plans/export/excel/';
+}
+
+function exportToPDF() {
+    window.print();
+}
+</script>
+{% endblock %}

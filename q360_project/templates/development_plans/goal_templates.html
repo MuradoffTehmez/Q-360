@@ -1,0 +1,381 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Məqsəd Şablonları - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .suggestion-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-left: 4px solid;
+    }
+    .suggestion-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .suggestion-card.communication { border-color: #0d6efd; }
+    .suggestion-card.leadership { border-color: #6f42c1; }
+    .suggestion-card.technical { border-color: #20c997; }
+    .suggestion-card.teamwork { border-color: #fd7e14; }
+    .suggestion-card.other { border-color: #6c757d; }
+
+    .result-summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+    }
+
+    .score-badge {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .category-icon {
+        font-size: 2.5rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
+    .template-tag {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'development-plans:my-goals' %}">İnkişaf Planları</a></li>
+            <li class="breadcrumb-item active">Məqsəd Şablonları</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-lightbulb me-2"></i>Məqsəd Şablonları və Təkliflər</h2>
+            <p class="text-muted mb-0">Qiymətləndirmə nəticələrinizə əsaslanan inkişaf təklifləri</p>
+        </div>
+        <a href="{% url 'development-plans:goal-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Öz Məqsədimi Yarat
+        </a>
+    </div>
+
+    <!-- Evaluation Result Summary -->
+    {% if latest_result %}
+    <div class="card result-summary shadow-lg mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-3"><i class="fas fa-chart-line me-2"></i>Son Qiymətləndirmə Nəticəniz</h4>
+                    <p class="mb-2">
+                        <strong>Kampaniya:</strong> {{ latest_result.campaign.title }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Tarix:</strong> {{ latest_result.calculated_at|date:"d.m.Y" }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Ümumi Qiymətləndirici Sayı:</strong> {{ latest_result.total_evaluators }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="score-badge mb-2">{{ latest_result.overall_score|floatformat:2 }}</div>
+                    <p class="mb-0">/ 5.00</p>
+                    <span class="badge bg-light text-dark mt-2">
+                        {% if latest_result.overall_score >= 4.0 %}
+                            Əla Performans
+                        {% elif latest_result.overall_score >= 3.0 %}
+                            Yaxşı Performans
+                        {% else %}
+                            İnkişaf Potensialı
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Hələ qiymətləndirmə nəticəniz yoxdur. Qiymətləndirmə tamamlandıqdan sonra burada şəxsi təkliflər görəcəksiniz.
+    </div>
+    {% endif %}
+
+    <!-- AI-Generated Suggestions -->
+    {% if suggestions %}
+    <div class="mb-4">
+        <h4 class="mb-3"><i class="fas fa-robot me-2"></i>Sizin Üçün Tövsiyələr</h4>
+        <p class="text-muted">Qiymətləndirmə nəticələrinizə əsasən avtomatik yaradılmış inkişaf məqsədləri</p>
+    </div>
+
+    <div class="row">
+        {% for suggestion in suggestions %}
+        <div class="col-lg-6 mb-4">
+            <div class="card suggestion-card shadow-sm {{ suggestion.category|lower }} h-100"
+                 onclick="selectSuggestion({{ forloop.counter }})">
+                <div class="card-body position-relative">
+                    <i class="fas fa-{{ suggestion.category|lower|default:'lightbulb' }} category-icon"></i>
+
+                    <div class="mb-3">
+                        <span class="template-tag bg-primary text-white">
+                            <i class="fas fa-tag me-1"></i>{{ suggestion.category }}
+                        </span>
+                        <span class="template-tag bg-success text-white">
+                            <i class="fas fa-magic me-1"></i>AI Tövsiyəsi
+                        </span>
+                    </div>
+
+                    <h5 class="mb-3">{{ suggestion.title }}</h5>
+                    <p class="text-muted mb-3">{{ suggestion.description }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>Təxmini müddət: 2-3 ay
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); useSuggestion({{ forloop.counter }})">
+                            <i class="fas fa-plus me-1"></i>İstifadə et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Popular Templates -->
+    <div class="mt-5">
+        <h4 class="mb-3"><i class="fas fa-fire me-2"></i>Populyar Məqsəd Şablonları</h4>
+        <p class="text-muted">Digər işçilər tərəfindən ən çox istifadə edilən məqsəd şablonları</p>
+    </div>
+
+    <div class="row">
+        <!-- Communication Skills -->
+        <div class="col-lg-6 mb-4">
+            <div class="card suggestion-card communication shadow-sm h-100">
+                <div class="card-body position-relative">
+                    <i class="fas fa-comments category-icon"></i>
+
+                    <div class="mb-3">
+                        <span class="template-tag bg-primary text-white">
+                            <i class="fas fa-tag me-1"></i>Ünsiyyət
+                        </span>
+                        <span class="template-tag bg-warning text-dark">
+                            <i class="fas fa-star me-1"></i>Populyar
+                        </span>
+                    </div>
+
+                    <h5 class="mb-3">Ünsiyyət Bacarıqlarını İnkişaf Etdirmək</h5>
+                    <p class="text-muted mb-3">
+                        Komanda ilə effektiv ünsiyyət qurmaq, prezentasiya bacarıqlarını artırmaq və
+                        konflikt həlli üsullarını öyrənmək.
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Əsas Addımlar:</strong>
+                        <ul class="small mt-2">
+                            <li>Həftəlik komanda toplantılarında aktiv iştirak</li>
+                            <li>Public Speaking kursu</li>
+                            <li>Aylıq prezentasiya təcrübəsi</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>245 nəfər istifadə edib
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('communication')">
+                            <i class="fas fa-plus me-1"></i>İstifadə et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leadership -->
+        <div class="col-lg-6 mb-4">
+            <div class="card suggestion-card leadership shadow-sm h-100">
+                <div class="card-body position-relative">
+                    <i class="fas fa-user-tie category-icon"></i>
+
+                    <div class="mb-3">
+                        <span class="template-tag bg-purple text-white" style="background-color: #6f42c1;">
+                            <i class="fas fa-tag me-1"></i>Liderlik
+                        </span>
+                        <span class="template-tag bg-warning text-dark">
+                            <i class="fas fa-star me-1"></i>Populyar
+                        </span>
+                    </div>
+
+                    <h5 class="mb-3">Liderlik Keyfiyyətlərini Gücləndirmək</h5>
+                    <p class="text-muted mb-3">
+                        Komanda rəhbərliyi bacarıqlarını inkişaf etdirmək, qərar qəbul etmə proseslərini
+                        təkmilləşdirmək və mentorluq təcrübəsi qazanmaq.
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Əsas Addımlar:</strong>
+                        <ul class="small mt-2">
+                            <li>Kiçik layihələrdə team lead rolunu öhdəyə götürmək</li>
+                            <li>Leadership təlim proqramında iştirak</li>
+                            <li>Junior əməkdaşlara mentor olmaq</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>189 nəfər istifadə edib
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('leadership')">
+                            <i class="fas fa-plus me-1"></i>İstifadə et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Skills -->
+        <div class="col-lg-6 mb-4">
+            <div class="card suggestion-card technical shadow-sm h-100">
+                <div class="card-body position-relative">
+                    <i class="fas fa-code category-icon"></i>
+
+                    <div class="mb-3">
+                        <span class="template-tag bg-success text-white">
+                            <i class="fas fa-tag me-1"></i>Texniki
+                        </span>
+                        <span class="template-tag bg-info text-white">
+                            <i class="fas fa-trophy me-1"></i>Tövsiyə edilir
+                        </span>
+                    </div>
+
+                    <h5 class="mb-3">Texniki Bilik və Bacarıqları Artırmaq</h5>
+                    <p class="text-muted mb-3">
+                        Yeni texnologiyaları öyrənmək, mövcud texniki bacarıqları təkmilləşdirmək və
+                        sertifikatlaşma proqramlarında iştirak etmək.
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Əsas Addımlar:</strong>
+                        <ul class="small mt-2">
+                            <li>Online kurs və sertifikat proqramları</li>
+                            <li>Texniki layihələrdə praktika</li>
+                            <li>Texnologiya konfranslarında iştirak</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>312 nəfər istifadə edib
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('technical')">
+                            <i class="fas fa-plus me-1"></i>İstifadə et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Management -->
+        <div class="col-lg-6 mb-4">
+            <div class="card suggestion-card teamwork shadow-sm h-100">
+                <div class="card-body position-relative">
+                    <i class="fas fa-clock category-icon"></i>
+
+                    <div class="mb-3">
+                        <span class="template-tag text-white" style="background-color: #fd7e14;">
+                            <i class="fas fa-tag me-1"></i>Vaxt İdarəetməsi
+                        </span>
+                        <span class="template-tag bg-info text-white">
+                            <i class="fas fa-trophy me-1"></i>Tövsiyə edilir
+                        </span>
+                    </div>
+
+                    <h5 class="mb-3">Vaxt İdarəetməsi və Məhsuldarlıq</h5>
+                    <p class="text-muted mb-3">
+                        İş yükünü effektiv idarə etmək, prioritetləri düzgün təyin etmək və
+                        məhsuldarlığı artırmaq üçün metodlar öyrənmək.
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Əsas Addımlar:</strong>
+                        <ul class="small mt-2">
+                            <li>Pomodoro və digər vaxt idarəetməsi metodları</li>
+                            <li>Task management alətlərindən istifadə</li>
+                            <li>Gündəlik və həftəlik planlaşdırma</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>276 nəfər istifadə edib
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('time-management')">
+                            <i class="fas fa-plus me-1"></i>İstifadə et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="card shadow-sm mt-4 border-info">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Məqsəd Təyin Etmək Üçün Məsləhətlər</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>SMART Məqsədlər</h6>
+                    <ul class="small">
+                        <li><strong>Specific (Konkret):</strong> Məqsədiniz dəqiq olmalıdır</li>
+                        <li><strong>Measurable (Ölçülə bilən):</strong> İrəliləyişi izləyə bilməlisiniz</li>
+                        <li><strong>Achievable (Əldə edilə bilən):</strong> Real və mümkün olmalıdır</li>
+                        <li><strong>Relevant (Uyğun):</strong> Karyera məqsədlərinizə uyğun olmalıdır</li>
+                        <li><strong>Time-bound (Müddətli):</strong> Konkret son tarix təyin edin</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-star text-warning me-2"></i>Uğur üçün Addımlar</h6>
+                    <ul class="small">
+                        <li>Böyük məqsədləri kiçik addımlara bölün</li>
+                        <li>Mütəmadi olaraq irəliləyişinizi qeyd edin</li>
+                        <li>Menecerinizlə məqsədlərinizi müzakirə edin</li>
+                        <li>Lazım olan resursları müəyyənləşdirin</li>
+                        <li>Çətinlikləri və həll yollarını qeyd edin</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectSuggestion(id) {
+    console.log('Selected suggestion:', id);
+}
+
+function useSuggestion(id) {
+    if (confirm('Bu təklifi əsas alaraq yeni məqsəd yaratmaq istəyirsiniz?')) {
+        window.location.href = '{% url "development-plans:goal-create" %}?suggestion=' + id;
+    }
+}
+
+function useTemplate(type) {
+    if (confirm('Bu şablonu istifadə edərək yeni məqsəd yaratmaq istəyirsiniz?')) {
+        window.location.href = '{% url "development-plans:goal-create" %}?template=' + type;
+    }
+}
+</script>
+{% endblock %}

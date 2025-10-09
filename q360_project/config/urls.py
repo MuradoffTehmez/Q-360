@@ -37,16 +37,7 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    # API URLs
-    path('api/accounts/', include('apps.accounts.urls')),
-    path('api/departments/', include('apps.departments.urls')),
-    path('api/evaluations/', include('apps.evaluations.urls')),
-    path('api/reports/', include('apps.reports.urls')),
-    path('api/development-plans/', include('apps.development_plans.urls')),
-    path('api/notifications/', include('apps.notifications.urls')),
-    path('api/audit/', include('apps.audit.urls')),
-
-    # Template-based app URLs
+    # Template-based app URLs (must come before API URLs to avoid conflicts)
     path('evaluations/', include('apps.evaluations.urls', namespace='evaluations')),
     path('departments/', include('apps.departments.urls', namespace='departments')),
     path('reports/', include('apps.reports.urls', namespace='reports')),

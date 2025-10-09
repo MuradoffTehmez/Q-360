@@ -1,0 +1,367 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Komanda Hesabatları - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card.primary { border-color: #0d6efd; }
+    .stat-card.success { border-color: #198754; }
+    .stat-card.warning { border-color: #ffc107; }
+    .stat-card.danger { border-color: #dc3545; }
+
+    .member-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+
+    .top-performer {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'reports:my-reports' %}">Hesabatlar</a></li>
+            <li class="breadcrumb-item active">Komanda Hesabatları</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-users me-2"></i>Komanda Hesabatları</h2>
+            <p class="text-muted mb-0">Komanda üzvlərinin performans təhlili</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i>Excel
+            </button>
+            <button class="btn btn-outline-danger" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Campaign Selection -->
+    {% if latest_campaign %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Seçilmiş Kampaniya:</strong> {{ latest_campaign.title }}
+            <span class="ms-3 text-muted">{{ latest_campaign.start_date|date:"d.m.Y" }} - {{ latest_campaign.end_date|date:"d.m.Y" }}</span>
+        </div>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#campaignSelectModal">
+            <i class="fas fa-exchange-alt me-1"></i>Dəyiş
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card primary shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Toplam Üzvlər</h6>
+                            <h3 class="mb-0">{{ team_stats.total_members|default:0 }}</h3>
+                        </div>
+                        <div class="bg-primary text-white rounded-circle p-3">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card success shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Qiymətləndirilənlər</h6>
+                            <h3 class="mb-0">{{ team_stats.evaluated_members|default:0 }}</h3>
+                        </div>
+                        <div class="bg-success text-white rounded-circle p-3">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card warning shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Orta Bal</h6>
+                            <h3 class="mb-0">{{ team_stats.avg_score|floatformat:2|default:"-" }}</h3>
+                        </div>
+                        <div class="bg-warning text-white rounded-circle p-3">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card danger shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Tamamlanma</h6>
+                            <h3 class="mb-0">{% widthratio team_stats.evaluated_members team_stats.total_members 100 %}%</h3>
+                        </div>
+                        <div class="bg-danger text-white rounded-circle p-3">
+                            <i class="fas fa-percent fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Ən Yüksək Performans</h5>
+                </div>
+                <div class="card-body">
+                    {% for performer in team_stats.top_performers %}
+                    <div class="d-flex align-items-center mb-3 {% if forloop.first %}top-performer p-3 rounded{% endif %}">
+                        <div class="me-3">
+                            {% if forloop.first %}
+                                <i class="fas fa-crown fa-2x text-warning"></i>
+                            {% else %}
+                                <span class="badge bg-primary" style="font-size: 1.2em;">{{ forloop.counter }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 {% if forloop.first %}text-white{% endif %}">
+                                {{ performer.evaluatee.get_full_name }}
+                            </h6>
+                            <small class="{% if forloop.first %}text-white-50{% else %}text-muted{% endif %}">
+                                {{ performer.evaluatee.department|default:"Departament təyin edilməyib" }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0 {% if forloop.first %}text-white{% else %}text-success{% endif %}">
+                                {{ performer.overall_score|floatformat:2 }}
+                            </h5>
+                            <small class="{% if forloop.first %}text-white-50{% else %}text-muted{% endif %}">/ 5.00</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted mb-0">Məlumat yoxdur</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>İnkişaf Tələb Edən</h5>
+                </div>
+                <div class="card-body">
+                    {% for performer in team_stats.needs_attention %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-exclamation-circle fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ performer.evaluatee.get_full_name }}</h6>
+                            <small class="text-muted">{{ performer.evaluatee.department|default:"Departament təyin edilməyib" }}</small>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0 text-warning">{{ performer.overall_score|floatformat:2 }}</h5>
+                            <small class="text-muted">/ 5.00</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted mb-0">Məlumat yoxdur</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Team Members -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Bütün Komanda Üzvləri</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Əməkdaş</th>
+                            <th>Departament</th>
+                            <th>Vəzifə</th>
+                            <th class="text-center">Ümumi Bal</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Əməliyyatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if result.evaluatee.profile_picture %}
+                                        <img src="{{ result.evaluatee.profile_picture.url }}" class="member-avatar me-2">
+                                    {% else %}
+                                        <div class="member-avatar bg-secondary text-white d-flex align-items-center justify-content-center me-2">
+                                            <strong>{{ result.evaluatee.first_name.0 }}{{ result.evaluatee.last_name.0 }}</strong>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ result.evaluatee.get_full_name }}</strong><br>
+                                        <small class="text-muted">{{ result.evaluatee.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ result.evaluatee.department|default:"-" }}</td>
+                            <td>{{ result.evaluatee.position|default:"-" }}</td>
+                            <td class="text-center">
+                                <h5 class="mb-0
+                                    {% if result.overall_score >= 4.5 %}text-success
+                                    {% elif result.overall_score >= 3.5 %}text-primary
+                                    {% elif result.overall_score >= 2.5 %}text-warning
+                                    {% else %}text-danger{% endif %}">
+                                    {{ result.overall_score|floatformat:2 }}
+                                </h5>
+                            </td>
+                            <td class="text-center">
+                                {% if result.overall_score >= 4.0 %}
+                                    <span class="badge bg-success">Əla</span>
+                                {% elif result.overall_score >= 3.0 %}
+                                    <span class="badge bg-primary">Yaxşı</span>
+                                {% elif result.overall_score >= 2.0 %}
+                                    <span class="badge bg-warning">Orta</span>
+                                {% else %}
+                                    <span class="badge bg-danger">İnkişaf lazımdır</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'reports:detailed-report' result.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>Bax
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                Hələ heç bir nəticə yoxdur
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Comparison -->
+    {% if dept_comparison %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Departament Müqayisəsi</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="deptComparisonChart" height="80"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Campaign Selection Modal -->
+<div class="modal fade" id="campaignSelectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-clipboard-list me-2"></i>Kampaniya Seç</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Başqa kampaniyanın nəticələrini görmək üçün seçin:</p>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active">
+                        2024 İllik Qiymətləndirmə
+                        <span class="badge bg-success float-end">Aktiv</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        2023 Q4 Qiymətləndirmə
+                        <span class="badge bg-secondary float-end">Tamamlandı</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Department Comparison Chart
+{% if dept_comparison %}
+const ctx = document.getElementById('deptComparisonChart').getContext('2d');
+const deptChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for dept in dept_comparison %}'{{ dept.name }}',{% endfor %}],
+        datasets: [{
+            label: 'Orta Bal',
+            data: [{% for dept in dept_comparison %}{{ dept.avg_score|default:0 }},{% endfor %}],
+            backgroundColor: 'rgba(13, 110, 253, 0.8)',
+            borderColor: 'rgba(13, 110, 253, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5
+            }
+        }
+    }
+});
+{% endif %}
+
+function exportToExcel() {
+    window.location.href = '/reports/export/excel/{{ latest_campaign.pk }}/';
+}
+
+function exportToPDF() {
+    window.print();
+}
+</script>
+{% endblock %}

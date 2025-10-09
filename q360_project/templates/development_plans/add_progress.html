@@ -1,0 +1,314 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}İrəliləyiş Əlavə Et - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progress-preview {
+        height: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        transition: width 0.3s ease;
+    }
+    .goal-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .milestone-icon {
+        font-size: 3rem;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'development-plans:my-goals' %}">Məqsədlərim</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'development-plans:goal-detail' goal.pk %}">{{ goal.title|truncatewords:5 }}</a></li>
+            <li class="breadcrumb-item active">İrəliləyiş Əlavə Et</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Goal Summary -->
+        <div class="col-lg-4 mb-4">
+            <div class="card goal-card shadow-lg">
+                <div class="card-body">
+                    <h4 class="mb-3"><i class="fas fa-bullseye me-2"></i>Məqsəd</h4>
+                    <h5 class="mb-3">{{ goal.title }}</h5>
+                    <p class="mb-3">{{ goal.description|truncatewords:20 }}</p>
+
+                    <hr class="border-white opacity-25">
+
+                    <div class="mb-2">
+                        <small><i class="fas fa-calendar me-2"></i>Başlama: {{ goal.start_date|date:"d.m.Y" }}</small>
+                    </div>
+                    <div class="mb-2">
+                        <small><i class="fas fa-flag-checkered me-2"></i>Hədəf: {{ goal.target_date|date:"d.m.Y" }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <small><i class="fas fa-layer-group me-2"></i>Kateqoriya: {{ goal.category }}</small>
+                    </div>
+
+                    {% if goal.current_progress %}
+                    <div class="text-center">
+                        <div class="milestone-icon">
+                            {% if goal.current_progress >= 75 %}
+                                <i class="fas fa-trophy text-warning"></i>
+                            {% elif goal.current_progress >= 50 %}
+                                <i class="fas fa-medal text-light"></i>
+                            {% elif goal.current_progress >= 25 %}
+                                <i class="fas fa-star text-info"></i>
+                            {% else %}
+                                <i class="fas fa-rocket"></i>
+                            {% endif %}
+                        </div>
+                        <h3 class="mt-2">{{ goal.current_progress|default:0 }}%</h3>
+                        <small>Cari İrəliləyiş</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="fas fa-chart-line me-2"></i>Statistika</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Qeyd Sayı:</span>
+                        <strong>{{ goal.progress_logs.count }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Status:</span>
+                        <span class="badge bg-{{ goal.status|yesno:'success,warning,secondary' }}">
+                            {% if goal.status == 'active' %}Aktiv
+                            {% elif goal.status == 'completed' %}Tamamlanıb
+                            {% else %}Layihə{% endif %}
+                        </span>
+                    </div>
+                    {% if goal.target_date %}
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Qalan Günlər:</span>
+                        <strong>
+                            {% with days_remaining=goal.target_date|timeuntil %}
+                                {{ days_remaining }}
+                            {% endwith %}
+                        </strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Yeni İrəliləyiş Qeydə Al</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="progressForm">
+                        {% csrf_token %}
+
+                        <!-- Progress Percentage -->
+                        <div class="mb-4">
+                            <label for="id_progress_percentage" class="form-label">
+                                <strong>İrəliləyiş Faizi <span class="text-danger">*</span></strong>
+                            </label>
+                            <div class="row align-items-center">
+                                <div class="col-md-9">
+                                    <input type="range" class="form-range" id="progressRange"
+                                           min="0" max="100" value="0" step="5">
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        {{ form.progress_percentage }}
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="progress" style="height: 30px;">
+                                    <div id="progressPreview" class="progress-preview"
+                                         role="progressbar" style="width: 0%">
+                                        <span class="fw-bold ms-2">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if form.progress_percentage.errors %}
+                                <div class="text-danger mt-1">{{ form.progress_percentage.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Cari irəliləyiş səviyyənizi seçin</small>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="mb-4">
+                            <label for="id_note" class="form-label">
+                                <strong>Qeyd və Təfsilatlar <span class="text-danger">*</span></strong>
+                            </label>
+                            {{ form.note }}
+                            {% if form.note.errors %}
+                                <div class="text-danger mt-1">{{ form.note.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">
+                                Nə etdiyinizi, hansı addımları atdığınızı və qarşılaşdığınız çətinlikləri qeyd edin
+                            </small>
+                        </div>
+
+                        <!-- Quick Milestones -->
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Sürətli Seçim</strong></label>
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="setProgress(0, 'Başlandı')">
+                                    <i class="fas fa-play me-1"></i>Başlandı (0%)
+                                </button>
+                                <button type="button" class="btn btn-outline-info" onclick="setProgress(25, 'İlk mərhələ tamamlandı')">
+                                    <i class="fas fa-step-forward me-1"></i>25%
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setProgress(50, 'Yarısı tamamlandı')">
+                                    <i class="fas fa-star-half-alt me-1"></i>50%
+                                </button>
+                                <button type="button" class="btn btn-outline-warning" onclick="setProgress(75, 'Son mərhələdə')">
+                                    <i class="fas fa-medal me-1"></i>75%
+                                </button>
+                                <button type="button" class="btn btn-outline-success" onclick="setProgress(100, 'Tamamlandı!')">
+                                    <i class="fas fa-trophy me-1"></i>100%
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Challenges & Solutions -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Çətinliklər</h6>
+                                        <textarea class="form-control border-0" name="challenges" rows="3"
+                                                  placeholder="Qarşılaşdığınız problemlər..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="text-success"><i class="fas fa-lightbulb me-2"></i>Həllər</h6>
+                                        <textarea class="form-control border-0" name="solutions" rows="3"
+                                                  placeholder="Tətbiq etdiyiniz həllər..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'development-plans:goal-detail' goal.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Geri
+                            </a>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="saveAsDraft()">
+                                    <i class="fas fa-save me-2"></i>Layihə kimi saxla
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check me-2"></i>İrəliləyiş Qeyd Et
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card shadow-sm mt-3 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Məsləhətlər</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li class="mb-1"><strong>Mütəmadi yeniləyin:</strong> Həftədə ən azı 1 dəfə irəliləyişinizi qeyd edin</li>
+                        <li class="mb-1"><strong>Dəqiq olun:</strong> Konkret nəticələr və rəqəmlərlə yazın</li>
+                        <li class="mb-1"><strong>Çətinlikləri qeyd edin:</strong> Problemləri yazmaq həll yolları tapmağa kömək edir</li>
+                        <li><strong>Müvəffəqiyyətləri qeyd edin:</strong> Kiçik qələbələri də qeyd etməyi unutmayın</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sync range slider with number input
+const rangeInput = document.getElementById('progressRange');
+const numberInput = document.querySelector('input[name="progress_percentage"]');
+const progressPreview = document.getElementById('progressPreview');
+
+function updateProgress(value) {
+    progressPreview.style.width = value + '%';
+    progressPreview.innerHTML = `<span class="fw-bold ms-2">${value}%</span>`;
+}
+
+rangeInput.addEventListener('input', function() {
+    numberInput.value = this.value;
+    updateProgress(this.value);
+});
+
+numberInput.addEventListener('input', function() {
+    let value = Math.min(Math.max(this.value, 0), 100);
+    this.value = value;
+    rangeInput.value = value;
+    updateProgress(value);
+});
+
+// Initialize
+numberInput.value = 0;
+rangeInput.value = 0;
+
+function setProgress(percentage, notePrefix) {
+    numberInput.value = percentage;
+    rangeInput.value = percentage;
+    updateProgress(percentage);
+
+    const noteField = document.querySelector('textarea[name="note"]');
+    if (noteField.value === '') {
+        noteField.value = notePrefix + '\n\n';
+        noteField.focus();
+    }
+}
+
+function saveAsDraft() {
+    // Add logic to save as draft if needed
+    alert('Layihə funksiyası tezliklə əlavə ediləcək');
+}
+
+// Form validation
+document.getElementById('progressForm').addEventListener('submit', function(e) {
+    const progress = parseInt(numberInput.value);
+    const note = document.querySelector('textarea[name="note"]').value;
+
+    if (progress < 0 || progress > 100) {
+        e.preventDefault();
+        alert('İrəliləyiş faizi 0-100 arasında olmalıdır!');
+        return false;
+    }
+
+    if (note.trim() === '') {
+        e.preventDefault();
+        alert('Zəhmət olmasa qeyd əlavə edin!');
+        return false;
+    }
+});
+</script>
+{% endblock %}

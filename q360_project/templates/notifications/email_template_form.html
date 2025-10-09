@@ -1,0 +1,440 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% if form.instance.pk %}Şablonu Redaktə Et{% else %}Yeni Şablon{% endif %} - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .variable-chip {
+        display: inline-block;
+        background: #e7f3ff;
+        color: #0d6efd;
+        padding: 5px 12px;
+        border-radius: 15px;
+        margin: 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .variable-chip:hover {
+        background: #0d6efd;
+        color: white;
+        transform: scale(1.05);
+    }
+    .preview-panel {
+        position: sticky;
+        top: 20px;
+    }
+    .editor-toolbar {
+        background: #e9ecef;
+        padding: 10px;
+        border-radius: 5px 5px 0 0;
+        border: 1px solid #dee2e6;
+    }
+    .editor-toolbar button {
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'notifications:inbox' %}">Bildirişlər</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'notifications:email-templates' %}">E-poçt Şablonları</a></li>
+            <li class="breadcrumb-item active">{% if form.instance.pk %}Redaktə{% else %}Yeni{% endif %}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-envelope-open-text me-2"></i>
+                {% if form.instance.pk %}E-poçt Şablonunu Redaktə Et{% else %}Yeni E-poçt Şablonu{% endif %}
+            </h2>
+            <p class="text-muted mb-0">E-poçt bildirişləri üçün HTML şablonu yaradın</p>
+        </div>
+        <a href="{% url 'notifications:email-templates' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Geri
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="templateForm">
+        {% csrf_token %}
+
+        <div class="row">
+            <!-- Form Fields -->
+            <div class="col-lg-8">
+                <!-- Basic Info Section -->
+                <div class="form-section">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Əsas Məlumat</h5>
+
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">
+                            <strong>Şablon Adı <span class="text-danger">*</span></strong>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">Şablonu tanımaq üçün unikal ad</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_subject" class="form-label">
+                            <strong>E-poçt Mövzusu <span class="text-danger">*</span></strong>
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-danger mt-1">{{ form.subject.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">E-poçtun subject line-ı</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-check">
+                            {{ form.is_active }}
+                            <span class="form-check-label ms-2">
+                                <strong>Aktiv</strong>
+                                <small class="text-muted d-block">Bu şablon sistemdə istifadə ediləcək</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- HTML Content Section -->
+                <div class="form-section">
+                    <h5 class="mb-3"><i class="fas fa-code me-2"></i>HTML Məzmun</h5>
+
+                    <!-- Variable Chips -->
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Dəyişənləri əlavə et (kliklə):</strong></label>
+                        <div>
+                            <span class="variable-chip" onclick="insertVariable('{{ user.name }}', 'html')">
+                                <i class="fas fa-user me-1"></i>{{ '{{' }} user.name {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ user.email }}', 'html')">
+                                <i class="fas fa-envelope me-1"></i>{{ '{{' }} user.email {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ user.position }}', 'html')">
+                                <i class="fas fa-briefcase me-1"></i>{{ '{{' }} user.position {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ campaign.title }}', 'html')">
+                                <i class="fas fa-clipboard-list me-1"></i>{{ '{{' }} campaign.title {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ campaign.end_date }}', 'html')">
+                                <i class="fas fa-calendar me-1"></i>{{ '{{' }} campaign.end_date {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ evaluation.link }}', 'html')">
+                                <i class="fas fa-link me-1"></i>{{ '{{' }} evaluation.link {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ site.name }}', 'html')">
+                                <i class="fas fa-globe me-1"></i>{{ '{{' }} site.name {{ '}}' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- HTML Editor Toolbar -->
+                    <div class="editor-toolbar">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('h1')">
+                            <i class="fas fa-heading"></i> H1
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('h2')">
+                            <i class="fas fa-heading"></i> H2
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('p')">
+                            <i class="fas fa-paragraph"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('strong')">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('em')">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHtmlTag('a')">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertButton()">
+                            <i class="fas fa-square"></i> Button
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.html_content }}
+                        {% if form.html_content.errors %}
+                            <div class="text-danger mt-1">{{ form.html_content.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">E-poçtun HTML formatında məzmunu</small>
+                    </div>
+                </div>
+
+                <!-- Text Content Section -->
+                <div class="form-section">
+                    <h5 class="mb-3"><i class="fas fa-align-left me-2"></i>Mətn Məzmunu</h5>
+
+                    <!-- Variable Chips for Text -->
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Dəyişənləri əlavə et (kliklə):</strong></label>
+                        <div>
+                            <span class="variable-chip" onclick="insertVariable('{{ user.name }}', 'text')">
+                                <i class="fas fa-user me-1"></i>{{ '{{' }} user.name {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ user.email }}', 'text')">
+                                <i class="fas fa-envelope me-1"></i>{{ '{{' }} user.email {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ campaign.title }}', 'text')">
+                                <i class="fas fa-clipboard-list me-1"></i>{{ '{{' }} campaign.title {{ '}}' }}
+                            </span>
+                            <span class="variable-chip" onclick="insertVariable('{{ evaluation.link }}', 'text')">
+                                <i class="fas fa-link me-1"></i>{{ '{{' }} evaluation.link {{ '}}' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.text_content }}
+                        {% if form.text_content.errors %}
+                            <div class="text-danger mt-1">{{ form.text_content.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">HTML dəstəkləməyən e-poçt klientləri üçün mətn versiyası</small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mb-4">
+                    <a href="{% url 'notifications:email-templates' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Ləğv et
+                    </a>
+                    <div>
+                        <button type="button" class="btn btn-outline-info me-2" onclick="previewTemplate()">
+                            <i class="fas fa-eye me-2"></i>Önizləmə
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Yadda saxla
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="col-lg-4">
+                <div class="preview-panel">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Canlı Önizləmə</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="livePreview" class="border rounded p-3" style="min-height: 300px;">
+                                <p class="text-muted text-center">Məzmun yazdıqca burada görünəcək...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Templates -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-magic me-2"></i>Hazır Şablonlar</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="useTemplate('welcome')">
+                                    <i class="fas fa-hand-wave me-1"></i>Xoş Gəlmisiniz
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="useTemplate('evaluation')">
+                                    <i class="fas fa-clipboard-check me-1"></i>Qiymətləndirmə
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="useTemplate('reminder')">
+                                    <i class="fas fa-bell me-1"></i>Xatırlatma
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="useTemplate('result')">
+                                    <i class="fas fa-chart-bar me-1"></i>Nəticələr
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="card shadow-sm mt-3 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Məsləhətlər</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="small mb-0">
+                                <li class="mb-2">Bootstrap classlarından istifadə edə bilərsiniz</li>
+                                <li class="mb-2">Inline CSS tövsiyə olunur</li>
+                                <li class="mb-2">Dəyişənləri düzgün yazın: <code>{{ '{{' }} variable {{ '}}' }}</code></li>
+                                <li>Mobil uyğunluğu yoxlamağı unutmayın</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function insertVariable(variable, type) {
+    const field = type === 'html' ?
+        document.querySelector('textarea[name="html_content"]') :
+        document.querySelector('textarea[name="text_content"]');
+
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const text = field.value;
+
+    field.value = text.substring(0, start) + variable + text.substring(end);
+    field.focus();
+    field.selectionStart = field.selectionEnd = start + variable.length;
+
+    updatePreview();
+}
+
+function insertHtmlTag(tag) {
+    const field = document.querySelector('textarea[name="html_content"]');
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const selectedText = field.value.substring(start, end) || 'text';
+
+    let html = '';
+    if (tag === 'a') {
+        html = `<a href="url" style="color: #0d6efd;">${selectedText}</a>`;
+    } else {
+        html = `<${tag}>${selectedText}</${tag}>`;
+    }
+
+    field.value = field.value.substring(0, start) + html + field.value.substring(end);
+    field.focus();
+
+    updatePreview();
+}
+
+function insertButton() {
+    const field = document.querySelector('textarea[name="html_content"]');
+    const start = field.selectionStart;
+    const buttonHtml = `
+<a href="url" style="display: inline-block; padding: 12px 30px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    Düyməni Klikləyin
+</a>`;
+
+    field.value = field.value.substring(0, start) + buttonHtml + field.value.substring(start);
+    field.focus();
+
+    updatePreview();
+}
+
+function updatePreview() {
+    const htmlContent = document.querySelector('textarea[name="html_content"]').value;
+    const preview = document.getElementById('livePreview');
+
+    if (htmlContent.trim()) {
+        preview.innerHTML = htmlContent;
+    } else {
+        preview.innerHTML = '<p class="text-muted text-center">Məzmun yazdıqca burada görünəcək...</p>';
+    }
+}
+
+function previewTemplate() {
+    const subject = document.querySelector('input[name="subject"]').value;
+    const htmlContent = document.querySelector('textarea[name="html_content"]').value;
+
+    const previewWindow = window.open('', 'preview', 'width=800,height=600');
+    previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${subject}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .email-subject { background: #f8f9fa; padding: 10px; border-left: 4px solid #0d6efd; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="email-subject">
+                <strong>Mövzu:</strong> ${subject}
+            </div>
+            ${htmlContent}
+        </body>
+        </html>
+    `);
+}
+
+function useTemplate(type) {
+    const templates = {
+        welcome: {
+            subject: 'Q360 Sisteminə Xoş Gəlmisiniz!',
+            html: `<h2>Hörmətli {{ user.name }},</h2>
+<p>Q360 - 360° Qiymətləndirmə Sisteminə xoş gəlmisiniz!</p>
+<p>Hesabınız uğurla yaradıldı. İndi sistemdən istifadə edərək performansınızı izləyə və inkişafınızı davam etdirə bilərsiniz.</p>
+<a href="{{ site.url }}" style="display: inline-block; padding: 12px 30px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    Sistemə Daxil Ol
+</a>
+<p>Uğurlar diləyirik!<br>{{ site.name }} Komandası</p>`,
+            text: `Hörmətli {{ user.name }},\n\nQ360 sisteminə xoş gəlmisiniz!\n\nSistemə daxil olmaq üçün: {{ site.url }}\n\nUğurlar,\n{{ site.name }} Komandası`
+        },
+        evaluation: {
+            subject: 'Yeni Qiymətləndirmə Tapşırığınız',
+            html: `<h2>Yeni Qiymətləndirmə</h2>
+<p>Hörmətli {{ user.name }},</p>
+<p><strong>{{ campaign.title }}</strong> kampaniyası üçün yeni qiymətləndirmə tapşırığınız var.</p>
+<p>Son tarix: <strong>{{ campaign.end_date }}</strong></p>
+<a href="{{ evaluation.link }}" style="display: inline-block; padding: 12px 30px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    Qiymətləndirməyə Başla
+</a>`,
+            text: `Yeni Qiymətləndirmə\n\nHörmətli {{ user.name }},\n\n{{ campaign.title }} kampaniyası üçün yeni tapşırığınız var.\n\nSon tarix: {{ campaign.end_date }}\n\nLink: {{ evaluation.link }}`
+        },
+        reminder: {
+            subject: 'Xatırlatma: Qiymətləndirmə Son Tarixi',
+            html: `<h2>⏰ Xatırlatma</h2>
+<p>Hörmətli {{ user.name }},</p>
+<p><strong>{{ campaign.title }}</strong> kampaniyasının son tarixi yaxınlaşır!</p>
+<p>Son tarix: <strong>{{ campaign.end_date }}</strong></p>
+<a href="{{ evaluation.link }}" style="display: inline-block; padding: 12px 30px; background-color: #ffc107; color: #000; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    İndi Tamamla
+</a>`,
+            text: `Xatırlatma!\n\n{{ campaign.title }} kampaniyasının son tarixi yaxınlaşır: {{ campaign.end_date }}\n\nLink: {{ evaluation.link }}`
+        },
+        result: {
+            subject: 'Qiymətləndirmə Nəticələriniz Hazırdır',
+            html: `<h2>✅ Nəticələr Hazırdır</h2>
+<p>Hörmətli {{ user.name }},</p>
+<p><strong>{{ campaign.title }}</strong> kampaniyasının nəticələri hazırdır.</p>
+<a href="{{ evaluation.link }}" style="display: inline-block; padding: 12px 30px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+    Nəticələri Gör
+</a>`,
+            text: `Nəticələr Hazırdır\n\n{{ campaign.title }} nəticələrinə baxın: {{ evaluation.link }}`
+        }
+    };
+
+    const template = templates[type];
+    if (template) {
+        document.querySelector('input[name="subject"]').value = template.subject;
+        document.querySelector('textarea[name="html_content"]').value = template.html;
+        document.querySelector('textarea[name="text_content"]').value = template.text;
+        updatePreview();
+    }
+}
+
+// Live preview update
+document.querySelector('textarea[name="html_content"]').addEventListener('input', updatePreview);
+
+// Initial preview
+updatePreview();
+</script>
+{% endblock %}

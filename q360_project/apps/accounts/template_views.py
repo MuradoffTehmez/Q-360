@@ -119,8 +119,51 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        context['profile'] = self.request.user.profile
+        user = self.request.user
+
+        context['user'] = user
+
+        # Ensure profile exists
+        if hasattr(user, 'profile'):
+            context['profile'] = user.profile
+        else:
+            # Create profile if doesn't exist
+            from .models import Profile
+            context['profile'] = Profile.objects.create(user=user)
+
+        # Get evaluation statistics
+        from apps.evaluations.models import EvaluationAssignment, EvaluationResult
+        context['completed_evaluations'] = EvaluationAssignment.objects.filter(
+            evaluator=user,
+            status='completed'
+        ).count()
+
+        # Get average score
+        latest_result = EvaluationResult.objects.filter(
+            evaluatee=user
+        ).order_by('-calculated_at').first()
+
+        if latest_result:
+            context['average_score'] = f"{latest_result.overall_score:.2f}"
+        else:
+            context['average_score'] = "N/A"
+
+        # Get active development goals
+        from apps.development_plans.models import DevelopmentGoal
+        context['active_goals'] = DevelopmentGoal.objects.filter(
+            user=user,
+            status='active'
+        ).count()
+
+        # Achievements count (placeholder)
+        context['achievements_count'] = 0
+
+        # Recent activities (placeholder)
+        context['recent_activities'] = []
+
+        # Competencies (placeholder)
+        context['competencies'] = []
+
         return context
 
 

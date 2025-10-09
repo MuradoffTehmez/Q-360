@@ -104,37 +104,55 @@
             </h5>
         </div>
         <div class="card-body">
-            <form method="post" id="passwordChangeForm">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Cari Şifrə</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" name="current_password" required>
+                            {{ form.old_password }}
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        {% if form.old_password.errors %}
+                            <div class="text-danger mt-1">{{ form.old_password.errors.0 }}</div>
+                        {% endif %}
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Yeni Şifrə</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" name="new_password" id="newPassword" required>
+                            {{ form.new_password1 }}
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        {% if form.new_password1.errors %}
+                            <div class="text-danger mt-1">{{ form.new_password1.errors.0 }}</div>
+                        {% endif %}
                         <div class="password-strength mt-2"></div>
                         <small class="text-muted" id="passwordStrength"></small>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Yeni Şifrə (Təkrar)</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" name="confirm_password" required>
+                            {{ form.new_password2 }}
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        {% if form.new_password2.errors %}
+                            <div class="text-danger mt-1">{{ form.new_password2.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -145,7 +163,6 @@
                         <li>Ən azı 1 böyük hərf</li>
                         <li>Ən azı 1 kiçik hərf</li>
                         <li>Ən azı 1 rəqəm</li>
-                        <li>Ən azı 1 xüsusi simvol (@, #, $, vb.)</li>
                     </ul>
                 </div>
 

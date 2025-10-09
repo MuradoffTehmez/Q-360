@@ -2,122 +2,354 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}{% trans "Help" %} - Q360{% endblock %}
+{% block title %}Kömək və Dəstək - Q360{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
+<div class="container mt-4 mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Ana Səhifə</a></li>
+            <li class="breadcrumb-item active">Kömək</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3><i class="fas fa-question-circle me-2"></i>{% trans "Help & Support" %}</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-primary">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-book fa-3x text-primary mb-3"></i>
-                                    <h5 class="card-title">{% trans "User Guide" %}</h5>
-                                    <p class="card-text">{% trans "Learn how to use the Q360 system effectively" %}</p>
-                                    <a href="#" class="btn btn-primary">{% trans "Read Guide" %}</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-success">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-video fa-3x text-success mb-3"></i>
-                                    <h5 class="card-title">{% trans "Video Tutorials" %}</h5>
-                                    <p class="card-text">{% trans "Watch video guides for common tasks" %}</p>
-                                    <a href="#" class="btn btn-success">{% trans "Watch Videos" %}</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-info">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-envelope fa-3x text-info mb-3"></i>
-                                    <h5 class="card-title">{% trans "Contact Support" %}</h5>
-                                    <p class="card-text">{% trans "Get help from our support team" %}</p>
-                                    <a href="mailto:support@q360.gov.az" class="btn btn-info">{% trans "Email Us" %}</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <h4 class="mb-3">{% trans "Frequently Asked Questions" %}</h4>
-
-                    <div class="accordion" id="faqAccordion">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq1">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
-                                    {% trans "How do I complete an evaluation?" %}
-                                </button>
-                            </h2>
-                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    {% trans "Go to 'My Assignments' in the navigation menu, select the evaluation you want to complete, and fill out all required questions. Click 'Submit' when finished." %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq2">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
-                                    {% trans "How do I view my reports?" %}
-                                </button>
-                            </h2>
-                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    {% trans "Click on 'Reports' in the main menu to view your evaluation results and performance trends." %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq3">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
-                                    {% trans "How do I reset my password?" %}
-                                </button>
-                            </h2>
-                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    {% trans "Go to Settings > Security and use the 'Change Password' form to update your password." %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq4">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
-                                    {% trans "Who can I evaluate?" %}
-                                </button>
-                            </h2>
-                            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    {% trans "You can evaluate colleagues assigned to you through active evaluation campaigns. Your assignments appear in 'My Assignments'." %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-info-circle me-2"></i>{% trans "Need More Help?" %}</h5>
-                        <p class="mb-0">
-                            {% trans "Contact system administrator:" %} <strong>admin@q360.gov.az</strong><br>
-                            {% trans "Technical support:" %} <strong>support@q360.gov.az</strong>
-                        </p>
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white py-5 text-center">
+                    <h1 class="display-5 mb-3"><i class="fas fa-life-ring me-3"></i>Kömək Mərkəzi</h1>
+                    <p class="lead mb-4">Q360 - 360° Qiymətləndirmə Sistemi ilə bağlı hər şeyi burada tapa bilərsiniz</p>
+                    <div class="input-group input-group-lg" style="max-width: 600px; margin: 0 auto;">
+                        <input type="text" class="form-control" placeholder="Axtardığınızı yazın..." id="searchInput">
+                        <button class="btn btn-light" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-primary text-center shadow-sm">
+                <div class="card-body">
+                    <div class="bg-primary text-white rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">İstifadəçi Təlimatı</h5>
+                    <p class="card-text text-muted">Sistemdən necə istifadə edəcəyinizi öyrənin</p>
+                    <a href="#userguide" class="btn btn-outline-primary">Oxu</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-success text-center shadow-sm">
+                <div class="card-body">
+                    <div class="bg-success text-white rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-video fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Video Dərslər</h5>
+                    <p class="card-text text-muted">Əməliyyatları izləyərək öyrənin</p>
+                    <a href="#videos" class="btn btn-outline-success">İzlə</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-info text-center shadow-sm">
+                <div class="card-body">
+                    <div class="bg-info text-white rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-question-circle fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Tez-tez Soruşulanlar</h5>
+                    <p class="card-text text-muted">Ən çox verilən sualların cavabları</p>
+                    <a href="#faq" class="btn btn-outline-info">Bax</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-warning text-center shadow-sm">
+                <div class="card-body">
+                    <div class="bg-warning text-white rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-headset fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Texniki Dəstək</h5>
+                    <p class="card-text text-muted">Problemlərinizi bizimlə paylaşın</p>
+                    <a href="mailto:support@q360.gov.az" class="btn btn-outline-warning">Əlaqə</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Guide Section -->
+    <div id="userguide" class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-book-open me-2"></i>İstifadəçi Təlimatı</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="fas fa-sign-in-alt me-2"></i>Sistemə Giriş</h5>
+                    <ol class="text-muted">
+                        <li>İstifadəçi adınızı və şifrənizi daxil edin</li>
+                        <li>İlk girişdə şifrənizi dəyişməyiniz tövsiyə olunur</li>
+                        <li>Dashboard səhifəsinə yönləndiriləcəksiniz</li>
+                    </ol>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="fas fa-clipboard-check me-2"></i>Qiymətləndirmənin Tamamlanması</h5>
+                    <ol class="text-muted">
+                        <li>"Mənim Tapşırıqlarım" bölməsinə keçin</li>
+                        <li>Tamamlanmamış qiymətləndirməni seçin</li>
+                        <li>Bütün sualları cavablandırın</li>
+                        <li>"Göndər" düyməsinə basın</li>
+                    </ol>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="fas fa-chart-line me-2"></i>Hesabatların Baxılması</h5>
+                    <ol class="text-muted">
+                        <li>"Hesabatlar" menyusuna keçin</li>
+                        <li>"Mənim Hesabatlarım" bölməsini açın</li>
+                        <li>İstədiyiniz kampaniyanı seçin</li>
+                        <li>Detallı hesabat və qrafiklərə baxın</li>
+                    </ol>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-primary"><i class="fas fa-bullseye me-2"></i>İnkişaf Məqsədlərinin Müəyyənləşdirilməsi</h5>
+                    <ol class="text-muted">
+                        <li>"Mənim Məqsədlərim" səhifəsinə keçin</li>
+                        <li>"Yeni Məqsəd" düyməsini klikləyin</li>
+                        <li>Məqsədin detallarını daxil edin</li>
+                        <li>İrəliləyişi mütəmadi olaraq qeyd edin</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Məsləhət:</strong> Hər bir bölmədə "?" ikonu ilə əlavə kömək məlumatlarını tapa bilərsiniz.
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div id="faq" class="card shadow-sm mb-5">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Tez-tez Soruşulan Suallar</h4>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="faqAccordion">
+                <!-- Evaluation Questions -->
+                <h5 class="text-info mb-3"><i class="fas fa-clipboard-list me-2"></i>Qiymətləndirmə</h5>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            Qiymətləndirməni necə tamamlayım?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <strong>Addım 1:</strong> Sol menyudan "Mənim Tapşırıqlarım" bölməsinə keçin.<br>
+                            <strong>Addım 2:</strong> Aktiv qiymətləndirməni seçin və "Başla" düyməsini klikləyin.<br>
+                            <strong>Addım 3:</strong> Bütün sualları diqqətlə oxuyub cavablandırın.<br>
+                            <strong>Addım 4:</strong> "Yadda saxla" ilə qaralama olaraq saxlaya və ya "Göndər" ilə tamamlaya bilərsiniz.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            Qiymətləndirməni göndərdikdən sonra dəyişə bilərəmmi?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Xeyr, qiymətləndirməni göndərdikdən sonra onu dəyişə bilməzsiniz. Ona görə də göndərmədən əvvəl
+                            bütün cavablarınızı yoxlayın. Qaralama rejimində isə istənilən sayda dəyişiklik edə bilərsiniz.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-4">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Mənim cavablarımı başqaları görə bilərmi?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Xeyr, qiymətləndirmələr tam məxfidir. Yalnız anonim olaraq ümumi nəticələrdə istifadə olunur.
+                            İndividual cavablarınız heç kim tərəfindən görünməz.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Questions -->
+                <h5 class="text-info mb-3"><i class="fas fa-chart-bar me-2"></i>Hesabatlar</h5>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Hesabatlarımı necə görə bilərəm?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Yuxarı menyudan "Hesabatlar" bölməsinə keçin və "Mənim Hesabatlarım" seçin. Burada bütün
+                            kampaniyalarınızın nəticələrini və performans trendlərini görə bilərsiniz.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-4">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            Hesabatları PDF və ya Excel formatında ixrac edə bilərəmmi?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Bəli, hesabat səhifəsinin yuxarı sağ küncündə "İxrac" düyməsi var. Buradan PDF və ya Excel
+                            formatında hesabatınızı yükləyə bilərsiniz.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Questions -->
+                <h5 class="text-info mb-3"><i class="fas fa-cog me-2"></i>Texniki</h5>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            Şifrəmi necə dəyişə bilərəm?
+                        </button>
+                    </h2>
+                    <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Profil menyusundan "Təhlükəsizlik" bölməsinə keçin və "Şifrə Dəyişikliyi" formasını doldurun.
+                            Cari şifrənizi və yeni şifrənizi (2 dəfə) daxil edib "Yadda saxla" düyməsini klikləyin.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                            Şifrəmi unutmuşam, nə etməliyəm?
+                        </button>
+                    </h2>
+                    <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            İnsan Resursları departamenti ilə və ya texniki dəstək komandası ilə əlaqə saxlayın. Onlar sizə
+                            yeni şifrə verəcəklər. E-poçt: support@q360.gov.az
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                            Hansı brauzerdən istifadə etməliyəm?
+                        </button>
+                    </h2>
+                    <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Q360 sistemi bütün müasir brauzerlərdə işləyir: Google Chrome, Mozilla Firefox, Microsoft Edge,
+                            Safari. Ən yaxşı təcrübə üçün brauzerin son versiyasından istifadə edin.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Bizə Yazın</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-envelope fa-3x text-success"></i>
+                    </div>
+                    <h6>E-poçt Dəstəyi</h6>
+                    <p class="text-muted small">Ümumi suallar və dəstək üçün</p>
+                    <a href="mailto:support@q360.gov.az" class="btn btn-outline-success btn-sm">support@q360.gov.az</a>
+                </div>
+
+                <div class="col-md-4 mb-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-phone fa-3x text-primary"></i>
+                    </div>
+                    <h6>Telefon Dəstəyi</h6>
+                    <p class="text-muted small">İş günləri: 09:00 - 18:00</p>
+                    <a href="tel:+994123456789" class="btn btn-outline-primary btn-sm">+994 12 XXX XX XX</a>
+                </div>
+
+                <div class="col-md-4 mb-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-shield fa-3x text-warning"></i>
+                    </div>
+                    <h6>Administrator</h6>
+                    <p class="text-muted small">Sistem administratoru ilə əlaqə</p>
+                    <a href="mailto:admin@q360.gov.az" class="btn btn-outline-warning btn-sm">admin@q360.gov.az</a>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="alert alert-light text-center">
+                <h6 class="mb-3">Əlavə Resurslar</h6>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'privacy' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-shield-alt me-1"></i>Məxfilik Siyasəti
+                    </a>
+                    <a href="{% url 'terms' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-file-contract me-1"></i>İstifadə Şərtləri
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-home me-1"></i>Ana Səhifəyə Qayıt
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<script>
+// Simple search functionality
+document.getElementById('searchInput')?.addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const accordionItems = document.querySelectorAll('.accordion-item');
+
+    accordionItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}
