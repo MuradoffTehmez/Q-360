@@ -64,9 +64,12 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-bell fa-lg"></i>
+                            {% load cache %}
+                            {% cache 60 user_notifications request.user.pk %}
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">
                                 0
                             </span>
+                            {% endcache %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow" id="notificationList" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                             <li class="dropdown-header d-flex justify-content-between align-items-center">

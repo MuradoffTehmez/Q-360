@@ -12,6 +12,9 @@ from django.db.models import Q, Count, Avg
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 from .models import (
     EvaluationCampaign, Question, QuestionCategory,
@@ -58,6 +61,8 @@ class CampaignListView(LoginRequiredMixin, ListView):
         return context
 
 
+@method_decorator(cache_page(300), name='dispatch')  # 5 minutes cache
+@method_decorator(vary_on_cookie, name='dispatch')  # Vary by user session
 class CampaignDetailView(LoginRequiredMixin, DetailView):
     """View campaign details."""
     model = EvaluationCampaign
