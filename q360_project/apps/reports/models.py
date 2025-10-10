@@ -50,3 +50,83 @@ class RadarChartData(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.category}"
+
+
+class ReportGenerationLog(models.Model):
+    """
+    Tracks asynchronous report generation tasks.
+    Stores status, progress, and generated files.
+    """
+
+    REPORT_TYPE_CHOICES = [
+        ('pdf', 'PDF Hesabat'),
+        ('excel', 'Excel Hesabat'),
+        ('csv', 'CSV Hesabat'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending', 'Gözləyir'),
+        ('processing', 'İşlənir'),
+        ('completed', 'Tamamlandı'),
+        ('failed', 'Uğursuz'),
+    ]
+
+    report_type = models.CharField(
+        max_length=20,
+        choices=REPORT_TYPE_CHOICES,
+        verbose_name=_('Hesabat Növü')
+    )
+    requested_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='report_requests',
+        verbose_name=_('Tələb edən')
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name=_('Status')
+    )
+    file = models.FileField(
+        upload_to='generated_reports/%Y/%m/',
+        null=True,
+        blank=True,
+        verbose_name=_('Hesabat Faylı')
+    )
+    metadata = models.JSONField(
+        default=dict,
+        verbose_name=_('Metadata'),
+        help_text=_('Task ID, parameterlər və s.')
+    )
+    error_message = models.TextField(
+        blank=True,
+        verbose_name=_('Xəta Mesajı')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Yaradılma Tarixi')
+    )
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Tamamlanma Tarixi')
+    )
+
+    class Meta:
+        verbose_name = _('Hesabat Yaratma Loqu')
+        verbose_name_plural = _('Hesabat Yaratma Loqları')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['requested_by', 'status']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_report_type_display()} - {self.requested_by.username} ({self.get_status_display()})"
+
+    def get_download_url(self):
+        """Get download URL for completed report."""
+        if self.status == 'completed' and self.file:
+            return f'/reports/download/{self.pk}/'
+        return None

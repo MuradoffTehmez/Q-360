@@ -184,8 +184,9 @@ class Question(models.Model):
     )
     max_score = models.PositiveIntegerField(
         default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-        verbose_name=_('Maksimum Bal')
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_('Maksimum Bal'),
+        help_text=_('Qiymətləndirmə 1-5 şkalasında aparılır')
     )
     is_required = models.BooleanField(
         default=True,
@@ -360,8 +361,9 @@ class Response(models.Model):
     score = models.IntegerField(
         null=True,
         blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-        verbose_name=_('Bal')
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_('Bal'),
+        help_text=_('1-5 arası qiymətləndirmə balı')
     )
     boolean_answer = models.BooleanField(
         null=True,

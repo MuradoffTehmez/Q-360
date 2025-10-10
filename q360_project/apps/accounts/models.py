@@ -172,16 +172,28 @@ class User(AbstractUser):
         return ' '.join(filter(None, parts))
 
     def is_superadmin(self):
-        """Check if user is a superadmin."""
-        return self.role == 'superadmin'
+        """
+        Check if user is a superadmin.
+        DEPRECATED: Use RoleManager.is_superadmin(user) instead.
+        """
+        from apps.accounts.rbac import RoleManager
+        return RoleManager.is_superadmin(self)
 
     def is_admin(self):
-        """Check if user is an admin."""
-        return self.role in ['superadmin', 'admin']
+        """
+        Check if user is an admin or higher.
+        DEPRECATED: Use RoleManager.is_admin(user) instead.
+        """
+        from apps.accounts.rbac import RoleManager
+        return RoleManager.is_admin(self)
 
     def is_manager(self):
-        """Check if user is a manager."""
-        return self.role in ['superadmin', 'admin', 'manager']
+        """
+        Check if user is a manager or higher.
+        DEPRECATED: Use RoleManager.is_manager(user) instead.
+        """
+        from apps.accounts.rbac import RoleManager
+        return RoleManager.is_manager(self)
 
     def get_subordinates(self):
         """Get all subordinates of this user."""
@@ -190,18 +202,23 @@ class User(AbstractUser):
     def can_evaluate(self, other_user):
         """
         Check if this user can evaluate another user.
-        Rules:
-        - Superadmin can evaluate anyone
-        - Manager can evaluate subordinates
-        - Employees can evaluate peers and supervisor (in peer/upward evaluation)
+        DEPRECATED: Use RoleManager.can_evaluate(evaluator, evaluatee) instead.
         """
-        if self.is_superadmin():
-            return True
-        if self.is_manager() and other_user.supervisor == self:
-            return True
-        if other_user.department == self.department:
-            return True
-        return False
+        from apps.accounts.rbac import RoleManager
+        return RoleManager.can_evaluate(self, other_user)
+
+    def get_permission_checker(self):
+        """
+        Get a PermissionChecker instance for this user.
+        Recommended way to check permissions.
+
+        Example:
+            permissions = user.get_permission_checker()
+            if permissions.can('can_manage_users'):
+                # Do something
+        """
+        from apps.accounts.rbac import PermissionChecker
+        return PermissionChecker(self)
 
 
 class Profile(models.Model):
