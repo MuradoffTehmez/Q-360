@@ -49,17 +49,9 @@ def logout_view(request):
 
 
 def register_view(request):
-    """Handle user registration."""
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Qeydiyyat uğurla tamamlandı! İndi daxil ola bilərsiniz.')
-            return redirect('accounts:login')
-    else:
-        form = UserRegistrationForm()
-
-    return render(request, 'accounts/register.html', {'form': form})
+    """Handle user registration - DISABLED for internal use."""
+    messages.warning(request, 'Qeydiyyat funksiyası daxili istifadə üçün söndürülüb. Admin ilə əlaqə saxlayın.')
+    return redirect('accounts:login')
 
 
 @login_required

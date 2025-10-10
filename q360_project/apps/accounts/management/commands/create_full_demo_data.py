@@ -409,41 +409,129 @@ class Command(BaseCommand):
         self.stdout.write(f"  ✓ {count} tapşırıq yaradıldı")
 
     def create_sample_responses(self):
-        """Create sample responses for some assignments."""
-        assignments = EvaluationAssignment.objects.filter(status='pending')[:10]
+        """Create sample responses for assignments with realistic data."""
+        active_campaign = EvaluationCampaign.objects.filter(status='active').first()
+        if not active_campaign:
+            return
+
+        # Get all assignments for active campaign
+        assignments = EvaluationAssignment.objects.filter(
+            campaign=active_campaign,
+            status='pending'
+        )[:25]  # Process 25 assignments
+
+        positive_comments = [
+            'Çox peşəkar və məsuliyyətli yanaşma nümayiş etdirir.',
+            'Komanda ilə əla əməkdaşlıq edir, həmişə köməyə hazırdır.',
+            'Təcrübəli və biliklidir, problemləri tez həll edir.',
+            'Liderlik keyfiyyətləri çox güclüdür, komandanı yaxşı motivasiya edir.',
+            'Innovativ fikirləri və yaradıcı yanaşması ilə seçilir.',
+            'İşə ciddi yanaşır, tapşırıqları vaxtında və keyfiyyətli yerinə yetirir.',
+            'Kommunikasiya bacarıqları əladır, hamı ilə rahat ünsiyyət qurur.',
+            'Mürəkkəb problemləri asanlıqla həll edir, analitik düşüncəsi güclüdür.',
+        ]
+
+        improvement_comments = [
+            'Vaxt idarəetməsini təkmilləşdirmək lazımdır.',
+            'Bəzi hallarda daha çox təşəbbüskarlıq göstərə bilər.',
+            'Təqdimat bacarıqlarını inkişaf etdirməlidir.',
+            'Stres idarəetməsi üzərində işləməlidir.',
+            'Daha çox komanda işi bacarıqları inkişaf etdirə bilər.',
+        ]
+
+        strengths_comments = [
+            'Texniki biliklər, problem həll etmə bacarığı, məsuliyyətlilik',
+            'Liderlik, komanda idarəetməsi, strateji düşüncə',
+            'Kommunikasiya, əməkdaşlıq, empatiya',
+            'Yaradıcılıq, innovasiya, adaptasiya bacarığı',
+            'Məhsuldarlıq, effektivlik, dəqiqlik',
+        ]
+
+        response_count = 0
+        completed_count = 0
 
         for assignment in assignments:
             questions = assignment.campaign.campaign_questions.all()
+
+            # Simulate different performance levels
+            performance_level = random.choice(['high', 'medium', 'low'])
+            if performance_level == 'high':
+                score_range = (4, 5)
+                completion_chance = 0.8
+            elif performance_level == 'medium':
+                score_range = (3, 4)
+                completion_chance = 0.6
+            else:
+                score_range = (2, 3)
+                completion_chance = 0.4
 
             for cq in questions:
                 question = cq.question
 
                 if question.question_type == 'scale':
-                    score = random.randint(3, 5)
+                    score = random.randint(*score_range)
                     Response.objects.get_or_create(
                         assignment=assignment,
                         question=question,
                         defaults={'score': score}
                     )
+                    response_count += 1
+
                 elif question.question_type == 'text':
-                    texts = [
-                        'Çox peşəkar və məsuliyyətli yanaşma nümayiş etdirir.',
-                        'Komanda ilə əla əməkdaşlıq edir, həmişə köməyə hazırdır.',
-                        'Təcrübəli və biliklidir, problemləri tez həll edir.',
-                    ]
+                    # Different types of text questions
+                    question_lower = question.text.lower()
+
+                    if 'güclü' in question_lower or 'strength' in question_lower:
+                        text = random.choice(strengths_comments)
+                    elif 'inkişaf' in question_lower or 'development' in question_lower:
+                        text = random.choice(improvement_comments)
+                    else:
+                        text = random.choice(positive_comments)
+
                     Response.objects.get_or_create(
                         assignment=assignment,
                         question=question,
-                        defaults={'text_answer': random.choice(texts)}
+                        defaults={'text_answer': text}
                     )
+                    response_count += 1
 
-            # Mark some as completed
-            if random.random() > 0.5:
+            # Mark assignment as completed based on performance level
+            if random.random() < completion_chance:
                 assignment.status = 'completed'
-                assignment.completed_at = timezone.now()
+                assignment.completed_at = timezone.now() - timedelta(days=random.randint(1, 10))
                 assignment.save()
+                completed_count += 1
 
-        self.stdout.write(f"  ✓ {len(assignments)} tapşırıq üçün nümunə cavablar yaradıldı")
+        self.stdout.write(f"  ✓ {response_count} cavab yaradıldı")
+        self.stdout.write(f"  ✓ {completed_count} tapşırıq tamamlandı")
+
+        # Calculate results for completed evaluations
+        self.calculate_evaluation_results()
+
+    def calculate_evaluation_results(self):
+        """Calculate evaluation results for evaluatees."""
+        from apps.evaluations.models import EvaluationResult
+
+        active_campaign = EvaluationCampaign.objects.filter(status='active').first()
+        if not active_campaign:
+            return
+
+        # Get all evaluatees with completed assignments
+        completed_assignments = EvaluationAssignment.objects.filter(
+            campaign=active_campaign,
+            status='completed'
+        )
+
+        evaluatees = set(assignment.evaluatee for assignment in completed_assignments)
+
+        for evaluatee in evaluatees:
+            result, created = EvaluationResult.objects.get_or_create(
+                campaign=active_campaign,
+                evaluatee=evaluatee
+            )
+            result.calculate_scores()
+
+        self.stdout.write(f"  ✓ {len(evaluatees)} işçi üçün nəticələr hesablandı")
 
     def print_summary(self, users):
         """Print summary of created data."""
