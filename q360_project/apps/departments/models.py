@@ -287,7 +287,17 @@ class Position(models.Model):
         verbose_name=_('Yenilənmə Tarixi')
     )
 
-    history = HistoricalRecords()
+    # history = HistoricalRecords()
+    
+    history = HistoricalRecords(
+        excluded_fields=[
+            'lft', 
+            'rght', 
+            'tree_id', 
+            'level'
+        ]
+    ) 
+
 
     class Meta:
         verbose_name = _('Vəzifə')
