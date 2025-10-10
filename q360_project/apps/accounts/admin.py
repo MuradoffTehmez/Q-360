@@ -36,7 +36,9 @@ class RoleAdmin(SimpleHistoryAdmin):
 
     def users_count(self, obj):
         """Display users count with this role."""
-        count = obj.users.count()
+        # Role is stored as CharField in User model, not ForeignKey
+        from apps.accounts.models import User
+        count = User.objects.filter(role=obj.name).count()
         return format_html(
             '<span style="background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">{}</span>',
             count
@@ -70,6 +72,7 @@ class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):
     ]
     list_filter = ['role', 'is_active', 'is_staff', 'department', 'date_joined']
     search_fields = ['username', 'first_name', 'last_name', 'email', 'employee_id']
+    autocomplete_fields = []  # Required for Profile autocomplete
     ordering = ['last_name', 'first_name']
     readonly_fields = ['date_joined', 'last_login', 'user_statistics']
 
@@ -127,15 +130,17 @@ class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):
         if not obj.role:
             return '-'
         colors = {
+            'superadmin': '#dc3545',
             'admin': '#dc3545',
             'manager': '#ffc107',
-            'hr': '#17a2b8',
             'employee': '#28a745'
         }
+        # role is CharField, get display name from choices
+        role_display = dict(obj.ROLE_CHOICES).get(obj.role, obj.role)
         return format_html(
             '<span style="background: {}; color: white; padding: 3px 10px; border-radius: 3px; font-weight: bold; font-size: 11px;">{}</span>',
-            colors.get(obj.role.name, '#6c757d'),
-            obj.role.display_name
+            colors.get(obj.role, '#6c757d'),
+            role_display
         )
     role_badge.short_description = 'Rol'
 
@@ -215,7 +220,7 @@ class ProfileAdmin(SimpleHistoryAdmin):
     search_fields = ['user__username', 'user__first_name', 'user__last_name', 'work_email']
     list_filter = ['education_level', 'language_preference', 'hire_date']
     readonly_fields = ['created_at', 'updated_at', 'years_of_service']
-    autocomplete_fields = ['user']
+    raw_id_fields = ['user']  # Changed from autocomplete_fields
 
     fieldsets = (
         (_('İstifadəçi'), {
@@ -249,16 +254,10 @@ class ProfileAdmin(SimpleHistoryAdmin):
         """Display education level with badge."""
         if not obj.education_level:
             return '-'
-        colors = {
-            'high_school': '#6c757d',
-            'bachelor': '#007bff',
-            'master': '#28a745',
-            'phd': '#dc3545'
-        }
+        # Simple display without colors since education_level is a CharField
         return format_html(
-            '<span style="background: {}; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">{}</span>',
-            colors.get(obj.education_level, '#6c757d'),
-            obj.get_education_level_display()
+            '<span style="background: #007bff; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">{}</span>',
+            obj.education_level
         )
     education_badge.short_description = 'Təhsil'
 

@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <h1>{{ title }}</h1>
+
+    <div class="results">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col">İstifadəçi</th>
+                    <th scope="col">Departament</th>
+                    <th scope="col">Vəzifə</th>
+                    <th scope="col">Ortalama Bal</th>
+                    <th scope="col">Qiymətləndirmə Sayı</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in user_stats %}
+                <tr>
+                    <td>
+                        <a href="{% url 'admin:accounts_user_change' stat.user.pk %}">
+                            {{ stat.user.get_full_name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if stat.department %}
+                            {{ stat.department.name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ stat.position|default:"-" }}</td>
+                    <td>
+                        {% if stat.avg_score > 0 %}
+                            <span style="color: {% if stat.avg_score >= 4 %}#28a745{% elif stat.avg_score >= 3 %}#ffc107{% else %}#dc3545{% endif %}; font-weight: bold;">
+                                {{ stat.avg_score|floatformat:2 }}/5
+                            </span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ stat.evaluations_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Məlumat yoxdur</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

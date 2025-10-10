@@ -198,10 +198,10 @@ class QuestionAdmin(SimpleHistoryAdmin):
             'fields': ('text', 'category', 'question_type')
         }),
         (_('Qiymətləndirmə'), {
-            'fields': ('min_score', 'max_score')
+            'fields': ('max_score',)
         }),
         (_('Parametrlər'), {
-            'fields': ('allow_comments', 'is_required', 'is_active'),
+            'fields': ('is_required', 'is_active'),
             'classes': ('collapse',)
         }),
     )
