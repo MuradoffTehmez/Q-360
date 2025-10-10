@@ -13,6 +13,7 @@ class AuditLog(models.Model):
         ('delete', 'Silinmə'),
         ('login', 'Giriş'),
         ('logout', 'Çıxış'),
+        ('login_failure', 'Uğursuz Giriş'),
         ('export', 'İxrac'),
         ('import', 'İdxal'),
     ]

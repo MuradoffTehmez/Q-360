@@ -53,6 +53,9 @@ urlpatterns = [
 
     # API endpoints (must come before template URLs)
     path('api/notifications/', get_recent_notifications, name='api-notifications'),
+    path('api/competencies/', include('apps.competencies.urls', namespace='competencies')),
+    path('api/training/', include('apps.training.urls', namespace='training')),
+    path('api/audit/', include('apps.audit.urls', namespace='audit')),
 
     # Template-based app URLs (must come before API URLs to avoid conflicts)
     path('evaluations/', include('apps.evaluations.urls', namespace='evaluations')),
