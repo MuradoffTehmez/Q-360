@@ -171,7 +171,10 @@ class Department(MPTTModel):
         verbose_name=_('Yenilənmə Tarixi')
     )
 
-    history = HistoricalRecords()
+    # Exclude MPTT fields from history tracking to avoid conflicts
+    history = HistoricalRecords(
+        excluded_fields=['lft', 'rght', 'tree_id', 'level']
+    )
 
     class MPTTMeta:
         order_insertion_by = ['name']

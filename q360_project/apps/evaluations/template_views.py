@@ -212,25 +212,52 @@ def campaign_questions_assign(request, campaign_pk):
 
 @login_required
 def my_assignments(request):
-    """View user's evaluation assignments."""
+    """View user's evaluation assignments with filtering and pagination."""
     user = request.user
 
-    # Get assignments
-    pending = EvaluationAssignment.objects.filter(
-        evaluator=user,
-        status__in=['pending', 'in_progress']
-    ).select_related('campaign', 'evaluatee')
+    # Base queryset
+    assignments = EvaluationAssignment.objects.filter(
+        evaluator=user
+    ).select_related('campaign', 'evaluatee', 'evaluatee__department')
 
-    completed = EvaluationAssignment.objects.filter(
-        evaluator=user,
-        status='completed'
-    ).select_related('campaign', 'evaluatee')
+    # Apply filters
+    status_filter = request.GET.get('status')
+    if status_filter:
+        assignments = assignments.filter(status=status_filter)
+
+    relationship_filter = request.GET.get('relationship')
+    if relationship_filter:
+        assignments = assignments.filter(relationship=relationship_filter)
+
+    search_query = request.GET.get('search')
+    if search_query:
+        assignments = assignments.filter(
+            Q(campaign__title__icontains=search_query) |
+            Q(evaluatee__first_name__icontains=search_query) |
+            Q(evaluatee__last_name__icontains=search_query)
+        )
+
+    # Order by status (pending first) and due date
+    assignments = assignments.order_by('status', 'campaign__end_date')
+
+    # Calculate statistics (before pagination)
+    all_assignments = EvaluationAssignment.objects.filter(evaluator=user)
+    total_count = all_assignments.count()
+    pending_count = all_assignments.filter(status='pending').count()
+    in_progress_count = all_assignments.filter(status='in_progress').count()
+    completed_count = all_assignments.filter(status='completed').count()
+
+    # Pagination
+    paginator = Paginator(assignments, 10)  # 10 assignments per page
+    page_number = request.GET.get('page')
+    assignments_page = paginator.get_page(page_number)
 
     context = {
-        'pending_assignments': pending,
-        'completed_assignments': completed,
-        'total_pending': pending.count(),
-        'total_completed': completed.count(),
+        'assignments': assignments_page,
+        'total_count': total_count,
+        'pending_count': pending_count,
+        'in_progress_count': in_progress_count,
+        'completed_count': completed_count,
     }
 
     return render(request, 'evaluations/my_assignments.html', context)

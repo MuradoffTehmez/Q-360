@@ -338,6 +338,24 @@ class EvaluationAssignment(models.Model):
         answered = self.responses.count()
         return (answered / total_questions) * 100
 
+    @property
+    def completion_percentage(self):
+        """Get completion percentage for template display."""
+        return round(self.get_progress())
+
+    @property
+    def is_overdue(self):
+        """Check if assignment is past the campaign end date."""
+        from datetime import date
+        return date.today() > self.campaign.end_date
+
+    @property
+    def days_remaining(self):
+        """Calculate days remaining until campaign end date."""
+        from datetime import date
+        delta = self.campaign.end_date - date.today()
+        return max(0, delta.days)
+
 
 class Response(models.Model):
     """
