@@ -42,7 +42,8 @@
       "Bash(tar:*)",
       "Bash(apt-get:*)",
       "Bash(choco:*)",
-      "Bash(redis-cli:*)"
+      "Bash(redis-cli:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
