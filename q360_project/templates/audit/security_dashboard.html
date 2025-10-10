@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Security Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <h2><i class="fas fa-shield-alt text-danger"></i> {% trans "Security Dashboard" %}</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <h2 id="totalFailures">-</h2>
+                    <p>{% trans "Total Login Failures (7 days)" %}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header"><h5>{% trans "Failures by Day" %}</h5></div>
+                <div class="card-body">
+                    <canvas id="failuresChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h5>{% trans "Top Failed IPs" %}</h5></div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "IP Address" %}</th>
+                                <th>{% trans "Failures" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topIPsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h5>{% trans "Top Failed Users" %}</h5></div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Username" %}</th>
+                                <th>{% trans "Failures" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topUsersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header"><h5>{% trans "Recent Failures" %}</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "User" %}</th>
+                                    <th>{% trans "IP Address" %}</th>
+                                    <th>{% trans "Time" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    $.get('/api/audit/security-stats/', function(data) {
+        $('#totalFailures').text(data.total_failures);
+
+        // Top IPs
+        let ipsHTML = '';
+        data.top_failed_ips.forEach(ip => {
+            ipsHTML += `<tr><td>${ip.ip_address}</td><td><span class="badge bg-danger">${ip.failure_count}</span></td></tr>`;
+        });
+        $('#topIPsTable').html(ipsHTML);
+
+        // Top Users
+        let usersHTML = '';
+        data.top_failed_users.forEach(u => {
+            usersHTML += `<tr><td>${u.username}</td><td><span class="badge bg-warning">${u.failure_count}</span></td></tr>`;
+        });
+        $('#topUsersTable').html(usersHTML);
+
+        // Recent failures
+        let recentHTML = '';
+        data.recent_failures.forEach(f => {
+            recentHTML += `<tr><td>${f.user || 'Unknown'}</td><td>${f.ip_address}</td><td>${new Date(f.timestamp).toLocaleString()}</td></tr>`;
+        });
+        $('#recentTable').html(recentHTML);
+
+        // Chart
+        const ctx = document.getElementById('failuresChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.failures_by_day.map(d => d.date),
+                datasets: [{
+                    label: '{% trans "Login Failures" %}',
+                    data: data.failures_by_day.map(d => d.count),
+                    borderColor: 'rgb(220, 53, 69)',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)'
+                }]
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

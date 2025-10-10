@@ -1,0 +1,98 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "My Skills" %} - Q360{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2><i class="fas fa-star text-warning"></i> {% trans "My Skills" %}</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5>{% trans "My Competencies" %}</h5>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                        <i class="fas fa-plus"></i> {% trans "Add Skill" %}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table" id="skillsTable">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Competency" %}</th>
+                                <th>{% trans "Level" %}</th>
+                                <th>{% trans "Score" %}</th>
+                                <th>{% trans "Status" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="skillsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3 class="text-primary" id="totalSkills">0</h3>
+                    <p>{% trans "Total Skills" %}</p>
+                    <canvas id="skillsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addSkillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>{% trans "Add Skill" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addSkillForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>{% trans "Competency" %}</label>
+                        <select class="form-select" name="competency" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label>{% trans "Level" %}</label>
+                        <select class="form-select" name="level" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label>{% trans "Self Assessment Score" %}</label>
+                        <input type="number" class="form-control" name="score" min="0" max="100">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Add" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    loadMySkills();
+    function loadMySkills() {
+        $.get('/api/competencies/user-skills/my_skills/', function(data) {
+            let html = '';
+            data.forEach(skill => {
+                const badge = skill.approval_status === 'approved' ? 'success' : 'warning';
+                html += `<tr>
+                    <td>${skill.competency_name}</td>
+                    <td>${skill.level_name}</td>
+                    <td>${skill.current_score || '-'}</td>
+                    <td><span class="badge bg-${badge}">${skill.approval_status}</span></td>
+                </tr>`;
+            });
+            $('#skillsBody').html(html);
+            $('#totalSkills').text(data.length);
+        });
+    }
+});
+</script>
+{% endblock %}

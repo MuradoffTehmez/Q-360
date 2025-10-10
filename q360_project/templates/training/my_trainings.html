@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "My Trainings" %}{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <h2><i class="fas fa-graduation-cap"></i> {% trans "My Trainings" %}</h2>
+
+    <ul class="nav nav-tabs mt-4" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#pending">{% trans "Pending" %} <span class="badge bg-warning" id="pendingCount">0</span></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#inprogress">{% trans "In Progress" %}</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#completed">{% trans "Completed" %}</a></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="pending">
+            <div class="row" id="pendingTrainings"></div>
+        </div>
+        <div class="tab-pane fade" id="inprogress">
+            <div class="row" id="inprogressTrainings"></div>
+        </div>
+        <div class="tab-pane fade" id="completed">
+            <div class="row" id="completedTrainings"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    ['pending', 'in_progress', 'completed'].forEach(status => {
+        $.get(`/api/training/user-trainings/my_${status}/`, function(data) {
+            const containerId = status === 'in_progress' ? 'inprogressTrainings' : status + 'Trainings';
+            let html = '';
+            data.forEach(t => {
+                const progress = t.progress_percentage || 0;
+                html += `
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>${t.resource_title}</h5>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" style="width:${progress}%">${progress}%</div>
+                                </div>
+                                <p class="small text-muted">{% trans "Due" %}: ${t.due_date || '-'}</p>
+                                <a href="/training/${t.id}/" class="btn btn-sm btn-primary">{% trans "View" %}</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            $(`#${containerId}`).html(html || '<p>{% trans "No trainings found" %}</p>');
+            if (status === 'pending') $('#pendingCount').text(data.length);
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -96,6 +96,33 @@
                 </a>
             </li>
 
+            <!-- Competencies & Training Section -->
+            <li class="nav-item">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>{% trans "Skills & Training" %}</span>
+                </h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'competencies:my-skills' %}">
+                    <i class="fas fa-star me-2"></i> {% trans "My Skills" %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'competencies:competency-list' %}">
+                    <i class="fas fa-lightbulb me-2"></i> {% trans "Competencies" %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'training:my-trainings' %}">
+                    <i class="fas fa-graduation-cap me-2"></i> {% trans "My Trainings" %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'training:catalog' %}">
+                    <i class="fas fa-book me-2"></i> {% trans "Training Catalog" %}
+                </a>
+            </li>
+
             <!-- Admin Section -->
             {% if user.is_admin %}
                 <li class="nav-item">
@@ -116,6 +143,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'evaluations:question-list' %}">
                         <i class="fas fa-question-circle me-2"></i> {% trans "Questions" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'competencies:competency-manage' %}">
+                        <i class="fas fa-cogs me-2"></i> {% trans "Manage Competencies" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'training:training-manage' %}">
+                        <i class="fas fa-chalkboard-teacher me-2"></i> {% trans "Manage Trainings" %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'audit:security-dashboard' %}">
+                        <i class="fas fa-shield-alt me-2"></i> {% trans "Security Dashboard" %}
                     </a>
                 </li>
                 <li class="nav-item">

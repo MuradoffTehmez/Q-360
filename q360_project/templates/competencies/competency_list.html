@@ -1,0 +1,299 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Competencies" %} - Q360{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Home" %}</a></li>
+        <li class="breadcrumb-item active">{% trans "Competencies" %}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h1 class="h2"><i class="fas fa-lightbulb text-primary me-2"></i>{% trans "Competencies" %}</h1>
+    {% if user.is_admin %}
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompetencyModal">
+        <i class="fas fa-plus me-1"></i> {% trans "Add Competency" %}
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Filter and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3" id="filterForm">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="search" placeholder="{% trans 'Search competencies...' %}" value="{{ request.GET.search }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="is_active">
+                            <option value="">{% trans "All Status" %}</option>
+                            <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>{% trans "Active" %}</option>
+                            <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>{% trans "Inactive" %}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-secondary w-100">
+                            <i class="fas fa-filter me-1"></i> {% trans "Filter" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary mb-0" id="totalCompetencies">-</h3>
+                        <p class="text-muted mb-0">{% trans "Total Competencies" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success mb-0" id="activeCompetencies">-</h3>
+                        <p class="text-muted mb-0">{% trans "Active" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info mb-0" id="totalSkills">-</h3>
+                        <p class="text-muted mb-0">{% trans "Total Skills" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-warning mb-0" id="pendingApprovals">-</h3>
+                        <p class="text-muted mb-0">{% trans "Pending Approvals" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Competencies List -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "All Competencies" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="competenciesTable">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Description" %}</th>
+                                <th>{% trans "Positions" %}</th>
+                                <th>{% trans "Users with Skill" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="competenciesTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">{% trans "Loading..." %}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Competencies pagination" class="mt-3">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Competency Modal -->
+{% if user.is_admin %}
+<div class="modal fade" id="addCompetencyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Add New Competency" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addCompetencyForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Name" %} *</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Description" %}</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
+                            <label class="form-check-label" for="is_active">
+                                {% trans "Active" %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Add Competency" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let currentPage = 1;
+
+    // Load competencies
+    function loadCompetencies(page = 1) {
+        const searchParams = new URLSearchParams(window.location.search);
+        searchParams.set('page', page);
+
+        $.ajax({
+            url: '/api/competencies/competencies/?' + searchParams.toString(),
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            success: function(data) {
+                renderCompetencies(data.results);
+                renderPagination(data);
+            },
+            error: function(xhr) {
+                console.error('Error loading competencies:', xhr);
+                $('#competenciesTableBody').html(
+                    '<tr><td colspan="6" class="text-center text-danger">{% trans "Error loading competencies" %}</td></tr>'
+                );
+            }
+        });
+    }
+
+    // Load statistics
+    function loadStatistics() {
+        $.ajax({
+            url: '/api/competencies/competencies/statistics/',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            success: function(data) {
+                $('#totalCompetencies').text(data.total_competencies);
+                $('#activeCompetencies').text(data.total_competencies);
+                $('#totalSkills').text(data.total_skills);
+                $('#pendingApprovals').text(data.pending_approvals);
+            }
+        });
+    }
+
+    // Render competencies table
+    function renderCompetencies(competencies) {
+        let html = '';
+        if (competencies.length === 0) {
+            html = '<tr><td colspan="6" class="text-center">{% trans "No competencies found" %}</td></tr>';
+        } else {
+            competencies.forEach(comp => {
+                const statusBadge = comp.is_active
+                    ? '<span class="badge bg-success">{% trans "Active" %}</span>'
+                    : '<span class="badge bg-secondary">{% trans "Inactive" %}</span>';
+
+                html += `
+                    <tr>
+                        <td><strong>${comp.name}</strong></td>
+                        <td>${comp.description || '-'}</td>
+                        <td><span class="badge bg-info">${comp.active_positions_count || 0}</span></td>
+                        <td><span class="badge bg-primary">${comp.total_users_with_skill || 0}</span></td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <a href="/competencies/${comp.id}/" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        $('#competenciesTableBody').html(html);
+    }
+
+    // Render pagination
+    function renderPagination(data) {
+        // Simple pagination implementation
+        let html = '';
+        if (data.previous) {
+            html += '<li class="page-item"><a class="page-link" href="#" data-page="prev">{% trans "Previous" %}</a></li>';
+        }
+        if (data.next) {
+            html += '<li class="page-item"><a class="page-link" href="#" data-page="next">{% trans "Next" %}</a></li>';
+        }
+        $('#pagination').html(html);
+    }
+
+    // Handle pagination clicks
+    $(document).on('click', '.page-link', function(e) {
+        e.preventDefault();
+        const page = $(this).data('page');
+        if (page === 'prev') currentPage--;
+        else if (page === 'next') currentPage++;
+        loadCompetencies(currentPage);
+    });
+
+    // Handle form submission
+    $('#addCompetencyForm').submit(function(e) {
+        e.preventDefault();
+        const formData = {
+            name: $('input[name="name"]').val(),
+            description: $('textarea[name="description"]').val(),
+            is_active: $('input[name="is_active"]').is(':checked')
+        };
+
+        $.ajax({
+            url: '/api/competencies/competencies/',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(formData),
+            success: function() {
+                $('#addCompetencyModal').modal('hide');
+                $('#addCompetencyForm')[0].reset();
+                loadCompetencies();
+                loadStatistics();
+                alert('{% trans "Competency added successfully" %}');
+            },
+            error: function(xhr) {
+                alert('{% trans "Error adding competency" %}');
+            }
+        });
+    });
+
+    // Initial load
+    loadCompetencies();
+    loadStatistics();
+});
+</script>
+{% endblock %}
