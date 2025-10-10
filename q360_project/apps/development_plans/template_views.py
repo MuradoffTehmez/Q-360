@@ -361,34 +361,28 @@ def goal_approve_toggle(request, pk):
         if goal.user not in subordinates:
             return JsonResponse({'success': False, 'error': 'Bu məqsədi təsdiqləmək icazəniz yoxdur.'})
 
-    # Toggle approval status
-    if goal.is_approved:
-        # Remove approval
-        goal.is_approved = False
+    # Toggle approval status based on current status
+    if goal.status == 'active':
+        # Remove approval - revert to pending
+        goal.status = 'pending_approval'
         goal.approved_by = None
         goal.approved_at = None
         message = 'Məqsədin təsdiqi ləğv edildi.'
-
-        # Update status if it was active
-        if goal.status == 'active':
-            goal.status = 'pending_approval'
+        is_approved = False
     else:
-        # Approve
-        goal.is_approved = True
+        # Approve - change status to active
+        goal.status = 'active'
         goal.approved_by = request.user
         goal.approved_at = timezone.now()
         message = 'Məqsəd təsdiqləndi.'
-
-        # Update status to active
-        if goal.status in ['draft', 'pending_approval']:
-            goal.status = 'active'
+        is_approved = True
 
     goal.save()
 
     # Send notification to goal owner
     from apps.notifications.utils import send_notification
 
-    if goal.is_approved:
+    if is_approved:
         notification_message = f'"{goal.title}" məqsədiniz {request.user.get_full_name()} tərəfindən təsdiqləndi.'
         send_notification(
             recipient=goal.user,
@@ -414,7 +408,8 @@ def goal_approve_toggle(request, pk):
     return JsonResponse({
         'success': True,
         'message': message,
-        'is_approved': goal.is_approved,
+        'is_approved': is_approved,
         'approved_by': goal.approved_by.get_full_name() if goal.approved_by else None,
-        'approved_at': goal.approved_at.isoformat() if goal.approved_at else None
+        'approved_at': goal.approved_at.isoformat() if goal.approved_at else None,
+        'status': goal.status
     })

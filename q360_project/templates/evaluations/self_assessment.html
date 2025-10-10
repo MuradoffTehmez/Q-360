@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load static %}
+{% load evaluation_tags %}
 
 {% block title %}Özünüqiymətləndirmə - {{ campaign.title }}{% endblock %}
 
@@ -156,24 +157,20 @@
                             {% if question.question_type == 'scale' %}
                                 <!-- Scale Rating -->
                                 <div class="rating-scale mb-3">
-                                    {% for i in "12345" %}
+                                    {% for i in question.max_score|range_from_one %}
                                     <div class="rating-option">
                                         <input type="radio"
                                                name="question_{{ question.id }}"
-                                               value="{{ forloop.counter }}"
-                                               id="q{{ question.id }}_{{ forloop.counter }}"
+                                               value="{{ i }}"
+                                               id="q{{ question.id }}_{{ i }}"
                                                {% if question.is_required %}required{% endif %}
                                                class="question-input"
                                                data-question-id="{{ question.id }}">
-                                        <label for="q{{ question.id }}_{{ forloop.counter }}">
-                                            <div class="fs-4 mb-1">{{ forloop.counter }}</div>
+                                        <label for="q{{ question.id }}_{{ i }}"
+                                               title="{% score_label i question.max_score %}">
+                                            <div class="fs-4 mb-1">{{ i }}</div>
                                             <small>
-                                                {% if forloop.counter == 1 %}Çox zəif
-                                                {% elif forloop.counter == 2 %}Zəif
-                                                {% elif forloop.counter == 3 %}Orta
-                                                {% elif forloop.counter == 4 %}Yaxşı
-                                                {% elif forloop.counter == 5 %}Əla
-                                                {% endif %}
+                                                {% score_label i question.max_score %}
                                             </small>
                                         </label>
                                     </div>

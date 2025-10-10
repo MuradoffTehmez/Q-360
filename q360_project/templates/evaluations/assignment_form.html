@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load evaluation_tags %}
 
 {% block title %}Qiymətləndirmə Forması - Q360{% endblock %}
 
@@ -82,25 +83,27 @@
                         </div>
 
                         {% if question.question_type == 'scale' %}
-                        <!-- Rating Scale -->
+                        <!-- Rating Scale (Dynamic based on question.max_score) -->
                         <div class="rating-container">
                             <div class="btn-group btn-group-lg d-flex" role="group">
-                                {% for i in "12345"|make_list %}
+                                {% for i in question.max_score|range_from_one %}
                                 <input type="radio"
                                        class="btn-check"
                                        name="question_{{ question.id }}_score"
-                                       id="q{{ question.id }}_{{ forloop.counter }}"
-                                       value="{{ forloop.counter }}"
+                                       id="q{{ question.id }}_{{ i }}"
+                                       value="{{ i }}"
+                                       {% if existing_responses|get_item:question.id and existing_responses|get_item:question.id.score == i %}checked{% endif %}
                                        {% if question.is_required %}required{% endif %}>
                                 <label class="btn btn-outline-primary flex-fill"
-                                       for="q{{ question.id }}_{{ forloop.counter }}">
-                                    {{ forloop.counter }}
+                                       for="q{{ question.id }}_{{ i }}"
+                                       title="{% score_label i question.max_score %}">
+                                    {{ i }}
                                 </label>
                                 {% endfor %}
                             </div>
                             <div class="d-flex justify-content-between mt-2">
-                                <small class="text-muted">Zəif</small>
-                                <small class="text-muted">Əla</small>
+                                <small class="text-muted">Zəif (1)</small>
+                                <small class="text-muted">Əla ({{ question.max_score|default:5 }})</small>
                             </div>
                         </div>
 

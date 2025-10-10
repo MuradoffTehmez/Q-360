@@ -205,6 +205,33 @@ class EmailTemplateUpdateView(AdminRequiredMixin, UpdateView):
 
 
 @login_required
+def delete_email_template(request, pk):
+    """Delete an email template (AJAX endpoint)."""
+    # Check if user is admin
+    if not request.user.is_admin():
+        return JsonResponse({
+            'success': False,
+            'message': 'Bu əməliyyat üçün admin icazəniz yoxdur.'
+        }, status=403)
+
+    template = get_object_or_404(EmailTemplate, pk=pk)
+
+    if request.method == 'POST':
+        template_name = template.name
+        template.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'{template_name} şablonu uğurla silindi.'
+        })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Yalnız POST sorğuları qəbul edilir.'
+    }, status=405)
+
+
+@login_required
 def get_unread_count(request):
     """Get unread notification count (AJAX endpoint)."""
     count = Notification.objects.filter(

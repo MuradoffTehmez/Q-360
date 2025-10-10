@@ -69,7 +69,10 @@
                             <a href="{% url 'notifications:email-template-edit' template.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate({{ template.pk }})">
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteTemplate(this)"
+                                    data-template-id="{{ template.pk }}"
+                                    data-delete-url="{% url 'notifications:email-template-delete' template.pk %}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -188,9 +191,12 @@
 </div>
 
 <script>
-function deleteTemplate(templateId) {
+function deleteTemplate(buttonElement) {
+    const deleteUrl = buttonElement.dataset.deleteUrl;
+    const templateId = buttonElement.dataset.templateId;
+
     if (confirm('Bu şablonu silmək istədiyinizə əminsiniz?')) {
-        fetch(`/notifications/templates/${templateId}/delete/`, {
+        fetch(deleteUrl, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',

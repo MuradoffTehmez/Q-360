@@ -21,6 +21,7 @@ urlpatterns = [
     path('templates/create/', template_views.EmailTemplateCreateView.as_view(), name='email-template-create'),
     path('templates/<int:pk>/', template_views.EmailTemplateDetailView.as_view(), name='email-template-detail'),
     path('templates/<int:pk>/edit/', template_views.EmailTemplateUpdateView.as_view(), name='email-template-edit'),
+    path('templates/<int:pk>/delete/', template_views.delete_email_template, name='email-template-delete'),
 
     # AJAX endpoints
     path('api/unread-count/', template_views.get_unread_count, name='api-unread-count'),
