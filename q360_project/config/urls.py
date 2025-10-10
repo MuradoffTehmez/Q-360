@@ -13,8 +13,21 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from rest_framework.throttling import AnonRateThrottle
 from apps.accounts.template_views import dashboard_view
 from apps.notifications.template_views import get_recent_notifications
+
+
+# Custom throttle for login endpoint
+class LoginThrottle(AnonRateThrottle):
+    """Throttle for login attempts - 5 per minute."""
+    rate = '5/min'
+
+
+# Throttled Token Obtain View
+class ThrottledTokenObtainPairView(TokenObtainPairView):
+    """Token Obtain view with throttling for brute-force protection."""
+    throttle_classes = [LoginThrottle]
 
 urlpatterns = [
     # Language switcher (must be outside i18n_patterns)
@@ -34,7 +47,7 @@ urlpatterns = [
     path('accounts/', include('apps.accounts.urls')),
 
     # API Authentication
-    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/', ThrottledTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 

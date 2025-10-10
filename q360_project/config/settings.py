@@ -174,6 +174,15 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/min',     # 5 requests per minute for anonymous users
+        'user': '60/min',    # 60 requests per minute for authenticated users
+        'login': '5/min',    # 5 login attempts per minute (used for login endpoints)
+    },
 }
 
 # JWT Settings
