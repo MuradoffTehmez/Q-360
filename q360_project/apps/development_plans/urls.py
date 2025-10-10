@@ -14,6 +14,7 @@ urlpatterns = [
     path('goals/<int:pk>/edit/', template_views.GoalUpdateView.as_view(), name='goal-edit'),
     path('goals/<int:pk>/complete/', template_views.goal_complete, name='goal-complete'),
     path('goals/<int:pk>/approve/', template_views.goal_approve, name='goal-approve'),
+    path('goals/<int:pk>/toggle-approve/', template_views.goal_approve_toggle, name='goal-approve-toggle'),
     path('goals/<int:goal_pk>/progress/', template_views.add_progress, name='add-progress'),
 
     # Team and templates

@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.http import JsonResponse
@@ -149,31 +149,29 @@ def notification_settings(request):
 
 # Email Template Management (Admin only)
 
-class EmailTemplateListView(LoginRequiredMixin, ListView):
+class AdminRequiredMixin(UserPassesTestMixin):
+    """Mixin to require admin access."""
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_admin()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'Bu səhifəyə giriş icazəniz yoxdur.')
+        return redirect('dashboard')
+
+
+class EmailTemplateListView(AdminRequiredMixin, ListView):
     """List all email templates."""
     model = EmailTemplate
     template_name = 'notifications/email_templates.html'
     context_object_name = 'templates'
     paginate_by = 20
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_admin():
-            messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
 
-
-class EmailTemplateDetailView(LoginRequiredMixin, DetailView):
+class EmailTemplateDetailView(AdminRequiredMixin, DetailView):
     """View email template details."""
     model = EmailTemplate
     template_name = 'notifications/email_template_detail.html'
     context_object_name = 'template'
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_admin():
-            messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -182,36 +180,24 @@ class EmailTemplateDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class EmailTemplateCreateView(LoginRequiredMixin, CreateView):
+class EmailTemplateCreateView(AdminRequiredMixin, CreateView):
     """Create new email template."""
     model = EmailTemplate
     template_name = 'notifications/email_template_form.html'
     fields = ['name', 'subject', 'html_content', 'text_content', 'is_active']
     success_url = reverse_lazy('notifications:email-templates')
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_admin():
-            messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
         messages.success(self.request, 'E-poçt şablonu yaradıldı.')
         return super().form_valid(form)
 
 
-class EmailTemplateUpdateView(LoginRequiredMixin, UpdateView):
+class EmailTemplateUpdateView(AdminRequiredMixin, UpdateView):
     """Update existing email template."""
     model = EmailTemplate
     template_name = 'notifications/email_template_form.html'
     fields = ['name', 'subject', 'html_content', 'text_content', 'is_active']
     success_url = reverse_lazy('notifications:email-templates')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_admin():
-            messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         messages.success(self.request, 'E-poçt şablonu yeniləndi.')

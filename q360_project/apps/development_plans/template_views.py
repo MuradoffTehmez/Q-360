@@ -340,3 +340,81 @@ def goal_approve(request, pk):
     }
 
     return render(request, 'development_plans/goal_approve.html', context)
+
+
+@login_required
+def goal_approve_toggle(request, pk):
+    """Toggle approval status of a development goal (managers only)."""
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+    if not (request.user.is_manager() or request.user.is_admin()):
+        return JsonResponse({'success': False, 'error': 'Permission denied'})
+
+    goal = get_object_or_404(DevelopmentGoal, pk=pk)
+
+    # Check if user is the goal owner's manager
+    if not request.user.is_admin():
+        subordinates = request.user.get_subordinates()
+        if goal.user not in subordinates:
+            return JsonResponse({'success': False, 'error': 'Bu məqsədi təsdiqləmək icazəniz yoxdur.'})
+
+    # Toggle approval status
+    if goal.is_approved:
+        # Remove approval
+        goal.is_approved = False
+        goal.approved_by = None
+        goal.approved_at = None
+        message = 'Məqsədin təsdiqi ləğv edildi.'
+
+        # Update status if it was active
+        if goal.status == 'active':
+            goal.status = 'pending_approval'
+    else:
+        # Approve
+        goal.is_approved = True
+        goal.approved_by = request.user
+        goal.approved_at = timezone.now()
+        message = 'Məqsəd təsdiqləndi.'
+
+        # Update status to active
+        if goal.status in ['draft', 'pending_approval']:
+            goal.status = 'active'
+
+    goal.save()
+
+    # Send notification to goal owner
+    from apps.notifications.utils import send_notification
+
+    if goal.is_approved:
+        notification_message = f'"{goal.title}" məqsədiniz {request.user.get_full_name()} tərəfindən təsdiqləndi.'
+        send_notification(
+            recipient=goal.user,
+            title='Məqsəd Təsdiqləndi',
+            message=notification_message,
+            notification_type='success',
+            link=f'/development-plans/goals/{goal.pk}/',
+            send_email=True
+        )
+    else:
+        notification_message = f'"{goal.title}" məqsədinin təsdiqi {request.user.get_full_name()} tərəfindən ləğv edildi.'
+        send_notification(
+            recipient=goal.user,
+            title='Məqsəd Təsdiqi Ləğv Edildi',
+            message=notification_message,
+            notification_type='info',
+            link=f'/development-plans/goals/{goal.pk}/',
+            send_email=False
+        )
+
+    messages.success(request, message)
+
+    return JsonResponse({
+        'success': True,
+        'message': message,
+        'is_approved': goal.is_approved,
+        'approved_by': goal.approved_by.get_full_name() if goal.approved_by else None,
+        'approved_at': goal.approved_at.isoformat() if goal.approved_at else None
+    })

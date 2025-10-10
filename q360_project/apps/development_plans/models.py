@@ -25,6 +25,7 @@ class DevelopmentGoal(models.Model):
     completion_date = models.DateField(null=True, blank=True)
 
     # Approval workflow
+    is_approved = models.BooleanField(default=False, verbose_name=_('Təsdiqlənib'))
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_goals')
     approved_at = models.DateTimeField(null=True, blank=True)
     approval_note = models.TextField(blank=True, verbose_name=_('Təsdiq Qeydi'))

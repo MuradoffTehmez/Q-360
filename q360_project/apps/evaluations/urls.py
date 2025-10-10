@@ -28,6 +28,7 @@ urlpatterns = [
     path('campaigns/<int:pk>/activate/', template_views.campaign_activate, name='campaign-activate'),
     path('campaigns/<int:pk>/complete/', template_views.campaign_complete, name='campaign-complete'),
     path('campaigns/<int:campaign_pk>/questions/', template_views.campaign_questions_assign, name='campaign-questions'),
+    path('campaign-questions/<int:pk>/delete/', template_views.campaign_question_delete, name='campaign-question-delete'),
 
     # Assignment URLs
     path('my-assignments/', template_views.my_assignments, name='my-assignments'),
