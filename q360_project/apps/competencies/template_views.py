@@ -11,6 +11,10 @@ def my_skills(request):
     return render(request, 'competencies/my_skills.html')
 
 @login_required
+def competency_detail(request, pk):
+    return render(request, 'competencies/competency_detail.html', {'competency_id': pk})
+
+@login_required
 def competency_manage(request):
     if not request.user.is_admin():
         return render(request, '403.html', status=403)

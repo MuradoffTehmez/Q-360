@@ -11,6 +11,10 @@ def catalog(request):
     return render(request, 'training/catalog.html')
 
 @login_required
+def training_detail(request, pk):
+    return render(request, 'training/training_detail.html', {'training_id': pk})
+
+@login_required
 def training_manage(request):
     if not request.user.is_admin():
         return render(request, '403.html', status=403)

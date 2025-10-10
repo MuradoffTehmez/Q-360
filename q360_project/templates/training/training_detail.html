@@ -1,0 +1,437 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Training Details" %} - Q360{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Home" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'training:my-trainings' %}">{% trans "My Trainings" %}</a></li>
+        <li class="breadcrumb-item active">{% trans "Details" %}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h1 class="h2"><i class="fas fa-graduation-cap text-primary me-2"></i><span id="trainingTitle">{% trans "Training Details" %}</span></h1>
+    <div>
+        <button class="btn btn-outline-success" id="updateProgressBtn">
+            <i class="fas fa-check me-1"></i> {% trans "Update Progress" %}
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Training Information -->
+    <div class="col-md-8">
+        <!-- Progress Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Progress" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{% trans "Completion" %}</span>
+                    <strong><span id="progressPercentage">0</span>%</strong>
+                </div>
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped" role="progressbar"
+                         id="progressBar" style="width: 0%">
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <p class="text-muted mb-0">{% trans "Status" %}</p>
+                        <h5 id="trainingStatus">-</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="text-muted mb-0">{% trans "Started" %}</p>
+                        <h6 id="startDate">-</h6>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="text-muted mb-0">{% trans "Due Date" %}</p>
+                        <h6 id="dueDate">-</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resource Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Training Resource Details" %}</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">{% trans "Title" %}:</dt>
+                    <dd class="col-sm-9" id="resourceTitle">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Type" %}:</dt>
+                    <dd class="col-sm-9" id="resourceType">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Description" %}:</dt>
+                    <dd class="col-sm-9" id="resourceDescription">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Provider" %}:</dt>
+                    <dd class="col-sm-9" id="resourceProvider">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Difficulty" %}:</dt>
+                    <dd class="col-sm-9" id="resourceDifficulty">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Duration" %}:</dt>
+                    <dd class="col-sm-9" id="resourceDuration">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Cost" %}:</dt>
+                    <dd class="col-sm-9" id="resourceCost">-</dd>
+
+                    <dt class="col-sm-3">{% trans "Link" %}:</dt>
+                    <dd class="col-sm-9" id="resourceLink">-</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Required Competencies -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Required Competencies" %}</h5>
+            </div>
+            <div class="card-body">
+                <div id="competenciesList">
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">{% trans "Loading..." %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "My Notes" %}</h5>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control" id="notesField" rows="4" placeholder="{% trans 'Add your notes here...' %}"></textarea>
+                <button class="btn btn-primary btn-sm mt-2" id="saveNotesBtn">
+                    <i class="fas fa-save me-1"></i> {% trans "Save Notes" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Statistics -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Training Info" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 text-center">
+                    <h3 class="text-primary mb-0" id="daysRemaining">-</h3>
+                    <p class="text-muted mb-0">{% trans "Days Remaining" %}</p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <p class="mb-1"><strong>{% trans "Assigned By" %}:</strong></p>
+                    <p class="text-muted" id="assignedBy">-</p>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1"><strong>{% trans "Related Goal" %}:</strong></p>
+                    <p class="text-muted" id="relatedGoal">-</p>
+                </div>
+                <div>
+                    <p class="mb-1"><strong>{% trans "Certificate Obtained" %}:</strong></p>
+                    <p id="certificateStatus">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Actions" %}</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-success w-100 mb-2" id="markCompletedBtn">
+                    <i class="fas fa-check-circle me-1"></i> {% trans "Mark as Completed" %}
+                </button>
+                <button class="btn btn-outline-primary w-100 mb-2" id="requestExtensionBtn">
+                    <i class="fas fa-clock me-1"></i> {% trans "Request Extension" %}
+                </button>
+                <button class="btn btn-outline-danger w-100" id="cancelTrainingBtn">
+                    <i class="fas fa-times me-1"></i> {% trans "Cancel Training" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Update Progress" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="updateProgressForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Progress Percentage" %} (%)</label>
+                        <input type="number" class="form-control" name="progress_percentage"
+                               id="progressInput" min="0" max="100" required>
+                        <div class="form-text">{% trans "Enter a value between 0 and 100" %}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Status" %}</label>
+                        <select class="form-select" name="status" id="statusSelect">
+                            <option value="pending">{% trans "Pending" %}</option>
+                            <option value="in_progress">{% trans "In Progress" %}</option>
+                            <option value="completed">{% trans "Completed" %}</option>
+                            <option value="cancelled">{% trans "Cancelled" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Update" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    const trainingId = window.location.pathname.split('/').filter(x => x && x !== 'training').pop();
+    let trainingData = null;
+
+    // Load training details
+    function loadTrainingDetails() {
+        $.ajax({
+            url: '/api/training/api/user-trainings/' + trainingId + '/',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            success: function(data) {
+                trainingData = data;
+                renderTrainingDetails(data);
+                loadResourceDetails(data.resource);
+            },
+            error: function(xhr) {
+                console.error('Error loading training:', xhr);
+                alert('{% trans "Error loading training details" %}');
+            }
+        });
+    }
+
+    // Render training details
+    function renderTrainingDetails(data) {
+        $('#trainingTitle').text(data.resource_title || '{% trans "Training" %}');
+
+        // Progress
+        const progress = data.progress_percentage || 0;
+        $('#progressPercentage').text(progress);
+        $('#progressBar').css('width', progress + '%').text(progress + '%');
+        $('#progressInput').val(progress);
+
+        // Status
+        const statusBadges = {
+            'pending': '<span class="badge bg-warning">{% trans "Pending" %}</span>',
+            'in_progress': '<span class="badge bg-info">{% trans "In Progress" %}</span>',
+            'completed': '<span class="badge bg-success">{% trans "Completed" %}</span>',
+            'cancelled': '<span class="badge bg-danger">{% trans "Cancelled" %}</span>'
+        };
+        $('#trainingStatus').html(statusBadges[data.status] || data.status);
+        $('#statusSelect').val(data.status);
+
+        // Dates
+        $('#startDate').text(data.start_date ? new Date(data.start_date).toLocaleDateString() : '-');
+        $('#dueDate').text(data.due_date ? new Date(data.due_date).toLocaleDateString() : '-');
+
+        // Calculate days remaining
+        if (data.due_date) {
+            const dueDate = new Date(data.due_date);
+            const today = new Date();
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            $('#daysRemaining').text(diffDays > 0 ? diffDays : 0);
+        }
+
+        // Other info
+        $('#assignedBy').text(data.assigned_by_name || '{% trans "System" %}');
+        $('#relatedGoal').text(data.related_goal_title || '{% trans "None" %}');
+
+        const certBadge = data.certificate_obtained
+            ? '<span class="badge bg-success"><i class="fas fa-certificate"></i> {% trans "Yes" %}</span>'
+            : '<span class="badge bg-secondary">{% trans "No" %}</span>';
+        $('#certificateStatus').html(certBadge);
+
+        // Notes
+        $('#notesField').val(data.notes || '');
+    }
+
+    // Load resource details
+    function loadResourceDetails(resourceId) {
+        $.ajax({
+            url: '/api/training/api/resources/' + resourceId + '/',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            },
+            success: function(data) {
+                $('#resourceTitle').text(data.title);
+
+                const typeBadges = {
+                    'course': '<span class="badge bg-primary">{% trans "Course" %}</span>',
+                    'certification': '<span class="badge bg-success">{% trans "Certification" %}</span>',
+                    'mentoring': '<span class="badge bg-info">{% trans "Mentoring" %}</span>',
+                    'workshop': '<span class="badge bg-warning">{% trans "Workshop" %}</span>'
+                };
+                $('#resourceType').html(typeBadges[data.type] || data.type);
+
+                $('#resourceDescription').text(data.description || '{% trans "No description" %}');
+                $('#resourceProvider').text(data.provider || '-');
+                $('#resourceDifficulty').text(data.difficulty_level || '-');
+                $('#resourceDuration').text(data.duration_hours ? data.duration_hours + ' {% trans "hours" %}' : '-');
+                $('#resourceCost').text(data.cost ? data.cost + ' AZN' : '{% trans "Free" %}');
+
+                if (data.external_link) {
+                    $('#resourceLink').html('<a href="' + data.external_link + '" target="_blank">' + data.external_link + '</a>');
+                } else {
+                    $('#resourceLink').text('-');
+                }
+
+                // Render competencies
+                if (data.required_competencies && data.required_competencies.length > 0) {
+                    let html = '<div class="d-flex flex-wrap gap-2">';
+                    data.required_competencies.forEach(comp => {
+                        html += '<span class="badge bg-primary">' + comp.name + '</span>';
+                    });
+                    html += '</div>';
+                    $('#competenciesList').html(html);
+                } else {
+                    $('#competenciesList').html('<p class="text-muted">{% trans "No competencies specified" %}</p>');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error loading resource:', xhr);
+            }
+        });
+    }
+
+    // Update progress button
+    $('#updateProgressBtn').click(function() {
+        $('#updateProgressModal').modal('show');
+    });
+
+    // Update progress form submission
+    $('#updateProgressForm').submit(function(e) {
+        e.preventDefault();
+
+        const formData = {
+            progress_percentage: parseInt($('#progressInput').val()),
+            status: $('#statusSelect').val()
+        };
+
+        $.ajax({
+            url: '/api/training/api/user-trainings/' + trainingId + '/',
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(formData),
+            success: function() {
+                $('#updateProgressModal').modal('hide');
+                loadTrainingDetails();
+                alert('{% trans "Progress updated successfully" %}');
+            },
+            error: function(xhr) {
+                alert('{% trans "Error updating progress" %}');
+            }
+        });
+    });
+
+    // Save notes
+    $('#saveNotesBtn').click(function() {
+        const notes = $('#notesField').val();
+
+        $.ajax({
+            url: '/api/training/api/user-trainings/' + trainingId + '/',
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({ notes: notes }),
+            success: function() {
+                alert('{% trans "Notes saved successfully" %}');
+            },
+            error: function(xhr) {
+                alert('{% trans "Error saving notes" %}');
+            }
+        });
+    });
+
+    // Mark as completed
+    $('#markCompletedBtn').click(function() {
+        if (confirm('{% trans "Mark this training as completed?" %}')) {
+            $.ajax({
+                url: '/api/training/api/user-trainings/' + trainingId + '/',
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    status: 'completed',
+                    progress_percentage: 100
+                }),
+                success: function() {
+                    loadTrainingDetails();
+                    alert('{% trans "Training marked as completed" %}');
+                },
+                error: function(xhr) {
+                    alert('{% trans "Error updating training status" %}');
+                }
+            });
+        }
+    });
+
+    // Cancel training
+    $('#cancelTrainingBtn').click(function() {
+        if (confirm('{% trans "Are you sure you want to cancel this training?" %}')) {
+            $.ajax({
+                url: '/api/training/api/user-trainings/' + trainingId + '/',
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({ status: 'cancelled' }),
+                success: function() {
+                    alert('{% trans "Training cancelled" %}');
+                    window.location.href = '{% url "training:my-trainings" %}';
+                },
+                error: function(xhr) {
+                    alert('{% trans "Error cancelling training" %}');
+                }
+            });
+        }
+    });
+
+    // Initial load
+    loadTrainingDetails();
+});
+</script>
+{% endblock %}

@@ -15,6 +15,7 @@ router.register(r'api/user-trainings', UserTrainingViewSet, basename='api-user-t
 urlpatterns = [
     # Template URLs
     path('', template_views.my_trainings, name='my-trainings'),
+    path('<int:pk>/', template_views.training_detail, name='training-detail'),
     path('catalog/', template_views.catalog, name='catalog'),
     path('manage/', template_views.training_manage, name='training-manage'),
 

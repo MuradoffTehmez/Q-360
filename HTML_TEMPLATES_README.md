@@ -11,7 +11,14 @@
    - Real-time statistika kartları
    - **Fayl:** `templates/competencies/competency_list.html`
 
-2. **Mənim Bacarıqlarım** - `/competencies/my-skills/`
+2. **Kompetensiya Detayları** - `/competencies/<id>/`
+   - Kompetensiya haqqında ətraflı məlumat
+   - Pozisiyaların və istifadəçilərin siyahısı
+   - Statistika və vizual qrafiklər
+   - Admin üçün edit və delete funksiyaları
+   - **Fayl:** `templates/competencies/competency_detail.html`
+
+3. **Mənim Bacarıqlarım** - `/competencies/my-skills/`
    - İstifadəçinin öz bacarıqlarının siyahısı
    - Yeni bacarıq əlavə etmə modal
    - Təsdiq statusu göstəricisi
@@ -20,22 +27,30 @@
 
 ### 📚 Təlim Modulu
 
-3. **Mənim Təlimlərim** - `/training/`
+4. **Mənim Təlimlərim** - `/training/`
    - Tab-based interfeys (Pending, In Progress, Completed)
    - Proqres göstəriciləri
    - Son tarix xatırlatmaları
    - **Fayl:** `templates/training/my_trainings.html`
 
-4. **Təlim Kataloqu** - `/training/catalog/`
+5. **Təlim Kataloqu** - `/training/catalog/`
    - Bütün təlimlərin kataloqu
    - Filter (növ, çətinlik)
    - Təlim kartları (müddət, qiymət)
    - Detal məlumat linkləri
    - **Fayl:** `templates/training/catalog.html`
 
+6. **Təlim Detayları** - `/training/<id>/`
+   - Təlim haqqında ətraflı məlumat
+   - Proqres yeniləmə funksiyası
+   - Qeydlər (notes) əlavə etmə
+   - Təlim resursunun detalları
+   - Tələb olunan kompetensiyalar
+   - **Fayl:** `templates/training/training_detail.html`
+
 ### 🛡️ Təhlükəsizlik Modulu
 
-5. **Təhlükəsizlik Dashboard** - `/audit/security/` (Yalnız Admin)
+7. **Təhlükəsizlik Dashboard** - `/audit/security/` (Yalnız Admin)
    - Son 7 günün uğursuz giriş statistikası
    - Chart.js ilə vizual qrafiklər
    - Top 3 uğursuz IP ünvanları
@@ -50,10 +65,12 @@
 ### Template URL-lər (İnsan üçün)
 ```
 /competencies/                  → Kompetensiya siyahısı
+/competencies/<id>/             → Kompetensiya detayları
 /competencies/my-skills/        → Mənim bacarıqlarım
 /competencies/manage/           → Kompetensiya idarəetməsi (Admin)
 
 /training/                      → Mənim təlimlərim
+/training/<id>/                 → Təlim detayları
 /training/catalog/              → Təlim kataloqu
 /training/manage/               → Təlim idarəetməsi (Admin)
 
