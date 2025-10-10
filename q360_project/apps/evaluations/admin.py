@@ -88,13 +88,13 @@ class EvaluationCampaignAdmin(SimpleHistoryAdmin):
         """Calculate completion rate."""
         total = obj.assignments.count()
         if total == 0:
-            return "0%"
+            return format_html('<span style="color: #6c757d; font-weight: bold;">0%</span>')
         completed = obj.assignments.filter(status='completed').count()
         rate = (completed / total) * 100
         color = '#28a745' if rate >= 80 else '#ffc107' if rate >= 50 else '#dc3545'
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
-            color, rate
+            '<span style="color: {}; font-weight: bold;">{}%</span>',
+            color, round(rate, 1)
         )
     completion_rate.short_description = 'Tamamlanma'
 
@@ -331,12 +331,13 @@ class EvaluationAssignmentAdmin(SimpleHistoryAdmin):
     def progress_bar(self, obj):
         """Display progress bar."""
         progress = obj.get_progress()
+        progress_int = int(round(progress))
         color = '#28a745' if progress >= 100 else '#007bff' if progress >= 50 else '#ffc107'
         return format_html(
             '<div style="width: 100px; background: #e9ecef; border-radius: 3px; overflow: hidden;">'
-            '<div style="width: {}%; background: {}; color: white; text-align: center; padding: 2px; font-size: 10px;">{:.0f}%</div>'
+            '<div style="width: {}%; background: {}; color: white; text-align: center; padding: 2px; font-size: 10px;">{}%</div>'
             '</div>',
-            progress, color, progress
+            progress_int, color, progress_int
         )
     progress_bar.short_description = 'Tamamlanma'
 
