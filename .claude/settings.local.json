@@ -41,7 +41,8 @@
       "Bash(unzip:*)",
       "Bash(tar:*)",
       "Bash(apt-get:*)",
-      "Bash(choco:*)"
+      "Bash(choco:*)",
+      "Bash(redis-cli:*)"
     ],
     "deny": [],
     "ask": []
