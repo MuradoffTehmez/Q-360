@@ -16,6 +16,10 @@ celery==5.4.0
 redis==5.2.1
 django-celery-beat==2.7.0
 
+# Cache
+django-redis==5.4.0
+hiredis==2.3.2  # Optional Redis parser for better performance
+
 # Admin Interface
 django-jazzmin==3.0.1
 
@@ -32,6 +36,9 @@ Pillow==11.0.0
 reportlab==4.2.5
 pandas==2.2.3
 openpyxl==3.1.5
+
+# Sentiment Analysis
+vaderSentiment==3.3.2
 
 # Security
 python-decouple==3.8
