@@ -84,7 +84,7 @@ def team_reports(request):
         ).order_by('-created_at').first()
 
     # Get results for team members
-    results = []
+    results = None
     if latest_campaign:
         results = EvaluationResult.objects.filter(
             campaign=latest_campaign,
@@ -93,16 +93,16 @@ def team_reports(request):
 
     # Calculate team statistics
     team_stats = {
-        'total_members': len(team_members) if isinstance(team_members, list) else team_members.count(),
-        'evaluated_members': len(results) if isinstance(results, list) else results.count(),
-        'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'] if hasattr(results, 'aggregate') else (sum(r.overall_score for r in results if r.overall_score) / len([r for r in results if r.overall_score]) if results and any(r.overall_score for r in results) else None),
-        'top_performers': results[:5] if results else [],
-        'needs_attention': (sorted(results, key=lambda r: r.overall_score if r.overall_score else 0)[:5] if isinstance(results, list) else results.order_by('overall_score')[:5]) if results else [],
+        'total_members': team_members.count() if hasattr(team_members, 'count') else len(team_members),
+        'evaluated_members': results.count() if results else 0,
+        'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'] if results else None,
+        'top_performers': list(results[:5]) if results else [],
+        'needs_attention': list(results.order_by('overall_score')[:5]) if results else [],
     }
 
     # Department comparison data
     dept_comparison = []
-    if user.is_admin():
+    if user.is_admin() and results:
         from apps.departments.models import Department
         departments = Department.objects.filter(is_active=True)
 
