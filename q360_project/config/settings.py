@@ -87,6 +87,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,  # Increase timeout to 20 seconds to avoid database locked errors
+        },
     }
 }
 
@@ -306,24 +309,147 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# Jazzmin Admin Interface Configuration
+# Jazzmin Admin Interface Configuration - Professional & Modern
 JAZZMIN_SETTINGS = {
+    # Title
     "site_title": "Q360 Admin",
-    "site_header": "360° Qiymətləndirmə Sistemi",
+    "site_header": "Q360 - 360° Qiymətləndirmə Sistemi",
     "site_brand": "Q360",
-    "welcome_sign": "Dövlət Qulluqçuları üçün 360° Qiymətləndirmə Sistemi",
-    "copyright": "Q360 Evaluation System",
-    "search_model": "accounts.User",
+    "site_logo": None,
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "welcome_sign": "Xoş gəlmisiniz",
+    "copyright": "Q360 360° Qiymətləndirmə Sistemi",
+    "search_model": ["accounts.User", "evaluations.EvaluationCampaign"],
+    "user_avatar": None,
+
+    # Top Menu Links
     "topmenu_links": [
         {"name": "Əsas Səhifə", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Hesabatlar", "url": "/admin/reports/", "permissions": ["reports.view_report"]},
+        {"name": "Sayt", "url": "/", "new_window": True},
+        {"name": "Dəstək", "url": "/admin/support/", "new_window": False},
     ],
+
+    # User Menu
+    "usermenu_links": [
+        {"name": "Dəstək", "url": "/admin/support/", "new_window": False},
+        {"model": "auth.user"}
+    ],
+
+    # Side Menu
     "show_sidebar": True,
     "navigation_expanded": True,
-    "icons": {
-        "accounts.User": "fas fa-users",
-        "departments.Department": "fas fa-building",
-        "evaluations.EvaluationCampaign": "fas fa-clipboard-list",
-        "reports.Report": "fas fa-chart-bar",
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": [
+        "accounts",
+        "evaluations",
+        "departments",
+        "reports",
+        "notifications",
+        "development_plans",
+        "audit"
+    ],
+
+    # Custom Links
+    "custom_links": {
+        "accounts": [{
+            "name": "İstifadəçi Hesabatı",
+            "url": "/admin/reports/users/",
+            "icon": "fas fa-chart-line",
+            "permissions": ["accounts.view_user"]
+        }]
     },
+
+    # Icons - Font Awesome 5
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+
+        "accounts.User": "fas fa-user-circle",
+        "accounts.Profile": "fas fa-id-card",
+        "accounts.Role": "fas fa-user-tag",
+
+        "departments.Department": "fas fa-building",
+        "departments.Position": "fas fa-briefcase",
+        "departments.Organization": "fas fa-landmark",
+
+        "evaluations.EvaluationCampaign": "fas fa-clipboard-list",
+        "evaluations.QuestionCategory": "fas fa-folder",
+        "evaluations.Question": "fas fa-question-circle",
+        "evaluations.CampaignQuestion": "fas fa-list-ol",
+        "evaluations.EvaluationAssignment": "fas fa-tasks",
+        "evaluations.Response": "fas fa-comment-dots",
+        "evaluations.EvaluationResult": "fas fa-chart-bar",
+
+        "reports.Report": "fas fa-file-chart-line",
+        "reports.RadarChartData": "fas fa-chart-area",
+
+        "notifications.Notification": "fas fa-bell",
+        "notifications.EmailTemplate": "fas fa-envelope",
+
+        "development_plans.DevelopmentGoal": "fas fa-bullseye",
+        "development_plans.GoalProgress": "fas fa-tasks",
+
+        "audit.AuditLog": "fas fa-history",
+        "audit.SystemMetric": "fas fa-tachometer-alt",
+    },
+
+    # Default Icon Parents
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+
+    # Related Modal
+    "related_modal_active": False,
+
+    # UI Tweaks
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+
+    # Change form templates
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "auth.user": "collapsible",
+        "auth.group": "vertical_tabs"
+    },
+
+    # Language Chooser
+    "language_chooser": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
 }
