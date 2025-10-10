@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.reports',
     'apps.development_plans',
     'apps.audit',
+    'apps.sentiment_analysis',
 ]
 
 MIDDLEWARE = [

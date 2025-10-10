@@ -297,7 +297,23 @@
             <div class="mb-4 pb-3 border-bottom">
                 <div class="d-flex justify-content-between mb-2">
                     <h6 class="text-primary mb-0">{{ response.question }}</h6>
-                    <span class="badge bg-secondary">{{ response.relationship_display }}</span>
+                    <div>
+                        {% if response.sentiment_category and response.sentiment_category != 'neutral' %}
+                            <span class="badge bg-{% if response.sentiment_category == 'positive' %}success{% elif response.sentiment_category == 'negative' %}danger{% else %}secondary{% endif %} me-2">
+                                {% if response.sentiment_category == 'positive' %}
+                                    <i class="fas fa-smile"></i> Pozitiv
+                                {% elif response.sentiment_category == 'negative' %}
+                                    <i class="fas fa-frown"></i> Neqativ
+                                {% else %}
+                                    <i class="fas fa-meh"></i> Neytral
+                                {% endif %}
+                                {% if response.sentiment_score %}
+                                    ({{ response.sentiment_score|floatformat:2 }})
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                        <span class="badge bg-secondary">{{ response.relationship_display }}</span>
+                    </div>
                 </div>
                 <p class="mb-0 text-muted">{{ response.answer }}</p>
             </div>

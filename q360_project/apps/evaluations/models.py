@@ -344,6 +344,12 @@ class Response(models.Model):
     Individual responses to evaluation questions.
     """
 
+    SENTIMENT_CHOICES = [
+        ('positive', 'Pozitiv'),
+        ('negative', 'Neqativ'),
+        ('neutral', 'Neytral'),
+    ]
+
     assignment = models.ForeignKey(
         EvaluationAssignment,
         on_delete=models.CASCADE,
@@ -377,6 +383,19 @@ class Response(models.Model):
     comment = models.TextField(
         blank=True,
         verbose_name=_('Şərh')
+    )
+
+    # Sentiment analysis fields
+    sentiment_score = models.FloatField(
+        default=0.0,
+        verbose_name=_('Sentiment Skoru'),
+        help_text=_('VADER sentiment compound skoru (-1.0 - +1.0)')
+    )
+    sentiment_category = models.CharField(
+        max_length=20,
+        choices=SENTIMENT_CHOICES,
+        default='neutral',
+        verbose_name=_('Sentiment Kateqoriyası')
     )
 
     # Metadata
