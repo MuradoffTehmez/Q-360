@@ -157,7 +157,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Qiymətləndirmə Tapşırıqları</h5>
                         {% if perms.evaluations.add_evaluationassignment %}
-                        <a href="{% url 'evaluations:bulk-assign' campaign.pk %}" class="btn btn-sm btn-primary">
+                        <a href="{% url 'evaluations:bulk-assign' %}" class="btn btn-sm btn-primary">
                             <i class="fas fa-plus"></i> Toplu Təyin Et
                         </a>
                         {% endif %}

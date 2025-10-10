@@ -93,11 +93,11 @@ def team_reports(request):
 
     # Calculate team statistics
     team_stats = {
-        'total_members': team_members.count(),
-        'evaluated_members': results.count(),
-        'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'],
-        'top_performers': results[:5],
-        'needs_attention': results.order_by('overall_score')[:5],
+        'total_members': len(team_members) if isinstance(team_members, list) else team_members.count(),
+        'evaluated_members': len(results) if isinstance(results, list) else results.count(),
+        'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'] if hasattr(results, 'aggregate') else (sum(r.overall_score for r in results if r.overall_score) / len([r for r in results if r.overall_score]) if results and any(r.overall_score for r in results) else None),
+        'top_performers': results[:5] if results else [],
+        'needs_attention': (sorted(results, key=lambda r: r.overall_score if r.overall_score else 0)[:5] if isinstance(results, list) else results.order_by('overall_score')[:5]) if results else [],
     }
 
     # Department comparison data

@@ -198,7 +198,7 @@
                         <span class="text-muted">Qalan günlər</span>
                         <strong {% if days_remaining < 0 %}class="text-danger"{% endif %}>
                             {% if days_remaining < 0 %}
-                                {{ days_remaining|abs }} gün keçmişdir
+                                {% widthratio days_remaining 1 -1 %} gün keçmişdir
                             {% else %}
                                 {{ days_remaining }} gün
                             {% endif %}

@@ -9,7 +9,8 @@
       "Bash(psql:*)",
       "Bash(python manage.py:*)",
       "Bash(curl:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []
