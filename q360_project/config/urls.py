@@ -53,9 +53,9 @@ urlpatterns = [
 
     # API endpoints (must come before template URLs)
     path('api/notifications/', get_recent_notifications, name='api-notifications'),
-    path('api/competencies/', include('apps.competencies.urls', namespace='competencies')),
-    path('api/training/', include('apps.training.urls', namespace='training')),
-    path('api/audit/', include('apps.audit.urls', namespace='audit')),
+    path('api/competencies/', include(('apps.competencies.urls', 'competencies'), namespace='api-competencies')),
+    path('api/training/', include(('apps.training.urls', 'training'), namespace='api-training')),
+    path('api/audit/', include(('apps.audit.urls', 'audit'), namespace='api-audit')),
 
     # Template-based app URLs (must come before API URLs to avoid conflicts)
     path('evaluations/', include('apps.evaluations.urls', namespace='evaluations')),
@@ -63,9 +63,9 @@ urlpatterns = [
     path('reports/', include('apps.reports.urls', namespace='reports')),
     path('development-plans/', include('apps.development_plans.urls', namespace='development-plans')),
     path('notifications/', include('apps.notifications.urls', namespace='notifications')),
-    path('competencies/', include('apps.competencies.urls', namespace='competencies')),
-    path('training/', include('apps.training.urls', namespace='training')),
-    path('audit/', include('apps.audit.urls', namespace='audit')),
+    path('competencies/', include(('apps.competencies.urls', 'competencies'), namespace='competencies')),
+    path('training/', include(('apps.training.urls', 'training'), namespace='training')),
+    path('audit/', include(('apps.audit.urls', 'audit'), namespace='audit')),
 ]
 
 # Serve media files in development
