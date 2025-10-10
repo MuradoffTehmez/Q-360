@@ -10,7 +10,8 @@
       "Bash(python manage.py:*)",
       "Bash(curl:*)",
       "Bash(findstr:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
