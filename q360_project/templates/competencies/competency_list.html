@@ -14,151 +14,184 @@
 {% endblock %}
 
 {% block page_header %}
-<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-    <h1 class="h2"><i class="fas fa-lightbulb text-primary me-2"></i>{% trans "Competencies" %}</h1>
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-lightbulb mr-3 text-purple-500"></i>{% trans "Competencies" %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">{% trans "Manage organizational competencies and skills" %}</p>
+    </div>
     {% if user.is_admin %}
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompetencyModal">
-        <i class="fas fa-plus me-1"></i> {% trans "Add Competency" %}
+    <button onclick="openAddModal()" class="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md">
+        <i class="fas fa-plus mr-2"></i>
+        {% trans "Add Competency" %}
     </button>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <!-- Filter and Search -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="get" class="row g-3" id="filterForm">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" name="search" placeholder="{% trans 'Search competencies...' %}" value="{{ request.GET.search }}">
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select" name="is_active">
-                            <option value="">{% trans "All Status" %}</option>
-                            <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>{% trans "Active" %}</option>
-                            <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>{% trans "Inactive" %}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button type="submit" class="btn btn-secondary w-100">
-                            <i class="fas fa-filter me-1"></i> {% trans "Filter" %}
-                        </button>
-                    </div>
-                </form>
+<!-- Filter and Search -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <form method="get" id="filterForm">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="search" placeholder="{% trans 'Search competencies...' %}" value="{{ request.GET.search }}">
+                </div>
+            </div>
+            <div>
+                <select class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="is_active">
+                    <option value="">{% trans "All Status" %}</option>
+                    <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>{% trans "Active" %}</option>
+                    <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>{% trans "Inactive" %}</option>
+                </select>
             </div>
         </div>
+        <div class="mt-4 flex gap-2">
+            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all">
+                <i class="fas fa-filter mr-2"></i> {% trans "Filter" %}
+            </button>
+            <button type="reset" onclick="window.location.href='{% url 'competencies:competency-list' %}'" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all">
+                <i class="fas fa-redo mr-2"></i> {% trans "Reset" %}
+            </button>
+        </div>
+    </form>
+</div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-primary mb-0" id="totalCompetencies">-</h3>
-                        <p class="text-muted mb-0">{% trans "Total Competencies" %}</p>
-                    </div>
-                </div>
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wide">{% trans "Total Competencies" %}</p>
+                <p class="text-3xl font-bold text-purple-700 dark:text-purple-300 mt-2" id="totalCompetencies">-</p>
             </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-success mb-0" id="activeCompetencies">-</h3>
-                        <p class="text-muted mb-0">{% trans "Active" %}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-info mb-0" id="totalSkills">-</h3>
-                        <p class="text-muted mb-0">{% trans "Total Skills" %}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-warning mb-0" id="pendingApprovals">-</h3>
-                        <p class="text-muted mb-0">{% trans "Pending Approvals" %}</p>
-                    </div>
-                </div>
+            <div class="bg-purple-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-lightbulb text-2xl text-purple-600 dark:text-purple-400"></i>
             </div>
         </div>
+    </div>
 
-        <!-- Competencies List -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "All Competencies" %}</h5>
+    <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">{% trans "Active" %}</p>
+                <p class="text-3xl font-bold text-green-700 dark:text-green-300 mt-2" id="activeCompetencies">-</p>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="competenciesTable">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Name" %}</th>
-                                <th>{% trans "Description" %}</th>
-                                <th>{% trans "Positions" %}</th>
-                                <th>{% trans "Users with Skill" %}</th>
-                                <th>{% trans "Status" %}</th>
-                                <th>{% trans "Actions" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="competenciesTableBody">
-                            <tr>
-                                <td colspan="6" class="text-center">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">{% trans "Loading..." %}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="bg-green-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-check-circle text-2xl text-green-600 dark:text-green-400"></i>
+            </div>
+        </div>
+    </div>
 
-                <!-- Pagination -->
-                <nav aria-label="Competencies pagination" class="mt-3">
-                    <ul class="pagination justify-content-center" id="pagination"></ul>
-                </nav>
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">{% trans "Total Skills" %}</p>
+                <p class="text-3xl font-bold text-blue-700 dark:text-blue-300 mt-2" id="totalSkills">-</p>
             </div>
+            <div class="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-star text-2xl text-blue-600 dark:text-blue-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-6 border border-orange-200 dark:border-orange-700 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">{% trans "Pending Approvals" %}</p>
+                <p class="text-3xl font-bold text-orange-700 dark:text-orange-300 mt-2" id="pendingApprovals">-</p>
+            </div>
+            <div class="bg-orange-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-clock text-2xl text-orange-600 dark:text-orange-400"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Competencies List -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <i class="fas fa-list mr-2 text-purple-600"></i>
+            {% trans "All Competencies" %}
+        </h2>
+    </div>
+    <div class="p-6">
+        <div class="overflow-x-auto">
+            <table class="w-full" id="competenciesTable">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Name" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Description" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Positions" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Users with Skill" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Status" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="competenciesTableBody">
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center">
+                            <div class="flex justify-center">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 mt-2">{% trans "Loading..." %}</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6 flex justify-center">
+            <nav aria-label="Competencies pagination">
+                <ul class="flex gap-2" id="pagination"></ul>
+            </nav>
         </div>
     </div>
 </div>
 
 <!-- Add Competency Modal -->
 {% if user.is_admin %}
-<div class="modal fade" id="addCompetencyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{% trans "Add New Competency" %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="addCompetencyForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">{% trans "Name" %} *</label>
-                        <input type="text" class="form-control" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{% trans "Description" %}</label>
-                        <textarea class="form-control" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
-                            <label class="form-check-label" for="is_active">
-                                {% trans "Active" %}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-                    <button type="submit" class="btn btn-primary">{% trans "Add Competency" %}</button>
-                </div>
-            </form>
+<div id="addCompetencyModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Add New Competency" %}</h3>
+            <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
+        <form id="addCompetencyForm">
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% trans "Name" %} <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="name" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans "Description" %}</label>
+                    <textarea class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="description" rows="3"></textarea>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" class="w-4 h-4 text-purple-600 bg-gray-100 dark:bg-gray-700 border-gray-300 rounded focus:ring-purple-500" name="is_active" id="is_active" checked>
+                    <label class="ml-2 text-sm text-gray-700 dark:text-gray-300" for="is_active">
+                        {% trans "Active" %}
+                    </label>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all">
+                    {% trans "Cancel" %}
+                </button>
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all">
+                    {% trans "Add Competency" %}
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endif %}
@@ -167,6 +200,16 @@
 
 {% block extra_js %}
 <script>
+// Modal functions
+function openAddModal() {
+    document.getElementById('addCompetencyModal').classList.remove('hidden');
+}
+
+function closeAddModal() {
+    document.getElementById('addCompetencyModal').classList.add('hidden');
+    document.getElementById('addCompetencyForm').reset();
+}
+
 $(document).ready(function() {
     let currentPage = 1;
 
@@ -187,7 +230,7 @@ $(document).ready(function() {
             error: function(xhr) {
                 console.error('Error loading competencies:', xhr);
                 $('#competenciesTableBody').html(
-                    '<tr><td colspan="6" class="text-center text-danger">{% trans "Error loading competencies" %}</td></tr>'
+                    '<tr><td colspan="6" class="text-center"><p class="text-red-500 dark:text-red-400 py-4">{% trans "Error loading competencies" %}</p></td></tr>'
                 );
             }
         });
@@ -213,23 +256,31 @@ $(document).ready(function() {
     function renderCompetencies(competencies) {
         let html = '';
         if (competencies.length === 0) {
-            html = '<tr><td colspan="6" class="text-center">{% trans "No competencies found" %}</td></tr>';
+            html = '<tr><td colspan="6" class="px-4 py-8 text-center"><p class="text-gray-500 dark:text-gray-400">{% trans "No competencies found" %}</p></td></tr>';
         } else {
             competencies.forEach(comp => {
                 const statusBadge = comp.is_active
-                    ? '<span class="badge bg-success">{% trans "Active" %}</span>'
-                    : '<span class="badge bg-secondary">{% trans "Inactive" %}</span>';
+                    ? '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">{% trans "Active" %}</span>'
+                    : '<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">{% trans "Inactive" %}</span>';
 
                 html += `
-                    <tr>
-                        <td><strong>${comp.name}</strong></td>
-                        <td>${comp.description || '-'}</td>
-                        <td><span class="badge bg-info">${comp.active_positions_count || 0}</span></td>
-                        <td><span class="badge bg-primary">${comp.total_users_with_skill || 0}</span></td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            <a href="/competencies/${comp.id}/" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td class="px-4 py-4 font-semibold text-gray-900 dark:text-white">${comp.name}</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">${comp.description || '-'}</td>
+                        <td class="px-4 py-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                ${comp.active_positions_count || 0}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                                ${comp.total_users_with_skill || 0}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">${statusBadge}</td>
+                        <td class="px-4 py-4">
+                            <a href="/competencies/${comp.id}/" class="inline-flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors">
+                                <i class="fas fa-eye mr-1"></i> {% trans "View" %}
                             </a>
                         </td>
                     </tr>
@@ -241,19 +292,18 @@ $(document).ready(function() {
 
     // Render pagination
     function renderPagination(data) {
-        // Simple pagination implementation
         let html = '';
         if (data.previous) {
-            html += '<li class="page-item"><a class="page-link" href="#" data-page="prev">{% trans "Previous" %}</a></li>';
+            html += '<li><a class="pagination-link px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors" href="#" data-page="prev"><i class="fas fa-chevron-left mr-2"></i>{% trans "Previous" %}</a></li>';
         }
         if (data.next) {
-            html += '<li class="page-item"><a class="page-link" href="#" data-page="next">{% trans "Next" %}</a></li>';
+            html += '<li><a class="pagination-link px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors" href="#" data-page="next">{% trans "Next" %}<i class="fas fa-chevron-right ml-2"></i></a></li>';
         }
         $('#pagination').html(html);
     }
 
     // Handle pagination clicks
-    $(document).on('click', '.page-link', function(e) {
+    $(document).on('click', '.pagination-link', function(e) {
         e.preventDefault();
         const page = $(this).data('page');
         if (page === 'prev') currentPage--;
@@ -279,14 +329,23 @@ $(document).ready(function() {
             },
             data: JSON.stringify(formData),
             success: function() {
-                $('#addCompetencyModal').modal('hide');
-                $('#addCompetencyForm')[0].reset();
+                closeAddModal();
                 loadCompetencies();
                 loadStatistics();
-                alert('{% trans "Competency added successfully" %}');
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                successMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>{% trans "Competency added successfully" %}';
+                document.body.appendChild(successMsg);
+                setTimeout(() => successMsg.remove(), 3000);
             },
             error: function(xhr) {
-                alert('{% trans "Error adding competency" %}');
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>{% trans "Error adding competency" %}';
+                document.body.appendChild(errorMsg);
+                setTimeout(() => errorMsg.remove(), 3000);
             }
         });
     });

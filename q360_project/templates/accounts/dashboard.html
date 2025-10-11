@@ -198,7 +198,9 @@
             <i class="fas fa-chart-line mr-2 text-green-500"></i>
             {% trans "Performance Trend" %}
         </h3>
-        <canvas id="performanceTrendChart" height="200"></canvas>
+        <div style="height: 300px; position: relative;">
+            <canvas id="performanceTrendChart"></canvas>
+        </div>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -206,7 +208,9 @@
             <i class="fas fa-chart-pie mr-2 text-purple-500"></i>
             {% trans "Score Distribution" %}
         </h3>
-        <canvas id="scoreDistributionChart" height="200"></canvas>
+        <div style="height: 300px; position: relative;">
+            <canvas id="scoreDistributionChart"></canvas>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -215,6 +219,12 @@
 {% block extra_js %}
 {% if user_stats %}
 <script>
+// Dark mode detection for charts
+const isDarkMode = document.documentElement.classList.contains('dark');
+const textColor = isDarkMode ? '#d1d5db' : '#374151';
+const gridColor = isDarkMode ? 'rgba(75, 85, 99, 0.3)' : 'rgba(156, 163, 175, 0.3)';
+
+// Performance Trend Chart
 const trendCtx = document.getElementById('performanceTrendChart').getContext('2d');
 new Chart(trendCtx, {
     type: 'line',
@@ -224,18 +234,55 @@ new Chart(trendCtx, {
             label: 'Ortalama Bal',
             data: {{ trend_data|safe }},
             borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderWidth: 3,
             tension: 0.4,
-            fill: true
+            fill: true,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } }
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    color: textColor,
+                    padding: 15,
+                    font: { size: 12 }
+                }
+            },
+            tooltip: {
+                backgroundColor: isDarkMode ? '#1f2937' : '#fff',
+                titleColor: textColor,
+                bodyColor: textColor,
+                borderColor: gridColor,
+                borderWidth: 1,
+                padding: 12,
+                displayColors: true
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: gridColor },
+                ticks: { color: textColor }
+            },
+            x: {
+                grid: { color: gridColor },
+                ticks: { color: textColor }
+            }
+        }
     }
 });
 
+// Score Distribution Chart
 const distCtx = document.getElementById('scoreDistributionChart').getContext('2d');
 new Chart(distCtx, {
     type: 'doughnut',
@@ -243,12 +290,33 @@ new Chart(distCtx, {
         labels: ['Özüm', 'Rəhbər', 'Həmkar', 'Tabelik'],
         datasets: [{
             data: {{ score_distribution|safe }},
-            backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981']
+            backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981'],
+            borderWidth: 2,
+            borderColor: isDarkMode ? '#1f2937' : '#fff'
         }]
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    color: textColor,
+                    padding: 15,
+                    font: { size: 12 }
+                }
+            },
+            tooltip: {
+                backgroundColor: isDarkMode ? '#1f2937' : '#fff',
+                titleColor: textColor,
+                bodyColor: textColor,
+                borderColor: gridColor,
+                borderWidth: 1,
+                padding: 12
+            }
+        }
     }
 });
 </script>
