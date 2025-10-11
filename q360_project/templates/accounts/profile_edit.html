@@ -4,232 +4,366 @@
 
 {% block title %}Parametrlər - Q360{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
-            <li class="breadcrumb-item active">Parametrlər</li>
-        </ol>
-    </nav>
+{% block page_header %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-user-cog mr-2"></i>Profil Parametrləri
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">Şəxsi məlumatlarınızı idarə edin</p>
+    </div>
+    <a href="{% url 'accounts:profile' %}" class="hidden md:flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Profil
+    </a>
+</div>
+{% endblock %}
 
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <!-- Settings Navigation -->
-            <div class="list-group">
-                <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-user-circle me-2"></i> Profil Məlumatları
-                </a>
-                <a href="{% url 'accounts:security' %}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-lock me-2"></i> Təhlükəsizlik
-                </a>
-                <a href="{% url 'notifications:settings' %}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-bell me-2"></i> Bildirişlər
-                </a>
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Settings Navigation Sidebar -->
+    <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden sticky top-6">
+            <div class="p-4 bg-gradient-to-r from-blue-500 to-indigo-600">
+                <h3 class="text-white font-semibold flex items-center">
+                    <i class="fas fa-cog mr-2"></i>
+                    Parametrlər
+                </h3>
             </div>
+            <nav class="p-2">
+                <a href="{% url 'accounts:settings' %}" class="flex items-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg mb-1 transition-all">
+                    <i class="fas fa-user-circle mr-3 w-5"></i>
+                    Profil Məlumatları
+                </a>
+                <a href="{% url 'accounts:security' %}" class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-1 transition-all">
+                    <i class="fas fa-lock mr-3 w-5"></i>
+                    Təhlükəsizlik
+                </a>
+                <a href="{% url 'notifications:settings' %}" class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all">
+                    <i class="fas fa-bell mr-3 w-5"></i>
+                    Bildirişlər
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-6">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="space-y-2">
+                {% for message in messages %}
+                    <div class="flex items-start p-4 rounded-lg border {% if message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200{% elif message.tags == 'warning' %}bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200{% else %}bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200{% endif %}">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} mt-0.5 mr-3"></i>
+                        <div class="flex-1">{{ message }}</div>
+                        <button onclick="this.parentElement.remove()" class="ml-3 hover:opacity-70">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Profile Edit Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-user-edit mr-2 text-blue-600"></i>
+                    Profil Redaktəsi
+                </h2>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="p-6">
+                {% csrf_token %}
+
+                <!-- Basic Information Section -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white mr-3">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Əsas Məlumatlar</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Şəxsi identifikasiya məlumatları</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- First Name -->
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user text-gray-400 mr-1"></i> Ad <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" value="{{ form.first_name.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white transition-colors" required>
+                            {% if form.first_name.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Last Name -->
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user text-gray-400 mr-1"></i> Soyad <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white transition-colors" required>
+                            {% if form.last_name.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-envelope text-gray-400 mr-1"></i> E-poçt <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white transition-colors" required>
+                            {% if form.email.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Username -->
+                        <div>
+                            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user-tag text-gray-400 mr-1"></i> İstifadəçi adı <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 cursor-not-allowed" readonly>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">İstifadəçi adı dəyişdirilə bilməz</p>
+                            {% if form.username.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Information Section -->
+                {% if profile_form %}
+                <div class="mb-8">
+                    <div class="flex items-center mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white mr-3">
+                            <i class="fas fa-address-card"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Profil Məlumatları</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Əlavə şəxsi məlumatlar</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Phone Number -->
+                        <div>
+                            <label for="{{ profile_form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-phone text-gray-400 mr-1"></i> Telefon
+                            </label>
+                            <input type="text" name="{{ profile_form.phone_number.name }}" id="{{ profile_form.phone_number.id_for_label }}" value="{{ profile_form.phone_number.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-colors"
+                                   placeholder="+994 XX XXX XX XX">
+                            {% if profile_form.phone_number.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.phone_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div>
+                            <label for="{{ profile_form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-birthday-cake text-gray-400 mr-1"></i> Doğum tarixi
+                            </label>
+                            <input type="date" name="{{ profile_form.date_of_birth.name }}" id="{{ profile_form.date_of_birth.id_for_label }}" value="{{ profile_form.date_of_birth.value|default:'' }}"
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-colors">
+                            {% if profile_form.date_of_birth.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.date_of_birth.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="md:col-span-2">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-info-circle text-gray-400 mr-1"></i> Haqqında
+                            </label>
+                            <textarea name="{{ profile_form.bio.name }}" id="{{ profile_form.bio.id_for_label }}" rows="4"
+                                      class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-colors resize-none"
+                                      placeholder="Özünüz haqqında qısa məlumat yazın...">{{ profile_form.bio.value|default:'' }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Özünüz haqqında qısa məlumat</p>
+                            {% if profile_form.bio.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.bio.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-image text-gray-400 mr-1"></i> Profil Şəkli
+                            </label>
+                            {% if user.profile_picture %}
+                                <div class="flex items-center gap-4 mb-3">
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md">
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Mövcud profil şəkli</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Yeni şəkil yükləmək üçün aşağıdan seçin</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="relative">
+                                <input type="file" name="{{ profile_form.profile_picture.name }}" id="{{ profile_form.profile_picture.id_for_label }}" accept="image/*"
+                                       class="hidden" onchange="updateFileName(this)">
+                                <label for="{{ profile_form.profile_picture.id_for_label }}" class="flex items-center justify-center w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <i class="fas fa-cloud-upload-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400" id="fileLabel">Şəkil seçin və ya buraya atın</span>
+                                </label>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">JPG, PNG formatında, maksimum 2MB</p>
+                            {% if profile_form.profile_picture.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.profile_picture.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Section -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6 pb-3 border-b border-gray-200 dark:border-gray-700">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white mr-3">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tərcihlər</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Sistem parametrləri və bildirişlər</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Language -->
+                        <div>
+                            <label for="{{ profile_form.language.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-language text-gray-400 mr-1"></i> Dil
+                            </label>
+                            <select name="{{ profile_form.language.name }}" id="{{ profile_form.language.id_for_label }}"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white transition-colors">
+                                {{ profile_form.language }}
+                            </select>
+                            {% if profile_form.language.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.language.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Timezone -->
+                        <div>
+                            <label for="{{ profile_form.timezone.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-clock text-gray-400 mr-1"></i> Saat Qurşağı
+                            </label>
+                            <select name="{{ profile_form.timezone.name }}" id="{{ profile_form.timezone.id_for_label }}"
+                                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white transition-colors">
+                                {{ profile_form.timezone }}
+                            </select>
+                            {% if profile_form.timezone.errors %}
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ profile_form.timezone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Notifications -->
+                        <div class="md:col-span-2">
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input type="checkbox" name="{{ profile_form.email_notifications.name }}" id="{{ profile_form.email_notifications.id_for_label }}"
+                                           {% if profile_form.email_notifications.value %}checked{% endif %}
+                                           class="w-4 h-4 text-green-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                </div>
+                                <div class="ml-3">
+                                    <label for="{{ profile_form.email_notifications.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        E-poçt bildirişləri göndər
+                                    </label>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mühüm yeniliklər və tapşırıqlar haqqında e-poçt bildirişləri alın</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Notifications -->
+                        <div class="md:col-span-2">
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input type="checkbox" name="{{ profile_form.notification_preferences.name }}" id="{{ profile_form.notification_preferences.id_for_label }}"
+                                           {% if profile_form.notification_preferences.value %}checked{% endif %}
+                                           class="w-4 h-4 text-green-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                </div>
+                                <div class="ml-3">
+                                    <label for="{{ profile_form.notification_preferences.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Sistem bildirişlərini aktivləşdir
+                                    </label>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Brauzerdə görünən sistem bildirişlərini aktiv edin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{% url 'accounts:profile' %}" class="inline-flex items-center px-6 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors font-medium">
+                        <i class="fas fa-times mr-2"></i>
+                        Ləğv et
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all font-medium shadow-lg shadow-blue-500/30">
+                        <i class="fas fa-save mr-2"></i>
+                        Yadda saxla
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Profil Parametrləri</h4>
-                </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-12 mb-4">
-                                <h5 class="border-bottom pb-2">Əsas Məlumatlar</h5>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
-                                    <i class="fas fa-user me-1"></i> Ad <span class="text-danger">*</span>
-                                </label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                    <i class="fas fa-user me-1"></i> Soyad <span class="text-danger">*</span>
-                                </label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">
-                                    <i class="fas fa-envelope me-1"></i> E-poçt <span class="text-danger">*</span>
-                                </label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.username.id_for_label }}" class="form-label">
-                                    <i class="fas fa-user-tag me-1"></i> İstifadəçi adı <span class="text-danger">*</span>
-                                </label>
-                                {{ form.username }}
-                                <small class="form-text text-muted">İstifadəçi adı dəyişdirilə bilməz</small>
-                                {% if form.username.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Profile Information -->
-                            <div class="col-12 mb-4 mt-3">
-                                <h5 class="border-bottom pb-2">Profil Məlumatları</h5>
-                            </div>
-
-                            {% if profile_form %}
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">
-                                        <i class="fas fa-phone me-1"></i> Telefon
-                                    </label>
-                                    {{ profile_form.phone_number }}
-                                    {% if profile_form.phone_number.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.phone_number.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">
-                                        <i class="fas fa-birthday-cake me-1"></i> Doğum tarixi
-                                    </label>
-                                    {{ profile_form.date_of_birth }}
-                                    {% if profile_form.date_of_birth.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.date_of_birth.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <label for="{{ profile_form.bio.id_for_label }}" class="form-label">
-                                        <i class="fas fa-info-circle me-1"></i> Haqqında
-                                    </label>
-                                    {{ profile_form.bio }}
-                                    <small class="form-text text-muted">Özünüz haqqında qısa məlumat</small>
-                                    {% if profile_form.bio.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.bio.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">
-                                        <i class="fas fa-image me-1"></i> Profil Şəkli
-                                    </label>
-                                    {% if user.profile_picture %}
-                                        <div class="mb-2">
-                                            <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle" width="100" height="100">
-                                        </div>
-                                    {% endif %}
-                                    {{ profile_form.profile_picture }}
-                                    <small class="form-text text-muted">JPG, PNG formatında, maksimum 2MB</small>
-                                    {% if profile_form.profile_picture.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.profile_picture.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-
-                            <!-- Preferences -->
-                            <div class="col-12 mb-4 mt-3">
-                                <h5 class="border-bottom pb-2">Tərcihlər</h5>
-                            </div>
-
-                            {% if profile_form %}
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ profile_form.language.id_for_label }}" class="form-label">
-                                        <i class="fas fa-language me-1"></i> Dil
-                                    </label>
-                                    {{ profile_form.language }}
-                                    {% if profile_form.language.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.language.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ profile_form.timezone.id_for_label }}" class="form-label">
-                                        <i class="fas fa-clock me-1"></i> Saat Qurşağı
-                                    </label>
-                                    {{ profile_form.timezone }}
-                                    {% if profile_form.timezone.errors %}
-                                        <div class="invalid-feedback d-block">{{ profile_form.timezone.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <div class="form-check">
-                                        {{ profile_form.email_notifications }}
-                                        <label class="form-check-label" for="{{ profile_form.email_notifications.id_for_label }}">
-                                            E-poçt bildirişləri göndər
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <div class="form-check">
-                                        {{ profile_form.notification_preferences }}
-                                        <label class="form-check-label" for="{{ profile_form.notification_preferences.id_for_label }}">
-                                            Sistem bildirişlərini aktivləşdir
-                                        </label>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <hr class="my-4">
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i>Ləğv et
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Yadda saxla
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <!-- Account Information Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-gray-500"></i>
+                    Hesab Məlumatları
+                </h2>
             </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-building text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Departament</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.department|default:"Təyin edilməyib" }}</p>
+                        </div>
+                    </div>
 
-            <!-- Account Information -->
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Hesab Məlumatları</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Departament:</strong>
-                            <span class="text-muted">{{ user.department|default:"Təyin edilməyib" }}</span>
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-briefcase text-purple-600 dark:text-purple-400"></i>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Vəzifə:</strong>
-                            <span class="text-muted">{{ user.position|default:"Təyin edilməyib" }}</span>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Vəzifə</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.position|default:"Təyin edilməyib" }}</p>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Rol:</strong>
-                            <span class="badge bg-info">{{ user.get_role_display }}</span>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-shield-alt text-green-600 dark:text-green-400"></i>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Qeydiyyat tarixi:</strong>
-                            <span class="text-muted">{{ user.date_joined|date:"d.m.Y" }}</span>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Rol</p>
+                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                                {{ user.get_role_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-calendar-check text-orange-600 dark:text-orange-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Qeydiyyat tarixi</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.date_joined|date:"d.m.Y" }}</p>
                         </div>
                     </div>
                 </div>
@@ -237,19 +371,16 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .form-control, .form-select {
-        border-radius: 0.375rem;
-        border: 1px solid #dee2e6;
+{% block extra_js %}
+<script>
+function updateFileName(input) {
+    const label = document.getElementById('fileLabel');
+    if (input.files && input.files[0]) {
+        const fileName = input.files[0].name;
+        label.innerHTML = '<i class="fas fa-check text-green-500 mr-2"></i>' + fileName;
     }
-    .form-control:focus, .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-    .list-group-item.active {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-</style>
+}
+</script>
 {% endblock %}
