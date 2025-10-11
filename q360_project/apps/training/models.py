@@ -156,6 +156,8 @@ class TrainingResource(models.Model):
             models.Index(fields=['type', 'is_active']),
             models.Index(fields=['difficulty_level']),
             models.Index(fields=['is_mandatory']),
+            models.Index(fields=['provider']),  # For filtering by provider
+            models.Index(fields=['title', 'type']),  # For combined filtering
         ]
 
     def __str__(self):
@@ -313,6 +315,9 @@ class UserTraining(models.Model):
             models.Index(fields=['resource', 'status']),
             models.Index(fields=['due_date']),
             models.Index(fields=['assignment_type']),
+            models.Index(fields=['user', 'resource', 'status']),  # For combined filtering
+            models.Index(fields=['progress_percentage']),  # For progress-based queries
+            models.Index(fields=['rating']),  # For rating queries
         ]
 
     def __str__(self):

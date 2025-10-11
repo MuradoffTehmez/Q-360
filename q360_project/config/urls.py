@@ -66,6 +66,7 @@ urlpatterns = [
     path('competencies/', include(('apps.competencies.urls', 'competencies'), namespace='competencies')),
     path('training/', include(('apps.training.urls', 'training'), namespace='training')),
     path('audit/', include(('apps.audit.urls', 'audit'), namespace='audit')),
+    path('search/', include(('apps.search.urls', 'search'), namespace='search')),
 ]
 
 # Serve media files in development

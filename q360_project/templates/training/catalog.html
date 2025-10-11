@@ -1,71 +1,201 @@
 {% extends 'base/base.html' %}
-{% load i18n static %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}{% trans "Training Catalog" %}{% endblock %}
+{% trans "No description available." as no_desc_label %}
+{% trans "Flexible" as flexible_label %}
+{% trans "Not specified" as not_specified_label %}
+{% trans "Free" as free_label %}
+{% trans "Internal" as internal_label %}
 
-{% block content %}
-<div class="py-4">
-    <h2><i class="fas fa-book"></i> {% trans "Training Catalog" %}</h2>
+{% block title %}{% trans "Training Catalog" %} - Q360{% endblock %}
 
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-header"><h6>{% trans "Filters" %}</h6></div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label>{% trans "Type" %}</label>
-                        <select class="form-select" id="typeFilter">
-                            <option value="">{% trans "All" %}</option>
-                            <option value="course">{% trans "Course" %}</option>
-                            <option value="certification">{% trans "Certification" %}</option>
-                            <option value="mentoring">{% trans "Mentoring" %}</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>{% trans "Difficulty" %}</label>
-                        <select class="form-select" id="difficultyFilter">
-                            <option value="">{% trans "All" %}</option>
-                            <option value="beginner">{% trans "Beginner" %}</option>
-                            <option value="intermediate">{% trans "Intermediate" %}</option>
-                            <option value="advanced">{% trans "Advanced" %}</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary w-100" onclick="loadCatalog()">{% trans "Apply" %}</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-9">
-            <div class="row" id="catalogList"></div>
-        </div>
+{% block page_header %}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-12 top-12 h-48 w-48 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-sky-300 blur-3xl"></div>
+    </div>
+    <div class="relative z-10">
+        <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "Learning hub" %}</p>
+        <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+            <i class="fas fa-book mr-3"></i>{% trans "Training Catalog" %}
+        </h1>
+        <p class="mt-3 text-sm text-white/80">{% trans "Discover courses, certifications, and mentoring experiences tailored for you." %}</p>
     </div>
 </div>
+</div>
+</div>
+{% endblock %}
 
-<script>
-function loadCatalog() {
-    const type = $('#typeFilter').val();
-    const difficulty = $('#difficultyFilter').val();
-    $.get('/api/training/resources/', {type, difficulty_level: difficulty}, function(data) {
-        let html = '';
-        data.results.forEach(r => {
-            html += `
-                <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5>${r.title}</h5>
-                            <p class="text-muted small">${r.description}</p>
-                            <span class="badge bg-info">${r.type}</span>
-                            <span class="badge bg-secondary">${r.difficulty_level}</span>
-                            ${r.duration_hours ? `<p class="mt-2"><i class="fas fa-clock"></i> ${r.duration_hours}h</p>` : ''}
-                            ${r.cost ? `<p><i class="fas fa-dollar-sign"></i> ${r.cost} AZN</p>` : ''}
-                            <a href="/training/resource/${r.id}/" class="btn btn-sm btn-primary">{% trans "View Details" %}</a>
-                        </div>
+{% block content %}
+<div class="space-y-8" x-data="trainingCatalogPage()" x-init="init()">
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <form @submit.prevent="applyFilters" class="grid grid-cols-1 gap-4 md:grid-cols-4 md:items-end">
+            <div class="md:col-span-2">
+                <label class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400" for="training-search">{% trans "Search" %}</label>
+                <div class="mt-2 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input id="training-search" type="text" x-model="filters.search" placeholder="{% trans 'Search trainings...' %}"
+                        class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" />
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400" for="training-type">{% trans "Type" %}</label>
+                <select id="training-type" x-model="filters.type"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    <option value="">{% trans "All" %}</option>
+                    <option value="course">{% trans "Course" %}</option>
+                    <option value="certification">{% trans "Certification" %}</option>
+                    <option value="mentoring">{% trans "Mentoring" %}</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400" for="training-difficulty">{% trans "Difficulty" %}</label>
+                <select id="training-difficulty" x-model="filters.difficulty"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    <option value="">{% trans "All" %}</option>
+                    <option value="beginner">{% trans "Beginner" %}</option>
+                    <option value="intermediate">{% trans "Intermediate" %}</option>
+                    <option value="advanced">{% trans "Advanced" %}</option>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 py-3 text-sm font-semibold text-white shadow-sky-500/30 transition hover:shadow-sky-500/40">
+                    <i class="fas fa-filter mr-2"></i>{% trans "Apply" %}
+                </button>
+                <button type="button" @click="resetFilters" class="flex-1 rounded-2xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-600 transition hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-100">
+                    <i class="fas fa-undo mr-2"></i>{% trans "Reset" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <template x-if="loading">
+            <template x-for="n in 6" :key="`training-skeleton-${n}`">
+                <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                    <div class="space-y-4 animate-pulse">
+                        <div class="h-5 w-3/4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-4 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-4 w-2/3 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-10 w-full rounded-2xl bg-gray-200 dark:bg-gray-700"></div>
                     </div>
                 </div>
-            `;
-        });
-        $('#catalogList').html(html || '<p>{% trans "No trainings found" %}</p>');
-    });
+            </template>
+        </template>
+        <template x-if="!loading && trainings.length === 0">
+            <div class="col-span-full flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800/60">
+                <i class="fas fa-search text-3xl text-gray-400 dark:text-gray-500"></i>
+                <p class="mt-4 text-sm font-semibold text-gray-900 dark:text-white">{% trans "No trainings found" %}</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Try adjusting filters or check back soon." %}</p>
+            </div>
+        </template>
+        <template x-for="resource in trainings" :key="resource.id">
+            <article class="relative overflow-hidden rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-900/80">
+                <div class="absolute right-4 top-4">
+                    <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 dark:bg-sky-500/10 dark:text-sky-200" x-text="formatType(resource.type)"></span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="resource.title"></h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300" x-text="resource.description || '{{ no_desc_label|escapejs }}'"></p>
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-signal"></i>
+                        <span x-text="formatDifficulty(resource.difficulty_level)"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-clock"></i>
+                        <span x-text="resource.duration_hours ? resource.duration_hours + ' h' : '{{ flexible_label|escapejs }}'"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-language"></i>
+                        <span x-text="resource.language || '{{ not_specified_label|escapejs }}'"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-money-bill"></i>
+                        <span x-text="resource.cost ? resource.cost + ' AZN' : '{{ free_label|escapejs }}'"></span>
+                    </div>
+                </dl>
+                <div class="mt-6 flex items-center justify-between">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600 dark:bg-sky-500/10 dark:text-sky-200" x-text="formatProvider(resource.provider)"></div>
+                    <a :href="detailUrl(resource.id)" class="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-sky-500/30 transition hover:shadow-sky-500/50">
+                        <i class="fas fa-arrow-right mr-2"></i>{% trans "View" %}
+                    </a>
+                </div>
+            </article>
+        </template>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function trainingCatalogPage() {
+    return {
+        loading: true,
+        trainings: [],
+        filters: { search: '', type: '', difficulty: '' },
+        init() {
+            this.fetchTrainings();
+        },
+        formatType(type) {
+            const labels = {
+                course: '{% trans "Course" %}',
+                certification: '{% trans "Certification" %}',
+                mentoring: '{% trans "Mentoring" %}'
+            };
+            return labels[type] || type || '{% trans "Training" %}';
+        },
+        formatDifficulty(level) {
+            const labels = {
+                beginner: '{% trans "Beginner" %}',
+                intermediate: '{% trans "Intermediate" %}',
+                advanced: '{% trans "Advanced" %}'
+            };
+            return labels[level] || level || '{% trans "All Levels" %}';
+        },
+        formatProvider(provider) {
+            return provider || '{{ internal_label|escapejs }}';
+        },
+        authHeaders() {
+            const token = window.localStorage ? localStorage.getItem('access_token') : null;
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        },
+        async fetchTrainings() {
+            this.loading = true;
+            const params = new URLSearchParams();
+            if (this.filters.search) params.set('search', this.filters.search);
+            if (this.filters.type) params.set('type', this.filters.type);
+            if (this.filters.difficulty) params.set('difficulty_level', this.filters.difficulty);
+            try {
+                const response = await fetch(`/api/training/resources/?${params.toString()}`, { headers: this.authHeaders() });
+                if (!response.ok) {
+                    throw new Error('Failed to load trainings');
+                }
+                const data = await response.json();
+                this.trainings = data.results || data || [];
+            } catch (error) {
+                console.error(error);
+                this.trainings = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+        applyFilters() {
+            this.fetchTrainings();
+        },
+        resetFilters() {
+            this.filters = { search: '', type: '', difficulty: '' };
+            this.fetchTrainings();
+        },
+        detailUrl(id) {
+            return `/training/resource/${id}/`;
+        }
+    };
 }
-$(function() { loadCatalog(); });
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('trainingCatalogPage', trainingCatalogPage);
+});
 </script>
 {% endblock %}

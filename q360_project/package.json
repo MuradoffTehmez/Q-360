@@ -1,0 +1,25 @@
+{
+  "name": "q360-evaluation-system",
+  "version": "1.0.0",
+  "description": "360 Degree Evaluation System - Modern UI with TailwindCSS",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss build -o ./static/css/tailwind.css",
+    "watch:css": "tailwindcss build -o ./static/css/tailwind.css --watch",
+    "build": "npm run build:css",
+    "dev": "npm run watch:css"
+  },
+  "keywords": [
+    "django",
+    "tailwindcss",
+    "evaluation",
+    "hr",
+    "performance"
+  ],
+  "author": "Q360 Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  },
+  "dependencies": {}
+}

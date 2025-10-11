@@ -1,58 +1,140 @@
 {% extends 'base/base.html' %}
-{% load i18n static %}
+{% load i18n %}
+{% load static %}
 
-{% block title %}{% trans "My Trainings" %}{% endblock %}
+{% block title %}{% trans "My Trainings" %} - Q360{% endblock %}
+
+{% block page_header %}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-16 top-6 h-52 w-52 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-emerald-300 blur-3xl"></div>
+    </div>
+    <div class="relative z-10">
+        <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "Learning journey" %}</p>
+        <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+            <i class="fas fa-graduation-cap mr-3"></i>{% trans "My Trainings" %}
+        </h1>
+        <p class="mt-3 text-sm text-white/80">{% trans "Stay on top of assigned modules and celebrate completed milestones." %}</p>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-<div class="py-4">
-    <h2><i class="fas fa-graduation-cap"></i> {% trans "My Trainings" %}</h2>
+<div class="space-y-8" x-data="myTrainingsPage()" x-init="init()">
+    <div class="flex flex-wrap gap-3">
+        <template x-for="tab in tabs" :key="tab.key">
+            <button type="button"
+                    class="inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold transition"
+                    :class="activeTab === tab.key ? 'border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-100'"
+                    @click="activeTab = tab.key">
+                <i class="fas" :class="tab.icon"></i>
+                <span class="ml-2" x-text="tab.label"></span>
+                <span class="ml-2 inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-emerald-500/10 text-xs font-semibold text-emerald-600 dark:text-emerald-200" x-text="tabCounts[tab.key] || 0"></span>
+            </button>
+        </template>
+    </div>
 
-    <ul class="nav nav-tabs mt-4" role="tablist">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#pending">{% trans "Pending" %} <span class="badge bg-warning" id="pendingCount">0</span></a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#inprogress">{% trans "In Progress" %}</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#completed">{% trans "Completed" %}</a></li>
-    </ul>
-
-    <div class="tab-content mt-3">
-        <div class="tab-pane fade show active" id="pending">
-            <div class="row" id="pendingTrainings"></div>
-        </div>
-        <div class="tab-pane fade" id="inprogress">
-            <div class="row" id="inprogressTrainings"></div>
-        </div>
-        <div class="tab-pane fade" id="completed">
-            <div class="row" id="completedTrainings"></div>
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <template x-if="loading[activeTab]">
+            <div class="flex items-center justify-center gap-3 py-12 text-gray-500 dark:text-gray-400" role="status">
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent"></span>
+                {% trans "Loading trainings" %}...
+            </div>
+        </template>
+        <template x-if="!loading[activeTab] && trainings[activeTab].length === 0">
+            <div class="flex flex-col items-center justify-center gap-2 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fas fa-smile"></i>
+                {% trans "No trainings in this status." %}
+            </div>
+        </template>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" x-show="!loading[activeTab] && trainings[activeTab].length > 0" style="display:none;">
+            <template x-for="training in trainings[activeTab]" :key="training.id">
+                <article class="relative overflow-hidden rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-900/80">
+                    <div class="absolute right-4 top-4">
+                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200" x-text="formatStatus(training.status)"></span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="training.resource_title"></h3>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{% trans "Due" %}: <span x-text="training.due_date || '{% trans "Not set" %}'"></span></p>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <span>{% trans "Progress" %}</span>
+                            <span x-text="(training.progress_percentage || 0) + '%'">0%</span>
+                        </div>
+                        <div class="mt-2 h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-sky-500" :style="`width: ${(training.progress_percentage || 0)}%`"></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex items-center justify-between text-sm">
+                        <div class="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span x-text="training.trainer_name || '{% trans "Self-paced" %}'"></span>
+                        </div>
+                        <a :href="detailUrl(training.id)" class="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-emerald-500/30 transition hover:shadow-emerald-500/50">
+                            <i class="fas fa-arrow-right mr-2"></i>{% trans "Manage" %}
+                        </a>
+                    </div>
+                </article>
+            </template>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-$(function() {
-    ['pending', 'in_progress', 'completed'].forEach(status => {
-        $.get(`/api/training/user-trainings/my_${status}/`, function(data) {
-            const containerId = status === 'in_progress' ? 'inprogressTrainings' : status + 'Trainings';
-            let html = '';
-            data.forEach(t => {
-                const progress = t.progress_percentage || 0;
-                html += `
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5>${t.resource_title}</h5>
-                                <div class="progress mb-2">
-                                    <div class="progress-bar" style="width:${progress}%">${progress}%</div>
-                                </div>
-                                <p class="small text-muted">{% trans "Due" %}: ${t.due_date || '-'}</p>
-                                <a href="/training/${t.id}/" class="btn btn-sm btn-primary">{% trans "View" %}</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            $(`#${containerId}`).html(html || '<p>{% trans "No trainings found" %}</p>');
-            if (status === 'pending') $('#pendingCount').text(data.length);
-        });
-    });
+function myTrainingsPage() {
+    return {
+        tabs: [
+            { key: 'pending', label: '{% trans "Pending" %}', icon: 'fa-hourglass-half' },
+            { key: 'in_progress', label: '{% trans "In Progress" %}', icon: 'fa-play-circle' },
+            { key: 'completed', label: '{% trans "Completed" %}', icon: 'fa-check-circle' }
+        ],
+        activeTab: 'pending',
+        trainings: { pending: [], in_progress: [], completed: [] },
+        loading: { pending: true, in_progress: true, completed: true },
+        tabCounts: { pending: 0, in_progress: 0, completed: 0 },
+        init() {
+            this.tabs.forEach(tab => this.fetchTrainings(tab.key));
+        },
+        formatStatus(status) {
+            const labels = {
+                pending: '{% trans "Pending" %}',
+                in_progress: '{% trans "In Progress" %}',
+                completed: '{% trans "Completed" %}'
+            };
+            return labels[status] || status || '{% trans "Unknown" %}';
+        },
+        authHeaders() {
+            const token = window.localStorage ? localStorage.getItem('access_token') : null;
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        },
+        async fetchTrainings(status) {
+            this.loading[status] = true;
+            try {
+                const response = await fetch(`/api/training/user-trainings/my_${status}/`, { headers: this.authHeaders() });
+                if (!response.ok) {
+                    throw new Error('Failed to load trainings');
+                }
+                const data = await response.json();
+                this.trainings[status] = data.results || data || [];
+                this.tabCounts[status] = this.trainings[status].length;
+            } catch (error) {
+                console.error(error);
+                this.trainings[status] = [];
+                this.tabCounts[status] = 0;
+            } finally {
+                this.loading[status] = false;
+            }
+        },
+        detailUrl(id) {
+            return `/training/${id}/`;
+        }
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('myTrainingsPage', myTrainingsPage);
 });
 </script>
 {% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Search Results" %} - Q360{% endblock %}
+
+{% block page_header %}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-12 top-12 h-48 w-48 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-indigo-300 blur-3xl"></div>
+    </div>
+    <div class="relative z-10">
+        <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "Global Search" %}</p>
+        <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+            <i class="fas fa-search mr-3"></i>{% trans "Search Results" %}
+        </h1>
+        <p class="mt-3 text-sm text-white/80">
+            {% if query %}
+                {% blocktrans count counter=total_results %}{{ counter }} result found for "{{ query }}"{% plural %}{{ counter }} results found for "{{ query }}"{% endblocktrans %}
+            {% else %}
+                {% trans "Enter a search term to find people, competencies, training, and more..." %}
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <form method="get" class="relative">
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query }}" 
+                    placeholder="{% trans 'Search people, competencies, training, and more...' %}" 
+                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-20 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" 
+                    autofocus
+                />
+                <button 
+                    type="submit" 
+                    class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-blue-500/30 transition hover:shadow-blue-500/40"
+                >
+                    {% trans "Search" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if query and results %}
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                {% trans "Search Results" %}
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ total_results }} {% trans "results" %}
+            </p>
+        </div>
+
+        <div class="space-y-4">
+            {% for result in results %}
+            <div class="group relative overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-900/80">
+                <a href="{{ result.url }}" class="block">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-base font-semibold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300 truncate">
+                                {{ result.title }}
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                                {{ result.content }}
+                            </p>
+                            <div class="mt-3 flex items-center gap-2 text-xs">
+                                <span class="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-200">
+                                    {{ result.category }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-shrink-0">
+                            <i class="fas fa-arrow-right text-gray-300 group-hover:text-indigo-400 dark:group-hover:text-indigo-300"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if total_results > results|length %}
+        <div class="mt-6 flex items-center justify-between border-t border-gray-200/70 pt-6 dark:border-gray-700/60">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {% blocktrans count counter=results|length %}Showing {{ counter }} of {{ total_results }} result{% plural %}Showing {{ counter }} of {{ total_results }} results{% endblocktrans %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% elif query %}
+    <div class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800/60">
+        <i class="fas fa-search text-3xl text-gray-400 dark:text-gray-500"></i>
+        <p class="mt-4 text-sm font-semibold text-gray-900 dark:text-white">{% trans "No results found" %}</p>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Try adjusting your search or check back soon." %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

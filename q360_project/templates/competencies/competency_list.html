@@ -4,355 +4,268 @@
 
 {% block title %}{% trans "Competencies" %} - Q360{% endblock %}
 
-{% block breadcrumb %}
-<nav aria-label="breadcrumb" class="mt-3">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Home" %}</a></li>
-        <li class="breadcrumb-item active">{% trans "Competencies" %}</li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block page_header %}
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-            <i class="fas fa-lightbulb mr-3 text-purple-500"></i>{% trans "Competencies" %}
+            <i class="fas fa-lightbulb mr-3 text-indigo-500"></i>{% trans "Competencies" %}
         </h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">{% trans "Manage organizational competencies and skills" %}</p>
+        <p class="mt-1 text-gray-600 dark:text-gray-400">{% trans "Manage organizational capabilities and skill expectations" %}</p>
     </div>
     {% if user.is_admin %}
-    <button onclick="openAddModal()" class="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md">
-        <i class="fas fa-plus mr-2"></i>
-        {% trans "Add Competency" %}
-    </button>
+    <a href="javascript:void(0)" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:shadow-indigo-500/40">
+        <i class="fas fa-plus mr-2"></i>{% trans "Create Competency" %}
+    </a>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block content %}
-<!-- Filter and Search -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-    <form method="get" id="filterForm">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-2">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="search" placeholder="{% trans 'Search competencies...' %}" value="{{ request.GET.search }}">
+<div class="space-y-8" x-data="competencyPage()" x-init="init()">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <template x-if="statsLoading">
+            <div class="sm:col-span-2 xl:col-span-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <template x-for="n in 4" :key="`stat-skeleton-${n}`">
+                    <div class="rounded-2xl border border-gray-200/60 bg-white p-5 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/70">
+                        <div class="space-y-3 animate-pulse">
+                            <div class="h-3 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-10 w-16 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-3 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template x-if="!statsLoading">
+            <div class="sm:col-span-2 xl:col-span-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 shadow-sm dark:border-indigo-500/40 dark:bg-indigo-500/10">
+                    <p class="text-xs uppercase tracking-widest text-indigo-600 dark:text-indigo-300">{% trans "Total" %}</p>
+                    <p class="mt-2 text-3xl font-semibold text-indigo-700 dark:text-indigo-200" x-text="formatNumber(stats.total)">0</p>
+                    <p class="mt-1 text-xs text-indigo-500 dark:text-indigo-200/80">{% trans "Registered competencies" %}</p>
+                </div>
+                <div class="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5 shadow-sm dark:border-emerald-500/40 dark:bg-emerald-500/10">
+                    <p class="text-xs uppercase tracking-widest text-emerald-600 dark:text-emerald-300">{% trans "Active" %}</p>
+                    <p class="mt-2 text-3xl font-semibold text-emerald-700 dark:text-emerald-200" x-text="formatNumber(stats.active)">0</p>
+                    <p class="mt-1 text-xs text-emerald-500 dark:text-emerald-200/80">{% trans "Currently in use" %}</p>
+                </div>
+                <div class="rounded-2xl border border-purple-100 bg-purple-50/70 p-5 shadow-sm dark:border-purple-500/40 dark:bg-purple-500/10">
+                    <p class="text-xs uppercase tracking-widest text-purple-600 dark:text-purple-300">{% trans "Skills" %}</p>
+                    <p class="mt-2 text-3xl font-semibold text-purple-700 dark:text-purple-200" x-text="formatNumber(stats.skills)">0</p>
+                    <p class="mt-1 text-xs text-purple-500 dark:text-purple-200/80">{% trans "Linked skill definitions" %}</p>
+                </div>
+                <div class="rounded-2xl border border-amber-100 bg-amber-50/70 p-5 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10">
+                    <p class="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-300">{% trans "Approvals" %}</p>
+                    <p class="mt-2 text-3xl font-semibold text-amber-700 dark:text-amber-200" x-text="formatNumber(stats.pending)">0</p>
+                    <p class="mt-1 text-xs text-amber-500 dark:text-amber-200/80">{% trans "Pending skill approvals" %}</p>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <form @submit.prevent="submitFilters" class="grid grid-cols-1 gap-4 md:grid-cols-5 md:items-end">
+            <div class="md:col-span-3">
+                <label for="competency-search" class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{% trans "Search" %}</label>
+                <div class="mt-2 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input id="competency-search" type="text" x-model="filters.search" placeholder="{% trans 'Search by name or description...' %}"
+                           class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" />
                 </div>
             </div>
             <div>
-                <select class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="is_active">
-                    <option value="">{% trans "All Status" %}</option>
-                    <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>{% trans "Active" %}</option>
-                    <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>{% trans "Inactive" %}</option>
+                <label for="competency-status" class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{% trans "Status" %}</label>
+                <select id="competency-status" x-model="filters.status"
+                        class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    <option value="">{% trans "All" %}</option>
+                    <option value="true">{% trans "Active" %}</option>
+                    <option value="false">{% trans "Inactive" %}</option>
                 </select>
             </div>
-        </div>
-        <div class="mt-4 flex gap-2">
-            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all">
-                <i class="fas fa-filter mr-2"></i> {% trans "Filter" %}
-            </button>
-            <button type="reset" onclick="window.location.href='{% url 'competencies:competency-list' %}'" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all">
-                <i class="fas fa-redo mr-2"></i> {% trans "Reset" %}
-            </button>
-        </div>
-    </form>
-</div>
-
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wide">{% trans "Total Competencies" %}</p>
-                <p class="text-3xl font-bold text-purple-700 dark:text-purple-300 mt-2" id="totalCompetencies">-</p>
-            </div>
-            <div class="bg-purple-500 bg-opacity-20 p-3 rounded-lg">
-                <i class="fas fa-lightbulb text-2xl text-purple-600 dark:text-purple-400"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">{% trans "Active" %}</p>
-                <p class="text-3xl font-bold text-green-700 dark:text-green-300 mt-2" id="activeCompetencies">-</p>
-            </div>
-            <div class="bg-green-500 bg-opacity-20 p-3 rounded-lg">
-                <i class="fas fa-check-circle text-2xl text-green-600 dark:text-green-400"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">{% trans "Total Skills" %}</p>
-                <p class="text-3xl font-bold text-blue-700 dark:text-blue-300 mt-2" id="totalSkills">-</p>
-            </div>
-            <div class="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
-                <i class="fas fa-star text-2xl text-blue-600 dark:text-blue-400"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-6 border border-orange-200 dark:border-orange-700 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">{% trans "Pending Approvals" %}</p>
-                <p class="text-3xl font-bold text-orange-700 dark:text-orange-300 mt-2" id="pendingApprovals">-</p>
-            </div>
-            <div class="bg-orange-500 bg-opacity-20 p-3 rounded-lg">
-                <i class="fas fa-clock text-2xl text-orange-600 dark:text-orange-400"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Competencies List -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            <i class="fas fa-list mr-2 text-purple-600"></i>
-            {% trans "All Competencies" %}
-        </h2>
-    </div>
-    <div class="p-6">
-        <div class="overflow-x-auto">
-            <table class="w-full" id="competenciesTable">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Name" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Description" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Positions" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Users with Skill" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Status" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{% trans "Actions" %}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="competenciesTableBody">
-                    <tr>
-                        <td colspan="6" class="px-4 py-8 text-center">
-                            <div class="flex justify-center">
-                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                            </div>
-                            <p class="text-gray-500 dark:text-gray-400 mt-2">{% trans "Loading..." %}</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="mt-6 flex justify-center">
-            <nav aria-label="Competencies pagination">
-                <ul class="flex gap-2" id="pagination"></ul>
-            </nav>
-        </div>
-    </div>
-</div>
-
-<!-- Add Competency Modal -->
-{% if user.is_admin %}
-<div id="addCompetencyModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Add New Competency" %}</h3>
-            <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <form id="addCompetencyForm">
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {% trans "Name" %} <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="name" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans "Description" %}</label>
-                    <textarea class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent" name="description" rows="3"></textarea>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" class="w-4 h-4 text-purple-600 bg-gray-100 dark:bg-gray-700 border-gray-300 rounded focus:ring-purple-500" name="is_active" id="is_active" checked>
-                    <label class="ml-2 text-sm text-gray-700 dark:text-gray-300" for="is_active">
-                        {% trans "Active" %}
-                    </label>
-                </div>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
-                <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all">
-                    {% trans "Cancel" %}
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:shadow-indigo-500/40">
+                    <i class="fas fa-filter mr-2"></i>{% trans "Apply" %}
                 </button>
-                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all">
-                    {% trans "Add Competency" %}
+                <button type="button" @click="resetFilters" class="flex-1 rounded-2xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-600 transition hover:border-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-100">
+                    <i class="fas fa-undo mr-2"></i>{% trans "Reset" %}
                 </button>
             </div>
         </form>
     </div>
-</div>
-{% endif %}
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <div x-show="loading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" role="status">
+            <template x-for="n in 6" :key="`competency-skeleton-${n}`">
+                <div class="rounded-2xl border border-gray-200/80 bg-gray-50 p-5 dark:border-gray-700/60 dark:bg-gray-800/70">
+                    <div class="space-y-4 animate-pulse">
+                        <div class="h-6 w-3/4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-4 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-4 w-2/3 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-10 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
 
+        <div x-show="!loading" x-transition.opacity style="display:none;" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <template x-for="competency in competencies" :key="competency.id">
+                <article class="relative overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-800/80">
+                    <div class="absolute right-4 top-4">
+                        <span :class="statusBadgeClasses(competency.is_active)" class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold">
+                            <i class="fas" :class="competency.is_active ? 'fa-check-circle mr-2' : 'fa-pause-circle mr-2'"></i>
+                            <span x-text="statusLabel(competency.is_active)">{% trans "Status" %}</span>
+                        </span>
+                    </div>
+                    <div class="pr-16">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="competency.name"></h3>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400" x-text="competency.description || '{% trans "No description" %}'"></p>
+                    </div>
+                    <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
+                        <div class="rounded-xl bg-indigo-50/80 p-3 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-200">
+                            <dt class="text-xs font-semibold uppercase tracking-widest">{% trans "Positions" %}</dt>
+                            <dd class="mt-1 text-lg font-semibold" x-text="formatNumber(competency.active_positions_count || 0)"></dd>
+                        </div>
+                        <div class="rounded-xl bg-purple-50/80 p-3 text-purple-700 dark:bg-purple-500/10 dark:text-purple-200">
+                            <dt class="text-xs font-semibold uppercase tracking-widest">{% trans "Professionals" %}</dt>
+                            <dd class="mt-1 text-lg font-semibold" x-text="formatNumber(competency.total_users_with_skill || 0)"></dd>
+                        </div>
+                    </dl>
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-clock"></i>
+                            <span x-text="competency.updated_at ? new Date(competency.updated_at).toLocaleDateString() : '{% trans "Recently updated" %}'"></span>
+                        </div>
+                        <a :href="detailUrl(competency.id)" class="inline-flex items-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-indigo-500/30 transition hover:shadow-indigo-500/50">
+                            <i class="fas fa-arrow-right mr-2"></i>{% trans "Open" %}
+                        </a>
+                    </div>
+                </article>
+            </template>
+        </div>
+
+        <div x-show="!loading && competencies.length === 0" x-transition.opacity style="display:none;" class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800/60">
+            <i class="fas fa-search text-3xl text-gray-400 dark:text-gray-500"></i>
+            <p class="mt-4 text-sm font-semibold text-gray-900 dark:text-white">{% trans "No competencies found" %}</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Try adjusting filters or create a new competency." %}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-gray-500 dark:text-gray-400" x-show="!loading">
+            <span x-text="formatNumber(competencies.length)"></span>
+            {% trans "results on this page" %}
+        </p>
+        <div class="flex items-center gap-3">
+            <button type="button" @click="goTo('prev')" :disabled="!pagination.previous"
+                    class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-gray-600 transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-100">
+                <i class="fas fa-chevron-left mr-2"></i>{% trans "Previous" %}
+            </button>
+            <button type="button" @click="goTo('next')" :disabled="!pagination.next"
+                    class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-gray-600 transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-100">
+                {% trans "Next" %}<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Modal functions
-function openAddModal() {
-    document.getElementById('addCompetencyModal').classList.remove('hidden');
+function competencyPage() {
+    return {
+        loading: true,
+        statsLoading: true,
+        competencies: [],
+        stats: { total: 0, active: 0, skills: 0, pending: 0 },
+        filters: { search: '', status: '' },
+        pagination: { current: 1, next: null, previous: null },
+        formatter: new Intl.NumberFormat('az-AZ'),
+        init() {
+            this.fetchStats();
+            this.fetchCompetencies();
+        },
+        formatNumber(value) {
+            return this.formatter.format(value || 0);
+        },
+        statusLabel(isActive) {
+            return isActive ? '{% trans "Active" %}' : '{% trans "Inactive" %}';
+        },
+        statusBadgeClasses(isActive) {
+            return isActive
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300';
+        },
+        detailUrl(id) {
+            return `/competencies/${id}/`;
+        },
+        authHeaders() {
+            const token = window.localStorage ? localStorage.getItem('access_token') : null;
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        },
+        async fetchStats() {
+            this.statsLoading = true;
+            try {
+                const response = await fetch('/api/competencies/competencies/statistics/', { headers: this.authHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    this.stats.total = data.total_competencies || 0;
+                    this.stats.active = data.active_competencies || data.total_active || 0;
+                    this.stats.skills = data.total_skills || 0;
+                    this.stats.pending = data.pending_approvals || 0;
+                }
+            } catch (error) {
+                console.warn('Unable to load competency statistics', error);
+            } finally {
+                this.statsLoading = false;
+            }
+        },
+        async fetchCompetencies(page = 1) {
+            this.loading = true;
+            const params = new URLSearchParams();
+            params.set('page', page);
+            if (this.filters.search) {
+                params.set('search', this.filters.search);
+            }
+            if (this.filters.status) {
+                params.set('is_active', this.filters.status);
+            }
+            try {
+                const response = await fetch(`/api/competencies/competencies/?${params.toString()}`, { headers: this.authHeaders() });
+                if (!response.ok) {
+                    throw new Error('Failed to load competencies');
+                }
+                const data = await response.json();
+                this.competencies = data.results || [];
+                this.pagination.next = data.next;
+                this.pagination.previous = data.previous;
+                this.pagination.current = page;
+            } catch (error) {
+                console.error(error);
+                this.competencies = [];
+                this.pagination.next = null;
+                this.pagination.previous = null;
+            } finally {
+                this.loading = false;
+            }
+        },
+        submitFilters() {
+            this.fetchCompetencies(1);
+        },
+        resetFilters() {
+            this.filters.search = '';
+            this.filters.status = '';
+            this.fetchCompetencies(1);
+        },
+        goTo(direction) {
+            if (direction === 'prev' && this.pagination.previous) {
+                this.fetchCompetencies(Math.max(1, this.pagination.current - 1));
+            } else if (direction === 'next' && this.pagination.next) {
+                this.fetchCompetencies(this.pagination.current + 1);
+            }
+        }
+    };
 }
 
-function closeAddModal() {
-    document.getElementById('addCompetencyModal').classList.add('hidden');
-    document.getElementById('addCompetencyForm').reset();
-}
-
-$(document).ready(function() {
-    let currentPage = 1;
-
-    // Load competencies
-    function loadCompetencies(page = 1) {
-        const searchParams = new URLSearchParams(window.location.search);
-        searchParams.set('page', page);
-
-        $.ajax({
-            url: '/api/competencies/competencies/?' + searchParams.toString(),
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            success: function(data) {
-                renderCompetencies(data.results);
-                renderPagination(data);
-            },
-            error: function(xhr) {
-                console.error('Error loading competencies:', xhr);
-                $('#competenciesTableBody').html(
-                    '<tr><td colspan="6" class="text-center"><p class="text-red-500 dark:text-red-400 py-4">{% trans "Error loading competencies" %}</p></td></tr>'
-                );
-            }
-        });
-    }
-
-    // Load statistics
-    function loadStatistics() {
-        $.ajax({
-            url: '/api/competencies/competencies/statistics/',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            success: function(data) {
-                $('#totalCompetencies').text(data.total_competencies);
-                $('#activeCompetencies').text(data.total_competencies);
-                $('#totalSkills').text(data.total_skills);
-                $('#pendingApprovals').text(data.pending_approvals);
-            }
-        });
-    }
-
-    // Render competencies table
-    function renderCompetencies(competencies) {
-        let html = '';
-        if (competencies.length === 0) {
-            html = '<tr><td colspan="6" class="px-4 py-8 text-center"><p class="text-gray-500 dark:text-gray-400">{% trans "No competencies found" %}</p></td></tr>';
-        } else {
-            competencies.forEach(comp => {
-                const statusBadge = comp.is_active
-                    ? '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">{% trans "Active" %}</span>'
-                    : '<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">{% trans "Inactive" %}</span>';
-
-                html += `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <td class="px-4 py-4 font-semibold text-gray-900 dark:text-white">${comp.name}</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">${comp.description || '-'}</td>
-                        <td class="px-4 py-4">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                                ${comp.active_positions_count || 0}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                                ${comp.total_users_with_skill || 0}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4">${statusBadge}</td>
-                        <td class="px-4 py-4">
-                            <a href="/competencies/${comp.id}/" class="inline-flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors">
-                                <i class="fas fa-eye mr-1"></i> {% trans "View" %}
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-        $('#competenciesTableBody').html(html);
-    }
-
-    // Render pagination
-    function renderPagination(data) {
-        let html = '';
-        if (data.previous) {
-            html += '<li><a class="pagination-link px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors" href="#" data-page="prev"><i class="fas fa-chevron-left mr-2"></i>{% trans "Previous" %}</a></li>';
-        }
-        if (data.next) {
-            html += '<li><a class="pagination-link px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-purple-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors" href="#" data-page="next">{% trans "Next" %}<i class="fas fa-chevron-right ml-2"></i></a></li>';
-        }
-        $('#pagination').html(html);
-    }
-
-    // Handle pagination clicks
-    $(document).on('click', '.pagination-link', function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        if (page === 'prev') currentPage--;
-        else if (page === 'next') currentPage++;
-        loadCompetencies(currentPage);
-    });
-
-    // Handle form submission
-    $('#addCompetencyForm').submit(function(e) {
-        e.preventDefault();
-        const formData = {
-            name: $('input[name="name"]').val(),
-            description: $('textarea[name="description"]').val(),
-            is_active: $('input[name="is_active"]').is(':checked')
-        };
-
-        $.ajax({
-            url: '/api/competencies/competencies/',
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify(formData),
-            success: function() {
-                closeAddModal();
-                loadCompetencies();
-                loadStatistics();
-                // Show success message
-                const successMsg = document.createElement('div');
-                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                successMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>{% trans "Competency added successfully" %}';
-                document.body.appendChild(successMsg);
-                setTimeout(() => successMsg.remove(), 3000);
-            },
-            error: function(xhr) {
-                // Show error message
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>{% trans "Error adding competency" %}';
-                document.body.appendChild(errorMsg);
-                setTimeout(() => errorMsg.remove(), 3000);
-            }
-        });
-    });
-
-    // Initial load
-    loadCompetencies();
-    loadStatistics();
+document.addEventListener('alpine:init', () => {
+    Alpine.data('competencyPage', competencyPage);
 });
 </script>
 {% endblock %}

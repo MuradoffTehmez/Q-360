@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',  # PostgreSQL full-text search
 
     # Third-party apps
     'rest_framework',
@@ -35,6 +36,9 @@ INSTALLED_APPS = [
     'django_filters',
     'simple_history',
     'mptt',  # Django MPTT for hierarchical data
+    'channels',  # Real-time notifications
+    'csp',  # Content Security Policy
+    'django_ratelimit',  # Rate limiting
 
     # Local apps
     'apps.accounts',
@@ -48,10 +52,13 @@ INSTALLED_APPS = [
     'apps.support',
     'apps.competencies',
     'apps.training',
+    'apps.search',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files
+    'csp.middleware.CSPMiddleware',  # Content Security Policy
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # i18n support
     'corsheaders.middleware.CorsMiddleware',
@@ -153,6 +160,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Whitenoise Configuration for Static File Compression
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -213,34 +223,37 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 # Redis Cache Configuration
 # Note: Use LocMemCache for development if Redis is not available
 # For production, ensure Redis is running and uncomment the Redis configuration
+# Redis Cache Configuration
+# Note: Use LocMemCache for development if Redis is not available
+# For production, ensure Redis is running and uncomment the Redis configuration
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'q360-cache',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
         'OPTIONS': {
-            'MAX_ENTRIES': 1000,
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            # Note: HiredisParser is deprecated in redis-py 5.x
+            # If hiredis is installed, it will be used automatically
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
         },
+        'KEY_PREFIX': 'q360',
         'TIMEOUT': 300,  # 5 minutes default timeout
     }
 }
 
-# Production Redis Cache Configuration (uncomment when Redis is available)
+# Fallback cache for development (if Redis is not available)
 # CACHES = {
 #     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#         'LOCATION': 'q360-cache',
 #         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#             # Note: HiredisParser is deprecated in redis-py 5.x
-#             # If hiredis is installed, it will be used automatically
-#             'CONNECTION_POOL_CLASS_KWARGS': {
-#                 'max_connections': 50,
-#                 'retry_on_timeout': True,
-#             },
-#             'SOCKET_CONNECT_TIMEOUT': 5,
-#             'SOCKET_TIMEOUT': 5,
+#             'MAX_ENTRIES': 1000,
 #         },
-#         'KEY_PREFIX': 'q360',
 #         'TIMEOUT': 300,  # 5 minutes default timeout
 #     }
 # }
@@ -311,6 +324,28 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    
+    # Additional security settings
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
+# Content Security Policy settings (Updated for django-csp 4.0+)
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'base-uri': ("'self'",),
+        'connect-src': ("'self'", "https://api.example.com"),
+        'default-src': ("'self'",),
+        'font-src': ("'self'", "https://cdnjs.cloudflare.com"),
+        'frame-ancestors': ("'none'",),
+        'img-src': ("'self'", "data:", "https:", "https://cdn.tailwindcss.com"),
+        'script-src': ("'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://code.jquery.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"),
+        'style-src': ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"),
+        'upgrade-insecure-requests': True
+    }
+}
+
+# Rate limiting for authentication endpoints
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['login'] = '5/min'  # Limit login attempts
 
 # Jazzmin Admin Interface Configuration - Professional & Modern
 JAZZMIN_SETTINGS = {
@@ -455,4 +490,16 @@ JAZZMIN_UI_TWEAKS = {
         "danger": "btn-danger",
         "success": "btn-success"
     }
+}
+
+# Django Channels Configuration
+ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [os.getenv('REDIS_URL', 'redis://localhost:6379/1')],
+        },
+    },
 }

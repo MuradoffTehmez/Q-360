@@ -48,5 +48,13 @@ argon2-cffi==23.1.0
 gunicorn==23.0.0
 whitenoise==6.8.2
 
+# Security
+django-csp==3.8  # Content Security Policy
+django-ratelimit==4.1.0  # Rate limiting
+
+# Real-time Notifications
+channels==4.1.0
+channels-redis==4.2.0
+
 # Development Tools
 python-dotenv==1.0.1

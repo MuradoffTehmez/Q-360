@@ -97,6 +97,8 @@ class EvaluationCampaign(models.Model):
         indexes = [
             models.Index(fields=['status', 'start_date']),
             models.Index(fields=['end_date']),
+            models.Index(fields=['status']),  # For filtering by status
+            models.Index(fields=['created_by']),  # For filtering by creator
         ]
 
     def __str__(self):
@@ -211,6 +213,11 @@ class Question(models.Model):
         verbose_name = _('Sual')
         verbose_name_plural = _('Suallar')
         ordering = ['category', 'order']
+        indexes = [
+            models.Index(fields=['category', 'is_active']),
+            models.Index(fields=['question_type']),
+            models.Index(fields=['is_active']),
+        ]
 
     def __str__(self):
         return f"{self.category.name}: {self.text[:50]}..."
@@ -425,6 +432,12 @@ class Response(models.Model):
         verbose_name_plural = _('Cavablar')
         unique_together = [['assignment', 'question']]
         ordering = ['assignment', 'question__order']
+        indexes = [
+            models.Index(fields=['assignment', 'question']),
+            models.Index(fields=['assignment']),  # For filtering by assignment
+            models.Index(fields=['question']),    # For filtering by question
+            models.Index(fields=['sentiment_category']),  # For sentiment analysis queries
+        ]
 
     def __str__(self):
         return f"Response: {self.question.text[:30]}..."
@@ -521,6 +534,12 @@ class EvaluationResult(models.Model):
         verbose_name_plural = _('Qiymətləndirmə Nəticələri')
         unique_together = [['campaign', 'evaluatee']]
         ordering = ['-calculated_at']
+        indexes = [
+            models.Index(fields=['campaign', 'evaluatee']),
+            models.Index(fields=['evaluatee']),  # For filtering by evaluatee
+            models.Index(fields=['overall_score']),  # For sorting by score
+            models.Index(fields=['is_finalized']),  # For filtering by finalized status
+        ]
 
     def __str__(self):
         return f"{self.evaluatee.get_full_name()} - {self.campaign.title}"

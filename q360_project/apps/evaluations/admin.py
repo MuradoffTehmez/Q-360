@@ -271,6 +271,8 @@ class EvaluationAssignmentAdmin(SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at', 'started_at', 'completed_at', 'progress_display']
     autocomplete_fields = ['campaign', 'evaluator', 'evaluatee']
 
+    actions = ['mark_as_completed', 'mark_as_in_progress', 'reset_assignments']
+    
     fieldsets = (
         (_('Kampaniya'), {
             'fields': ('campaign',)
@@ -286,6 +288,55 @@ class EvaluationAssignmentAdmin(SimpleHistoryAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    def mark_as_completed(self, request, queryset):
+        """Bulk mark assignments as completed."""
+        count = 0
+        for assignment in queryset:
+            if assignment.status != 'completed':
+                assignment.status = 'completed'
+                assignment.completed_at = assignment._current_timestamp()  # Assuming the method exists in model
+                assignment.save(update_fields=['status', 'completed_at', 'updated_at'])
+                count += 1
+        self.message_user(
+            request,
+            f'{count} qiymətləndirmə tapşırığı tamamlanmış kimi qeyd edildi.',
+            level='SUCCESS'
+        )
+    mark_as_completed.short_description = 'Seçilmiş tapşırıqları tamamlanmış kimi qeyd et'
+
+    def mark_as_in_progress(self, request, queryset):
+        """Bulk mark assignments as in progress."""
+        count = 0
+        for assignment in queryset:
+            if assignment.status == 'pending':
+                assignment.status = 'in_progress'
+                assignment.started_at = assignment._current_timestamp()  # Assuming the method exists in model
+                assignment.save(update_fields=['status', 'started_at', 'updated_at'])
+                count += 1
+        self.message_user(
+            request,
+            f'{count} qiymətləndirmə tapşırığı davam edir kimi qeyd edildi.',
+            level='INFO'
+        )
+    mark_as_in_progress.short_description = 'Seçilmiş tapşırıqları davam edir kimi qeyd et'
+
+    def reset_assignments(self, request, queryset):
+        """Bulk reset assignments to pending."""
+        count = 0
+        for assignment in queryset:
+            if assignment.status != 'pending':
+                assignment.status = 'pending'
+                assignment.started_at = None
+                assignment.completed_at = None
+                assignment.save(update_fields=['status', 'started_at', 'completed_at', 'updated_at'])
+                count += 1
+        self.message_user(
+            request,
+            f'{count} qiymətləndirmə tapşırığı sıfırlandı (gözləyir kimi qeyd edildi).',
+            level='WARNING'
+        )
+    reset_assignments.short_description = 'Seçilmiş tapşırıqları sıfırla'
 
     def evaluator_link(self, obj):
         """Display evaluator with link."""

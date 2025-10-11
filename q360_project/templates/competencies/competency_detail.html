@@ -4,421 +4,335 @@
 
 {% block title %}{% trans "Competency Details" %} - Q360{% endblock %}
 
-{% block breadcrumb %}
-<nav aria-label="breadcrumb" class="mt-3">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Home" %}</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'competencies:competency-list' %}">{% trans "Competencies" %}</a></li>
-        <li class="breadcrumb-item active">{% trans "Details" %}</li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block page_header %}
-<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-    <h1 class="h2"><i class="fas fa-lightbulb text-primary me-2"></i><span id="competencyName">{% trans "Competency Details" %}</span></h1>
-    {% if user.is_admin %}
-    <div>
-        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCompetencyModal">
-            <i class="fas fa-edit me-1"></i> {% trans "Edit" %}
-        </button>
-        <button class="btn btn-outline-danger" id="deleteBtn">
-            <i class="fas fa-trash me-1"></i> {% trans "Delete" %}
-        </button>
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-10 top-10 h-52 w-52 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-16 bottom-0 h-40 w-40 rounded-full bg-indigo-300 blur-3xl"></div>
     </div>
-    {% endif %}
+    <div class="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "Competency Library" %}</p>
+            <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+                <i class="fas fa-lightbulb mr-3"></i>{% trans "Competency Details" %}
+            </h1>
+            <p class="mt-3 text-sm text-white/80">{% trans "Explore requirements, related positions, and proficiency trends." %}</p>
+        </div>
+        <div class="flex gap-3 text-sm font-semibold">
+            <a href="{% url 'competencies:competency-list' %}" class="inline-flex items-center rounded-full bg-white/15 px-4 py-2 text-white/90 backdrop-blur transition hover:bg-white/25">
+                <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to list" %}
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Competency Information -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "Competency Information" %}</h5>
-            </div>
-            <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-3">{% trans "Name" %}:</dt>
-                    <dd class="col-sm-9" id="detailName">-</dd>
-
-                    <dt class="col-sm-3">{% trans "Description" %}:</dt>
-                    <dd class="col-sm-9" id="detailDescription">-</dd>
-
-                    <dt class="col-sm-3">{% trans "Status" %}:</dt>
-                    <dd class="col-sm-9" id="detailStatus">-</dd>
-
-                    <dt class="col-sm-3">{% trans "Created" %}:</dt>
-                    <dd class="col-sm-9" id="detailCreated">-</dd>
-
-                    <dt class="col-sm-3">{% trans "Last Updated" %}:</dt>
-                    <dd class="col-sm-9" id="detailUpdated">-</dd>
-                </dl>
-            </div>
-        </div>
-
-        <!-- Positions Using This Competency -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "Positions Requiring This Competency" %}</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Position" %}</th>
-                                <th>{% trans "Department" %}</th>
-                                <th>{% trans "Weight" %}</th>
-                                <th>{% trans "Required Level" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="positionsTableBody">
-                            <tr>
-                                <td colspan="4" class="text-center">
-                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                        <span class="visually-hidden">{% trans "Loading..." %}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+<div class="space-y-8" x-data="competencyDetailPage({ id: {{ competency_id }} })" x-init="init()">
+    <div x-show="loading" class="grid grid-cols-1 gap-6 lg:grid-cols-3" role="status">
+        <template x-for="n in 3" :key="`detail-skeleton-${n}`">
+            <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/70">
+                <div class="space-y-4 animate-pulse">
+                    <div class="h-5 w-1/2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="h-4 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="h-4 w-2/3 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="h-10 w-full rounded-2xl bg-gray-200 dark:bg-gray-700"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- Users with This Skill -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "Users with This Skill" %}</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>{% trans "User" %}</th>
-                                <th>{% trans "Level" %}</th>
-                                <th>{% trans "Score" %}</th>
-                                <th>{% trans "Status" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <tr>
-                                <td colspan="4" class="text-center">
-                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                        <span class="visually-hidden">{% trans "Loading..." %}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        </template>
     </div>
 
-    <!-- Statistics Sidebar -->
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "Statistics" %}</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3 text-center">
-                    <h3 class="text-primary mb-0" id="statPositions">0</h3>
-                    <p class="text-muted mb-0">{% trans "Positions" %}</p>
-                </div>
-                <hr>
-                <div class="mb-3 text-center">
-                    <h3 class="text-success mb-0" id="statUsers">0</h3>
-                    <p class="text-muted mb-0">{% trans "Users with Skill" %}</p>
-                </div>
-                <hr>
-                <div class="text-center">
-                    <h3 class="text-info mb-0" id="statAvgScore">0</h3>
-                    <p class="text-muted mb-0">{% trans "Average Score" %}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Skill Level Distribution Chart -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">{% trans "Skill Level Distribution" %}</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="levelDistributionChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Competency Modal -->
-{% if user.is_admin %}
-<div class="modal fade" id="editCompetencyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{% trans "Edit Competency" %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editCompetencyForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">{% trans "Name" %} *</label>
-                        <input type="text" class="form-control" name="name" id="editName" required>
+    <div x-show="!loading" x-transition.opacity style="display:none;" class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 space-y-6">
+            <section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.4em] text-gray-500 dark:text-gray-400">{% trans "Overview" %}</p>
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white" x-text="competency?.name">{% trans "Competency" %}</h2>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">{% trans "Description" %}</label>
-                        <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_active" id="editIsActive">
-                            <label class="form-check-label" for="editIsActive">
-                                {% trans "Active" %}
-                            </label>
+                    <span class="inline-flex items-center rounded-full px-4 py-1 text-xs font-semibold" :class="competency?.is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300'">
+                        <i class="fas" :class="competency?.is_active ? 'fa-check mr-2' : 'fa-pause mr-2'"></i>
+                        <span x-text="competency?.is_active ? '{% trans "Active" %}' : '{% trans "Inactive" %}'">{% trans "Status" %}</span>
+                    </span>
+                </header>
+                <div class="mt-4 space-y-4 text-sm text-gray-600 dark:text-gray-300">
+                    <p x-text="competency?.description || '{% trans "No description provided yet." %}'"></p>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="rounded-2xl bg-gray-50 p-4 dark:bg-gray-800/70">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{% trans "Created" %}</p>
+                            <p class="mt-1 font-medium text-gray-900 dark:text-white" x-text="formatDate(competency?.created_at)">-</p>
+                        </div>
+                        <div class="rounded-2xl bg-gray-50 p-4 dark:bg-gray-800/70">
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{% trans "Last Updated" %}</p>
+                            <p class="mt-1 font-medium text-gray-900 dark:text-white" x-text="formatDate(competency?.updated_at)">-</p>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-                    <button type="submit" class="btn btn-primary">{% trans "Save Changes" %}</button>
+            </section>
+
+            <section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <header class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">{% trans "Positions" %}</p>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{% trans "Roles depending on this competency" %}</h3>
+                    </div>
+                </header>
+                <div class="mt-5 overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700/60">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800/80 text-left text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                            <tr>
+                                <th class="px-4 py-3">{% trans "Position" %}</th>
+                                <th class="px-4 py-3">{% trans "Department" %}</th>
+                                <th class="px-4 py-3">{% trans "Weight" %}</th>
+                                <th class="px-4 py-3">{% trans "Required Level" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positionsTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <template x-if="positions.length === 0">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-6 text-center text-xs text-gray-500 dark:text-gray-400">{% trans "No linked positions yet." %}</td>
+                                </tr>
+                            </template>
+                            <template x-for="position in positions" :key="position.id">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="position.position_name"></td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="position.department_name || '-' "></td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="position.weight ? position.weight + '%' : '-' "></td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-200" x-text="position.required_level_name || position.required_level || '-' "></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
                 </div>
-            </form>
+            </section>
+
+            <section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <header class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">{% trans "People" %}</p>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{% trans "Users practicing this competency" %}</h3>
+                    </div>
+                </header>
+                <div class="mt-5 overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700/60">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800/80 text-left text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                            <tr>
+                                <th class="px-4 py-3">{% trans "User" %}</th>
+                                <th class="px-4 py-3">{% trans "Level" %}</th>
+                                <th class="px-4 py-3">{% trans "Score" %}</th>
+                                <th class="px-4 py-3">{% trans "Status" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <template x-if="users.length === 0">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-6 text-center text-xs text-gray-500 dark:text-gray-400">{% trans "No user skills recorded yet." %}</td>
+                                </tr>
+                            </template>
+                            <template x-for="user in users" :key="user.id">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="user.user_full_name || '-' "></td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="user.level_name || '-' "></td>
+                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-300" x-text="user.current_score ?? '-' "></td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" :class="approvalBadge(user.approval_status)" x-text="approvalLabel(user.approval_status)"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
+
+        <aside class="space-y-6">
+            <section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Snapshot" %}</h3>
+                <div class="mt-5 space-y-4">
+                    <div class="rounded-2xl bg-indigo-50/80 p-4 dark:bg-indigo-500/10 dark:text-indigo-100">
+                        <p class="text-xs uppercase tracking-widest text-indigo-600 dark:text-indigo-200">{% trans "Positions" %}</p>
+                        <p class="mt-2 text-2xl font-semibold text-indigo-700 dark:text-indigo-100" x-text="formatNumber(stats.positions)">0</p>
+                        <p class="mt-1 text-xs text-indigo-500 dark:text-indigo-200/80">{% trans "Roles referencing this competency" %}</p>
+                    </div>
+                    <div class="rounded-2xl bg-purple-50/80 p-4 dark:bg-purple-500/10 dark:text-purple-100">
+                        <p class="text-xs uppercase tracking-widest text-purple-600 dark:text-purple-200">{% trans "Professionals" %}</p>
+                        <p class="mt-2 text-2xl font-semibold text-purple-700 dark:text-purple-100" x-text="formatNumber(stats.users)">0</p>
+                        <p class="mt-1 text-xs text-purple-500 dark:text-purple-200/80">{% trans "Active skill holders" %}</p>
+                    </div>
+                    <div class="rounded-2xl bg-emerald-50/80 p-4 dark:bg-emerald-500/10 dark:text-emerald-100">
+                        <p class="text-xs uppercase tracking-widest text-emerald-600 dark:text-emerald-200">{% trans "Average Score" %}</p>
+                        <p class="mt-2 text-2xl font-semibold text-emerald-700 dark:text-emerald-100" x-text="stats.averageScore ? stats.averageScore.toFixed(1) : '{% trans "N/A" %}'">{% trans "N/A" %}</p>
+                        <p class="mt-1 text-xs text-emerald-500 dark:text-emerald-200/80">{% trans "Across approved assessments" %}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Proficiency Distribution" %}</h3>
+                <canvas id="levelDistributionChart" class="mt-4 h-60 w-full"></canvas>
+            </section>
+        </aside>
     </div>
 </div>
-{% endif %}
-
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-$(document).ready(function() {
-    const competencyId = window.location.pathname.split('/').filter(x => x).pop();
-    let chartInstance = null;
-
-    // Load competency details
-    function loadCompetencyDetails() {
-        $.ajax({
-            url: '/api/competencies/api/competencies/' + competencyId + '/',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            success: function(data) {
-                // Update page title and details
-                $('#competencyName').text(data.name);
-                $('#detailName').text(data.name);
-                $('#detailDescription').text(data.description || '{% trans "No description" %}');
-
-                const statusBadge = data.is_active
-                    ? '<span class="badge bg-success">{% trans "Active" %}</span>'
-                    : '<span class="badge bg-secondary">{% trans "Inactive" %}</span>';
-                $('#detailStatus').html(statusBadge);
-
-                $('#detailCreated').text(new Date(data.created_at).toLocaleDateString());
-                $('#detailUpdated').text(new Date(data.updated_at).toLocaleDateString());
-
-                // Update edit form
-                $('#editName').val(data.name);
-                $('#editDescription').val(data.description);
-                $('#editIsActive').prop('checked', data.is_active);
-
-                // Update statistics
-                $('#statPositions').text(data.active_positions_count || 0);
-                $('#statUsers').text(data.total_users_with_skill || 0);
-            },
-            error: function(xhr) {
-                console.error('Error loading competency:', xhr);
-                alert('{% trans "Error loading competency details" %}');
+function competencyDetailPage({ id }) {
+    return {
+        loading: true,
+        competency: null,
+        positions: [],
+        users: [],
+        stats: { positions: 0, users: 0, averageScore: 0 },
+        chartInstance: null,
+        formatter: new Intl.NumberFormat('az-AZ'),
+        init() {
+            this.fetchAll();
+        },
+        formatNumber(value) {
+            return this.formatter.format(value || 0);
+        },
+        formatDate(value) {
+            if (!value) {
+                return '-';
             }
-        });
-    }
-
-    // Load positions
-    function loadPositions() {
-        $.ajax({
-            url: '/api/competencies/api/position-competencies/?competency=' + competencyId,
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            success: function(data) {
-                let html = '';
-                if (data.results && data.results.length === 0) {
-                    html = '<tr><td colspan="4" class="text-center">{% trans "No positions found" %}</td></tr>';
-                } else {
-                    data.results.forEach(pc => {
-                        html += `
-                            <tr>
-                                <td>${pc.position_name || '-'}</td>
-                                <td>${pc.department_name || '-'}</td>
-                                <td><span class="badge bg-info">${pc.weight}%</span></td>
-                                <td>${pc.required_level_name || '-'}</td>
-                            </tr>
-                        `;
-                    });
+            const date = new Date(value);
+            return isNaN(date.getTime()) ? '-' : date.toLocaleDateString();
+        },
+        approvalLabel(status) {
+            const labels = {
+                approved: '{% trans "Approved" %}',
+                pending: '{% trans "Pending" %}',
+                rejected: '{% trans "Rejected" %}',
+                in_review: '{% trans "In Review" %}'
+            };
+            return labels[status] || status || '{% trans "Unknown" %}';
+        },
+        approvalBadge(status) {
+            switch (status) {
+                case 'approved':
+                    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200';
+                case 'rejected':
+                    return 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-200';
+                case 'in_review':
+                    return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-200';
+                default:
+                    return 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-200';
+            }
+        },
+        authHeaders() {
+            const token = window.localStorage ? localStorage.getItem('access_token') : null;
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        },
+        async fetchAll() {
+            await Promise.all([
+                this.fetchCompetency(),
+                this.fetchPositions(),
+                this.fetchUsers()
+            ]);
+            this.loading = false;
+        },
+        async fetchCompetency() {
+            try {
+                const response = await fetch(`/api/competencies/api/competencies/${id}/`, { headers: this.authHeaders() });
+                if (response.ok) {
+                    this.competency = await response.json();
                 }
-                $('#positionsTableBody').html(html);
-            },
-            error: function(xhr) {
-                $('#positionsTableBody').html(
-                    '<tr><td colspan="4" class="text-center text-danger">{% trans "Error loading positions" %}</td></tr>'
-                );
+            } catch (error) {
+                console.error('Failed to load competency', error);
             }
-        });
-    }
-
-    // Load users with this skill
-    function loadUsers() {
-        $.ajax({
-            url: '/api/competencies/api/user-skills/?competency=' + competencyId,
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-            },
-            success: function(data) {
-                let html = '';
-                let totalScore = 0;
-                let scoreCount = 0;
-                const levelCounts = {};
-
-                if (data.results && data.results.length === 0) {
-                    html = '<tr><td colspan="4" class="text-center">{% trans "No users found" %}</td></tr>';
-                } else {
-                    data.results.forEach(skill => {
-                        const statusBadge = skill.approval_status === 'approved'
-                            ? 'bg-success'
-                            : skill.approval_status === 'pending'
-                            ? 'bg-warning'
-                            : 'bg-danger';
-
-                        html += `
-                            <tr>
-                                <td>${skill.user_full_name || '-'}</td>
-                                <td>${skill.level_name || '-'}</td>
-                                <td>${skill.current_score || '-'}</td>
-                                <td><span class="badge ${statusBadge}">${skill.approval_status}</span></td>
-                            </tr>
-                        `;
-
-                        if (skill.current_score) {
-                            totalScore += parseFloat(skill.current_score);
-                            scoreCount++;
-                        }
-
-                        // Count levels for chart
-                        const levelName = skill.level_name || 'Unknown';
-                        levelCounts[levelName] = (levelCounts[levelName] || 0) + 1;
-                    });
-
-                    // Update average score
-                    const avgScore = scoreCount > 0 ? (totalScore / scoreCount).toFixed(1) : 0;
-                    $('#statAvgScore').text(avgScore);
-
-                    // Render chart
-                    renderLevelDistributionChart(levelCounts);
+        },
+        async fetchPositions() {
+            try {
+                const response = await fetch(`/api/competencies/api/position-competencies/?competency=${id}`, { headers: this.authHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    this.positions = data.results || data || [];
+                    this.stats.positions = this.positions.length;
                 }
-                $('#usersTableBody').html(html);
-            },
-            error: function(xhr) {
-                $('#usersTableBody').html(
-                    '<tr><td colspan="4" class="text-center text-danger">{% trans "Error loading users" %}</td></tr>'
-                );
+            } catch (error) {
+                console.error('Failed to load positions', error);
             }
-        });
-    }
-
-    // Render level distribution chart
-    function renderLevelDistributionChart(levelCounts) {
-        const ctx = document.getElementById('levelDistributionChart');
-
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(levelCounts),
-                datasets: [{
-                    data: Object.values(levelCounts),
-                    backgroundColor: [
-                        '#4e73df',
-                        '#1cc88a',
-                        '#36b9cc',
-                        '#f6c23e',
-                        '#e74a3b'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+        },
+        async fetchUsers() {
+            try {
+                const response = await fetch(`/api/competencies/api/user-skills/?competency=${id}`, { headers: this.authHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    this.users = data.results || data || [];
+                    this.stats.users = this.users.length;
+                    this.calculateAverageAndChart();
+                }
+            } catch (error) {
+                console.error('Failed to load user skills', error);
+            }
+        },
+        calculateAverageAndChart() {
+            if (!Array.isArray(this.users) || this.users.length === 0) {
+                this.stats.averageScore = 0;
+                this.renderChart({});
+                return;
+            }
+            let total = 0;
+            let count = 0;
+            const levelCounts = {};
+            this.users.forEach((user) => {
+                if (user.current_score) {
+                    const score = parseFloat(user.current_score);
+                    if (!isNaN(score)) {
+                        total += score;
+                        count += 1;
                     }
                 }
+                const levelName = user.level_name || '{% trans "Unknown" %}';
+                levelCounts[levelName] = (levelCounts[levelName] || 0) + 1;
+            });
+            this.stats.averageScore = count > 0 ? total / count : 0;
+            this.renderChart(levelCounts);
+        },
+        renderChart(levelCounts) {
+            const canvas = document.getElementById('levelDistributionChart');
+            if (!canvas) {
+                return;
             }
-        });
-    }
-
-    // Handle edit form submission
-    $('#editCompetencyForm').submit(function(e) {
-        e.preventDefault();
-
-        const formData = {
-            name: $('#editName').val(),
-            description: $('#editDescription').val(),
-            is_active: $('#editIsActive').is(':checked')
-        };
-
-        $.ajax({
-            url: '/api/competencies/api/competencies/' + competencyId + '/',
-            method: 'PUT',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify(formData),
-            success: function() {
-                $('#editCompetencyModal').modal('hide');
-                loadCompetencyDetails();
-                alert('{% trans "Competency updated successfully" %}');
-            },
-            error: function(xhr) {
-                alert('{% trans "Error updating competency" %}');
+            const labels = Object.keys(levelCounts);
+            const values = Object.values(levelCounts);
+            if (this.chartInstance) {
+                this.chartInstance.destroy();
             }
-        });
-    });
-
-    // Handle delete button
-    $('#deleteBtn').click(function() {
-        if (confirm('{% trans "Are you sure you want to delete this competency?" %}')) {
-            $.ajax({
-                url: '/api/competencies/api/competencies/' + competencyId + '/',
-                method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            this.chartInstance = new Chart(canvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#312e81', '#6366f1', '#a855f7', '#22d3ee', '#f97316']
+                    }]
                 },
-                success: function() {
-                    alert('{% trans "Competency deleted successfully" %}');
-                    window.location.href = '{% url "competencies:competency-list" %}';
-                },
-                error: function(xhr) {
-                    alert('{% trans "Error deleting competency" %}');
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 16
+                            }
+                        }
+                    }
                 }
             });
         }
-    });
+    };
+}
 
-    // Initial load
-    loadCompetencyDetails();
-    loadPositions();
-    loadUsers();
+document.addEventListener('alpine:init', () => {
+    Alpine.data('competencyDetailPage', competencyDetailPage);
 });
 </script>
 {% endblock %}

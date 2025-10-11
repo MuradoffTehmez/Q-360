@@ -103,6 +103,8 @@ class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):
         }),
     )
 
+    actions = ['activate_users', 'deactivate_users', 'reset_passwords']
+    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -113,6 +115,48 @@ class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):
             ),
         }),
     )
+
+    def activate_users(self, request, queryset):
+        """Bulk activate selected users."""
+        updated = queryset.update(is_active=True)
+        self.message_user(
+            request,
+            f'{updated} istifadəçi aktivləşdirildi.',
+            level='SUCCESS'
+        )
+    activate_users.short_description = 'Seçilmiş istifadəçiləri aktiv et'
+
+    def deactivate_users(self, request, queryset):
+        """Bulk deactivate selected users."""
+        updated = queryset.update(is_active=False)
+        self.message_user(
+            request,
+            f'{updated} istifadəçi deaktiv edildi.',
+            level='WARNING'
+        )
+    deactivate_users.short_description = 'Seçilmiş istifadəçiləri deaktiv et'
+
+    def reset_passwords(self, request, queryset):
+        """Bulk reset passwords for selected users."""
+        from django.contrib.auth.hashers import make_password
+        import secrets
+        import string
+        
+        # Generate a temporary password for each user
+        for user in queryset:
+            # Create a random temporary password
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            user.password = make_password(temp_password)
+            user.save()
+            
+            # Here you would normally send the password via email
+            # For now, we'll just log it in the admin message
+            self.message_user(
+                request,
+                f'İstifadəçilər üçün şifrələr sıfırlandı. Hər istifadəçiyə yeni şifrə e-poçt vasitəsilə göndərilməlidir.',
+                level='INFO'
+            )
+    reset_passwords.short_description = 'Seçilmiş istifadəçilərin şifrələrini sıfırla'
 
     def full_name_with_badge(self, obj):
         """Display full name with superuser badge."""

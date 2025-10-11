@@ -1,0 +1,45 @@
+<!-- Skeleton loader for cards -->
+{% if element_type == 'card' %}
+<div class="animate-pulse">
+    <div class="h-4 w-3/4 rounded-full bg-gray-200 dark:bg-gray-700 mb-3"></div>
+    <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700 mb-2"></div>
+    <div class="h-3 w-2/3 rounded-full bg-gray-200 dark:bg-gray-700 mb-3"></div>
+    <div class="h-10 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+</div>
+{% elif element_type == 'table-row' %}
+<tr class="animate-pulse">
+    <td class="px-4 py-4 whitespace-nowrap">
+        <div class="h-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </td>
+    <td class="px-4 py-4 whitespace-nowrap">
+        <div class="h-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </td>
+    <td class="px-4 py-4 whitespace-nowrap">
+        <div class="h-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </td>
+    <td class="px-4 py-4 whitespace-nowrap">
+        <div class="h-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </td>
+</tr>
+{% elif element_type == 'list-item' %}
+<div class="animate-pulse flex items-center gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div class="flex-1 space-y-2">
+        <div class="h-4 w-3/4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        <div class="h-3 w-1/2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    </div>
+</div>
+{% elif element_type == 'avatar' %}
+<div class="animate-pulse flex items-center gap-3">
+    <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div class="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+</div>
+{% else %}
+<!-- Default skeleton - card-like -->
+<div class="animate-pulse space-y-4">
+    <div class="h-4 w-3/4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div class="h-3 w-2/3 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+    <div class="h-8 w-full rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+</div>
+{% endif %}

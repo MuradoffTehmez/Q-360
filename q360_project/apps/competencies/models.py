@@ -47,6 +47,7 @@ class Competency(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['is_active']),
+            models.Index(fields=['name', 'is_active']),  # For combined filtering
         ]
 
     def __str__(self):
@@ -122,6 +123,7 @@ class ProficiencyLevel(models.Model):
         ordering = ['score_min']
         indexes = [
             models.Index(fields=['name']),
+            models.Index(fields=['score_min', 'score_max']),  # For range queries
         ]
 
     def __str__(self):
@@ -308,6 +310,8 @@ class UserSkill(models.Model):
             models.Index(fields=['user', 'is_approved']),
             models.Index(fields=['competency', 'level']),
             models.Index(fields=['approval_status']),
+            models.Index(fields=['user', 'competency', 'is_approved']),  # For combined filtering
+            models.Index(fields=['current_score']),  # For score-based queries
         ]
 
     def __str__(self):

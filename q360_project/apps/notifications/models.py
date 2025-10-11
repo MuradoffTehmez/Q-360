@@ -30,6 +30,39 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
+    
+    def save(self, *args, **kwargs):
+        # Call the original save method
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        
+        # If this is a new notification, send it via WebSocket
+        if is_new:
+            self.send_real_time_notification()
+    
+    def send_real_time_notification(self):
+        """Send this notification via WebSocket to the user"""
+        from .services import send_notification_to_user
+        
+        send_notification_to_user(
+            user_id=self.user.id,
+            title=self.title,
+            message=self.message,
+            notification_type=self.notification_type
+        )
+    
+    def mark_as_read(self):
+        """Mark notification as read and update read_at timestamp"""
+        self.is_read = True
+        self.read_at = self._current_timestamp()
+        self.save(update_fields=['is_read', 'read_at'])
+        
+        return self
+    
+    def _current_timestamp(self):
+        """Get current timestamp (helper method)"""
+        from django.utils import timezone
+        return timezone.now()
 
 
 class EmailTemplate(models.Model):
