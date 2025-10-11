@@ -1,182 +1,200 @@
 {% load static %}
 {% load i18n %}
-<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-    <div class="position-sticky pt-3">
-        <!-- User Info -->
-        <div class="user-info p-3 border-bottom">
-            <div class="d-flex align-items-center">
+<!-- Sidebar for authenticated users -->
+<aside class="w-64 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 hidden md:block overflow-y-auto" x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0">
+    <div class="flex flex-col h-full">
+        <!-- User Info Card -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-3">
                 {% if user.profile_picture %}
-                    <img src="{{ user.profile_picture.url }}" class="rounded-circle me-2" width="48" height="48" alt="Profile">
+                    <img src="{{ user.profile_picture.url }}" class="w-12 h-12 rounded-full ring-2 ring-blue-500 dark:ring-blue-400" alt="Profile">
                 {% else %}
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 48px; height: 48px;">
-                        <span class="fs-5">{{ user.first_name.0|default:user.username.0 }}</span>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg">
+                        {{ user.first_name.0|default:user.username.0 }}
                     </div>
                 {% endif %}
-                <div>
-                    <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
-                    <small class="text-muted">{{ user.get_role_display }}</small>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        {{ user.get_full_name|default:user.username }}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {{ user.get_role_display }}
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Links -->
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'dashboard' %}">
-                    <i class="fas fa-home me-2"></i> {% trans "Home" %}
-                </a>
-            </li>
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <!-- Home -->
+            <a href="{% url 'dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {% if request.path == '/' %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400{% else %}text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
+                <i class="fas fa-home w-5 mr-3"></i>
+                <span>{% trans "Home" %}</span>
+            </a>
 
             <!-- Evaluations Section -->
-            <li class="nav-item">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>{% trans "Evaluations" %}</span>
-                </h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'evaluations:my-assignments' %}">
-                    <i class="fas fa-tasks me-2"></i> {% trans "My Assignments" %}
-                    <span class="badge bg-danger ms-auto" id="pendingAssignmentsCount">0</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'evaluations:campaign-list' %}">
-                    <i class="fas fa-calendar-alt me-2"></i> {% trans "Campaigns" %}
-                </a>
-            </li>
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Evaluations" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'evaluations:my-assignments' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <div class="flex items-center">
+                    <i class="fas fa-tasks w-5 mr-3"></i>
+                    <span>{% trans "My Assignments" %}</span>
+                </div>
+                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full" id="pendingAssignmentsCount">0</span>
+            </a>
+
+            <a href="{% url 'evaluations:campaign-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-calendar-alt w-5 mr-3"></i>
+                <span>{% trans "Campaigns" %}</span>
+            </a>
 
             <!-- Reports Section -->
-            <li class="nav-item">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>{% trans "Reports" %}</span>
-                </h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'reports:my-reports' %}">
-                    <i class="fas fa-chart-line me-2"></i> {% trans "My Reports" %}
-                </a>
-            </li>
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Reports" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'reports:my-reports' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-chart-line w-5 mr-3"></i>
+                <span>{% trans "My Reports" %}</span>
+            </a>
+
             {% if user.is_manager %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'reports:team-reports' %}">
-                        <i class="fas fa-users me-2"></i> {% trans "Team Reports" %}
-                    </a>
-                </li>
+            <a href="{% url 'reports:team-reports' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-users w-5 mr-3"></i>
+                <span>{% trans "Team Reports" %}</span>
+            </a>
             {% endif %}
+
+            <!-- Skills & Training Section -->
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Skills & Training" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'competencies:my-skills' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-star w-5 mr-3 text-yellow-500"></i>
+                <span>{% trans "My Skills" %}</span>
+            </a>
+
+            <a href="{% url 'competencies:competency-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-lightbulb w-5 mr-3 text-purple-500"></i>
+                <span>{% trans "Competencies" %}</span>
+            </a>
+
+            <a href="{% url 'training:my-trainings' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-graduation-cap w-5 mr-3 text-green-500"></i>
+                <span>{% trans "My Trainings" %}</span>
+            </a>
+
+            <a href="{% url 'training:catalog' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-book w-5 mr-3 text-indigo-500"></i>
+                <span>{% trans "Training Catalog" %}</span>
+            </a>
+
+            <!-- Development Section -->
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Development" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'development-plans:my-goals' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-bullseye w-5 mr-3 text-red-500"></i>
+                <span>{% trans "My Goals" %}</span>
+            </a>
 
             <!-- Notifications Section -->
-            <li class="nav-item">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>{% trans "Notifications" %}</span>
-                </h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'notifications:inbox' %}">
-                    <i class="fas fa-inbox me-2"></i> {% trans "Inbox" %}
-                    <span class="badge bg-primary ms-auto" id="unreadNotificationsCount">0</span>
-                </a>
-            </li>
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Notifications" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'notifications:inbox' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <div class="flex items-center">
+                    <i class="fas fa-inbox w-5 mr-3"></i>
+                    <span>{% trans "Inbox" %}</span>
+                </div>
+                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-500 rounded-full" id="unreadNotificationsCount">0</span>
+            </a>
+
             {% if user.is_admin %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'notifications:email-templates' %}">
-                        <i class="fas fa-file-alt me-2"></i> {% trans "Templates" %}
-                    </a>
-                </li>
+            <a href="{% url 'notifications:email-templates' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-file-alt w-5 mr-3"></i>
+                <span>{% trans "Templates" %}</span>
+            </a>
             {% endif %}
-
-            <!-- Development Plans -->
-            <li class="nav-item">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>{% trans "Development" %}</span>
-                </h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'development-plans:my-goals' %}">
-                    <i class="fas fa-bullseye me-2"></i> {% trans "My Goals" %}
-                </a>
-            </li>
-
-            <!-- Competencies & Training Section -->
-            <li class="nav-item">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>{% trans "Skills & Training" %}</span>
-                </h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'competencies:my-skills' %}">
-                    <i class="fas fa-star me-2"></i> {% trans "My Skills" %}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'competencies:competency-list' %}">
-                    <i class="fas fa-lightbulb me-2"></i> {% trans "Competencies" %}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'training:my-trainings' %}">
-                    <i class="fas fa-graduation-cap me-2"></i> {% trans "My Trainings" %}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'training:catalog' %}">
-                    <i class="fas fa-book me-2"></i> {% trans "Training Catalog" %}
-                </a>
-            </li>
 
             <!-- Admin Section -->
             {% if user.is_admin %}
-                <li class="nav-item">
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>{% trans "Management" %}</span>
-                    </h6>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:user-list' %}">
-                        <i class="fas fa-users me-2"></i> {% trans "Users" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'departments:department-list' %}">
-                        <i class="fas fa-building me-2"></i> {% trans "Departments" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'evaluations:question-list' %}">
-                        <i class="fas fa-question-circle me-2"></i> {% trans "Questions" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'competencies:competency-manage' %}">
-                        <i class="fas fa-cogs me-2"></i> {% trans "Manage Competencies" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'training:training-manage' %}">
-                        <i class="fas fa-chalkboard-teacher me-2"></i> {% trans "Manage Trainings" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'audit:security-dashboard' %}">
-                        <i class="fas fa-shield-alt me-2"></i> {% trans "Security Dashboard" %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/">
-                        <i class="fas fa-tools me-2"></i> {% trans "Admin Panel" %}
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Management" %}
+                </h3>
+            </div>
 
-        <!-- Bottom Links -->
-        <div class="position-absolute bottom-0 w-100 p-3 border-top bg-white">
-            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
-                <i class="fas fa-user me-1"></i> {% trans "Profile" %}
+            <a href="{% url 'accounts:user-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-users w-5 mr-3"></i>
+                <span>{% trans "Users" %}</span>
             </a>
-            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                <i class="fas fa-cog me-1"></i> {% trans "Settings" %}
+
+            <a href="{% url 'departments:department-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-building w-5 mr-3"></i>
+                <span>{% trans "Departments" %}</span>
             </a>
-            <small class="text-muted d-block text-center mt-2">{% trans "Version" %} 1.0.0</small>
+
+            <a href="{% url 'evaluations:question-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-question-circle w-5 mr-3"></i>
+                <span>{% trans "Questions" %}</span>
+            </a>
+
+            <a href="{% url 'competencies:competency-manage' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-cogs w-5 mr-3"></i>
+                <span>{% trans "Manage Competencies" %}</span>
+            </a>
+
+            <a href="{% url 'training:training-manage' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-chalkboard-teacher w-5 mr-3"></i>
+                <span>{% trans "Manage Trainings" %}</span>
+            </a>
+
+            <a href="{% url 'audit:security-dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-shield-alt w-5 mr-3 text-red-500"></i>
+                <span>{% trans "Security Dashboard" %}</span>
+            </a>
+
+            <a href="/admin/" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-tools w-5 mr-3"></i>
+                <span>{% trans "Admin Panel" %}</span>
+            </a>
+            {% endif %}
+        </nav>
+
+        <!-- Bottom Section -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <a href="{% url 'accounts:profile' %}" class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200">
+                <i class="fas fa-user mr-2"></i>
+                {% trans "Profile" %}
+            </a>
+            <a href="{% url 'accounts:settings' %}" class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200">
+                <i class="fas fa-cog mr-2"></i>
+                {% trans "Settings" %}
+            </a>
+            <p class="text-xs text-center text-gray-500 dark:text-gray-400 pt-2">
+                {% trans "Version" %} 1.0.0
+            </p>
         </div>
     </div>
-</nav>
+</aside>
+
+<!-- Sidebar Toggle Button (Mobile) -->
+<button @click="sidebarOpen = !sidebarOpen" class="md:hidden fixed bottom-4 right-4 z-50 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200">
+    <i class="fas fa-bars text-xl"></i>
+</button>
