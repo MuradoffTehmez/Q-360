@@ -5,7 +5,7 @@
 
 echo "========================================="
 echo "Q360 - 360° Qiymətləndirmə Sistemi Tahmaz Mueadov"
-echo "Quick Start Script v1.0"
+echo "Quick Start Script v1.0 by Claude Code"
 echo "========================================="
 echo ""
 
