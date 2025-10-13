@@ -4,8 +4,8 @@
 # This script helps you quickly set up and run the Q360 Evaluation System
 
 echo "========================================="
-echo "Q360 - 360° Qiymətləndirmə Sistemi"
-echo "Quick Start Script"
+echo "Q360 - 360° Qiymətləndirmə Sistemi Tahmaz Mueadov"
+echo "Quick Start Script v1.0"
 echo "========================================="
 echo ""
 
