@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'apps.competencies',
     'apps.training',
     'apps.search',
+    'apps.workforce_planning',
+    'apps.continuous_feedback',
 ]
 
 MIDDLEWARE = [
