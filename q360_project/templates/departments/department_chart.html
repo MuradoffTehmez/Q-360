@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Organization Chart" %} - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .org-chart {
+        overflow-x: auto;
+        padding: 20px;
+    }
+
+    .chart-container {
+        min-width: 1000px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .department-node {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 10px;
+        min-width: 200px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .dark .department-node {
+        background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
+    }
+
+    .department-node:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .department-node h5 {
+        color: white;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .department-node .info {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.85rem;
+    }
+
+    .children-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 30px;
+        gap: 20px;
+    }
+
+    .connector {
+        width: 2px;
+        height: 30px;
+        background: linear-gradient(to bottom, #667eea, #764ba2);
+        margin: 0 auto;
+    }
+
+    .dark .connector {
+        background: linear-gradient(to bottom, #4c51bf, #553c9a);
+    }
+
+    .horizontal-connectors {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 30px;
+    }
+
+    .horizontal-line {
+        height: 2px;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        flex: 1;
+    }
+
+    .dark .horizontal-line {
+        background: linear-gradient(to right, #4c51bf, #553c9a);
+    }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-project-diagram mr-2"></i>
+            {% trans "Organization Chart" %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">{% trans "Visual representation of department structure" %}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'departments:organization-structure' %}" class="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-list mr-2"></i>
+            {% trans "List View" %}
+        </a>
+        <button onclick="window.print()" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-print mr-2"></i>
+            {% trans "Print" %}
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div class="org-chart">
+        <div class="chart-container">
+            {% if root_departments %}
+                {% for department in root_departments %}
+                    {% include 'departments/_department_chart_node.html' with dept=department level=0 %}
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-sitemap text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                    <p class="text-gray-500 dark:text-gray-400">{% trans "No departments found" %}</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">{% trans "Please add departments to see the organization chart" %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Department Info Modal (optional, for future enhancement) -->
+<div id="departmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onclick="this.classList.add('hidden')">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Department Details</h3>
+            <button onclick="document.getElementById('departmentModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="modalContent" class="text-gray-700 dark:text-gray-300">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showDepartmentInfo(deptId, deptName) {
+    // This is a placeholder for future enhancement
+    // You can fetch department details via AJAX and show in modal
+    document.getElementById('modalTitle').textContent = deptName;
+    document.getElementById('modalContent').innerHTML = '<p>Loading department information...</p>';
+    document.getElementById('departmentModal').classList.remove('hidden');
+
+    // Example: Fetch department details
+    // fetch(`/departments/api/${deptId}/`)
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         document.getElementById('modalContent').innerHTML = `
+    //             <p><strong>Manager:</strong> ${data.manager}</p>
+    //             <p><strong>Employees:</strong> ${data.employee_count}</p>
+    //         `;
+    //     });
+}
+</script>
+{% endblock %}

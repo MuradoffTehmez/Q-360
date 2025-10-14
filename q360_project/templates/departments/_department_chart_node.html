@@ -1,0 +1,39 @@
+{% load static %}
+
+<div class="department-level-{{ level|default:0 }}">
+    {% if level > 0 %}
+    <div class="connector"></div>
+    {% endif %}
+
+    <div class="department-node" onclick="showDepartmentInfo({{ dept.id }}, '{{ dept.name|escapejs }}')">
+        <h5>
+            <i class="fas fa-building mr-2"></i>
+            {{ dept.name }}
+        </h5>
+        <div class="info">
+            {% if dept.manager %}
+            <div class="mb-1">
+                <i class="fas fa-user-tie mr-1"></i>
+                <span>{{ dept.manager.get_full_name }}</span>
+            </div>
+            {% endif %}
+            <div>
+                <i class="fas fa-users mr-1"></i>
+                <span>{{ dept.users.count|default:0 }} işçi</span>
+            </div>
+        </div>
+    </div>
+
+    {% with children=dept.get_children %}
+    {% if children %}
+        <div class="connector"></div>
+        <div class="children-container">
+            {% for child in children %}
+                {% if child.is_active %}
+                    {% include 'departments/_department_chart_node.html' with dept=child level=level|add:1 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+</div>

@@ -91,9 +91,11 @@ def my_skills(request):
     # Required competencies for user's position
     required_competencies = []
     if hasattr(request.user, 'position') and request.user.position:
-        required_competencies = PositionCompetency.objects.filter(
-            position=request.user.position
-        ).select_related('competency', 'required_level')
+        # Check if position is a Position object or a string
+        if hasattr(request.user.position, 'id'):
+            required_competencies = PositionCompetency.objects.filter(
+                position=request.user.position
+            ).select_related('competency', 'required_level')
 
     # Skill gap analysis
     skill_gaps = []

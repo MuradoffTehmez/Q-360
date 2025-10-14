@@ -73,7 +73,7 @@ def my_trainings(request):
     # Get user's trainings
     user_trainings = UserTraining.objects.filter(user=request.user).select_related(
         'resource', 'assigned_by'
-    ).prefetch_related('resource__required_competencies').order_by('-enrolled_at')
+    ).prefetch_related('resource__required_competencies').order_by('-created_at')
 
     # Filter by status if provided
     status_filter = request.GET.get('status', '')
