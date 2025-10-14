@@ -51,13 +51,7 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    # API endpoints (must come before template URLs)
-    path('api/notifications/', get_recent_notifications, name='api-notifications'),
-    path('api/competencies/', include(('apps.competencies.urls', 'competencies'), namespace='api-competencies')),
-    path('api/training/', include(('apps.training.urls', 'training'), namespace='api-training')),
-    path('api/audit/', include(('apps.audit.urls', 'audit'), namespace='api-audit')),
-
-    # Template-based app URLs (must come before API URLs to avoid conflicts)
+    # Template-based app URLs (must come FIRST for HTML pages)
     path('evaluations/', include('apps.evaluations.urls', namespace='evaluations')),
     path('departments/', include('apps.departments.urls', namespace='departments')),
     path('reports/', include('apps.reports.urls', namespace='reports')),
@@ -67,6 +61,10 @@ urlpatterns = [
     path('training/', include(('apps.training.urls', 'training'), namespace='training')),
     path('audit/', include(('apps.audit.urls', 'audit'), namespace='audit')),
     path('search/', include(('apps.search.urls', 'search'), namespace='search')),
+
+    # API endpoints (all under /api/ prefix)
+    path('api/notifications/', get_recent_notifications, name='api-notifications'),
+    path('api/', include('config.api_urls')),
 ]
 
 # Serve media files in development

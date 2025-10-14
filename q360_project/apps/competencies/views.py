@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -33,6 +34,7 @@ class CompetencyViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
+    renderer_classes = [JSONRenderer]  # Only JSON, no browsable API
 
     def get_serializer_class(self):
         """Use detailed serializer for retrieve action."""

@@ -117,14 +117,15 @@ def dashboard_view(request):
 
     # Get score distribution by relationship type
     score_distribution = []
-    relationship_types = ['self', 'manager', 'peer', 'subordinate']
+    relationship_types = ['self', 'supervisor', 'peer', 'subordinate']
 
     from apps.evaluations.models import Response
     for rel_type in relationship_types:
         responses = Response.objects.filter(
             assignment__evaluatee=user,
-            assignment__relationship=rel_type
-        ).aggregate(avg=Avg('rating'))
+            assignment__relationship=rel_type,
+            score__isnull=False
+        ).aggregate(avg=Avg('score'))
 
         avg_score = responses['avg'] or 0
         score_distribution.append(round(avg_score, 1) if avg_score else 0)
