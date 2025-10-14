@@ -56,19 +56,22 @@ def register_view(request):
 
 @login_required
 def dashboard_view(request):
-    """Main dashboard view."""
+    """Main dashboard view with complete backend data."""
+    from django.db.models import Avg, Count
+    from datetime import datetime, timedelta
+    import json
     user = request.user
 
-    # Get statistics
+    # Get evaluation statistics
     pending_evaluations = EvaluationAssignment.objects.filter(
         evaluator=user,
         status__in=['pending', 'in_progress']
-    )
+    ).select_related('evaluatee', 'campaign')
 
     completed_evaluations = EvaluationAssignment.objects.filter(
         evaluator=user,
         status='completed'
-    )
+    ).select_related('evaluatee', 'campaign')
 
     active_campaigns = EvaluationCampaign.objects.filter(
         status='active'
@@ -78,28 +81,94 @@ def dashboard_view(request):
     notifications = Notification.objects.filter(
         user=user,
         is_read=False
-    )[:5]
+    ).order_by('-created_at')[:5]
 
-    # Get pending assignments
+    # Get pending assignments (first 5)
     pending_assignments = pending_evaluations[:5]
 
-    # Calculate average score (if available)
+    # Calculate average score from evaluation results
+    from apps.evaluations.models import EvaluationResult
+    user_results = EvaluationResult.objects.filter(
+        evaluatee=user
+    ).order_by('-calculated_at')
+
     average_score = None
-    if hasattr(user, 'evaluation_results') and user.evaluation_results.exists():
-        latest_result = user.evaluation_results.first()
-        average_score = latest_result.overall_score
+    latest_result = user_results.first()
+    if latest_result and latest_result.overall_score:
+        average_score = f"{latest_result.overall_score:.1f}"
+
+    # Get performance trend data (last 6 months)
+    trend_labels = []
+    trend_data = []
+
+    for i in range(5, -1, -1):
+        month_date = datetime.now() - timedelta(days=30 * i)
+        month_name = month_date.strftime('%b')
+        trend_labels.append(month_name)
+
+        # Get average score for that month
+        month_results = user_results.filter(
+            calculated_at__year=month_date.year,
+            calculated_at__month=month_date.month
+        ).aggregate(avg=Avg('overall_score'))
+
+        score = month_results['avg'] or 0
+        trend_data.append(round(score, 1) if score else 0)
+
+    # Get score distribution by relationship type
+    score_distribution = []
+    relationship_types = ['self', 'manager', 'peer', 'subordinate']
+
+    from apps.evaluations.models import Response
+    for rel_type in relationship_types:
+        responses = Response.objects.filter(
+            assignment__evaluatee=user,
+            assignment__relationship=rel_type
+        ).aggregate(avg=Avg('rating'))
+
+        avg_score = responses['avg'] or 0
+        score_distribution.append(round(avg_score, 1) if avg_score else 0)
+
+    # Get skills and training stats
+    from apps.competencies.models import UserSkill
+    from apps.training.models import UserTraining
+
+    total_skills = UserSkill.objects.filter(user=user, is_approved=True).count()
+    total_trainings = UserTraining.objects.filter(user=user).count()
+    in_progress_trainings = UserTraining.objects.filter(
+        user=user,
+        status='in_progress'
+    ).count()
+
+    # Get development goals
+    from apps.development_plans.models import DevelopmentGoal
+    active_goals = DevelopmentGoal.objects.filter(
+        user=user,
+        status='active'
+    ).count()
 
     context = {
+        # Evaluation stats
         'pending_evaluations_count': pending_evaluations.count(),
         'completed_evaluations_count': completed_evaluations.count(),
         'active_campaigns_count': active_campaigns.count(),
         'average_score': average_score,
         'pending_assignments': pending_assignments,
+
+        # Notifications
         'notifications': notifications,
-        'user_stats': True,  # Flag to enable charts
-        'trend_labels': '["Yan", "Fev", "Mar", "Apr", "May"]',
-        'trend_data': '[3.5, 3.8, 4.0, 4.2, 4.3]',
-        'score_distribution': '[4.2, 4.5, 3.8, 4.0]',
+
+        # Charts data
+        'user_stats': bool(user_results.exists()),  # Flag to enable charts
+        'trend_labels': json.dumps(trend_labels),
+        'trend_data': json.dumps(trend_data),
+        'score_distribution': json.dumps(score_distribution),
+
+        # Additional stats
+        'total_skills': total_skills,
+        'total_trainings': total_trainings,
+        'in_progress_trainings': in_progress_trainings,
+        'active_goals': active_goals,
     }
 
     return render(request, 'accounts/dashboard.html', context)
