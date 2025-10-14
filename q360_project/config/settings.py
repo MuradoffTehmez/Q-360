@@ -36,9 +36,9 @@ INSTALLED_APPS = [
     'django_filters',
     'simple_history',
     'mptt',  # Django MPTT for hierarchical data
-    'channels',  # Real-time notifications
-    'csp',  # Content Security Policy
-    'django_ratelimit',  # Rate limiting
+    # 'channels',  # Real-time notifications (commented out - install channels if needed)
+    # 'csp',  # Content Security Policy (commented out - install django-csp if needed)
+    # 'django_ratelimit',  # Rate limiting (commented out - install django-ratelimit if needed)
 
     # Local apps
     'apps.accounts',
@@ -57,8 +57,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files
-    'csp.middleware.CSPMiddleware',  # Content Security Policy
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files (commented out)
+    # 'csp.middleware.CSPMiddleware',  # Content Security Policy (commented out)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # i18n support
     'corsheaders.middleware.CorsMiddleware',
@@ -160,8 +160,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Whitenoise Configuration for Static File Compression
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Whitenoise Configuration for Static File Compression (commented out)
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -220,40 +220,35 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     'http://localhost:3000,http://127.0.0.1:3000'
 ).split(',')
 
-# Redis Cache Configuration
-# Note: Use LocMemCache for development if Redis is not available
-# For production, ensure Redis is running and uncomment the Redis configuration
-# Redis Cache Configuration
-# Note: Use LocMemCache for development if Redis is not available
-# For production, ensure Redis is running and uncomment the Redis configuration
+# Cache Configuration
+# Using LocMemCache for development (Redis is commented out)
+# For production, install django-redis and uncomment the Redis configuration
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'q360-cache',
         'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            # Note: HiredisParser is deprecated in redis-py 5.x
-            # If hiredis is installed, it will be used automatically
-            'CONNECTION_POOL_CLASS_KWARGS': {
-                'max_connections': 50,
-                'retry_on_timeout': True,
-            },
-            'SOCKET_CONNECT_TIMEOUT': 5,
-            'SOCKET_TIMEOUT': 5,
+            'MAX_ENTRIES': 1000,
         },
-        'KEY_PREFIX': 'q360',
         'TIMEOUT': 300,  # 5 minutes default timeout
     }
 }
 
-# Fallback cache for development (if Redis is not available)
+# Redis Cache Configuration (commented out - install django-redis if needed)
 # CACHES = {
 #     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#         'LOCATION': 'q360-cache',
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
 #         'OPTIONS': {
-#             'MAX_ENTRIES': 1000,
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#             'CONNECTION_POOL_CLASS_KWARGS': {
+#                 'max_connections': 50,
+#                 'retry_on_timeout': True,
+#             },
+#             'SOCKET_CONNECT_TIMEOUT': 5,
+#             'SOCKET_TIMEOUT': 5,
 #         },
+#         'KEY_PREFIX': 'q360',
 #         'TIMEOUT': 300,  # 5 minutes default timeout
 #     }
 # }
@@ -492,14 +487,14 @@ JAZZMIN_UI_TWEAKS = {
     }
 }
 
-# Django Channels Configuration
-ASGI_APPLICATION = 'config.asgi.application'
+# Django Channels Configuration (commented out - install channels if needed)
+# ASGI_APPLICATION = 'config.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [os.getenv('REDIS_URL', 'redis://localhost:6379/1')],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             'hosts': [os.getenv('REDIS_URL', 'redis://localhost:6379/1')],
+#         },
+#     },
+# }
