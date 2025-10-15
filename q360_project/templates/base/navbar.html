@@ -42,6 +42,14 @@
 
             <!-- Right side items -->
             <div class="flex items-center space-x-4">
+                <!-- Quick Send Feedback Button -->
+                {% if user.is_authenticated %}
+                <a href="{% url 'feedback:send-feedback' %}" class="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm font-semibold group">
+                    <i class="fas fa-paper-plane mr-2 group-hover:animate-pulse"></i>
+                    <span>{% trans "Send Feedback" %}</span>
+                </a>
+                {% endif %}
+
                 <!-- Dark Mode Toggle -->
                 <button onclick="toggleDarkMode()" class="p-2 text-white hover:bg-white/10 rounded-lg transition-all" title="Toggle Dark Mode">
                     <i class="fas fa-moon dark:hidden text-lg"></i>
@@ -140,6 +148,11 @@
     {% if user.is_authenticated %}
     <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white dark:bg-gray-800 border-t dark:border-gray-700">
         <div class="px-2 pt-2 pb-3 space-y-1">
+            <!-- Quick Send Feedback (Mobile) -->
+            <a href="{% url 'feedback:send-feedback' %}" class="block px-3 py-2 rounded-md text-base font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-center shadow-md mb-3">
+                <i class="fas fa-paper-plane mr-2"></i> {% trans "Send Feedback" %}
+            </a>
+
             <a href="{% url 'dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-home mr-2"></i> {% trans "Home" %}
             </a>

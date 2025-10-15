@@ -132,10 +132,12 @@ class UserListSerializer(serializers.ModelSerializer):
 
     department_name = serializers.CharField(source='department.name', read_only=True)
     full_name = serializers.CharField(source='get_full_name', read_only=True)
+    role_display = serializers.CharField(source='get_role_display', read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'full_name', 'email', 'role',
-            'department_name', 'position', 'is_active'
+            'id', 'username', 'first_name', 'last_name', 'full_name', 'email',
+            'role', 'role_display', 'department_name', 'position',
+            'is_active', 'is_superuser'
         ]

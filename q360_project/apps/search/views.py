@@ -113,12 +113,15 @@ def global_search_view(request):
         results = []
         total_results = 0
     
+    import json
+
     context = {
         'query': query,
         'results': results,
+        'results_json': json.dumps(results) if results else '[]',
         'total_results': total_results,
     }
-    
+
     return render(request, 'search/results.html', context)
 
 

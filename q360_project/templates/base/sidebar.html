@@ -115,28 +115,54 @@
                 <span>{% trans "My Competency Gaps" %}</span>
             </a>
 
-            <!-- Workforce Planning Section -->
+            <!-- HR Tools Section (Collapsible) -->
             {% if user.is_admin or user.is_manager %}
-            <div class="pt-4 pb-2">
-                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {% trans "Workforce Planning" %}
-                </h3>
+            <div class="pt-4" x-data="{ hrToolsOpen: false }">
+                <button @click="hrToolsOpen = !hrToolsOpen" class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                    <span>{% trans "HR Tools" %}</span>
+                    <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': hrToolsOpen }"></i>
+                </button>
+
+                <div x-show="hrToolsOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="space-y-1 mt-2">
+                    <!-- Workforce Planning Submenu -->
+                    <div class="pl-3 border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-1">
+                        <a href="{% url 'workforce-planning:talent-matrix' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-th w-5 mr-3 text-indigo-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Talent Matrix" %}</span>
+                        </a>
+
+                        <a href="{% url 'workforce-planning:succession-planning' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-users-cog w-5 mr-3 text-purple-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Succession Planning" %}</span>
+                        </a>
+
+                        <a href="{% url 'workforce-planning:gap-analysis' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-chart-line w-5 mr-3 text-red-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Gap Analysis" %}</span>
+                        </a>
+
+                        <a href="{% url 'accounts:user-list' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-users w-5 mr-3 text-blue-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Users Management" %}</span>
+                        </a>
+
+                        <a href="{% url 'departments:department-list' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-building w-5 mr-3 text-teal-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Departments" %}</span>
+                        </a>
+
+                        <a href="{% url 'competencies:competency-manage' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-cogs w-5 mr-3 text-orange-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Competencies" %}</span>
+                        </a>
+
+                        <a href="{% url 'training:training-manage' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-chalkboard-teacher w-5 mr-3 text-green-500 text-xs"></i>
+                            <span class="text-xs">{% trans "Training Programs" %}</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-
-            <a href="{% url 'workforce-planning:talent-matrix' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-th w-5 mr-3 text-indigo-500"></i>
-                <span>{% trans "Talent Matrix" %}</span>
-            </a>
-
-            <a href="{% url 'workforce-planning:succession-planning' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-users-cog w-5 mr-3 text-purple-500"></i>
-                <span>{% trans "Succession Planning" %}</span>
-            </a>
-
-            <a href="{% url 'workforce-planning:gap-analysis' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-chart-line w-5 mr-3 text-red-500"></i>
-                <span>{% trans "Gap Analysis" %}</span>
-            </a>
             {% endif %}
 
             <!-- Continuous Feedback Section -->
@@ -190,37 +216,17 @@
             </a>
             {% endif %}
 
-            <!-- Admin Section -->
+            <!-- Admin Section (System Tools) -->
             {% if user.is_admin %}
             <div class="pt-4 pb-2">
                 <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {% trans "Management" %}
+                    {% trans "System" %}
                 </h3>
             </div>
 
-            <a href="{% url 'accounts:user-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-users w-5 mr-3"></i>
-                <span>{% trans "Users" %}</span>
-            </a>
-
-            <a href="{% url 'departments:department-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-building w-5 mr-3"></i>
-                <span>{% trans "Departments" %}</span>
-            </a>
-
             <a href="{% url 'evaluations:question-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-question-circle w-5 mr-3"></i>
-                <span>{% trans "Questions" %}</span>
-            </a>
-
-            <a href="{% url 'competencies:competency-manage' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-cogs w-5 mr-3"></i>
-                <span>{% trans "Manage Competencies" %}</span>
-            </a>
-
-            <a href="{% url 'training:training-manage' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-chalkboard-teacher w-5 mr-3"></i>
-                <span>{% trans "Manage Trainings" %}</span>
+                <i class="fas fa-question-circle w-5 mr-3 text-blue-500"></i>
+                <span>{% trans "Question Library" %}</span>
             </a>
 
             <a href="{% url 'audit:security-dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -229,7 +235,7 @@
             </a>
 
             <a href="/admin/" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-tools w-5 mr-3"></i>
+                <i class="fas fa-tools w-5 mr-3 text-gray-600 dark:text-gray-400"></i>
                 <span>{% trans "Admin Panel" %}</span>
             </a>
             {% endif %}

@@ -27,21 +27,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-8" x-data="searchFilter()" x-init="init()">
     <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
         <form method="get" class="relative">
             <div class="relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input 
-                    type="text" 
-                    name="q" 
-                    value="{{ query }}" 
-                    placeholder="{% trans 'Search people, competencies, training, and more...' %}" 
-                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-20 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" 
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="{% trans 'Search people, competencies, training, and more...' %}"
+                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-20 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                     autofocus
                 />
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-blue-500/30 transition hover:shadow-blue-500/40"
                 >
                     {% trans "Search" %}
@@ -52,49 +52,73 @@
 
     {% if query and results %}
     <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
-        <div class="mb-6 flex items-center justify-between">
+        <!-- Filter Tabs -->
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <nav class="flex flex-wrap gap-2" aria-label="Tabs">
+                <button @click="activeFilter = 'all'" :class="activeFilter === 'all' ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium transition-colors">
+                    <i class="fas fa-th-large mr-2"></i>
+                    {% trans "All" %}
+                    <span class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium" x-text="counts.all"></span>
+                </button>
+                <button @click="activeFilter = 'user'" :class="activeFilter === 'user' ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium transition-colors">
+                    <i class="fas fa-users mr-2"></i>
+                    {% trans "Users" %}
+                    <span class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium" x-text="counts.user"></span>
+                </button>
+                <button @click="activeFilter = 'competency'" :class="activeFilter === 'competency' ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium transition-colors">
+                    <i class="fas fa-star mr-2"></i>
+                    {% trans "Competencies" %}
+                    <span class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium" x-text="counts.competency"></span>
+                </button>
+                <button @click="activeFilter = 'training'" :class="activeFilter === 'training' ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium transition-colors">
+                    <i class="fas fa-graduation-cap mr-2"></i>
+                    {% trans "Training" %}
+                    <span class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium" x-text="counts.training"></span>
+                </button>
+                <button @click="activeFilter = 'department'" :class="activeFilter === 'department' ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium transition-colors">
+                    <i class="fas fa-building mr-2"></i>
+                    {% trans "Departments" %}
+                    <span class="ml-2 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium" x-text="counts.department"></span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="mb-4 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                 {% trans "Search Results" %}
             </h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ total_results }} {% trans "results" %}
+                <span x-text="filteredResults.length"></span> {% trans "results" %}
             </p>
         </div>
 
         <div class="space-y-4">
-            {% for result in results %}
-            <div class="group relative overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-900/80">
-                <a href="{{ result.url }}" class="block">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1 min-w-0">
-                            <h3 class="text-base font-semibold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300 truncate">
-                                {{ result.title }}
-                            </h3>
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                                {{ result.content }}
-                            </p>
-                            <div class="mt-3 flex items-center gap-2 text-xs">
-                                <span class="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-200">
-                                    {{ result.category }}
-                                </span>
+            <template x-for="result in filteredResults" :key="result.title">
+                <div class="group relative overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-gray-700/60 dark:bg-gray-900/80">
+                    <a :href="result.url" class="block">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base font-semibold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300 truncate" x-text="result.title"></h3>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2" x-text="result.content"></p>
+                                <div class="mt-3 flex items-center gap-2 text-xs">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" :class="getCategoryBadgeClass(result.model)" x-text="result.category"></span>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-shrink-0">
+                                <i class="fas fa-arrow-right text-gray-300 group-hover:text-indigo-400 dark:group-hover:text-indigo-300"></i>
                             </div>
                         </div>
-                        <div class="ml-4 flex-shrink-0">
-                            <i class="fas fa-arrow-right text-gray-300 group-hover:text-indigo-400 dark:group-hover:text-indigo-300"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% endfor %}
+                    </a>
+                </div>
+            </template>
         </div>
-        
-        {% if total_results > results|length %}
-        <div class="mt-6 flex items-center justify-between border-t border-gray-200/70 pt-6 dark:border-gray-700/60">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                {% blocktrans count counter=results|length %}Showing {{ counter }} of {{ total_results }} result{% plural %}Showing {{ counter }} of {{ total_results }} results{% endblocktrans %}
-            </p>
+
+        <!-- No Results Message -->
+        <div x-show="filteredResults.length === 0" class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800/60">
+            <i class="fas fa-filter text-3xl text-gray-400 dark:text-gray-500"></i>
+            <p class="mt-4 text-sm font-semibold text-gray-900 dark:text-white">{% trans "No results for this filter" %}</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{% trans "Try selecting a different category." %}</p>
         </div>
-        {% endif %}
     </div>
     {% elif query %}
     <div class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800/60">
@@ -104,4 +128,57 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function searchFilter() {
+    return {
+        results: [],
+        activeFilter: 'all',
+        counts: {
+            all: 0,
+            user: 0,
+            competency: 0,
+            training: 0,
+            department: 0
+        },
+
+        init() {
+            // Initialize results from server-side data
+            this.results = {{ results_json|safe }};
+            this.calculateCounts();
+        },
+
+        get filteredResults() {
+            if (this.activeFilter === 'all') {
+                return this.results;
+            }
+            return this.results.filter(result => result.model === this.activeFilter);
+        },
+
+        calculateCounts() {
+            this.counts.all = this.results.length;
+            this.counts.user = this.results.filter(r => r.model === 'user').length;
+            this.counts.competency = this.results.filter(r => r.model === 'competency').length;
+            this.counts.training = this.results.filter(r => r.model === 'training').length;
+            this.counts.department = this.results.filter(r => r.model === 'department').length;
+        },
+
+        getCategoryBadgeClass(model) {
+            const classes = {
+                user: 'bg-blue-100 dark:bg-blue-500/10 text-blue-800 dark:text-blue-200',
+                competency: 'bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-200',
+                training: 'bg-purple-100 dark:bg-purple-500/10 text-purple-800 dark:text-purple-200',
+                department: 'bg-orange-100 dark:bg-orange-500/10 text-orange-800 dark:text-orange-200'
+            };
+            return classes[model] || 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-200';
+        }
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('searchFilter', searchFilter);
+});
+</script>
 {% endblock %}

@@ -148,6 +148,30 @@ def dashboard_view(request):
         status='active'
     ).count()
 
+    # NEW: Critical Tasks Data for "Mənim İşə Düşən Fəaliyyətlərim" Section
+    # 1. Pending evaluations count (already calculated above as pending_evaluations)
+
+    # 2. Upcoming trainings (within 7 days)
+    upcoming_trainings_count = UserTraining.objects.filter(
+        user=user,
+        due_date__lte=datetime.now().date() + timedelta(days=7),
+        due_date__gte=datetime.now().date(),
+        status__in=['pending', 'in_progress']
+    ).count()
+
+    # 3. Role-based third metric
+    if user.role in ['admin', 'manager'] or user.is_staff:
+        # For managers: count skills pending approval from their subordinates
+        pending_skills_count = UserSkill.objects.filter(
+            approval_status='pending',
+            user__supervisor=user
+        ).count()
+        active_goals_count = None  # Not used for managers
+    else:
+        # For employees: count their own active development goals
+        active_goals_count = active_goals  # Already calculated above
+        pending_skills_count = None  # Not used for employees
+
     context = {
         # Evaluation stats
         'pending_evaluations_count': pending_evaluations.count(),
@@ -170,6 +194,11 @@ def dashboard_view(request):
         'total_trainings': total_trainings,
         'in_progress_trainings': in_progress_trainings,
         'active_goals': active_goals,
+
+        # NEW: Critical Tasks Section Data
+        'upcoming_trainings_count': upcoming_trainings_count,
+        'pending_skills_count': pending_skills_count,  # For managers
+        'active_goals_count': active_goals_count,  # For employees
     }
 
     return render(request, 'accounts/dashboard.html', context)

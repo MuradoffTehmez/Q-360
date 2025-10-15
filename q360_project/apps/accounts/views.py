@@ -53,19 +53,16 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Filter queryset based on user role.
-        - Superadmin sees all users
-        - Admin sees users in their organization
+        - Superadmin/Admin sees all users
         - Manager sees their subordinates
         - Employee sees only themselves
         """
         user = self.request.user
         queryset = super().get_queryset()
 
-        if user.is_superadmin():
+        if user.is_superadmin() or user.is_admin():
+            # Admin and Superadmin see all users
             return queryset
-        elif user.is_admin():
-            # Admin sees users in same department tree
-            return queryset.filter(department__organization=user.department.organization)
         elif user.is_manager():
             # Manager sees their subordinates
             return queryset.filter(supervisor=user)

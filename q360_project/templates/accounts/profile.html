@@ -180,32 +180,34 @@
 
     <!-- Sidebar (Right Side) -->
     <div class="space-y-6">
-        <!-- Skills & Competencies -->
+        <!-- Skills & Competencies with Radar Chart -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-chart-bar mr-2 text-green-600"></i>Əsas Kompetensiyalar
+                    <i class="fas fa-chart-radar mr-2 text-green-600"></i>Kompetensiya Radar
                 </h2>
+                <div class="flex gap-2" x-data="{ chartView: 'radar' }">
+                    <button @click="chartView = 'radar'; updateChartView('radar')"
+                            :class="chartView === 'radar' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+                            class="p-2 rounded-lg transition-colors" title="Radar View">
+                        <i class="fas fa-chart-radar"></i>
+                    </button>
+                    <button @click="chartView = 'bar'; updateChartView('bar')"
+                            :class="chartView === 'bar' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+                            class="p-2 rounded-lg transition-colors" title="Bar View">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                </div>
             </div>
             <div class="p-6">
-                {% if competencies %}
-                    <div class="space-y-4">
-                        {% for competency in competencies %}
-                        <div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ competency.name }}</span>
-                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ competency.score }}%</span>
-                            </div>
-                            <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full {% if competency.score >= 80 %}bg-green-500{% elif competency.score >= 60 %}bg-blue-500{% elif competency.score >= 40 %}bg-yellow-500{% else %}bg-red-500{% endif %} transition-all"
-                                     style="width: {{ competency.score }}%"></div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-center text-gray-500 dark:text-gray-400">Məlumat yoxdur</p>
-                {% endif %}
+                <div class="relative" style="height: 300px;">
+                    <canvas id="competencyRadarChart"></canvas>
+                </div>
+
+                <!-- Legend with progress bars below chart -->
+                <div class="mt-6 space-y-3 max-h-64 overflow-y-auto" id="competencyLegend">
+                    <!-- Will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
@@ -274,4 +276,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/competency-radar.js' %}"></script>
 {% endblock %}

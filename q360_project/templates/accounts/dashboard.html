@@ -75,6 +75,98 @@
     </div>
 </div>
 
+<!-- Mənim İşə Düşən Fəaliyyətlərim -->
+<div class="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-xl shadow-sm border-2 border-indigo-200 dark:border-indigo-700 p-6 mb-8">
+    <div class="flex items-center mb-4">
+        <div class="bg-indigo-500 p-3 rounded-lg mr-4">
+            <i class="fas fa-fire text-2xl text-white"></i>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{% trans "My Active Tasks" %}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Top 3 critical functions for your attention" %}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- 1. Cavablanmamış Qiymətləndirmə Sayı -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'evaluations:my-assignments' %}'">
+            <div class="flex items-start justify-between mb-3">
+                <div class="bg-orange-100 dark:bg-orange-900/30 p-2.5 rounded-lg">
+                    <i class="fas fa-clipboard-list text-xl text-orange-600 dark:text-orange-400"></i>
+                </div>
+                {% if pending_evaluations_count > 0 %}
+                <span class="px-2.5 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-bold rounded-full animate-pulse">
+                    {{ pending_evaluations_count }}
+                </span>
+                {% endif %}
+            </div>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{% trans "Pending Evaluations" %}</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ pending_evaluations_count|default:0 }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {% trans "Awaiting your response" %} →
+            </p>
+        </div>
+
+        <!-- 2. Vaxtı yaxınlaşan Təlimlər -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'training:my-trainings' %}'">
+            <div class="flex items-start justify-between mb-3">
+                <div class="bg-blue-100 dark:bg-blue-900/30 p-2.5 rounded-lg">
+                    <i class="fas fa-graduation-cap text-xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                {% if upcoming_trainings_count > 0 %}
+                <span class="px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs font-bold rounded-full">
+                    {{ upcoming_trainings_count }}
+                </span>
+                {% endif %}
+            </div>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{% trans "Upcoming Trainings" %}</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ upcoming_trainings_count|default:0 }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {% trans "Due within 7 days" %} →
+            </p>
+        </div>
+
+        <!-- 3. Təsdiq Gözləyən Bacarıqlar (Menecerlər üçün) -->
+        {% if user.role in 'admin,manager' or user.is_staff %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'competencies:pending-approvals' %}'">
+            <div class="flex items-start justify-between mb-3">
+                <div class="bg-purple-100 dark:bg-purple-900/30 p-2.5 rounded-lg">
+                    <i class="fas fa-user-check text-xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                {% if pending_skills_count > 0 %}
+                <span class="px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold rounded-full">
+                    {{ pending_skills_count }}
+                </span>
+                {% endif %}
+            </div>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{% trans "Skills Pending Approval" %}</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ pending_skills_count|default:0 }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {% trans "Requires your approval" %} →
+            </p>
+        </div>
+        {% else %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'development-plans:my-goals' %}'">
+            <div class="flex items-start justify-between mb-3">
+                <div class="bg-green-100 dark:bg-green-900/30 p-2.5 rounded-lg">
+                    <i class="fas fa-bullseye text-xl text-green-600 dark:text-green-400"></i>
+                </div>
+                {% if active_goals_count > 0 %}
+                <span class="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full">
+                    {{ active_goals_count }}
+                </span>
+                {% endif %}
+            </div>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{% trans "Active Development Goals" %}</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ active_goals_count|default:0 }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {% trans "In progress" %} →
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Main Content -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
     <!-- My Assignments -->
