@@ -103,6 +103,11 @@
                 <span>{% trans "My Trainings" %}</span>
             </a>
 
+            <a href="{% url 'training:my-certificates' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-certificate w-5 mr-3 text-amber-500"></i>
+                <span>{% trans "My Certificates" %}</span>
+            </a>
+
             <a href="{% url 'training:catalog' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-book w-5 mr-3 text-indigo-500"></i>
                 <span>{% trans "Training Catalog" %}</span>
