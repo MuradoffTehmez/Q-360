@@ -2,7 +2,7 @@
 API views for accounts app.
 """
 from rest_framework import viewsets, status, generics
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,6 +15,7 @@ from .serializers import (
     PasswordChangeSerializer
 )
 from .permissions import IsSuperAdminOrAdmin, IsOwnerOrAdmin
+from .security_utils import calculate_password_strength
 
 
 class RoleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -140,3 +141,31 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if user.is_admin():
             return super().get_queryset()
         return super().get_queryset().filter(user=user)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def check_password_strength(request):
+    """
+    Şifrə gücünü yoxlayan API endpoint.
+
+    POST /api/accounts/check-password-strength/
+    Body: {"password": "MyPassword123!"}
+
+    Returns:
+        {
+            "score": 85,
+            "strength": "Güclü",
+            "feedback": ["Əla! Şifrəniz çox güclüdür."]
+        }
+    """
+    password = request.data.get('password', '')
+
+    if not password:
+        return Response(
+            {"error": "Şifrə daxil edilməlidir."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    result = calculate_password_strength(password)
+    return Response(result, status=status.HTTP_200_OK)

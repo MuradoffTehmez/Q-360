@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.core.exceptions import ValidationError
 from .models import User, Profile
+from .security_utils import PasswordStrengthValidator, calculate_password_strength
 
 
 class UserLoginForm(AuthenticationForm):
@@ -69,6 +70,14 @@ class UserRegistrationForm(UserCreationForm):
             raise ValidationError('Bu e-poçt ünvanı artıq istifadə olunur.')
         return email
 
+    def clean_password1(self):
+        """Validate password strength."""
+        password = self.cleaned_data.get('password1')
+        if password:
+            validator = PasswordStrengthValidator()
+            validator.validate(password, self.instance)
+        return password
+
 
 class UserUpdateForm(forms.ModelForm):
     """Form for updating user information."""
@@ -125,7 +134,8 @@ class CustomPasswordChangeForm(PasswordChangeForm):
     new_password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Yeni şifrə'
+            'placeholder': 'Yeni şifrə',
+            'id': 'id_new_password1'
         })
     )
     new_password2 = forms.CharField(
@@ -134,3 +144,11 @@ class CustomPasswordChangeForm(PasswordChangeForm):
             'placeholder': 'Yeni şifrə (təkrar)'
         })
     )
+
+    def clean_new_password1(self):
+        """Validate password strength."""
+        password = self.cleaned_data.get('new_password1')
+        if password:
+            validator = PasswordStrengthValidator()
+            validator.validate(password, self.user)
+        return password

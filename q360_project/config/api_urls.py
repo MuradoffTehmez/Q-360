@@ -20,6 +20,7 @@ from apps.accounts.views import (
     UserViewSet,
     ProfileViewSet,
     RoleViewSet,
+    check_password_strength,
 )
 from apps.departments.views import (
     OrganizationViewSet,
@@ -53,5 +54,6 @@ urlpatterns = [
     path('competencies/', include(competencies_router.urls)),
     path('training/', include(training_router.urls)),
     path('accounts/', include(accounts_router.urls)),
+    path('accounts/check-password-strength/', check_password_strength, name='check-password-strength'),
     path('departments/', include(departments_router.urls)),
 ]
