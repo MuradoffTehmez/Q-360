@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Səriştə Boşluğu Analizi - Q360{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">
+                                <i class="fas fa-chart-bar text-primary me-2"></i>
+                                Səriştə Boşluğu Analizi
+                            </h2>
+                            <p class="text-muted mb-0">Vəzifə tələbləri ilə mövcud bacarıqlar arasındakı fərq</p>
+                        </div>
+                        <a href="{% url 'competencies:my-skills' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Bacarıqlarım
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not has_position %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Sizə hələ vəzifə təyin edilməyib. Səriştə boşluğu analizi üçün vəzifəniz olmalıdır.
+    </div>
+    {% else %}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <i class="fas fa-clipboard-list fa-3x text-primary mb-3"></i>
+                    <h6 class="text-muted">Tələb Olunan Səriştələr</h6>
+                    <h2>{{ total_required }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h6 class="text-muted">Qarşılanan</h6>
+                    <h2>{{ without_gap }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                    <h6 class="text-muted">Boşluqlar</h6>
+                    <h2>{{ with_gap }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Boşluq Diaqramı</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="gapChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Ətraflı Analiz</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Səriştə</th>
+                                    <th class="text-center">Tələb Olunan</th>
+                                    <th class="text-center">Mövcud</th>
+                                    <th class="text-center">Boşluq</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rc in required_competencies %}
+                                <tr>
+                                    <td><strong>{{ rc.competency.name }}</strong></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">{{ rc.required_level.name }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if rc.current_level > 0 %}
+                                        <span class="badge bg-success">{{ rc.current_level }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Yoxdur</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {% if rc.gap > 0 %}bg-danger{% else %}bg-success{% endif %}">
+                                            {{ rc.gap|floatformat:1 }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if rc.has_gap %}
+                                        <i class="fas fa-times-circle text-danger"></i> Təkmilləşdirmə lazımdır
+                                        {% else %}
+                                        <i class="fas fa-check-circle text-success"></i> Qarşılanıb
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Məlumat yoxdur</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+{% if has_position %}
+const gapData = {{ gap_data|safe }};
+const ctx = document.getElementById('gapChart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: gapData.labels,
+        datasets: [
+            {
+                label: 'Tələb Olunan Səviyyə',
+                data: gapData.required,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 2
+            },
+            {
+                label: 'Mövcud Səviyyə',
+                data: gapData.current,
+                backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                borderColor: 'rgb(40, 167, 69)',
+                borderWidth: 2
+            },
+            {
+                label: 'Boşluq',
+                data: gapData.gap,
+                backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                borderColor: 'rgb(220, 53, 69)',
+                borderWidth: 2
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+
+<style>
+.card {
+    border: none;
+}
+</style>
+{% endblock %}

@@ -168,3 +168,75 @@ def competency_manage(request):
     if not hasattr(request.user, 'is_admin') or not request.user.is_admin():
         return render(request, '403.html', status=403)
     return competency_list(request)
+
+
+@login_required
+def skill_gap_analysis(request):
+    """
+    Enhanced skill gap analysis with visual charts.
+    Shows difference between current skills and position requirements.
+    """
+    user = request.user
+
+    # Get user's skills
+    user_skills = UserSkill.objects.filter(user=user, is_approved=True).select_related(
+        'competency', 'level'
+    )
+
+    # Create a mapping of competency to user's current level
+    user_skill_map = {
+        skill.competency_id: skill.level.score_min if skill.level else 0
+        for skill in user_skills
+    }
+
+    # Get required competencies for user's position
+    required_competencies = []
+    gap_data = {
+        'labels': [],
+        'required': [],
+        'current': [],
+        'gap': []
+    }
+
+    if hasattr(user, 'position') and user.position and hasattr(user.position, 'id'):
+        pos_competencies = PositionCompetency.objects.filter(
+            position=user.position
+        ).select_related('competency', 'required_level').order_by('-weight')
+
+        for pos_comp in pos_competencies:
+            current_level = user_skill_map.get(pos_comp.competency_id, 0)
+            required_level = pos_comp.required_level.score_min if pos_comp.required_level else 0
+            gap = max(0, required_level - current_level)
+
+            required_competencies.append({
+                'competency': pos_comp.competency,
+                'required_level': pos_comp.required_level,
+                'current_level': current_level,
+                'gap': gap,
+                'gap_percentage': (gap / required_level * 100) if required_level > 0 else 0,
+                'has_gap': gap > 0,
+            })
+
+            # Chart data
+            gap_data['labels'].append(pos_comp.competency.name[:20])
+            gap_data['required'].append(required_level)
+            gap_data['current'].append(current_level)
+            gap_data['gap'].append(gap)
+
+    # Calculate statistics
+    total_required = len(required_competencies)
+    with_gap = sum(1 for rc in required_competencies if rc['has_gap'])
+    without_gap = total_required - with_gap
+    avg_gap = sum(rc['gap'] for rc in required_competencies) / total_required if total_required > 0 else 0
+
+    context = {
+        'required_competencies': required_competencies,
+        'gap_data': json.dumps(gap_data),
+        'total_required': total_required,
+        'with_gap': with_gap,
+        'without_gap': without_gap,
+        'avg_gap': round(avg_gap, 2),
+        'has_position': hasattr(user, 'position') and user.position and hasattr(user.position, 'id'),
+    }
+
+    return render(request, 'competencies/skill_gap_analysis.html', context)
