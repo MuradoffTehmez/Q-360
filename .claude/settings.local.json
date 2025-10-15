@@ -43,7 +43,8 @@
       "Bash(apt-get:*)",
       "Bash(choco:*)",
       "Bash(redis-cli:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(Select-String -Pattern \"FAILED|OK|test_\" -Context 0,1)"
     ],
     "deny": [],
     "ask": []

@@ -32,6 +32,9 @@ urlpatterns = [
     # Public Recognition Feed
     path('recognition-feed/', template_views.recognition_feed_view, name='recognition-feed'),
 
+    # Proactive Feedback Suggestions
+    path('proactive-suggestions/', template_views.proactive_feedback_suggestions, name='proactive-suggestions'),
+
     # API URLs
     path('', include(router.urls)),
 ]

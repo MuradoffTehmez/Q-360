@@ -183,3 +183,165 @@ def recognition_feed_view(request):
     }
 
     return render(request, 'continuous_feedback/recognition_feed.html', context)
+
+
+@login_required
+def proactive_feedback_suggestions(request):
+    """
+    Təşəbbüskar Rəy Təklifləri - AI-powered suggestions for who to give feedback to.
+
+    Funksiyalar:
+    - Son rəy tarixi əsasılı xatırlatmalar
+    - Komanda üzvlərinə rəy təklifləri
+    - Son layihə iştirakçılarına rəy təklifləri
+    - Rəy statistikaları və təşviqlər
+    """
+    from datetime import timedelta
+    from django.db.models import Max
+
+    user = request.user
+
+    # Get supervisor first (needed for exclusion list)
+    supervisor = user.supervisor if hasattr(user, 'supervisor') else None
+
+    # Get user's team members (colleagues in same department)
+    # Exclude supervisor to avoid duplication
+    exclude_ids = [user.id]
+    if supervisor:
+        exclude_ids.append(supervisor.id)
+
+    team_members = User.objects.filter(
+        is_active=True,
+        department=user.department
+    ).exclude(id__in=exclude_ids) if user.department else User.objects.none()
+
+    # Get user's subordinates if manager
+    subordinates = user.get_subordinates() if hasattr(user, 'get_subordinates') and user.is_manager() else []
+
+    # Calculate days since last feedback to each person
+    suggestions = []
+
+    # 1. Team members suggestions
+    for member in team_members[:10]:  # Limit to 10
+        last_feedback = QuickFeedback.objects.filter(
+            sender=user,
+            recipient=member
+        ).aggregate(Max('created_at'))['created_at__max']
+
+        days_since_feedback = None
+        priority = 'medium'
+
+        if last_feedback:
+            days_since_feedback = (timezone.now() - last_feedback).days
+            if days_since_feedback > 30:
+                priority = 'high'
+            elif days_since_feedback > 14:
+                priority = 'medium'
+            else:
+                priority = 'low'
+        else:
+            # Never given feedback
+            priority = 'high'
+            days_since_feedback = 999
+
+        suggestions.append({
+            'user': member,
+            'relationship': 'Həmkar',
+            'days_since_feedback': days_since_feedback,
+            'last_feedback_date': last_feedback,
+            'priority': priority,
+            'reason': 'Komanda üzvü' if not last_feedback else f'{days_since_feedback} gündür rəy verməmisiniz'
+        })
+
+    # 2. Supervisor suggestion
+    if supervisor:
+        last_feedback = QuickFeedback.objects.filter(
+            sender=user,
+            recipient=supervisor
+        ).aggregate(Max('created_at'))['created_at__max']
+
+        days_since_feedback = (timezone.now() - last_feedback).days if last_feedback else 999
+
+        # Priority logic for supervisor
+        if last_feedback:
+            if days_since_feedback > 30:
+                priority = 'high'
+            elif days_since_feedback > 14:
+                priority = 'medium'
+            else:
+                priority = 'low'
+        else:
+            priority = 'high'
+
+        suggestions.append({
+            'user': supervisor,
+            'relationship': 'Rəhbər',
+            'days_since_feedback': days_since_feedback,
+            'last_feedback_date': last_feedback,
+            'priority': priority,
+            'reason': 'Rəhbərinizə rəy vermək vacibdir'
+        })
+
+    # 3. Subordinates suggestions (if manager)
+    if subordinates:
+        for subordinate in subordinates[:5]:  # Limit to 5
+            last_feedback = QuickFeedback.objects.filter(
+                sender=user,
+                recipient=subordinate
+            ).aggregate(Max('created_at'))['created_at__max']
+
+            days_since_feedback = (timezone.now() - last_feedback).days if last_feedback else 999
+
+            suggestions.append({
+                'user': subordinate,
+                'relationship': 'Tabelik',
+                'days_since_feedback': days_since_feedback,
+                'last_feedback_date': last_feedback,
+                'priority': 'high' if days_since_feedback > 14 or not last_feedback else 'low',
+                'reason': 'Komanda üzvünə dəstək'
+            })
+
+    # Sort by priority (high first) and days since feedback
+    priority_order = {'high': 0, 'medium': 1, 'low': 2}
+    suggestions.sort(key=lambda x: (priority_order.get(x['priority'], 3), -x['days_since_feedback']))
+
+    # Limit to top 15 suggestions
+    suggestions = suggestions[:15]
+
+    # Statistics
+    feedback_stats = {
+        'total_sent': QuickFeedback.objects.filter(sender=user).count(),
+        'this_month': QuickFeedback.objects.filter(
+            sender=user,
+            created_at__gte=timezone.now() - timedelta(days=30)
+        ).count(),
+        'recognitions_sent': QuickFeedback.objects.filter(
+            sender=user,
+            feedback_type='recognition'
+        ).count(),
+        'last_feedback_date': QuickFeedback.objects.filter(
+            sender=user
+        ).aggregate(Max('created_at'))['created_at__max'],
+    }
+
+    # Calculate engagement score (0-100)
+    engagement_score = min(100, (feedback_stats['this_month'] * 10))
+
+    # Milestones
+    milestones = [
+        {'count': 10, 'title': 'İlk 10 Rəy', 'icon': 'fa-star', 'achieved': feedback_stats['total_sent'] >= 10},
+        {'count': 25, 'title': 'Rəy Ustası', 'icon': 'fa-trophy', 'achieved': feedback_stats['total_sent'] >= 25},
+        {'count': 50, 'title': 'Rəy Çempionu', 'icon': 'fa-medal', 'achieved': feedback_stats['total_sent'] >= 50},
+        {'count': 100, 'title': 'Rəy Əfsanəsi', 'icon': 'fa-crown', 'achieved': feedback_stats['total_sent'] >= 100},
+    ]
+
+    context = {
+        'suggestions': suggestions,
+        'feedback_stats': feedback_stats,
+        'engagement_score': engagement_score,
+        'milestones': milestones,
+        'high_priority_count': len([s for s in suggestions if s['priority'] == 'high']),
+        'medium_priority_count': len([s for s in suggestions if s['priority'] == 'medium']),
+    }
+
+    return render(request, 'continuous_feedback/proactive_suggestions.html', context)

@@ -1,0 +1,211 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Proactive Feedback Suggestions" %} - Q360{% endblock %}
+
+{% block page_header %}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-16 top-6 h-52 w-52 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-pink-300 blur-3xl"></div>
+    </div>
+    <div class="relative z-10">
+        <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "AI-Powered Recommendations" %}</p>
+        <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+            <i class="fas fa-lightbulb mr-3"></i>{% trans "Proactive Feedback Suggestions" %}
+        </h1>
+        <p class="mt-3 text-sm text-white/80">{% trans "Smart suggestions on who to give feedback to, based on your relationships and feedback history." %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8" x-data="suggestionsPage()">
+    <!-- Engagement Score & Stats -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- Engagement Score -->
+        <div class="rounded-3xl border border-gray-200/70 bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-white shadow-lg lg:col-span-2">
+            <h2 class="mb-4 text-xl font-bold">
+                <i class="fas fa-chart-line mr-2"></i>{% trans "Your Engagement Score" %}
+            </h2>
+            <div class="flex items-center gap-6">
+                <div class="relative h-32 w-32">
+                    <svg class="h-32 w-32 -rotate-90 transform">
+                        <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.2)" stroke-width="12" fill="none"></circle>
+                        <circle cx="64" cy="64" r="56"
+                                stroke="white"
+                                stroke-width="12"
+                                fill="none"
+                                stroke-dasharray="351.86"
+                                :stroke-dashoffset="351.86 - (351.86 * {{ engagement_score }} / 100)"
+                                class="transition-all duration-1000"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-3xl font-bold">{{ engagement_score }}</span>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span>{% trans "Total Feedback Sent" %}</span>
+                            <span class="font-semibold">{{ feedback_stats.total_sent }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span>{% trans "This Month" %}</span>
+                            <span class="font-semibold">{{ feedback_stats.this_month }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span>{% trans "Recognitions" %}</span>
+                            <span class="font-semibold">{{ feedback_stats.recognitions_sent }}</span>
+                        </div>
+                        {% if feedback_stats.last_feedback_date %}
+                        <div class="flex items-center justify-between text-sm">
+                            <span>{% trans "Last Feedback" %}</span>
+                            <span class="font-semibold">{{ feedback_stats.last_feedback_date|date:"d.m.Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="space-y-4">
+            <div class="rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400">{% trans "High Priority" %}</p>
+                        <p class="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">{{ high_priority_count }}</p>
+                    </div>
+                    <div class="rounded-full bg-red-100 p-3 dark:bg-red-900/30">
+                        <i class="fas fa-exclamation-circle text-xl text-red-600 dark:text-red-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400">{% trans "Medium Priority" %}</p>
+                        <p class="mt-1 text-2xl font-bold text-orange-600 dark:text-orange-400">{{ medium_priority_count }}</p>
+                    </div>
+                    <div class="rounded-full bg-orange-100 p-3 dark:bg-orange-900/30">
+                        <i class="fas fa-info-circle text-xl text-orange-600 dark:text-orange-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-trophy mr-2 text-amber-500"></i>{% trans "Milestones" %}
+        </h2>
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {% for milestone in milestones %}
+            <div class="flex flex-col items-center rounded-xl border p-4 {% if milestone.achieved %}border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20{% else %}border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800{% endif %}">
+                <div class="flex h-12 w-12 items-center justify-center rounded-full {% if milestone.achieved %}bg-amber-500 text-white{% else %}bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400{% endif %}">
+                    <i class="fas {{ milestone.icon }} text-xl"></i>
+                </div>
+                <p class="mt-2 text-center text-sm font-semibold {% if milestone.achieved %}text-amber-700 dark:text-amber-300{% else %}text-gray-500 dark:text-gray-400{% endif %}">
+                    {{ milestone.title }}
+                </p>
+                <p class="text-xs {% if milestone.achieved %}text-amber-600 dark:text-amber-400{% else %}text-gray-400{% endif %}">
+                    {{ milestone.count }} {% trans "feedback" %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/80">
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                <i class="fas fa-users mr-2 text-purple-500"></i>{% trans "Who Should You Give Feedback To?" %}
+            </h2>
+            <span class="rounded-full bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                {{ suggestions|length }} {% trans "suggestions" %}
+            </span>
+        </div>
+
+        {% if suggestions %}
+        <div class="space-y-3">
+            {% for suggestion in suggestions %}
+            <div class="group flex items-center justify-between rounded-xl border p-4 transition hover:shadow-md
+                        {% if suggestion.priority == 'high' %}border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/10
+                        {% elif suggestion.priority == 'medium' %}border-orange-200 bg-orange-50 dark:border-orange-900/50 dark:bg-orange-900/10
+                        {% else %}border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-900/10{% endif %}">
+
+                <div class="flex flex-1 items-center gap-4">
+                    <!-- Avatar -->
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-bold text-white">
+                        {{ suggestion.user.first_name.0 }}{{ suggestion.user.last_name.0 }}
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-semibold text-gray-900 dark:text-white">
+                                {{ suggestion.user.first_name }} {{ suggestion.user.last_name }}
+                            </h4>
+                            <span class="rounded-full px-2 py-0.5 text-xs font-medium
+                                         {% if suggestion.priority == 'high' %}bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300
+                                         {% elif suggestion.priority == 'medium' %}bg-orange-200 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300
+                                         {% else %}bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300{% endif %}">
+                                {% if suggestion.priority == 'high' %}{% trans "High Priority" %}
+                                {% elif suggestion.priority == 'medium' %}{% trans "Medium Priority" %}
+                                {% else %}{% trans "Low Priority" %}{% endif %}
+                            </span>
+                        </div>
+                        <div class="mt-1 flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                            <span>
+                                <i class="fas fa-briefcase mr-1"></i>{{ suggestion.relationship }}
+                            </span>
+                            <span>•</span>
+                            <span>
+                                <i class="fas fa-clock mr-1"></i>{{ suggestion.reason }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <a href="{% url 'continuous_feedback:send-feedback' %}?recipient={{ suggestion.user.id }}"
+                   class="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:shadow-md">
+                    <i class="fas fa-paper-plane mr-1"></i>{% trans "Send Feedback" %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center gap-4 py-12 text-center">
+            <div class="rounded-full bg-green-100 p-6 dark:bg-green-900/30">
+                <i class="fas fa-check-circle text-4xl text-green-600 dark:text-green-400"></i>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-900 dark:text-white">{% trans "You're All Caught Up!" %}</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "No pending feedback suggestions at the moment." %}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function suggestionsPage() {
+    return {
+        init() {
+            // Any initialization logic
+        }
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('suggestionsPage', suggestionsPage);
+});
+</script>
+{% endblock %}
