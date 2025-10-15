@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+{% load rbac_filters %}
+
+{% block title %}RBAC İcazə Matrisi - Q360{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                RBAC İcazə Matrisi
+                            </h2>
+                            <p class="text-muted mb-0">Rol əsaslı giriş nəzarəti və icazə idarəetməsi</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Geriyə
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Statistics -->
+    <div class="row mb-4">
+        {% for role in roles %}
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        {% if role == 'superadmin' %}
+                            <i class="fas fa-crown fa-2x text-warning"></i>
+                        {% elif role == 'admin' %}
+                            <i class="fas fa-user-shield fa-2x text-primary"></i>
+                        {% elif role == 'manager' %}
+                            <i class="fas fa-user-tie fa-2x text-success"></i>
+                        {% else %}
+                            <i class="fas fa-user fa-2x text-secondary"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1 text-capitalize">{{ role }}</h5>
+                    <h3 class="mb-0">{{ role_counts|get_item:role|default:0 }}</h3>
+                    <small class="text-muted">İstifadəçi</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Permission Matrix -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        İcazə Matrisi
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 35%;">İcazə</th>
+                                    <th style="width: 40%;" class="text-muted small">Təsvir</th>
+                                    {% for role in roles %}
+                                    <th class="text-center text-capitalize">
+                                        {% if role == 'superadmin' %}
+                                            <i class="fas fa-crown text-warning"></i>
+                                        {% elif role == 'admin' %}
+                                            <i class="fas fa-user-shield text-primary"></i>
+                                        {% elif role == 'manager' %}
+                                            <i class="fas fa-user-tie text-success"></i>
+                                        {% else %}
+                                            <i class="fas fa-user text-secondary"></i>
+                                        {% endif %}
+                                        <br>
+                                        <small>{{ role }}</small>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in matrix %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ row.capability.name }}</strong>
+                                    </td>
+                                    <td class="text-muted small">
+                                        {{ row.capability.description }}
+                                    </td>
+                                    {% for role in roles %}
+                                    <td class="text-center">
+                                        {% if row.permissions|get_item:role %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Var
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Yox
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        İzahat
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-crown text-warning fa-lg me-2"></i>
+                                <div>
+                                    <strong>Superadmin</strong>
+                                    <div class="small text-muted">Tam sistem girişi</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-shield text-primary fa-lg me-2"></i>
+                                <div>
+                                    <strong>Admin</strong>
+                                    <div class="small text-muted">Geniş idarəetmə hüquqları</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-tie text-success fa-lg me-2"></i>
+                                <div>
+                                    <strong>Manager</strong>
+                                    <div class="small text-muted">Komanda idarəetməsi</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user text-secondary fa-lg me-2"></i>
+                                <div>
+                                    <strong>Employee</strong>
+                                    <div class="small text-muted">Əsas istifadəçi</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Məlumat:</strong> Bu matris rolların mövcud icazələrini göstərir. İcazə dəyişiklikləri yalnız kod səviyyəsində edilə bilər.
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Diqqət:</strong> Rol dəyişiklikləri dərhal qüvvəyə minir və istifadəçinin giriş hüquqlarına təsir edir.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+</style>
+
+{% endblock %}

@@ -10,7 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
 from .forms import UserLoginForm, UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
-from .models import User, Profile
+from .models import User, Profile, Role
+from .rbac import RoleManager
 from apps.evaluations.models import EvaluationAssignment, EvaluationCampaign
 from apps.notifications.models import Notification
 
@@ -488,3 +489,86 @@ def complete_setup(request):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def rbac_matrix_view(request):
+    """
+    RBAC Matrix View - İcazə/Rol matrisini qrafik şəkildə göstərir.
+    Yalnız superadmin giriş edə bilər.
+    """
+    if not request.user.role == 'superadmin':
+        messages.error(request, 'Bu səhifəyə yalnız superadmin giriş edə bilər.')
+        return redirect('dashboard')
+
+    # Bütün rollar
+    roles = ['superadmin', 'admin', 'manager', 'employee']
+
+    # Bütün icazələr (capabilities)
+    capabilities = [
+        {
+            'key': 'can_manage_users',
+            'name': 'İstifadəçiləri idarə et',
+            'description': 'İstifadəçi əlavə/redaktə/silmə'
+        },
+        {
+            'key': 'can_manage_departments',
+            'name': 'Şöbələri idarə et',
+            'description': 'Şöbə və vəzifə idarəetməsi'
+        },
+        {
+            'key': 'can_manage_campaigns',
+            'name': 'Kampaniyaları idarə et',
+            'description': 'Qiymətləndirmə kampaniyalarının yaradılması'
+        },
+        {
+            'key': 'can_view_all_reports',
+            'name': 'Bütün hesabatları gör',
+            'description': 'Sistem genişliyi hesabat girişi'
+        },
+        {
+            'key': 'can_manage_roles',
+            'name': 'Rolları idarə et',
+            'description': 'Rol və icazə dəyişiklikləri'
+        },
+        {
+            'key': 'can_manage_system_settings',
+            'name': 'Sistem parametrlərini idarə et',
+            'description': 'Sistem konfiqurasiyası'
+        },
+        {
+            'key': 'can_delete_evaluations',
+            'name': 'Qiymətləndirmələri sil',
+            'description': 'Qiymətləndirmə nəticələrini silmə'
+        },
+        {
+            'key': 'can_export_data',
+            'name': 'Məlumatları ixrac et',
+            'description': 'Excel/PDF ixrac imkanı'
+        },
+    ]
+
+    # Matrix yaratmaq
+    matrix = []
+    for capability in capabilities:
+        row = {
+            'capability': capability,
+            'permissions': {}
+        }
+        for role in roles:
+            row['permissions'][role] = RoleManager.ROLE_CAPABILITIES.get(role, {}).get(capability['key'], False)
+        matrix.append(row)
+
+    # İstatistikalar
+    role_counts = {}
+    for role in roles:
+        role_counts[role] = User.objects.filter(role=role, is_active=True).count()
+
+    context = {
+        'roles': roles,
+        'capabilities': capabilities,
+        'matrix': matrix,
+        'role_counts': role_counts,
+    }
+
+    return render(request, 'accounts/rbac_matrix.html', context)

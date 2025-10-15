@@ -21,6 +21,7 @@ urlpatterns = [
 
     # User management
     path('users/', template_views.user_list_view, name='user-list'),
+    path('rbac/', template_views.rbac_matrix_view, name='rbac-matrix'),
 
     # Password reset
     path('password-reset/', template_views.password_reset_request, name='password-reset'),
