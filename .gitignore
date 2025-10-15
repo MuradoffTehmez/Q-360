@@ -35,6 +35,8 @@ db.sqlite3-journal
 venv/
 ENV/
 env/
+node_modules/
+**/node_modules/
 
 # IDE
 .vscode/
@@ -54,8 +56,10 @@ htmlcov/
 .tox/
 
 # Logs
-logs/
-*.log
+/logs/
+q360_project/logs/*.log
+!q360_project/logs/.gitignore
+
 
 # Database
 *.db

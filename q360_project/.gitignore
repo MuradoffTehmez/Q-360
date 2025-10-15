@@ -53,8 +53,10 @@ htmlcov/
 .tox/
 
 # Logs
-logs/
+logs/*.log
+!logs/.gitignore
 *.log
+
 
 # Database
 *.db
