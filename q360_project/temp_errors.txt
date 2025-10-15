@@ -1,0 +1,32 @@
+ERROR 2025-10-15 17:23:54,974 log Internal Server Error: /dashboard/
+ERROR 2025-10-15 17:23:55,000 basehttp "GET /dashboard/ HTTP/1.1" 500 280269
+ERROR 2025-10-15 17:23:57,644 log Internal Server Error: /dashboard/
+ERROR 2025-10-15 17:23:57,656 basehttp "GET /dashboard/ HTTP/1.1" 500 280534
+ERROR 2025-10-15 17:24:03,419 log Internal Server Error: /evaluations/my-assignments/
+ERROR 2025-10-15 17:24:03,431 basehttp "GET /evaluations/my-assignments/ HTTP/1.1" 500 281742
+ERROR 2025-10-15 17:24:06,022 log Internal Server Error: /evaluations/campaigns/
+ERROR 2025-10-15 17:24:06,040 basehttp "GET /evaluations/campaigns/ HTTP/1.1" 500 229209
+ERROR 2025-10-15 17:24:08,119 log Internal Server Error: /reports/my-reports/
+ERROR 2025-10-15 17:24:08,128 basehttp "GET /reports/my-reports/ HTTP/1.1" 500 181521
+ERROR 2025-10-15 17:24:10,728 log Internal Server Error: /reports/team-reports/
+ERROR 2025-10-15 17:24:10,740 basehttp "GET /reports/team-reports/ HTTP/1.1" 500 170857
+ERROR 2025-10-15 17:24:26,016 log Internal Server Error: /dashboard/
+ERROR 2025-10-15 17:24:26,031 basehttp "GET /dashboard/ HTTP/1.1" 500 280262
+ERROR 2025-10-15 17:24:38,259 log Internal Server Error: /evaluations/my-assignments/
+ERROR 2025-10-15 17:24:38,270 basehttp "GET /evaluations/my-assignments/ HTTP/1.1" 500 281741
+ERROR 2025-10-15 17:24:44,190 log Internal Server Error: /reports/my-reports/
+ERROR 2025-10-15 17:24:44,199 basehttp "GET /reports/my-reports/ HTTP/1.1" 500 181516
+ERROR 2025-10-15 17:36:16,085 log Internal Server Error: /admin/evaluations/campaignquestion/
+ERROR 2025-10-15 17:36:16,107 basehttp "GET /admin/evaluations/campaignquestion/ HTTP/1.1" 500 244668
+ERROR 2025-10-15 17:54:20,465 log Internal Server Error: /admin/evaluations/campaignquestion/
+ERROR 2025-10-15 17:54:20,487 basehttp "GET /admin/evaluations/campaignquestion/ HTTP/1.1" 500 244668
+ERROR 2025-10-15 17:54:24,567 log Internal Server Error: /admin/evaluations/evaluationresult/
+ERROR 2025-10-15 17:54:24,579 basehttp "GET /admin/evaluations/evaluationresult/ HTTP/1.1" 500 245111
+ERROR 2025-10-15 18:07:54,013 log Internal Server Error: /admin/evaluations/campaignquestion/
+ERROR 2025-10-15 18:07:54,025 basehttp "GET /admin/evaluations/campaignquestion/ HTTP/1.1" 500 244707
+ERROR 2025-10-15 20:20:03,058 log Internal Server Error: /admin/evaluations/response/
+ERROR 2025-10-15 20:20:03,067 basehttp "GET /admin/evaluations/response/ HTTP/1.1" 500 244547
+ERROR 2025-10-15 20:21:48,723 log Internal Server Error: /evaluations/campaigns/
+ERROR 2025-10-15 20:21:48,742 basehttp "GET /evaluations/campaigns/ HTTP/1.1" 500 229366
+ERROR 2025-10-15 20:21:51,876 log Internal Server Error: /evaluations/campaigns/
+ERROR 2025-10-15 20:21:51,887 basehttp "GET /evaluations/campaigns/ HTTP/1.1" 500 229366
