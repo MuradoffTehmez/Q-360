@@ -74,12 +74,42 @@
         {% trans "9-Qutu Matrix" %}
     </h2>
     <div class="grid grid-cols-3 gap-4">
-        {% for i in "987654321" %}
-        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center {% if i == '9' %}bg-green-100 dark:bg-green-900/20{% elif i in '68' %}bg-blue-100 dark:bg-blue-900/20{% elif i in '357' %}bg-yellow-100 dark:bg-yellow-900/20{% else %}bg-red-100 dark:bg-red-900/20{% endif %}">
-            <p class="text-2xl font-bold">{{ box_distribution|get_item:"box"|add:i|default:0 }}</p>
-            <p class="text-xs mt-1">{% trans "Box" %} {{ i }}</p>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-green-100 dark:bg-green-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box9|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 9</p>
         </div>
-        {% endfor %}
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-blue-100 dark:bg-blue-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box8|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 8</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-yellow-100 dark:bg-yellow-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box7|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 7</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-blue-100 dark:bg-blue-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box6|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 6</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-yellow-100 dark:bg-yellow-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box5|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 5</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-red-100 dark:bg-red-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box4|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 4</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-yellow-100 dark:bg-yellow-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box3|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 3</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-red-100 dark:bg-red-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box2|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 2</p>
+        </div>
+        <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center bg-red-100 dark:bg-red-900/20">
+            <p class="text-2xl font-bold">{{ box_distribution.box1|default:0 }}</p>
+            <p class="text-xs mt-1">{% trans "Box" %} 1</p>
+        </div>
     </div>
 </div>
 
