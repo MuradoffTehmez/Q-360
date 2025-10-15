@@ -60,6 +60,17 @@ class ProfileInline(admin.StackedInline):
         'email_notifications', 'sms_notifications'
     ]
 
+    def get_or_create_profile(self, obj):
+        """Ensure profile exists before inline form is rendered."""
+        if obj.pk and not hasattr(obj, 'profile'):
+            Profile.objects.get_or_create(user=obj)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """Override to ensure profile exists."""
+        if obj:
+            self.get_or_create_profile(obj)
+        return super().get_formset(request, obj, **kwargs)
+
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):

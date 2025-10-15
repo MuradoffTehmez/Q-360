@@ -16,9 +16,10 @@ class ReportAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         """Add custom admin URLs."""
+        from django.urls import path
         urls = super().get_urls()
         custom_urls = [
-            path('users/', self.admin_site.admin_view(self.users_report_view), name='reports-users'),
+            path('users-report/', self.admin_site.admin_view(self.users_report_view), name='reports_report_users'),
         ]
         return custom_urls + urls
 

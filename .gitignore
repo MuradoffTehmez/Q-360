@@ -1,3 +1,4 @@
+nul
 # Python
 __pycache__/
 *.py[cod]
@@ -60,5 +61,3 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
-
-nul

@@ -392,7 +392,7 @@ JAZZMIN_SETTINGS = {
     "custom_links": {
         "accounts": [{
             "name": "İstifadəçi Hesabatı",
-            "url": "/admin/reports/users/",
+            "url": "/admin/reports/report/users-report/",
             "icon": "fas fa-chart-line",
             "permissions": ["accounts.view_user"]
         }]
