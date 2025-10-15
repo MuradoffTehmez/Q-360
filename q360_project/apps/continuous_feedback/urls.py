@@ -1,8 +1,22 @@
 """
 URL configuration for continuous feedback app.
 """
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import template_views
+from .views import (
+    QuickFeedbackViewSet, FeedbackBankViewSet,
+    PublicRecognitionViewSet, FeedbackTagViewSet,
+    FeedbackStatisticsViewSet
+)
+
+# API Router
+router = DefaultRouter()
+router.register(r'api/feedbacks', QuickFeedbackViewSet, basename='feedback-api')
+router.register(r'api/feedback-bank', FeedbackBankViewSet, basename='feedback-bank-api')
+router.register(r'api/recognitions', PublicRecognitionViewSet, basename='recognition-api')
+router.register(r'api/tags', FeedbackTagViewSet, basename='tag-api')
+router.register(r'api/statistics', FeedbackStatisticsViewSet, basename='statistics-api')
 
 app_name = 'continuous_feedback'
 
@@ -17,4 +31,7 @@ urlpatterns = [
 
     # Public Recognition Feed
     path('recognition-feed/', template_views.recognition_feed_view, name='recognition-feed'),
+
+    # API URLs
+    path('', include(router.urls)),
 ]
