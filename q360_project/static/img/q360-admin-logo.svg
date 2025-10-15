@@ -1,0 +1,17 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="14" y1="18" x2="114" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B4B91"/>
+      <stop offset="1" stop-color="#0F2752"/>
+    </linearGradient>
+    <linearGradient id="grad2" x1="24" y1="24" x2="96" y2="104" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3FB9A4"/>
+      <stop offset="1" stop-color="#1B4B91" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="104" height="104" rx="28" fill="url(#grad1)"/>
+  <path d="M83.2 82.4C76.16 89.44 65.92 91.2 56.8 87.68C47.68 84.16 41.6 75.36 41.6 65.6C41.6 55.84 47.68 47.04 56.8 43.52C65.92 40 76.16 41.76 83.2 48.8L74.56 57.44C70.72 53.6 64.48 52.8 59.36 55.2C54.24 57.6 51.2 62.88 51.84 68.48C52.48 74.08 56.64 78.56 62.24 79.84C67.84 81.12 73.6 78.88 77.12 74.08L83.2 82.4Z" fill="white"/>
+  <path d="M92 42.4C92 54.864 81.864 65 69.4 65C56.936 65 46.8 54.864 46.8 42.4C46.8 29.936 56.936 19.8 69.4 19.8C81.864 19.8 92 29.936 92 42.4Z" fill="url(#grad2)" opacity="0.9"/>
+  <path d="M38 92C38 86.4772 42.4772 82 48 82H80C85.5228 82 90 86.4772 90 92C90 97.5228 85.5228 102 80 102H48C42.4772 102 38 97.5228 38 92Z" fill="rgba(255,255,255,0.2)"/>
+  <text x="50%" y="72" text-anchor="middle" font-family="'Inter', 'Segoe UI', sans-serif" font-size="22" font-weight="600" fill="#F7FAFC">Q360</text>
+</svg>
