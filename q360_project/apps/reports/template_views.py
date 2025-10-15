@@ -442,7 +442,6 @@ def custom_report_builder(request):
 
             for category in categories:
                 # Get all responses for this category
-                from django.db.models import Avg
                 avg_score = Response.objects.filter(
                     assignment__campaign_id=campaign_id,
                     question__category=category,
