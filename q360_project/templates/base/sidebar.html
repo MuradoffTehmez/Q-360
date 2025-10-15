@@ -234,6 +234,13 @@
                 <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-500 rounded-full" id="unreadNotificationsCount">0</span>
             </a>
 
+            {% if user.is_admin or user.is_manager %}
+            <a href="{% url 'notifications:bulk-notification' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-bullhorn w-5 mr-3 text-orange-500"></i>
+                <span>{% trans "Bulk Notifications" %}</span>
+            </a>
+            {% endif %}
+
             {% if user.is_admin %}
             <a href="{% url 'notifications:email-templates' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-file-alt w-5 mr-3"></i>

@@ -17,6 +17,9 @@ urlpatterns = [
     path('delete-all/', template_views.delete_all_notifications, name='delete-all-notifications'),
     path('settings/', template_views.notification_settings, name='settings'),
 
+    # Bulk notification (admin/manager only)
+    path('bulk/', template_views.bulk_notification, name='bulk-notification'),
+
     # Email template management (admin only)
     path('templates/', template_views.EmailTemplateListView.as_view(), name='email-templates'),
     path('templates/create/', template_views.EmailTemplateCreateView.as_view(), name='email-template-create'),

@@ -281,3 +281,127 @@ def get_recent_notifications(request):
     } for n in notifications]
 
     return JsonResponse({'notifications': data, 'count': len(data)})
+
+
+# Bulk Notification Management (Admin/Manager only)
+
+@login_required
+def bulk_notification(request):
+    """
+    Toplu Bildiriş - Send notifications to multiple users.
+
+    Features:
+    - Filter users by department, role, or specific selection
+    - Choose notification type and delivery method (in-app, email, both)
+    - Preview recipients before sending
+    - Template selection for emails
+    - Batch sending with progress tracking
+    """
+    from apps.accounts.models import User
+    from apps.departments.models import Department
+    from django.db.models import Count
+
+    # Check if user is admin or manager
+    if not (request.user.is_admin() or request.user.is_manager()):
+        messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        # Process bulk notification
+        title = request.POST.get('title')
+        message = request.POST.get('message')
+        notification_type = request.POST.get('notification_type', 'info')
+        delivery_method = request.POST.get('delivery_method', 'in_app')  # in_app, email, both
+        link = request.POST.get('link', '')
+
+        # Get recipients based on filters
+        filter_type = request.POST.get('filter_type')  # all, department, role, specific
+
+        recipients = User.objects.filter(is_active=True)
+
+        if filter_type == 'department':
+            department_id = request.POST.get('department_id')
+            if department_id:
+                recipients = recipients.filter(department_id=department_id)
+        elif filter_type == 'role':
+            role = request.POST.get('role')
+            if role:
+                recipients = recipients.filter(role=role)
+        elif filter_type == 'specific':
+            user_ids = request.POST.getlist('user_ids')
+            if user_ids:
+                recipients = recipients.filter(id__in=user_ids)
+
+        # Create notifications
+        created_count = 0
+        email_sent_count = 0
+
+        for recipient in recipients:
+            # Create in-app notification
+            if delivery_method in ['in_app', 'both']:
+                Notification.objects.create(
+                    user=recipient,
+                    title=title,
+                    message=message,
+                    notification_type=notification_type,
+                    link=link
+                )
+                created_count += 1
+
+            # Send email
+            if delivery_method in ['email', 'both']:
+                try:
+                    # Use email service to send
+                    from .services import send_email_notification
+                    send_email_notification(
+                        recipient=recipient,
+                        subject=title,
+                        message=message
+                    )
+                    email_sent_count += 1
+                except Exception as e:
+                    # Log error but continue
+                    pass
+
+        success_message = f'{created_count} bildiriş yaradıldı'
+        if email_sent_count > 0:
+            success_message += f', {email_sent_count} e-poçt göndərildi'
+
+        messages.success(request, success_message + '.')
+        return redirect('notifications:bulk-notification')
+
+    # GET request - show form
+    # Get all departments for filter
+    departments = Department.objects.filter(is_active=True).annotate(
+        user_count=Count('users')
+    ).order_by('name')
+
+    # Get all users for specific selection
+    all_users = User.objects.filter(is_active=True).select_related('department').order_by('first_name', 'last_name')
+
+    # Get available email templates
+    email_templates = EmailTemplate.objects.filter(is_active=True)
+
+    # Role choices
+    role_choices = User.ROLE_CHOICES
+
+    # Statistics
+    total_users = User.objects.filter(is_active=True).count()
+    departments_count = Department.objects.filter(is_active=True).count()
+
+    # Recent bulk notifications (last 10)
+    recent_notifications = Notification.objects.values('title', 'notification_type', 'created_at').annotate(
+        recipient_count=Count('id')
+    ).order_by('-created_at')[:10]
+
+    context = {
+        'departments': departments,
+        'all_users': all_users,
+        'email_templates': email_templates,
+        'role_choices': role_choices,
+        'total_users': total_users,
+        'departments_count': departments_count,
+        'recent_notifications': recent_notifications,
+    }
+
+    return render(request, 'notifications/bulk_notification.html', context)

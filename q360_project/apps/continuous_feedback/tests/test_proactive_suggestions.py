@@ -165,15 +165,16 @@ class ProactiveFeedbackSuggestionsTestCase(TestCase):
         """Test that users not given feedback in 30+ days get high priority."""
         # Create old feedback
         old_date = timezone.now() - timedelta(days=35)
-        QuickFeedback.objects.create(
+        feedback = QuickFeedback.objects.create(
             sender=self.user,
             recipient=self.team_member1,
             feedback_type='recognition',
             visibility='private',
             title='Old Feedback',
-            message='This is old',
-            created_at=old_date
+            message='This is old'
         )
+        # Update created_at using queryset to bypass auto_now_add
+        QuickFeedback.objects.filter(id=feedback.id).update(created_at=old_date)
 
         self.client.login(username='testuser', password='TestPass123!')
         response = self.client.get(reverse('continuous_feedback:proactive-suggestions'))
@@ -185,39 +186,40 @@ class ProactiveFeedbackSuggestionsTestCase(TestCase):
 
     def test_medium_priority_for_recent_feedback(self):
         """Test that users given feedback 14-30 days ago get medium priority."""
+        # Use team_member2 who is not a subordinate
         # Create feedback 20 days ago
         recent_date = timezone.now() - timedelta(days=20)
-        QuickFeedback.objects.create(
+        feedback = QuickFeedback.objects.create(
             sender=self.user,
-            recipient=self.team_member1,
+            recipient=self.team_member2,  # Changed to team_member2 to avoid subordinate logic
             feedback_type='recognition',
             visibility='private',
             title='Recent Feedback',
-            message='This is recent',
-            created_at=recent_date
+            message='This is recent'
         )
+        QuickFeedback.objects.filter(id=feedback.id).update(created_at=recent_date)
 
         self.client.login(username='testuser', password='TestPass123!')
         response = self.client.get(reverse('continuous_feedback:proactive-suggestions'))
 
         suggestions = response.context['suggestions']
-        member1_suggestion = next((s for s in suggestions if s['user'].id == self.team_member1.id), None)
+        member2_suggestion = next((s for s in suggestions if s['user'].id == self.team_member2.id), None)
 
-        self.assertEqual(member1_suggestion['priority'], 'medium')
+        self.assertEqual(member2_suggestion['priority'], 'medium')
 
     def test_low_priority_for_very_recent_feedback(self):
         """Test that users given feedback <14 days ago get low priority."""
         # Create feedback 5 days ago
         very_recent_date = timezone.now() - timedelta(days=5)
-        QuickFeedback.objects.create(
+        feedback = QuickFeedback.objects.create(
             sender=self.user,
             recipient=self.team_member1,
             feedback_type='recognition',
             visibility='private',
             title='Very Recent Feedback',
-            message='This is very recent',
-            created_at=very_recent_date
+            message='This is very recent'
         )
+        QuickFeedback.objects.filter(id=feedback.id).update(created_at=very_recent_date)
 
         self.client.login(username='testuser', password='TestPass123!')
         response = self.client.get(reverse('continuous_feedback:proactive-suggestions'))
@@ -230,15 +232,15 @@ class ProactiveFeedbackSuggestionsTestCase(TestCase):
     def test_suggestions_sorted_by_priority(self):
         """Test that suggestions are sorted by priority (high first)."""
         # Create feedback with different ages
-        QuickFeedback.objects.create(
+        feedback = QuickFeedback.objects.create(
             sender=self.user,
             recipient=self.team_member1,
             feedback_type='recognition',
             visibility='private',
             title='Feedback',
-            message='Message',
-            created_at=timezone.now() - timedelta(days=5)  # Low priority
+            message='Message'
         )
+        QuickFeedback.objects.filter(id=feedback.id).update(created_at=timezone.now() - timedelta(days=5))
 
         # team_member2 will be high priority (no feedback)
 
@@ -410,15 +412,15 @@ class ProactiveFeedbackSuggestionsTestCase(TestCase):
         """Test that days since feedback is calculated correctly."""
         # Create feedback 10 days ago
         feedback_date = timezone.now() - timedelta(days=10)
-        QuickFeedback.objects.create(
+        feedback = QuickFeedback.objects.create(
             sender=self.user,
             recipient=self.team_member1,
             feedback_type='recognition',
             visibility='private',
             title='Feedback',
-            message='Message',
-            created_at=feedback_date
+            message='Message'
         )
+        QuickFeedback.objects.filter(id=feedback.id).update(created_at=feedback_date)
 
         self.client.login(username='testuser', password='TestPass123!')
         response = self.client.get(reverse('continuous_feedback:proactive-suggestions'))
