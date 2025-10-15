@@ -57,11 +57,42 @@ class EvaluationCampaignSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'start_date', 'end_date',
             'status', 'is_anonymous', 'allow_self_evaluation',
+            'weight_self', 'weight_supervisor', 'weight_peer', 'weight_subordinate',
             'target_departments', 'target_users', 'created_by',
             'created_by_name', 'completion_rate', 'is_currently_active',
             'questions', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_by', 'created_at', 'updated_at']
+
+    def validate(self, data):
+        """
+        Validate campaign data.
+        Ensures model's clean() method is called for consistency.
+        """
+        from decimal import Decimal
+
+        # Validate weights sum to 100%
+        weight_self = Decimal(str(data.get('weight_self', 20)))
+        weight_supervisor = Decimal(str(data.get('weight_supervisor', 50)))
+        weight_peer = Decimal(str(data.get('weight_peer', 20)))
+        weight_subordinate = Decimal(str(data.get('weight_subordinate', 10)))
+
+        total_weight = weight_self + weight_supervisor + weight_peer + weight_subordinate
+
+        if total_weight != Decimal('100.00'):
+            raise serializers.ValidationError({
+                'weight_self': f'Ağırlıq çəkilərinin cəmi 100% olmalıdır. Hazırda: {total_weight}%'
+            })
+
+        # Validate dates
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        if start_date and end_date and start_date > end_date:
+            raise serializers.ValidationError({
+                'end_date': 'Bitmə tarixi başlama tarixindən sonra olmalıdır.'
+            })
+
+        return data
 
 
 class ResponseSerializer(serializers.ModelSerializer):

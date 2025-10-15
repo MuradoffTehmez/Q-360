@@ -138,6 +138,38 @@ class EvaluationCampaign(models.Model):
     def __str__(self):
         return f"{self.title} ({self.start_date} - {self.end_date})"
 
+    def clean(self):
+        """Validate campaign data."""
+        from django.core.exceptions import ValidationError
+        from decimal import Decimal
+
+        # Validate that weights sum to 100%
+        total_weight = (
+            Decimal(str(self.weight_self)) +
+            Decimal(str(self.weight_supervisor)) +
+            Decimal(str(self.weight_peer)) +
+            Decimal(str(self.weight_subordinate))
+        )
+
+        if total_weight != Decimal('100.00'):
+            raise ValidationError({
+                'weight_self': _(
+                    f'Ağırlıq çəkilərinin cəmi 100% olmalıdır. '
+                    f'Hazırda: {total_weight}%'
+                )
+            })
+
+        # Validate dates
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError({
+                'end_date': _('Bitmə tarixi başlama tarixindən sonra olmalıdır.')
+            })
+
+    def save(self, *args, **kwargs):
+        """Override save to run validation."""
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def is_active(self):
         """Check if campaign is currently active."""
         from datetime import date

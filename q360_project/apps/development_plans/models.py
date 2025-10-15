@@ -41,6 +41,95 @@ class DevelopmentGoal(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.title}"
 
+    def submit_for_approval(self):
+        """
+        Submit goal for approval.
+        Can only submit from draft status.
+        """
+        from django.core.exceptions import ValidationError
+
+        if self.status != 'draft':
+            raise ValidationError(
+                f'Yalnız qaralama statusunda olan məqsədlər təsdiqə göndərilə bilər. '
+                f'Hazırki status: {self.get_status_display()}'
+            )
+
+        self.status = 'pending_approval'
+        self.save()
+
+    def approve(self, approver, note=''):
+        """
+        Approve the goal.
+        Can only approve from pending_approval status.
+        """
+        from django.core.exceptions import ValidationError
+        from django.utils import timezone
+
+        if self.status != 'pending_approval':
+            raise ValidationError(
+                f'Yalnız təsdiq gözləyən məqsədlər təsdiq edilə bilər. '
+                f'Hazırki status: {self.get_status_display()}'
+            )
+
+        self.status = 'active'
+        self.approved_by = approver
+        self.approved_at = timezone.now()
+        self.approval_note = note
+        self.save()
+
+    def reject(self, rejector, note=''):
+        """
+        Reject the goal.
+        Can only reject from pending_approval status.
+        """
+        from django.core.exceptions import ValidationError
+        from django.utils import timezone
+
+        if self.status != 'pending_approval':
+            raise ValidationError(
+                f'Yalnız təsdiq gözləyən məqsədlər rədd edilə bilər. '
+                f'Hazırki status: {self.get_status_display()}'
+            )
+
+        self.status = 'rejected'
+        self.approved_by = rejector
+        self.approved_at = timezone.now()
+        self.approval_note = note
+        self.save()
+
+    def mark_completed(self, completion_note=''):
+        """
+        Mark goal as completed.
+        Can only complete active goals.
+        """
+        from django.core.exceptions import ValidationError
+        from django.utils import timezone
+
+        if self.status != 'active':
+            raise ValidationError(
+                f'Yalnız aktiv məqsədlər tamamlana bilər. '
+                f'Hazırki status: {self.get_status_display()}'
+            )
+
+        self.status = 'completed'
+        self.completion_date = timezone.now().date()
+        self.approval_note = completion_note
+        self.save()
+
+    def cancel(self, cancel_note=''):
+        """
+        Cancel the goal.
+        Can cancel from any status except completed.
+        """
+        from django.core.exceptions import ValidationError
+
+        if self.status == 'completed':
+            raise ValidationError('Tamamlanmış məqsədlər ləğv edilə bilməz.')
+
+        self.status = 'cancelled'
+        self.approval_note = cancel_note
+        self.save()
+
 
 class ProgressLog(models.Model):
     """Progress tracking for development goals."""
