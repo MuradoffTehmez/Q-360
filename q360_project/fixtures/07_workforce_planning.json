@@ -1,0 +1,321 @@
+[
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 1,
+    "fields": {
+      "user": 2,
+      "performance_level": "high",
+      "potential_level": "high",
+      "box_category": "box9",
+      "performance_score": "88.00",
+      "potential_score": "92.00",
+      "assessed_by": 9,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Üstün istedad. Güçlü rəhbərlik, strategik düşüncə və innovasiya. Nazir müavini vəzifəsinə namizəd.",
+      "development_actions": "Executive MBA proqramı, beynəlxalq təcrübə mübadiləsi"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "performance_level": "high",
+      "potential_level": "medium",
+      "box_category": "box8",
+      "performance_score": "85.00",
+      "potential_score": "68.00",
+      "assessed_by": 2,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Yüksək ifaçı. E-xidmətlər sahəsində güçlü ekspertiza. Rəhbərlik bacarıqları inkişaf edir.",
+      "development_actions": "Liderlik təlimi, departament direktoru vəzifəsinə hazırlıq"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 3,
+    "fields": {
+      "user": 4,
+      "performance_level": "high",
+      "potential_level": "high",
+      "box_category": "box9",
+      "performance_score": "90.00",
+      "potential_score": "88.00",
+      "assessed_by": 3,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Üstün texniki istedad. Full-stack development expertizası. Arxitektur qərarlar qəbul edə bilir.",
+      "development_actions": "Tech lead roluna keçid, system design təlimləri"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 4,
+    "fields": {
+      "user": 5,
+      "performance_level": "high",
+      "potential_level": "medium",
+      "box_category": "box8",
+      "performance_score": "87.00",
+      "potential_score": "72.00",
+      "assessed_by": 3,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Yüksək ifaçı UI/UX dizayner. Kreativ həllər, istifadəçi yönümlü dizayn.",
+      "development_actions": "UX Research metodologiyası, design system leadership"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 5,
+    "fields": {
+      "user": 6,
+      "performance_level": "medium",
+      "potential_level": "high",
+      "box_category": "box6",
+      "performance_score": "65.00",
+      "potential_score": "80.00",
+      "assessed_by": 3,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Gələcək lider. Yüksək öyrənmə qabiliyyəti, motivasiya və potensial.",
+      "development_actions": "Mentorluq proqramı, advanced technical training, real project experience"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 6,
+    "fields": {
+      "user": 7,
+      "performance_level": "high",
+      "potential_level": "high",
+      "box_category": "box9",
+      "performance_score": "92.00",
+      "potential_score": "90.00",
+      "assessed_by": 2,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Üstün istedad. Kibertəhlükəsizlik eksperti. Sertifikatlar və beynəlxalq təcrübə.",
+      "development_actions": "Departament direktoru roluna keçid hazırlığı"
+    }
+  },
+  {
+    "model": "workforce_planning.talentmatrix",
+    "pk": 7,
+    "fields": {
+      "user": 8,
+      "performance_level": "medium",
+      "potential_level": "high",
+      "box_category": "box6",
+      "performance_score": "70.00",
+      "potential_score": "82.00",
+      "assessed_by": 7,
+      "assessment_date": "2024-02-15",
+      "assessment_period": "2024 Q1",
+      "notes": "Gələcək lider. SOC təcrübəsi, təhlil bacarıqları güclüdür. İnkişaf potensialı yüksək.",
+      "development_actions": "Advanced security training, incident response leadership"
+    }
+  },
+  {
+    "model": "workforce_planning.criticalrole",
+    "pk": 1,
+    "fields": {
+      "position": 3,
+      "current_holder": 2,
+      "criticality_level": "critical",
+      "business_impact": "Rəqəmsal İnkişaf Departamenti nazirliyinş strategic məqsədləri üçün kritik əhəmiyyətə malikdir. E-xidmətlər və rəqəmsal transformasiya layihələrini idarə edir.",
+      "required_competencies": [1, 5, 6, 4],
+      "required_experience_years": 7,
+      "succession_readiness": "ready_1_2_years",
+      "is_active": true,
+      "notes": "Leyla Hüseynova hazırda şöbə müdiridir və 2 il ərzində bu vəzifəyə hazır olacaq"
+    }
+  },
+  {
+    "model": "workforce_planning.criticalrole",
+    "pk": 2,
+    "fields": {
+      "position": 8,
+      "current_holder": 7,
+      "criticality_level": "critical",
+      "business_impact": "Kibertəhlükəsizlik nazirliyiş bütün IT infrastrukturu və məlumatları üçün həyati əhəmiyyət daşıyır. Cyber hücumlar və data breaches riskini azaltır.",
+      "required_competencies": [8, 1, 6],
+      "required_experience_years": 5,
+      "succession_readiness": "ready_1_2_years",
+      "is_active": true,
+      "notes": "Aysel Məmmədova hazırlanır"
+    }
+  },
+  {
+    "model": "workforce_planning.criticalrole",
+    "pk": 3,
+    "fields": {
+      "position": 10,
+      "current_holder": 9,
+      "criticality_level": "high",
+      "business_impact": "İnsan resursları strategiyası və talent management təşkilatın inkişafı üçün vacibdir.",
+      "required_competencies": [11, 1, 2],
+      "required_experience_years": 7,
+      "succession_readiness": "ready_1_2_years",
+      "is_active": true,
+      "notes": "Sevinc Hüseynli succession candidate kimi hazırlanır"
+    }
+  },
+  {
+    "model": "workforce_planning.successioncandidate",
+    "pk": 1,
+    "fields": {
+      "critical_role": 1,
+      "candidate": 3,
+      "readiness_level": "ready_1_2_years",
+      "readiness_score": "78.00",
+      "strengths": "E-government layihələrində 8 illik təcrübə, güclü texniki background, komanda idarəetməsi təcrübəsi",
+      "development_needs": "Strategik planlaşdırma, budget management, stakeholder management bacarıqları",
+      "development_plan": "1. PMP sertifikatı almaq\n2. Strategic planning workshop\n3. Budget və financial management təlimi\n4. Executive mentorship (Rəşad Məmmədov)",
+      "nominated_by": 2,
+      "is_active": true
+    }
+  },
+  {
+    "model": "workforce_planning.successioncandidate",
+    "pk": 2,
+    "fields": {
+      "critical_role": 2,
+      "candidate": 8,
+      "readiness_level": "ready_1_2_years",
+      "readiness_score": "75.00",
+      "strengths": "SOC təcrübəsi, incident response, SIEM və security monitoring bacarıqları",
+      "development_needs": "Liderlik və komanda idarəetməsi, strategik risk management, vendor management",
+      "development_plan": "1. CEH sertifikatı almaq\n2. Liderlik və komanda idarəetməsi təlimi\n3. CISM (Certified Information Security Manager) sertifikatına hazırlıq\n4. Mentorship from Farid İsmayılov",
+      "nominated_by": 7,
+      "is_active": true
+    }
+  },
+  {
+    "model": "workforce_planning.successioncandidate",
+    "pk": 3,
+    "fields": {
+      "critical_role": 3,
+      "candidate": 10,
+      "readiness_level": "ready_1_2_years",
+      "readiness_score": "80.00",
+      "strengths": "6 illik HR təcrübəsi, talent management expertise, organizational development bacarıqları",
+      "development_needs": "Strategic HR leadership, change management, executive presence",
+      "development_plan": "1. PHR sertifikatını Senior PHR-ə yüksəltmək\n2. Executive coaching proqramı\n3. Strategic HR leadership təlimi\n4. Cross-functional project leadership təcrübəsi",
+      "nominated_by": 9,
+      "is_active": true
+    }
+  },
+  {
+    "model": "workforce_planning.competencygap",
+    "pk": 1,
+    "fields": {
+      "user": 6,
+      "competency": 7,
+      "current_level": 2,
+      "target_level": 3,
+      "current_score": "45.00",
+      "target_score": "70.00",
+      "gap_score": "25.00",
+      "gap_status": "moderate_gap",
+      "target_position": 6,
+      "recommended_actions": "1. Python proqramlaşdırma kursunu tamamlamaq\n2. Django framework öyrənmək\n3. Real layihələrdə iştirak etmək\n4. Code review və mentorship",
+      "recommended_trainings": [1, 2],
+      "priority": "high",
+      "target_close_date": "2024-06-30",
+      "is_closed": false,
+      "closed_date": null,
+      "closure_notes": ""
+    }
+  },
+  {
+    "model": "workforce_planning.competencygap",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "competency": 5,
+      "current_level": 3,
+      "target_level": 4,
+      "current_score": "72.00",
+      "target_score": "85.00",
+      "gap_score": "13.00",
+      "gap_status": "minor_gap",
+      "target_position": 3,
+      "recommended_actions": "1. PMP sertifikatı əldə etmək\n2. Large-scale project management təcrübəsi\n3. Agile və Scrum metodologiyası",
+      "recommended_trainings": [7, 10],
+      "priority": "medium",
+      "target_close_date": "2024-09-30",
+      "is_closed": false,
+      "closed_date": null,
+      "closure_notes": ""
+    }
+  },
+  {
+    "model": "workforce_planning.competencygap",
+    "pk": 3,
+    "fields": {
+      "user": 8,
+      "competency": 8,
+      "current_level": 3,
+      "target_level": 4,
+      "current_score": "70.00",
+      "target_score": "85.00",
+      "gap_score": "15.00",
+      "gap_status": "minor_gap",
+      "target_position": 8,
+      "recommended_actions": "1. CEH sertifikatı almaq\n2. Advanced penetration testing təcrübəsi\n3. Security architecture və design\n4. Incident response leadership",
+      "recommended_trainings": [5],
+      "priority": "high",
+      "target_close_date": "2024-08-31",
+      "is_closed": false,
+      "closed_date": null,
+      "closure_notes": ""
+    }
+  },
+  {
+    "model": "workforce_planning.competencygap",
+    "pk": 4,
+    "fields": {
+      "user": 10,
+      "competency": 1,
+      "current_level": 2,
+      "target_level": 4,
+      "current_score": "55.00",
+      "target_score": "85.00",
+      "gap_score": "30.00",
+      "gap_status": "moderate_gap",
+      "target_position": 10,
+      "recommended_actions": "1. Liderlik və idarəetmə təlimləri\n2. Executive coaching\n3. Cross-functional team leadership təcrübəsi\n4. Strategic decision making",
+      "recommended_trainings": [6],
+      "priority": "medium",
+      "target_close_date": "2024-12-31",
+      "is_closed": false,
+      "closed_date": null,
+      "closure_notes": ""
+    }
+  },
+  {
+    "model": "workforce_planning.competencygap",
+    "pk": 5,
+    "fields": {
+      "user": 5,
+      "competency": 7,
+      "current_level": 3,
+      "target_level": 4,
+      "current_score": "65.00",
+      "target_score": "85.00",
+      "gap_score": "20.00",
+      "gap_status": "minor_gap",
+      "target_position": 5,
+      "recommended_actions": "1. React və modern JavaScript frameworks\n2. Advanced front-end architecture\n3. Performance optimization\n4. State management patterns",
+      "recommended_trainings": [12],
+      "priority": "medium",
+      "target_close_date": "2024-07-31",
+      "is_closed": false,
+      "closed_date": null,
+      "closure_notes": ""
+    }
+  }
+]

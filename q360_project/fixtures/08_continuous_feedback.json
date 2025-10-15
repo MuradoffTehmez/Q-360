@@ -1,0 +1,379 @@
+[
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 1,
+    "fields": {
+      "name": "Komanda İşi",
+      "description": "Komanda ilə əməkdaşlıq və birlikdə iş",
+      "icon": "fa-users",
+      "is_active": true,
+      "usage_count": 15
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 2,
+    "fields": {
+      "name": "Liderlik",
+      "description": "Rəhbərlik və lider keyfiyyətləri",
+      "icon": "fa-crown",
+      "is_active": true,
+      "usage_count": 12
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 3,
+    "fields": {
+      "name": "Texniki Bacarıq",
+      "description": "Texniki bilik və ekspertiza",
+      "icon": "fa-code",
+      "is_active": true,
+      "usage_count": 20
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 4,
+    "fields": {
+      "name": "Ünsiyyət",
+      "description": "Ünsiyyət bacarıqları",
+      "icon": "fa-comments",
+      "is_active": true,
+      "usage_count": 18
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 5,
+    "fields": {
+      "name": "Yaradıcılıq",
+      "description": "Kreativ düşüncə və innovasiya",
+      "icon": "fa-lightbulb",
+      "is_active": true,
+      "usage_count": 10
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbacktag",
+    "pk": 6,
+    "fields": {
+      "name": "Problem Həlli",
+      "description": "Problemləri həll etmək bacarığı",
+      "icon": "fa-puzzle-piece",
+      "is_active": true,
+      "usage_count": 14
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 1,
+    "fields": {
+      "sender": 3,
+      "recipient": 4,
+      "feedback_type": "recognition",
+      "visibility": "public",
+      "title": "E-xidmətlər portalı yeniləməsi üçün təşəkkür",
+      "message": "Murad, yeni e-xidmətlər portalının back-end hissəsini mükəmməl şəkildə hazırladın. API-lərin sürəti və reliability-si əladır. Təşəkkürlər!",
+      "related_competency": 7,
+      "context": "E-xidmətlər portalı v2.0 layihəsi",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-15T09:30:00Z",
+      "recipient_response": "Təşəkkür edirəm! Komanda ilə birlikdə gözəl nəticə əldə etdik.",
+      "responded_at": "2024-03-15T14:00:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 2,
+    "fields": {
+      "sender": 4,
+      "recipient": 5,
+      "feedback_type": "recognition",
+      "visibility": "public",
+      "title": "Möhtəşəm UI/UX dizayn",
+      "message": "Nigar, yeni portalın dizaynı həqiqətən istifadəçi dostu və müasir çıxdı. İstifadəçi feedback-ləri çox pozitivdir. Əla iş!",
+      "related_competency": 9,
+      "context": "E-xidmətlər portalı v2.0 layihəsi",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-16T10:00:00Z",
+      "recipient_response": "Çox sağ ol! Sizinlə işləmək çox rahat oldu, texniki hissə mükəmməl idi.",
+      "responded_at": "2024-03-16T11:30:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 3,
+    "fields": {
+      "sender": 2,
+      "recipient": 3,
+      "feedback_type": "recognition",
+      "visibility": "team",
+      "title": "Layihə idarəetməsi üzrə əla performans",
+      "message": "Leyla, e-xidmətlər layihəsini deadline-a yetişdirmək və keyfiyyəti saxlamaq üçün göstərdiyin səy və idarəetmə bacarıqları təqdirəlayiqdir. Komanda koordinasiyası mükəmməl idi.",
+      "related_competency": 5,
+      "context": "E-xidmətlər portalı v2.0 layihəsi",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-20T15:00:00Z",
+      "recipient_response": "Təşəkkür edirəm! Komandanın dəstəyi olmadan bu mümkün olmazdı.",
+      "responded_at": "2024-03-20T16:00:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 4,
+    "fields": {
+      "sender": 7,
+      "recipient": 8,
+      "feedback_type": "recognition",
+      "visibility": "public",
+      "title": "Security incident-ə sürətli reaksiya",
+      "message": "Aysel, dünənki phishing hücumu cəhdinə sürətli və professional reaksiya göstərdin. Incident timeline və analysis reportu əla hazırlanıb. Təşəkkürlər!",
+      "related_competency": 8,
+      "context": "Phishing incident response - 2024-03-18",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-19T09:00:00Z",
+      "recipient_response": "Təşəkkür edirəm! SOC komandasının təlimi və əməkdaşlığı sayəsində.",
+      "responded_at": "2024-03-19T10:30:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 5,
+    "fields": {
+      "sender": 3,
+      "recipient": 6,
+      "feedback_type": "improvement",
+      "visibility": "private",
+      "title": "Code review comments",
+      "message": "Elvin, son pull request-lərdə error handling hissəsi zəif qalır. Try-catch block-ları və proper error messages əlavə etməyə diqqət yetir. Həmçinin unit test coverage-i artırmaq lazımdır.",
+      "related_competency": 7,
+      "context": "Sprint 15 - Code review",
+      "rating": 3,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-22T11:00:00Z",
+      "recipient_response": "Anladım, təşəkkürlər feedback üçün. Növbəti PR-lərdə bu nöqsanları düzəldəcəm.",
+      "responded_at": "2024-03-22T14:00:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 6,
+    "fields": {
+      "sender": 9,
+      "recipient": 10,
+      "feedback_type": "recognition",
+      "visibility": "public",
+      "title": "Talent acquisition strategiyası",
+      "message": "Sevinc, yeni recruitment campaign çox uğurlu oldu. 15 gün ərzində 5 quality candidate hire etməyimiz sənin strategiyan və səyin sayəsində. Əla iş!",
+      "related_competency": 11,
+      "context": "Q1 2024 Recruitment Campaign",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-25T10:00:00Z",
+      "recipient_response": "Təşəkkür edirəm! Hiring manager-lərin dəstəyi və sürətli qərar qəbul etməsi çox kömək etdi.",
+      "responded_at": "2024-03-25T11:00:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 7,
+    "fields": {
+      "sender": 5,
+      "recipient": 4,
+      "feedback_type": "recognition",
+      "visibility": "team",
+      "title": "API documentation",
+      "message": "Murad, yazdığın API documentation çox aydın və detailed. Front-end development zamanı heç bir sual yaranmadı. Time-saver!",
+      "related_competency": 3,
+      "context": "E-xidmətlər API v2",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-28T09:00:00Z",
+      "recipient_response": "Çox xoşbəxtəm ki, kömək oldu! Documentation-a vaxt ayırmaq sonradan çox qazandırır.",
+      "responded_at": "2024-03-28T10:00:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.quickfeedback",
+    "pk": 8,
+    "fields": {
+      "sender": 2,
+      "recipient": 7,
+      "feedback_type": "recognition",
+      "visibility": "public",
+      "title": "Cybersecurity awareness training",
+      "message": "Farid, təşkil etdiyin cybersecurity awareness training əla keçdi. 95% iştirak dərəcəsi və çox pozitiv feedback-lər. Əməkdaşların informasiya təhlükəsizliyi awareness-i xeyli artdı.",
+      "related_competency": 8,
+      "context": "Q1 2024 Security Awareness Campaign",
+      "rating": 5,
+      "is_anonymous": false,
+      "is_read": true,
+      "read_at": "2024-03-30T14:00:00Z",
+      "recipient_response": "Təşəkkür edirəm! Security culture yaratmaq uzun yoldur, amma başlanğıc yaxşı oldu.",
+      "responded_at": "2024-03-30T15:30:00Z",
+      "is_flagged": false,
+      "flagged_reason": ""
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbackbank",
+    "pk": 1,
+    "fields": {
+      "user": 4,
+      "total_feedbacks_received": 3,
+      "total_recognitions": 2,
+      "total_improvements": 0,
+      "average_rating": "5.00",
+      "top_strengths": ["Texniki bacarıq", "Ünsiyyət", "Komanda işi"],
+      "top_improvement_areas": [],
+      "positive_sentiment_score": "95.00",
+      "last_feedback_date": "2024-03-28T09:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbackbank",
+    "pk": 2,
+    "fields": {
+      "user": 5,
+      "total_feedbacks_received": 2,
+      "total_recognitions": 2,
+      "total_improvements": 0,
+      "average_rating": "5.00",
+      "top_strengths": ["UI/UX dizayn", "Yaradıcılıq", "İstifadəçi yönümlülük"],
+      "top_improvement_areas": [],
+      "positive_sentiment_score": "98.00",
+      "last_feedback_date": "2024-03-16T10:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbackbank",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "total_feedbacks_received": 1,
+      "total_recognitions": 1,
+      "total_improvements": 0,
+      "average_rating": "5.00",
+      "top_strengths": ["Layihə idarəetməsi", "Liderlik", "Komanda koordinasiyası"],
+      "top_improvement_areas": [],
+      "positive_sentiment_score": "92.00",
+      "last_feedback_date": "2024-03-20T15:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbackbank",
+    "pk": 4,
+    "fields": {
+      "user": 8,
+      "total_feedbacks_received": 1,
+      "total_recognitions": 1,
+      "total_improvements": 0,
+      "average_rating": "5.00",
+      "top_strengths": ["Kibertəhlükəsizlik", "Incident response", "Professional çıxış"],
+      "top_improvement_areas": [],
+      "positive_sentiment_score": "94.00",
+      "last_feedback_date": "2024-03-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.feedbackbank",
+    "pk": 5,
+    "fields": {
+      "user": 6,
+      "total_feedbacks_received": 1,
+      "total_recognitions": 0,
+      "total_improvements": 1,
+      "average_rating": "3.00",
+      "top_strengths": [],
+      "top_improvement_areas": ["Error handling", "Unit testing", "Code quality"],
+      "positive_sentiment_score": "45.00",
+      "last_feedback_date": "2024-03-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.publicrecognition",
+    "pk": 1,
+    "fields": {
+      "feedback": 1,
+      "likes_count": 12,
+      "comments_count": 3,
+      "views_count": 45,
+      "is_featured": false,
+      "featured_until": null
+    }
+  },
+  {
+    "model": "continuous_feedback.publicrecognition",
+    "pk": 2,
+    "fields": {
+      "feedback": 2,
+      "likes_count": 15,
+      "comments_count": 4,
+      "views_count": 52,
+      "is_featured": true,
+      "featured_until": "2024-04-10T00:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.publicrecognition",
+    "pk": 3,
+    "fields": {
+      "feedback": 4,
+      "likes_count": 18,
+      "comments_count": 5,
+      "views_count": 68,
+      "is_featured": false,
+      "featured_until": null
+    }
+  },
+  {
+    "model": "continuous_feedback.publicrecognition",
+    "pk": 4,
+    "fields": {
+      "feedback": 6,
+      "likes_count": 20,
+      "comments_count": 6,
+      "views_count": 75,
+      "is_featured": true,
+      "featured_until": "2024-04-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "continuous_feedback.publicrecognition",
+    "pk": 5,
+    "fields": {
+      "feedback": 8,
+      "likes_count": 22,
+      "comments_count": 7,
+      "views_count": 82,
+      "is_featured": false,
+      "featured_until": null
+    }
+  }
+]

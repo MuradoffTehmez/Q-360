@@ -1,0 +1,334 @@
+[
+  {
+    "model": "departments.organization",
+    "pk": 1,
+    "fields": {
+      "name": "Azərbaycan Respublikası Rəqəmsal İnkişaf və Nəqliyyat Nazirliyi",
+      "short_name": "RİNN",
+      "code": "MINT",
+      "description": "Rəqəmsal texnologiyalar, informasiya cəmiyyəti və nəqliyyat sahəsində dövlət siyasətinin həyata keçirilməsi",
+      "address": "Bakı şəhəri, Yasamal rayonu, Şərifzadə küçəsi 22",
+      "phone": "+994 12 404 50 00",
+      "email": "info@mincom.gov.az",
+      "website": "https://mincom.gov.az",
+      "is_active": true,
+      "established_date": "2019-07-15"
+    }
+  },
+  {
+    "model": "departments.organization",
+    "pk": 2,
+    "fields": {
+      "name": "Azərbaycan Respublikası İqtisadiyyat Nazirliyi",
+      "short_name": "İN",
+      "code": "MINECON",
+      "description": "İqtisadi siyasətin formalaşdırılması və həyata keçirilməsi",
+      "address": "Bakı şəhəri, Səbail rayonu, Bülbül prospekti 1",
+      "phone": "+994 12 493 10 60",
+      "email": "info@economy.gov.az",
+      "website": "https://economy.gov.az",
+      "is_active": true,
+      "established_date": "1991-11-28"
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 1,
+    "fields": {
+      "organization": 1,
+      "parent": null,
+      "name": "Nazirin Aparatı",
+      "code": "NA",
+      "description": "Nazirin fəaliyyətinə dəstək və koordinasiya",
+      "phone": "+994 12 404 50 01",
+      "email": "cabinet@mincom.gov.az",
+      "location": "Mərkəzi bina, 4-cü mərtəbə",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 2,
+    "fields": {
+      "organization": 1,
+      "parent": null,
+      "name": "Rəqəmsal İnkişaf Departamenti",
+      "code": "RID",
+      "description": "Rəqəmsal transformasiya layihələrinin idarə edilməsi",
+      "phone": "+994 12 404 50 10",
+      "email": "digital@mincom.gov.az",
+      "location": "Mərkəzi bina, 3-cü mərtəbə",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 3,
+    "fields": {
+      "organization": 1,
+      "parent": 2,
+      "name": "E-xidmətlər Şöbəsi",
+      "code": "EXS",
+      "description": "Elektron xidmətlərin hazırlanması və idarə edilməsi",
+      "phone": "+994 12 404 50 11",
+      "email": "eservices@mincom.gov.az",
+      "location": "Mərkəzi bina, 3-cü mərtəbə, otaq 310",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 4,
+    "fields": {
+      "organization": 1,
+      "parent": 2,
+      "name": "Kibertəhlükəsizlik Şöbəsi",
+      "code": "KTS",
+      "description": "İnformasiya təhlükəsizliyi və kibertəhlükəsizlik",
+      "phone": "+994 12 404 50 12",
+      "email": "cybersec@mincom.gov.az",
+      "location": "Mərkəzi bina, 2-ci mərtəbə",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 5,
+    "fields": {
+      "organization": 1,
+      "parent": null,
+      "name": "İnsan Resursları və Təlim Mərkəzi",
+      "code": "IRTM",
+      "description": "Kadr siyasəti və işçilərin inkişafı",
+      "phone": "+994 12 404 50 20",
+      "email": "hr@mincom.gov.az",
+      "location": "Mərkəzi bina, 1-ci mərtəbə",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 6,
+    "fields": {
+      "organization": 2,
+      "parent": null,
+      "name": "Makroiqtisadi Siyasət Departamenti",
+      "code": "MSD",
+      "description": "Makroiqtisadi təhlil və proqnozlaşdırma",
+      "phone": "+994 12 493 10 61",
+      "email": "macro@economy.gov.az",
+      "location": "Əsas bina, 5-ci mərtəbə",
+      "head": null,
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 1,
+    "fields": {
+      "organization": 1,
+      "department": 1,
+      "title": "Nazir",
+      "code": "P001",
+      "description": "Nazirliyə rəhbərlik edən vəzifə",
+      "responsibilities": "Nazirliyə ümumi rəhbərlik, strateji qərarların qəbulu, dövlət siyasətinin həyata keçirilməsi",
+      "level": 1,
+      "reports_to": null,
+      "required_education": "Ali təhsil (Magistr və ya PhD)",
+      "required_experience": "15+ il idarəetmə təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 2,
+    "fields": {
+      "organization": 1,
+      "department": 1,
+      "title": "Nazir müavini",
+      "code": "P002",
+      "description": "Nazirə yardımçı rəhbər vəzifə",
+      "responsibilities": "Müəyyən istiqamətlərə rəhbərlik, departamentlərin fəaliyyətinin koordinasiyası",
+      "level": 1,
+      "reports_to": 1,
+      "required_education": "Ali təhsil (Magistr)",
+      "required_experience": "10+ il idarəetmə təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 3,
+    "fields": {
+      "organization": 1,
+      "department": 2,
+      "title": "Departament direktoru",
+      "code": "P003",
+      "description": "Departamentə rəhbərlik",
+      "responsibilities": "Departamentin fəaliyyətinə rəhbərlik, planların hazırlanması və icra edilməsi",
+      "level": 2,
+      "reports_to": 2,
+      "required_education": "Ali təhsil",
+      "required_experience": "7+ il sahə təcrübəsi, 3+ il rəhbərlik təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 4,
+    "fields": {
+      "organization": 1,
+      "department": 3,
+      "title": "Şöbə müdiri",
+      "code": "P004",
+      "description": "Şöbəyə rəhbərlik",
+      "responsibilities": "Şöbənin gündəlik fəaliyyətinə rəhbərlik, komanda idarəetməsi",
+      "level": 2,
+      "reports_to": 3,
+      "required_education": "Ali təhsil",
+      "required_experience": "5+ il sahə təcrübəsi, 2+ il rəhbərlik təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 5,
+    "fields": {
+      "organization": 1,
+      "department": 3,
+      "title": "Baş mütəxəssis",
+      "code": "P005",
+      "description": "Aparıcı mütəxəssis vəzifəsi",
+      "responsibilities": "Layihələrin icrası, texniki məsləhət, komanda üzvlərinə rəhbərlik",
+      "level": 3,
+      "reports_to": 4,
+      "required_education": "Ali təhsil",
+      "required_experience": "5+ il sahə təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 6,
+    "fields": {
+      "organization": 1,
+      "department": 3,
+      "title": "Aparıcı mütəxəssis",
+      "code": "P006",
+      "description": "Aparıcı səviyyədə mütəxəssis",
+      "responsibilities": "Layihələrin həyata keçirilməsi, texniki sənədləşmə",
+      "level": 3,
+      "reports_to": 4,
+      "required_education": "Ali təhsil",
+      "required_experience": "3+ il sahə təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 7,
+    "fields": {
+      "organization": 1,
+      "department": 3,
+      "title": "Mütəxəssis",
+      "code": "P007",
+      "description": "Mütəxəssis vəzifəsi",
+      "responsibilities": "Tapşırıqların yerinə yetirilməsi, məlumatların toplanması və təhlili",
+      "level": 3,
+      "reports_to": 4,
+      "required_education": "Ali təhsil",
+      "required_experience": "1+ il təcrübə",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 8,
+    "fields": {
+      "organization": 1,
+      "department": 4,
+      "title": "Şöbə müdiri (Kibertəhlükəsizlik)",
+      "code": "P008",
+      "description": "Kibertəhlükəsizlik şöbəsinə rəhbərlik",
+      "responsibilities": "İnformasiya təhlükəsizliyi siyasətinin həyata keçirilməsi, komanda idarəetməsi",
+      "level": 2,
+      "reports_to": 3,
+      "required_education": "Ali təhsil (İnformasiya Təhlükəsizliyi)",
+      "required_experience": "5+ il sahə təcrübəsi, sertifikatlar (CISSP, CEH və s.)",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 9,
+    "fields": {
+      "organization": 1,
+      "department": 4,
+      "title": "Kibertəhlükəsizlik mütəxəssisi",
+      "code": "P009",
+      "description": "İnformasiya təhlükəsizliyi mütəxəssisi",
+      "responsibilities": "Təhlükəsizlik monitorinqi, hadisələrə cavab, vulnerability assessment",
+      "level": 3,
+      "reports_to": 8,
+      "required_education": "Ali təhsil",
+      "required_experience": "3+ il sahə təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 10,
+    "fields": {
+      "organization": 1,
+      "department": 5,
+      "title": "İnsan Resursları Direktoru",
+      "code": "P010",
+      "description": "İnsan resursları idarəsinə rəhbərlik",
+      "responsibilities": "HR strategiyasının hazırlanması, kadr siyasəti, təlim və inkişaf proqramları",
+      "level": 2,
+      "reports_to": 2,
+      "required_education": "Ali təhsil (İnsan Resursları və ya əlaqəli sahə)",
+      "required_experience": "7+ il HR sahəsində, 3+ il rəhbərlik təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 11,
+    "fields": {
+      "organization": 1,
+      "department": 5,
+      "title": "HR Business Partner",
+      "code": "P011",
+      "description": "İnsan resursları biznes tərəfdaşı",
+      "responsibilities": "Departamentlərə HR dəstəyi, talent management, performance management",
+      "level": 3,
+      "reports_to": 10,
+      "required_education": "Ali təhsil",
+      "required_experience": "4+ il HR təcrübəsi",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.position",
+    "pk": 12,
+    "fields": {
+      "organization": 2,
+      "department": 6,
+      "title": "Departament direktoru (Makroiqtisadi)",
+      "code": "P012",
+      "description": "Makroiqtisadi siyasət departamentinə rəhbərlik",
+      "responsibilities": "İqtisadi təhlillər, proqnozlar, siyasət tövsiyələri",
+      "level": 2,
+      "reports_to": null,
+      "required_education": "Ali təhsil (İqtisadiyyat, PhD üstünlük təşkil edir)",
+      "required_experience": "8+ il iqtisadi təhlil təcrübəsi",
+      "is_active": true
+    }
+  }
+]

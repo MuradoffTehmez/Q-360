@@ -1,0 +1,147 @@
+[
+  {
+    "model": "support.supportticket",
+    "pk": 1,
+    "fields": {
+      "title": "Sistem girişində problem",
+      "description": "Yeni parol dəyişdikdən sonra sistemə giriş edə bilmirəm. 'Invalid credentials' xətası verir.",
+      "status": "resolved",
+      "priority": "high",
+      "created_by": 6,
+      "assigned_to": 1,
+      "resolved_at": "2024-03-10T14:30:00Z"
+    }
+  },
+  {
+    "model": "support.supportticket",
+    "pk": 2,
+    "fields": {
+      "title": "Qiymətləndirmə formunda xəta",
+      "description": "360 dərəcə qiymətləndirmə formu göndərilərkən server error 500 alıram. Bəzi suallar cavablanmayanda bu xəta baş verir.",
+      "status": "in_progress",
+      "priority": "medium",
+      "created_by": 5,
+      "assigned_to": 4,
+      "resolved_at": null
+    }
+  },
+  {
+    "model": "support.supportticket",
+    "pk": 3,
+    "fields": {
+      "title": "Təlim kateqoriyası əlavə edilməsi",
+      "description": "Yeni təlim resursu əlavə edərkən 'Cloud Computing' kateqoriyası listdə yoxdur. Bu kateqoriya əlavə edilə bilərmi?",
+      "status": "open",
+      "priority": "low",
+      "created_by": 10,
+      "assigned_to": null,
+      "resolved_at": null
+    }
+  },
+  {
+    "model": "support.supportticket",
+    "pk": 4,
+    "fields": {
+      "title": "Profil şəklinin yüklənməsi",
+      "description": "Profil şəklimi dəyişmək istəyirəm, amma 'File too large' xətası alıram. Maksimum ölçü nə qədərdir?",
+      "status": "resolved",
+      "priority": "low",
+      "created_by": 8,
+      "assigned_to": 1,
+      "resolved_at": "2024-03-12T10:00:00Z"
+    }
+  },
+  {
+    "model": "support.supportticket",
+    "pk": 5,
+    "fields": {
+      "title": "Dashboard statistikalarında uyğunsuzluq",
+      "description": "Dashboard-dakı 'Tamamlanmış təlimlər' sayı ilə təlim səhifəsindəki say fərqlidir. Hansı rəqəm doğrudur?",
+      "status": "in_progress",
+      "priority": "medium",
+      "created_by": 9,
+      "assigned_to": 4,
+      "resolved_at": null
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 1,
+    "fields": {
+      "ticket": 1,
+      "comment": "Parolunuzu reset edib yenidən təyin etməyinizi xahiş edirəm. Password reset linki email-inizə göndərildi.",
+      "created_by": 1,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 2,
+    "fields": {
+      "ticket": 1,
+      "comment": "Təşəkkür edirəm, problem həll olundu. İndi giriş edə bildim.",
+      "created_by": 6,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 3,
+    "fields": {
+      "ticket": 2,
+      "comment": "Problemi reproduce etməyə çalışıram. Hansı browser istifadə edirsiniz?",
+      "created_by": 4,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 4,
+    "fields": {
+      "ticket": 2,
+      "comment": "Chrome 122 istifadə edirəm. Problem konsistent şəkildə təkrarlanır.",
+      "created_by": 5,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 5,
+    "fields": {
+      "ticket": 2,
+      "comment": "Validation xətası olduğu görünür. Frontend validation əlavə etməliyik ki, required field-ləri göstərsin.",
+      "created_by": 4,
+      "is_internal": true
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 6,
+    "fields": {
+      "ticket": 4,
+      "comment": "Maksimum 5MB ölçüdə şəkil yükləyə bilərsiniz. Sizin şəklin 8MB-dır. Image resize tool istifadə edə və ya compress edə bilərsiniz.",
+      "created_by": 1,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 7,
+    "fields": {
+      "ticket": 4,
+      "comment": "Başa düşdüm, compress etdikdən sonra yüklədim. İşlədi, təşəkkürlər!",
+      "created_by": 8,
+      "is_internal": false
+    }
+  },
+  {
+    "model": "support.ticketcomment",
+    "pk": 8,
+    "fields": {
+      "ticket": 5,
+      "comment": "Caching problemi ola bilər. Cache-i clear etdikdən sonra yenidən yoxlayacağam.",
+      "created_by": 4,
+      "is_internal": true
+    }
+  }
+]

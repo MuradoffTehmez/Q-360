@@ -1,0 +1,170 @@
+[
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 1,
+    "fields": {
+      "user": 6,
+      "title": "Python proqramlaşdırma bacarıqlarını intermediate səviyyəyə çatdırmaq",
+      "description": "Hazırda basic səviyyədə Python biliyim var. Django framework-ü daha yaxşı başa düşmək və real layihələrdə iştirak etmək üçün intermediate səviyyəyə çatmaq lazımdır.",
+      "category": "Texniki İnkişaf",
+      "status": "active",
+      "target_date": "2024-05-31",
+      "completion_date": null,
+      "approved_by": 3,
+      "approved_at": "2024-03-02T10:00:00Z",
+      "approval_note": "Yaxşı məqsəddir, təlim resources təyin edildi",
+      "created_by": 6
+    }
+  },
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 2,
+    "fields": {
+      "user": 5,
+      "title": "Front-end development bacarıqlarını təkmilləşdirmək",
+      "description": "React və modern JavaScript framework-ləri öyrənmək. Component-based architecture və state management.",
+      "category": "Texniki İnkişaf",
+      "status": "active",
+      "target_date": "2024-06-30",
+      "completion_date": null,
+      "approved_by": 3,
+      "approved_at": "2024-02-15T14:00:00Z",
+      "approval_note": "UI/UX təcrübəsini kod ilə birləşdirmək üçün əla plan",
+      "created_by": 5
+    }
+  },
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "title": "PMP sertifikatı əldə etmək",
+      "description": "Project Management Professional sertifikatı almaq. Layihə idarəetməsi bacarıqlarını rəsmən təsdiq etmək.",
+      "category": "Sertifikasiya",
+      "status": "active",
+      "target_date": "2024-09-30",
+      "completion_date": null,
+      "approved_by": 2,
+      "approved_at": "2024-02-20T11:00:00Z",
+      "approval_note": "Rəhbərlik vəzifəsi üçün vacib sertifikat. Dəstək veriləcək.",
+      "created_by": 3
+    }
+  },
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 4,
+    "fields": {
+      "user": 8,
+      "title": "CEH sertifikatı almaq",
+      "description": "Certified Ethical Hacker sertifikatı. Penetration testing və vulnerability assessment bacarıqlarını inkişaf etdirmək.",
+      "category": "Sertifikasiya",
+      "status": "active",
+      "target_date": "2024-07-31",
+      "completion_date": null,
+      "approved_by": 7,
+      "approved_at": "2024-03-16T09:00:00Z",
+      "approval_note": "Kibertəhlükəsizlik komandası üçün kritik sertifikat",
+      "created_by": 8
+    }
+  },
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 5,
+    "fields": {
+      "user": 10,
+      "title": "Liderlik bacarıqlarını inkişaf etdirmək",
+      "description": "Komanda idarəetməsi və liderlik təlimləri. Gələcəkdə HR Director vəzifəsinə hazırlıq.",
+      "category": "Soft Skills",
+      "status": "active",
+      "target_date": "2024-12-31",
+      "completion_date": null,
+      "approved_by": 9,
+      "approved_at": "2024-02-25T15:00:00Z",
+      "approval_note": "Succession planning üçün vacib inkişaf",
+      "created_by": 10
+    }
+  },
+  {
+    "model": "development_plans.developmentgoal",
+    "pk": 6,
+    "fields": {
+      "user": 4,
+      "title": "Microservices architecture öyrənmək",
+      "description": "Monolitik arquitekturadan microservices-ə keçid. Docker, Kubernetes, service mesh.",
+      "category": "Texniki İnkişaf",
+      "status": "pending_approval",
+      "target_date": "2024-08-31",
+      "completion_date": null,
+      "approved_by": null,
+      "approved_at": null,
+      "approval_note": "",
+      "created_by": 4
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 1,
+    "fields": {
+      "goal": 1,
+      "note": "Python kursunun 45%-ni tamamladım. List comprehensions və decorators mövzularını öyrəndim.",
+      "progress_percentage": 45,
+      "logged_by": 6,
+      "is_draft": false
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 2,
+    "fields": {
+      "goal": 1,
+      "note": "İlk kiçik layihəni tamamladım - TODO list application. Django ilə REST API yaratdım.",
+      "progress_percentage": 60,
+      "logged_by": 6,
+      "is_draft": false
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 3,
+    "fields": {
+      "goal": 2,
+      "note": "React fundamentals tamamlandı. Components, props və state management başa düşülür.",
+      "progress_percentage": 30,
+      "logged_by": 5,
+      "is_draft": false
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 4,
+    "fields": {
+      "goal": 3,
+      "note": "PMP hazırlıq kursuna başladım. 5 knowledge area tamamlandı.",
+      "progress_percentage": 25,
+      "logged_by": 3,
+      "is_draft": false
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 5,
+    "fields": {
+      "goal": 4,
+      "note": "CEH kursu davam edir. Footprinting və reconnaissance modulları tamamlandı.",
+      "progress_percentage": 30,
+      "logged_by": 8,
+      "is_draft": false
+    }
+  },
+  {
+    "model": "development_plans.progresslog",
+    "pk": 6,
+    "fields": {
+      "goal": 5,
+      "note": "Liderlik workshopunda iştirak etdim. Situational leadership modeli öyrəndim.",
+      "progress_percentage": 20,
+      "logged_by": 10,
+      "is_draft": false
+    }
+  }
+]

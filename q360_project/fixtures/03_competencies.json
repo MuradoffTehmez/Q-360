@@ -1,0 +1,609 @@
+[
+  {
+    "model": "competencies.proficiencylevel",
+    "pk": 1,
+    "fields": {
+      "name": "basic",
+      "display_name": "Əsas",
+      "score_min": "0.00",
+      "score_max": "25.00",
+      "description": "Əsas səviyyə - İlkin bilik və bacarıqlar"
+    }
+  },
+  {
+    "model": "competencies.proficiencylevel",
+    "pk": 2,
+    "fields": {
+      "name": "intermediate",
+      "display_name": "Orta",
+      "score_min": "25.01",
+      "score_max": "50.00",
+      "description": "Orta səviyyə - Müstəqil iş apara bilir"
+    }
+  },
+  {
+    "model": "competencies.proficiencylevel",
+    "pk": 3,
+    "fields": {
+      "name": "advanced",
+      "display_name": "Təkmil",
+      "score_min": "50.01",
+      "score_max": "75.00",
+      "description": "Təkmil səviyyə - Mürəkkəb tapşırıqları yerinə yetirir və başqalarına öyrədir"
+    }
+  },
+  {
+    "model": "competencies.proficiencylevel",
+    "pk": 4,
+    "fields": {
+      "name": "expert",
+      "display_name": "Ekspert",
+      "score_min": "75.01",
+      "score_max": "100.00",
+      "description": "Ekspert səviyyə - Sahədə lider, strategiya və innovasiya"
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 1,
+    "fields": {
+      "name": "Rəhbərlik və Liderlik",
+      "description": "Komandaya rəhbərlik etmək, motivasiya yaratmaq və strateji qərarlar qəbul etmək bacarığı",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 2,
+    "fields": {
+      "name": "Komanda İşi və Əməkdaşlıq",
+      "description": "Komanda ilə effektiv işləmək, koordinasiya və əməkdaşlıq bacarıqları",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 3,
+    "fields": {
+      "name": "Ünsiyyət və Təqdimat",
+      "description": "Məlumatı aydın çatdırmaq, yazılı və şifahi ünsiyyət bacarıqları",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 4,
+    "fields": {
+      "name": "Analitik Təfəkkür və Problemlərin Həlli",
+      "description": "Məlumatları təhlil etmək, problem həll etmək və qərar qəbul etmək",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 5,
+    "fields": {
+      "name": "Layihə İdarəetməsi",
+      "description": "Layihələri planlaşdırmaq, icra etmək və monitorinq etmək bacarığı",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 6,
+    "fields": {
+      "name": "Texniki Bilik (IT)",
+      "description": "İnformasiya texnologiyaları sahəsində texniki bilik və bacarıqlar",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 7,
+    "fields": {
+      "name": "Proqramlaşdırma və Kodlaşdırma",
+      "description": "Proqramlaşdırma dilləri və kod yazma bacarıqları",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 8,
+    "fields": {
+      "name": "Kibertəhlükəsizlik",
+      "description": "İnformasiya təhlükəsizliyi, risk idarəetməsi və kibertəhlükəsizlik təcrübələri",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 9,
+    "fields": {
+      "name": "UI/UX Dizayn",
+      "description": "İstifadəçi interfeysi və təcrübəsi dizaynı",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 10,
+    "fields": {
+      "name": "Dəyişikliklərə Uyğunlaşma",
+      "description": "Dəyişən şəraitə tez uyğunlaşmaq və çeviklik göstərmək",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 11,
+    "fields": {
+      "name": "İnsan Resursları İdarəetməsi",
+      "description": "Kadr siyasəti, talent management və HR proseslər",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 12,
+    "fields": {
+      "name": "Müştəri Yönümlülük",
+      "description": "Müştəri ehtiyaclarını başa düşmək və xidmət keyfiyyəti",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 13,
+    "fields": {
+      "name": "İnnovasiya və Yaradıcılıq",
+      "description": "Yeni ideyalar yaratmaq və innovativ həllər təklif etmək",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 14,
+    "fields": {
+      "name": "Vaxt İdarəetməsi",
+      "description": "Vaxtı effektiv planlaşdırmaq və prioritetləri idarə etmək",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.competency",
+    "pk": 15,
+    "fields": {
+      "name": "Data Təhlili və Vizuallaşdırma",
+      "description": "Məlumat təhlili, statistika və vizualizasiya bacarıqları",
+      "is_active": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 1,
+    "fields": {
+      "position": 3,
+      "competency": 1,
+      "weight": 90,
+      "required_level": 4,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 2,
+    "fields": {
+      "position": 3,
+      "competency": 5,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 3,
+    "fields": {
+      "position": 3,
+      "competency": 4,
+      "weight": 80,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 4,
+    "fields": {
+      "position": 4,
+      "competency": 1,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 5,
+    "fields": {
+      "position": 4,
+      "competency": 2,
+      "weight": 80,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 6,
+    "fields": {
+      "position": 4,
+      "competency": 6,
+      "weight": 75,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 7,
+    "fields": {
+      "position": 5,
+      "competency": 7,
+      "weight": 90,
+      "required_level": 4,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 8,
+    "fields": {
+      "position": 5,
+      "competency": 6,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 9,
+    "fields": {
+      "position": 5,
+      "competency": 4,
+      "weight": 75,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 10,
+    "fields": {
+      "position": 6,
+      "competency": 7,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 11,
+    "fields": {
+      "position": 6,
+      "competency": 6,
+      "weight": 80,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 12,
+    "fields": {
+      "position": 7,
+      "competency": 7,
+      "weight": 70,
+      "required_level": 2,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 13,
+    "fields": {
+      "position": 7,
+      "competency": 6,
+      "weight": 65,
+      "required_level": 2,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 14,
+    "fields": {
+      "position": 8,
+      "competency": 8,
+      "weight": 95,
+      "required_level": 4,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 15,
+    "fields": {
+      "position": 8,
+      "competency": 1,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 16,
+    "fields": {
+      "position": 9,
+      "competency": 8,
+      "weight": 90,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 17,
+    "fields": {
+      "position": 9,
+      "competency": 6,
+      "weight": 80,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 18,
+    "fields": {
+      "position": 10,
+      "competency": 11,
+      "weight": 95,
+      "required_level": 4,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 19,
+    "fields": {
+      "position": 10,
+      "competency": 1,
+      "weight": 90,
+      "required_level": 4,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.positioncompetency",
+    "pk": 20,
+    "fields": {
+      "position": 11,
+      "competency": 11,
+      "weight": 85,
+      "required_level": 3,
+      "is_mandatory": true
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 1,
+    "fields": {
+      "user": 2,
+      "competency": 1,
+      "level": 4,
+      "current_score": "82.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 9,
+      "approved_at": "2024-03-01T10:00:00Z",
+      "self_assessment_score": "80.00",
+      "notes": "Güçlü liderlik bacarıqları və komanda motivasiyası"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "competency": 5,
+      "level": 4,
+      "current_score": "78.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 9,
+      "approved_at": "2024-03-01T10:00:00Z",
+      "self_assessment_score": "75.00",
+      "notes": "Çoxsaylı uğurlu layihə təcrübəsi"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "competency": 1,
+      "level": 3,
+      "current_score": "68.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 2,
+      "approved_at": "2024-03-05T14:00:00Z",
+      "self_assessment_score": "65.00",
+      "notes": "İnkişaf edən rəhbərlik bacarıqları"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 4,
+    "fields": {
+      "user": 3,
+      "competency": 5,
+      "level": 3,
+      "current_score": "72.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 2,
+      "approved_at": "2024-03-05T14:00:00Z",
+      "self_assessment_score": "70.00",
+      "notes": "E-government layihələrində təcrübə"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 5,
+    "fields": {
+      "user": 4,
+      "competency": 7,
+      "level": 4,
+      "current_score": "85.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 3,
+      "approved_at": "2024-03-10T09:00:00Z",
+      "self_assessment_score": "83.00",
+      "notes": "Python, JavaScript, Django expertizası"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 6,
+    "fields": {
+      "user": 4,
+      "competency": 6,
+      "level": 3,
+      "current_score": "74.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 3,
+      "approved_at": "2024-03-10T09:00:00Z",
+      "self_assessment_score": "72.00",
+      "notes": "Geniş texnoloji stack bilikləri"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 7,
+    "fields": {
+      "user": 5,
+      "competency": 9,
+      "level": 4,
+      "current_score": "88.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 3,
+      "approved_at": "2024-03-10T09:00:00Z",
+      "self_assessment_score": "85.00",
+      "notes": "Figma, Adobe XD, responsive design expertizası"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 8,
+    "fields": {
+      "user": 5,
+      "competency": 7,
+      "level": 3,
+      "current_score": "65.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 3,
+      "approved_at": "2024-03-10T09:00:00Z",
+      "self_assessment_score": "60.00",
+      "notes": "HTML, CSS, JavaScript bacarıqları"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 9,
+    "fields": {
+      "user": 6,
+      "competency": 7,
+      "level": 2,
+      "current_score": "45.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 3,
+      "approved_at": "2024-04-01T11:00:00Z",
+      "self_assessment_score": "40.00",
+      "notes": "İnkişaf mərhələsində, öyrənməyə açıq"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 10,
+    "fields": {
+      "user": 7,
+      "competency": 8,
+      "level": 4,
+      "current_score": "92.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 2,
+      "approved_at": "2024-03-15T10:00:00Z",
+      "self_assessment_score": "90.00",
+      "notes": "CISSP, CEH sertifikatları, geniş təcrübə"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 11,
+    "fields": {
+      "user": 8,
+      "competency": 8,
+      "level": 3,
+      "current_score": "70.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 7,
+      "approved_at": "2024-03-20T13:00:00Z",
+      "self_assessment_score": "68.00",
+      "notes": "SOC analisti, SIEM və incident response təcrübəsi"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 12,
+    "fields": {
+      "user": 9,
+      "competency": 11,
+      "level": 4,
+      "current_score": "90.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 1,
+      "approved_at": "2024-03-01T12:00:00Z",
+      "self_assessment_score": "88.00",
+      "notes": "15 illik HR təcrübəsi, PHR sertifikatı"
+    }
+  },
+  {
+    "model": "competencies.userskill",
+    "pk": 13,
+    "fields": {
+      "user": 10,
+      "competency": 11,
+      "level": 3,
+      "current_score": "72.00",
+      "is_approved": true,
+      "approval_status": "approved",
+      "approved_by": 9,
+      "approved_at": "2024-03-08T15:00:00Z",
+      "self_assessment_score": "70.00",
+      "notes": "Talent management və performance management expertise"
+    }
+  }
+]
