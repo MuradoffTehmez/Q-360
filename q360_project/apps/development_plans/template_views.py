@@ -218,11 +218,17 @@ def team_goals(request):
 
 @login_required
 def goal_templates(request):
-    """View goal templates based on evaluation results."""
+    """
+    Enhanced AI-powered goal suggestions based on:
+    1. Evaluation results (low scoring categories)
+    2. Skill gaps (position requirements vs current skills)
+    3. Feedback comments
+    """
     user = request.user
 
     # Get latest evaluation result
-    from apps.evaluations.models import EvaluationResult, Response
+    from apps.evaluations.models import EvaluationResult, Response, EvaluationAssignment
+    from apps.competencies.models import UserSkill, PositionCompetency
 
     latest_result = EvaluationResult.objects.filter(
         evaluatee=user
@@ -230,29 +236,95 @@ def goal_templates(request):
 
     suggestions = []
 
+    # 1. EVALUATION-BASED SUGGESTIONS
     if latest_result:
-        # Get text responses for development areas
-        assignments = latest_result.campaign.assignments.filter(
+        # Get low-scoring categories (below 3.5)
+        assignments = EvaluationAssignment.objects.filter(
+            campaign=latest_result.campaign,
             evaluatee=user,
             status='completed'
         )
 
+        category_scores = {}
+        for assignment in assignments:
+            responses = Response.objects.filter(
+                assignment=assignment,
+                score__isnull=False
+            ).select_related('question__category')
+
+            for response in responses:
+                cat_name = response.question.category.name
+                if cat_name not in category_scores:
+                    category_scores[cat_name] = []
+                category_scores[cat_name].append(response.score)
+
+        # Find low-scoring categories
+        for category, scores in category_scores.items():
+            avg_score = sum(scores) / len(scores) if scores else 0
+            if avg_score < 3.5:  # Below threshold
+                suggestions.append({
+                    'title': f'{category} sahəsində təkmilləşdirmə',
+                    'description': f'Qiymətləndirmə nəticələrinə görə "{category}" sahəsində ortalama {avg_score:.1f} bal aldınız. Bu sahədə inkişaf etməyi məsləhət edirik.',
+                    'category': category,
+                    'source': 'evaluation',
+                    'priority': 'high' if avg_score < 3.0 else 'medium',
+                    'score': round(avg_score, 2)
+                })
+
+        # Get text feedback
         development_responses = Response.objects.filter(
             assignment__in=assignments,
             question__text__icontains='inkişaf'
-        ).exclude(text_answer='')
+        ).exclude(text_answer='')[:3]
 
-        # Create goal suggestions
-        for response in development_responses[:5]:
+        for response in development_responses:
             suggestions.append({
-                'title': f'{response.question.category.name} - İnkişaf Sahəsi',
+                'title': f'{response.question.category.name} - Rəy əsaslı',
                 'description': response.text_answer,
-                'category': response.question.category.name
+                'category': response.question.category.name,
+                'source': 'feedback',
+                'priority': 'medium',
+                'evaluator': response.assignment.evaluator.get_full_name()
             })
 
+    # 2. COMPETENCY GAP-BASED SUGGESTIONS
+    if hasattr(user, 'position') and user.position and hasattr(user.position, 'id'):
+        user_skills = UserSkill.objects.filter(user=user, is_approved=True).select_related('competency', 'level')
+        user_skill_map = {
+            skill.competency_id: skill.level.score_min if skill.level else 0
+            for skill in user_skills
+        }
+
+        pos_competencies = PositionCompetency.objects.filter(
+            position=user.position
+        ).select_related('competency', 'required_level')
+
+        for pos_comp in pos_competencies:
+            current_level = user_skill_map.get(pos_comp.competency_id, 0)
+            required_level = pos_comp.required_level.score_min if pos_comp.required_level else 0
+            gap = required_level - current_level
+
+            if gap > 0:
+                suggestions.append({
+                    'title': f'"{pos_comp.competency.name}" səriştəsini təkmilləşdirin',
+                    'description': f'Vəzifəniz üçün "{pos_comp.required_level.name}" səviyyəsi tələb olunur, hal-hazırda {"heç bir səviyyədə deyilsiniz" if current_level == 0 else f"{current_level} səviyyəsiniz"}. Fərq: {gap:.1f} xal.',
+                    'category': 'Səriştə İnkişafı',
+                    'source': 'skill_gap',
+                    'priority': 'high' if gap >= 2 else 'medium',
+                    'gap': round(gap, 1),
+                    'competency': pos_comp.competency.name
+                })
+
+    # Sort by priority
+    priority_order = {'high': 0, 'medium': 1, 'low': 2}
+    suggestions.sort(key=lambda x: priority_order.get(x.get('priority', 'low'), 2))
+
     context = {
-        'suggestions': suggestions,
-        'latest_result': latest_result
+        'suggestions': suggestions[:10],  # Limit to top 10
+        'latest_result': latest_result,
+        'total_suggestions': len(suggestions),
+        'high_priority': len([s for s in suggestions if s.get('priority') == 'high']),
+        'medium_priority': len([s for s in suggestions if s.get('priority') == 'medium']),
     }
 
     return render(request, 'development_plans/goal_templates.html', context)

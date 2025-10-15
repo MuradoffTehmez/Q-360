@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q, Max, Min
 from django.utils import timezone
 import json
 
@@ -376,3 +376,150 @@ def analytics_dashboard(request):
     }
 
     return render(request, 'reports/analytics_dashboard.html', context)
+
+
+@login_required
+def custom_report_builder(request):
+    """
+    Custom Report Builder - İstifadəçilərə özlərinə lazım olan hesabatı yaratmaq imkanı.
+
+    Seçimlər:
+    - Kampaniya seçimi
+    - İstifadəçi/Şöbə filtri
+    - Göstəriləcək metriklər
+    - Chart növü
+    """
+    if request.method == 'POST':
+        # Process custom report generation
+        campaign_id = request.POST.get('campaign')
+        department_id = request.POST.get('department')
+        user_ids = request.POST.getlist('users')
+
+        # Metrics to include
+        include_overall = request.POST.get('include_overall') == 'on'
+        include_category = request.POST.get('include_category') == 'on'
+        include_relationship = request.POST.get('include_relationship') == 'on'
+        include_trends = request.POST.get('include_trends') == 'on'
+
+        # Chart types
+        chart_types = request.POST.getlist('chart_types')
+
+        # Build query
+        results_query = EvaluationResult.objects.select_related('evaluatee', 'campaign')
+
+        if campaign_id:
+            results_query = results_query.filter(campaign_id=campaign_id)
+
+        if department_id:
+            results_query = results_query.filter(evaluatee__department_id=department_id)
+
+        if user_ids:
+            results_query = results_query.filter(evaluatee_id__in=user_ids)
+
+        results = results_query.all()
+
+        # Prepare data structures
+        report_data = {
+            'results': results,
+            'summary': {},
+            'charts': {}
+        }
+
+        # Overall statistics
+        if include_overall:
+            report_data['summary']['overall'] = {
+                'total_evaluations': results.count(),
+                'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'],
+                'max_score': results.aggregate(max_score=Max('overall_score'))['max_score'],
+                'min_score': results.aggregate(min_score=Min('overall_score'))['min_score'],
+            }
+
+        # Category analysis
+        if include_category:
+            from apps.evaluations.models import QuestionCategory
+            categories = QuestionCategory.objects.filter(is_active=True)
+            category_data = {'labels': [], 'data': []}
+
+            for category in categories:
+                # Get all responses for this category
+                from django.db.models import Avg
+                avg_score = Response.objects.filter(
+                    assignment__campaign_id=campaign_id,
+                    question__category=category,
+                    score__isnull=False
+                ).aggregate(Avg('score'))['score__avg']
+
+                if avg_score:
+                    category_data['labels'].append(category.name)
+                    category_data['data'].append(round(avg_score, 2))
+
+            report_data['charts']['category'] = category_data
+
+        # Relationship type analysis
+        if include_relationship:
+            relationship_data = {'labels': [], 'data': []}
+            relationships = ['self', 'supervisor', 'peer', 'subordinate']
+
+            for rel in relationships:
+                if campaign_id:
+                    avg_score = Response.objects.filter(
+                        assignment__campaign_id=campaign_id,
+                        assignment__relationship=rel,
+                        score__isnull=False
+                    ).aggregate(Avg('score'))['score__avg']
+
+                    if avg_score:
+                        relationship_data['labels'].append(rel.capitalize())
+                        relationship_data['data'].append(round(avg_score, 2))
+
+            report_data['charts']['relationship'] = relationship_data
+
+        # Trend analysis
+        if include_trends:
+            trend_data = {'labels': [], 'data': []}
+            # Get last 6 evaluations for selected users
+            for result in results.order_by('campaign__start_date')[:6]:
+                trend_data['labels'].append(result.campaign.title[:15])
+                trend_data['data'].append(float(result.overall_score or 0))
+
+            report_data['charts']['trend'] = trend_data
+
+        # Convert to JSON for charts
+        report_json = {
+            'summary': report_data['summary'],
+            'charts': {k: json.dumps(v) for k, v in report_data['charts'].items()}
+        }
+
+        context = {
+            'report_data': report_data,
+            'report_json': report_json,
+            'chart_types': chart_types,
+            'campaign_id': campaign_id,
+        }
+
+        return render(request, 'reports/custom_report_view.html', context)
+
+    # GET: Show report builder form
+    from apps.departments.models import Department
+
+    campaigns = EvaluationCampaign.objects.filter(
+        status__in=['completed', 'active']
+    ).order_by('-created_at')
+
+    departments = Department.objects.filter(is_active=True)
+
+    # Get users based on permission
+    if request.user.is_admin():
+        users = User.objects.filter(is_active=True)
+    elif request.user.is_manager():
+        users = request.user.get_subordinates()
+    else:
+        users = [request.user]
+
+    context = {
+        'campaigns': campaigns,
+        'departments': departments,
+        'users': users,
+    }
+
+    return render(request, 'reports/custom_report_builder.html', context)

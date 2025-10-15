@@ -1,0 +1,337 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Xüsusi Hesabat Qurucusu - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .form-section h5 {
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .custom-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    .custom-checkbox:hover {
+        background: #e9ecef;
+        border-color: #0d6efd;
+    }
+    .custom-checkbox input:checked + label {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="h3 mb-1">
+            <i class="fas fa-cogs text-primary"></i> Xüsusi Hesabat Qurucusu
+        </h1>
+        <p class="text-muted">Öz ehtiyaclarınıza uyğun hesabat yaradın</p>
+    </div>
+
+    <!-- Report Builder Form -->
+    <form method="post" id="reportBuilderForm">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Data Selection -->
+                <div class="form-section">
+                    <h5><i class="fas fa-database me-2"></i>Məlumat Seçimi</h5>
+
+                    <div class="mb-3">
+                        <label for="campaign" class="form-label">Kampaniya</label>
+                        <select name="campaign" id="campaign" class="form-select" required>
+                            <option value="">Kampaniya seçin...</option>
+                            {% for campaign in campaigns %}
+                            <option value="{{ campaign.pk }}">
+                                {{ campaign.title }} ({{ campaign.start_date|date:"d.m.Y" }} - {{ campaign.end_date|date:"d.m.Y" }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if user.is_admin %}
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Şöbə (İstəyə bağlı)</label>
+                        <select name="department" id="department" class="form-select">
+                            <option value="">Bütün şöbələr</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.pk }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="users" class="form-label">İstifadəçilər (İstəyə bağlı, boş buraxsanız hamısı seçilir)</label>
+                        <select name="users" id="users" class="form-select" multiple size="5">
+                            {% for user_obj in users %}
+                            <option value="{{ user_obj.pk }}">
+                                {{ user_obj.get_full_name }} - {{ user_obj.position.title|default:"Vəzifə yoxdur" }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Çoxlu seçmək üçün Ctrl/Cmd + klik istifadə edin
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Metrics Selection -->
+                <div class="form-section">
+                    <h5><i class="fas fa-chart-bar me-2"></i>Göstəriləcək Metriklər</h5>
+
+                    <div class="checkbox-group">
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="include_overall" id="include_overall" class="form-check-input me-2" checked>
+                            <label for="include_overall" class="form-check-label mb-0">
+                                <i class="fas fa-star text-warning"></i> Ümumi Statistika
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="include_category" id="include_category" class="form-check-input me-2" checked>
+                            <label for="include_category" class="form-check-label mb-0">
+                                <i class="fas fa-layer-group text-info"></i> Kateqoriya Analizi
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="include_relationship" id="include_relationship" class="form-check-input me-2" checked>
+                            <label for="include_relationship" class="form-check-label mb-0">
+                                <i class="fas fa-users text-primary"></i> Əlaqə Növü Analizi
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="include_trends" id="include_trends" class="form-check-input me-2">
+                            <label for="include_trends" class="form-check-label mb-0">
+                                <i class="fas fa-chart-line text-success"></i> Trend Analizi
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Types -->
+                <div class="form-section">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Qrafik Növləri</h5>
+
+                    <div class="checkbox-group">
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="chart_types" value="bar" id="chart_bar" class="form-check-input me-2" checked>
+                            <label for="chart_bar" class="form-check-label mb-0">
+                                <i class="fas fa-chart-bar"></i> Bar Chart
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="chart_types" value="line" id="chart_line" class="form-check-input me-2">
+                            <label for="chart_line" class="form-check-label mb-0">
+                                <i class="fas fa-chart-line"></i> Line Chart
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="chart_types" value="radar" id="chart_radar" class="form-check-input me-2">
+                            <label for="chart_radar" class="form-check-label mb-0">
+                                <i class="fas fa-chart-area"></i> Radar Chart
+                            </label>
+                        </div>
+
+                        <div class="custom-checkbox">
+                            <input type="checkbox" name="chart_types" value="pie" id="chart_pie" class="form-check-input me-2">
+                            <label for="chart_pie" class="form-check-label mb-0">
+                                <i class="fas fa-chart-pie"></i> Pie Chart
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Panel -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 1rem;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-check"></i> Seçim Xülasəsi
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">Kampaniya</h6>
+                            <p id="summary-campaign" class="mb-0">Seçilməyib</p>
+                        </div>
+
+                        {% if user.is_admin %}
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">Şöbə</h6>
+                            <p id="summary-department" class="mb-0">Bütün şöbələr</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">İstifadəçilər</h6>
+                            <p id="summary-users" class="mb-0">Hamısı</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">Metriklər</h6>
+                            <ul id="summary-metrics" class="list-unstyled mb-0 small">
+                                <li><i class="fas fa-check text-success"></i> Ümumi Statistika</li>
+                                <li><i class="fas fa-check text-success"></i> Kateqoriya Analizi</li>
+                                <li><i class="fas fa-check text-success"></i> Əlaqə Növü Analizi</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">Qrafiklər</h6>
+                            <ul id="summary-charts" class="list-unstyled mb-0 small">
+                                <li><i class="fas fa-check text-success"></i> Bar Chart</li>
+                            </ul>
+                        </div>
+
+                        <hr>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-magic"></i> Hesabat Yarat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update summary on campaign change
+    document.getElementById('campaign').addEventListener('change', function() {
+        const selectedText = this.options[this.selectedIndex].text;
+        document.getElementById('summary-campaign').textContent = selectedText || 'Seçilməyib';
+    });
+
+    {% if user.is_admin %}
+    // Update summary on department change
+    document.getElementById('department').addEventListener('change', function() {
+        const selectedText = this.options[this.selectedIndex].text;
+        document.getElementById('summary-department').textContent = selectedText;
+    });
+    {% endif %}
+
+    // Update summary on users change
+    document.getElementById('users').addEventListener('change', function() {
+        const selectedCount = this.selectedOptions.length;
+        document.getElementById('summary-users').textContent =
+            selectedCount > 0 ? `${selectedCount} istifadəçi` : 'Hamısı';
+    });
+
+    // Update metrics summary
+    const metricCheckboxes = ['include_overall', 'include_category', 'include_relationship', 'include_trends'];
+    const metricNames = {
+        'include_overall': 'Ümumi Statistika',
+        'include_category': 'Kateqoriya Analizi',
+        'include_relationship': 'Əlaqə Növü Analizi',
+        'include_trends': 'Trend Analizi'
+    };
+
+    metricCheckboxes.forEach(id => {
+        document.getElementById(id).addEventListener('change', function() {
+            updateMetricsSummary();
+        });
+    });
+
+    function updateMetricsSummary() {
+        const summaryDiv = document.getElementById('summary-metrics');
+        summaryDiv.innerHTML = '';
+
+        metricCheckboxes.forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox.checked) {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-check text-success"></i> ${metricNames[id]}`;
+                summaryDiv.appendChild(li);
+            }
+        });
+
+        if (summaryDiv.children.length === 0) {
+            summaryDiv.innerHTML = '<li class="text-muted">Heç bir metrik seçilməyib</li>';
+        }
+    }
+
+    // Update charts summary
+    const chartCheckboxes = document.querySelectorAll('input[name="chart_types"]');
+    const chartNames = {
+        'bar': 'Bar Chart',
+        'line': 'Line Chart',
+        'radar': 'Radar Chart',
+        'pie': 'Pie Chart'
+    };
+
+    chartCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateChartsSummary();
+        });
+    });
+
+    function updateChartsSummary() {
+        const summaryDiv = document.getElementById('summary-charts');
+        summaryDiv.innerHTML = '';
+
+        chartCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-check text-success"></i> ${chartNames[checkbox.value]}`;
+                summaryDiv.appendChild(li);
+            }
+        });
+
+        if (summaryDiv.children.length === 0) {
+            summaryDiv.innerHTML = '<li class="text-muted">Heç bir qrafik seçilməyib</li>';
+        }
+    }
+
+    // Form validation
+    document.getElementById('reportBuilderForm').addEventListener('submit', function(e) {
+        const campaign = document.getElementById('campaign').value;
+        if (!campaign) {
+            e.preventDefault();
+            alert('Zəhmət olmasa kampaniya seçin!');
+            return false;
+        }
+
+        const metricsChecked = metricCheckboxes.some(id => document.getElementById(id).checked);
+        if (!metricsChecked) {
+            e.preventDefault();
+            alert('Ən azı bir metrik seçin!');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

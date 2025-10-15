@@ -1,0 +1,383 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Xüsusi Hesabat Nəticəsi - Q360{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .stat-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 2rem;
+    }
+    @media print {
+        .no-print {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-file-chart-line text-primary"></i> Xüsusi Hesabat Nəticəsi
+            </h1>
+            <p class="text-muted mb-0">Yaradılma tarixi: {% now "d.m.Y H:i" %}</p>
+        </div>
+        <div class="no-print">
+            <a href="{% url 'reports:custom-builder' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Geri
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-primary">
+                <i class="fas fa-print"></i> Çap et
+            </button>
+        </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    {% if report_data.summary.overall %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Ümumi Statistika</h4>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card shadow-sm" style="border-left-color: #0d6efd;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Cəmi Qiymətləndirmə</h6>
+                            <h2 class="mb-0">{{ report_data.summary.overall.total_evaluations }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card shadow-sm" style="border-left-color: #198754;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Orta Bal</h6>
+                            <h2 class="mb-0">{{ report_data.summary.overall.avg_score|floatformat:2|default:"-" }}</h2>
+                        </div>
+                        <i class="fas fa-star fa-2x text-success opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card shadow-sm" style="border-left-color: #ffc107;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Maksimum</h6>
+                            <h2 class="mb-0">{{ report_data.summary.overall.max_score|floatformat:2|default:"-" }}</h2>
+                        </div>
+                        <i class="fas fa-arrow-up fa-2x text-warning opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card shadow-sm" style="border-left-color: #dc3545;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Minimum</h6>
+                            <h2 class="mb-0">{{ report_data.summary.overall.min_score|floatformat:2|default:"-" }}</h2>
+                        </div>
+                        <i class="fas fa-arrow-down fa-2x text-danger opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Charts Row -->
+    <div class="row">
+        <!-- Category Chart -->
+        {% if report_json.charts.category %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Kateqoriya Analizi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Relationship Chart -->
+        {% if report_json.charts.relationship %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Əlaqə Növü Analizi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="relationshipChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Trend Chart -->
+        {% if report_json.charts.trend %}
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trend Analizi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Detailed Results Table -->
+    {% if report_data.results %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Ətraflı Nəticələr</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>İstifadəçi</th>
+                                    <th>Vəzifə</th>
+                                    <th>Şöbə</th>
+                                    <th class="text-center">Ümumi Bal</th>
+                                    <th class="text-center">Özüm</th>
+                                    <th class="text-center">Rəhbər</th>
+                                    <th class="text-center">Həmkar</th>
+                                    <th class="text-center">Tabelik</th>
+                                    <th class="text-center">Qiymətləndirənlər</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in report_data.results %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ result.evaluatee.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ result.evaluatee.email }}</small>
+                                    </td>
+                                    <td>{{ result.evaluatee.position.title|default:"-" }}</td>
+                                    <td>{{ result.evaluatee.department.name|default:"-" }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success fs-6">
+                                            {{ result.overall_score|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">{{ result.self_score|floatformat:2|default:"-" }}</td>
+                                    <td class="text-center">{{ result.supervisor_score|floatformat:2|default:"-" }}</td>
+                                    <td class="text-center">{{ result.peer_score|floatformat:2|default:"-" }}</td>
+                                    <td class="text-center">{{ result.subordinate_score|floatformat:2|default:"-" }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ result.total_evaluators }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">Nəticə tapılmadı</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js Global Settings
+Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+Chart.defaults.plugins.legend.position = 'bottom';
+
+{% if report_json.charts.category %}
+// Category Chart
+const categoryData = {{ report_json.charts.category|safe }};
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+
+new Chart(categoryCtx, {
+    type: '{% if "bar" in chart_types %}bar{% elif "radar" in chart_types %}radar{% else %}bar{% endif %}',
+    data: {
+        labels: categoryData.labels,
+        datasets: [{
+            label: 'Orta Bal',
+            data: categoryData.data,
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)'
+            ],
+            borderColor: [
+                'rgb(54, 162, 235)',
+                'rgb(255, 99, 132)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            {% if "bar" in chart_types or "line" in chart_types %}
+            y: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+            {% elif "radar" in chart_types %}
+            r: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+            {% endif %}
+        }
+    }
+});
+{% endif %}
+
+{% if report_json.charts.relationship %}
+// Relationship Chart
+const relationshipData = {{ report_json.charts.relationship|safe }};
+const relationshipCtx = document.getElementById('relationshipChart').getContext('2d');
+
+new Chart(relationshipCtx, {
+    type: '{% if "pie" in chart_types %}pie{% elif "radar" in chart_types %}radar{% else %}bar{% endif %}',
+    data: {
+        labels: relationshipData.labels,
+        datasets: [{
+            label: 'Orta Bal',
+            data: relationshipData.data,
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)'
+            ],
+            borderColor: [
+                'rgb(54, 162, 235)',
+                'rgb(255, 99, 132)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        {% if "bar" in chart_types %}
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+        {% elif "radar" in chart_types %}
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+        {% endif %}
+    }
+});
+{% endif %}
+
+{% if report_json.charts.trend %}
+// Trend Chart
+const trendData = {{ report_json.charts.trend|safe }};
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+
+new Chart(trendCtx, {
+    type: '{% if "line" in chart_types %}line{% else %}bar{% endif %}',
+    data: {
+        labels: trendData.labels,
+        datasets: [{
+            label: 'Performans Trendi',
+            data: trendData.data,
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 2,
+            {% if "line" in chart_types %}
+            tension: 0.4,
+            fill: true
+            {% endif %}
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

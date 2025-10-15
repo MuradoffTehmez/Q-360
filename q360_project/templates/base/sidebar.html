@@ -71,6 +71,11 @@
             </a>
             {% endif %}
 
+            <a href="{% url 'reports:custom-builder' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-cogs w-5 mr-3 text-purple-500"></i>
+                <span>{% trans "Custom Report Builder" %}</span>
+            </a>
+
             <!-- Skills & Training Section -->
             <div class="pt-4 pb-2">
                 <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -81,6 +86,11 @@
             <a href="{% url 'competencies:my-skills' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-star w-5 mr-3 text-yellow-500"></i>
                 <span>{% trans "My Skills" %}</span>
+            </a>
+
+            <a href="{% url 'competencies:gap-analysis' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-chart-bar w-5 mr-3 text-orange-500"></i>
+                <span>{% trans "Skill Gap Analysis" %}</span>
             </a>
 
             <a href="{% url 'competencies:competency-list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -108,6 +118,11 @@
             <a href="{% url 'development-plans:my-goals' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-bullseye w-5 mr-3 text-red-500"></i>
                 <span>{% trans "My Goals" %}</span>
+            </a>
+
+            <a href="{% url 'development-plans:goal-templates' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500"></i>
+                <span>{% trans "Goal Suggestions" %}</span>
             </a>
 
             <a href="{% url 'workforce-planning:my-gaps' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -228,6 +243,13 @@
                 <i class="fas fa-question-circle w-5 mr-3 text-blue-500"></i>
                 <span>{% trans "Question Library" %}</span>
             </a>
+
+            {% if user.role == 'superadmin' %}
+            <a href="{% url 'accounts:rbac-matrix' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-shield-alt w-5 mr-3 text-purple-500"></i>
+                <span>{% trans "RBAC Matrix" %}</span>
+            </a>
+            {% endif %}
 
             <a href="{% url 'audit:security-dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-shield-alt w-5 mr-3 text-red-500"></i>
