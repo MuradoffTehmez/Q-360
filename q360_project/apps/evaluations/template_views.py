@@ -679,7 +679,8 @@ def evaluation_results(request, campaign_pk):
 
 @login_required
 def individual_result(request, result_pk):
-    """View individual evaluation result."""
+    """View individual evaluation result with enhanced charts and comparisons."""
+    import json
     result = get_object_or_404(
         EvaluationResult.objects.select_related('campaign', 'evaluatee'),
         pk=result_pk
@@ -719,8 +720,18 @@ def individual_result(request, result_pk):
 
             category_scores[category][assignment.relationship].append(response.score)
 
-    # Calculate averages
+    # Calculate averages for bar chart
     chart_data = {
+        'categories': [],
+        'self': [],
+        'supervisor': [],
+        'peer': [],
+        'subordinate': [],
+        'average': []
+    }
+
+    # Radar chart data (for enhanced visualization)
+    radar_data = {
         'categories': [],
         'self': [],
         'supervisor': [],
@@ -731,27 +742,87 @@ def individual_result(request, result_pk):
 
     for category, scores in category_scores.items():
         chart_data['categories'].append(category)
+        radar_data['categories'].append(category)
 
         for rel_type in ['self', 'supervisor', 'peer', 'subordinate']:
             if scores[rel_type]:
                 avg = sum(scores[rel_type]) / len(scores[rel_type])
                 chart_data[rel_type].append(round(avg, 2))
+                radar_data[rel_type].append(round(avg, 2))
             else:
                 chart_data[rel_type].append(0)
+                radar_data[rel_type].append(0)
 
         # Overall average for this category
         all_scores = []
         for rel_scores in scores.values():
             all_scores.extend(rel_scores)
         if all_scores:
-            chart_data['average'].append(round(sum(all_scores) / len(all_scores), 2))
+            avg_val = round(sum(all_scores) / len(all_scores), 2)
+            chart_data['average'].append(avg_val)
+            radar_data['average'].append(avg_val)
         else:
             chart_data['average'].append(0)
+            radar_data['average'].append(0)
+
+    # Comparison data (evaluatee vs department/organization average)
+    # Get department average if available
+    dept_avg = None
+    org_avg = None
+
+    if result.evaluatee.department:
+        dept_results = EvaluationResult.objects.filter(
+            campaign=result.campaign,
+            evaluatee__department=result.evaluatee.department
+        ).exclude(id=result.id)
+
+        dept_avg_score = dept_results.aggregate(Avg('overall_score'))['overall_score__avg']
+        dept_avg = round(dept_avg_score, 2) if dept_avg_score else None
+
+    # Organization average
+    org_results = EvaluationResult.objects.filter(
+        campaign=result.campaign
+    ).exclude(id=result.id)
+
+    org_avg_score = org_results.aggregate(Avg('overall_score'))['overall_score__avg']
+    org_avg = round(org_avg_score, 2) if org_avg_score else None
+
+    # Comparison chart data
+    comparison_data = {
+        'labels': ['Sizin Nəticə', 'Şöbə Ortalaması', 'Təşkilat Ortalaması'],
+        'data': [
+            round(result.overall_score, 2) if result.overall_score else 0,
+            dept_avg if dept_avg else 0,
+            org_avg if org_avg else 0
+        ]
+    }
+
+    # Score distribution by relationship type
+    relationship_scores = {
+        'self': chart_data['self'],
+        'supervisor': chart_data['supervisor'],
+        'peer': chart_data['peer'],
+        'subordinate': chart_data['subordinate']
+    }
+
+    # Calculate relationship averages
+    relationship_averages = {}
+    for rel_type, scores in relationship_scores.items():
+        if scores and any(s > 0 for s in scores):
+            relationship_averages[rel_type] = round(sum(scores) / len([s for s in scores if s > 0]), 2)
+        else:
+            relationship_averages[rel_type] = 0
 
     context = {
         'result': result,
         'assignments': assignments,
         'chart_data': chart_data,
+        'radar_data': json.dumps(radar_data),  # JSON for JavaScript
+        'comparison_data': json.dumps(comparison_data),
+        'dept_avg': dept_avg,
+        'org_avg': org_avg,
+        'relationship_averages': relationship_averages,
+        'category_count': len(chart_data['categories']),
     }
 
     return render(request, 'evaluations/individual_result.html', context)
