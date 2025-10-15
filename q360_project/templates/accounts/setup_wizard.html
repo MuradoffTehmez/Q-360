@@ -1,0 +1,275 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Initial Setup Wizard" %} - Q360{% endblock %}
+
+{% block page_header %}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute -right-12 top-12 h-48 w-48 rounded-full bg-white blur-3xl"></div>
+        <div class="absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-purple-300 blur-3xl"></div>
+    </div>
+    <div class="relative z-10">
+        <p class="text-xs uppercase tracking-[0.4em] text-white/70">{% trans "First Time Setup" %}</p>
+        <h1 class="mt-2 text-3xl font-bold md:text-4xl">
+            <i class="fas fa-magic mr-3"></i>{% trans "Setup Wizard" %}
+        </h1>
+        <p class="mt-3 text-sm text-white/80">{% trans "Let's configure your Q360 system in a few simple steps" %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto" x-data="setupWizard()" x-init="init()">
+    <!-- Progress Bar -->
+    <div class="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{% trans "Setup Progress" %}</h3>
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+                {% trans "Step" %} <span x-text="currentStep"></span>/5
+            </span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500" :style="`width: ${(currentStep / 5) * 100}%`"></div>
+        </div>
+
+        <!-- Step Indicators -->
+        <div class="flex justify-between mt-6">
+            <template x-for="(step, index) in steps" :key="index">
+                <div class="flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all"
+                         :class="currentStep > index + 1 ? 'bg-green-500 text-white' : currentStep === index + 1 ? 'bg-indigo-500 text-white' : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400'">
+                        <i :class="currentStep > index + 1 ? 'fas fa-check' : step.icon"></i>
+                    </div>
+                    <span class="text-xs mt-2 text-gray-600 dark:text-gray-400" x-text="step.title"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Step Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+        <!-- Step 1: Organization -->
+        <div x-show="currentStep === 1" x-transition>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-building mr-2 text-indigo-500"></i>
+                {% trans "Organization Information" %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{% trans "Enter your organization details" %}</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans "Organization Name" %}</label>
+                    <input type="text" x-model="formData.org_name" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Enter organization name' %}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans "Industry" %}</label>
+                    <select x-model="formData.industry" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <option value="">{% trans "Select industry" %}</option>
+                        <option value="technology">{% trans "Technology" %}</option>
+                        <option value="finance">{% trans "Finance" %}</option>
+                        <option value="healthcare">{% trans "Healthcare" %}</option>
+                        <option value="education">{% trans "Education" %}</option>
+                        <option value="other">{% trans "Other" %}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Departments -->
+        <div x-show="currentStep === 2" x-transition>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-sitemap mr-2 text-indigo-500"></i>
+                {% trans "Department Structure" %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{% trans "Add your main departments" %}</p>
+
+            <div class="space-y-3 mb-4">
+                <template x-for="(dept, index) in formData.departments" :key="index">
+                    <div class="flex gap-2">
+                        <input type="text" x-model="formData.departments[index]" class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="{% trans 'Department name' %}">
+                        <button @click="formData.departments.splice(index, 1)" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </template>
+            </div>
+            <button @click="formData.departments.push('')" class="w-full py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-500 hover:text-indigo-500">
+                <i class="fas fa-plus mr-2"></i>{% trans "Add Department" %}
+            </button>
+        </div>
+
+        <!-- Step 3: Users -->
+        <div x-show="currentStep === 3" x-transition>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-users mr-2 text-indigo-500"></i>
+                {% trans "User Import" %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{% trans "Import users or add them manually later" %}</p>
+
+            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                <i class="fas fa-file-csv text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">{% trans "Upload CSV file or skip for now" %}</p>
+                <input type="file" accept=".csv" class="hidden" id="usersCsv" @change="handleFileUpload">
+                <label for="usersCsv" class="inline-block px-6 py-3 bg-indigo-500 text-white rounded-lg cursor-pointer hover:bg-indigo-600">
+                    <i class="fas fa-upload mr-2"></i>{% trans "Choose File" %}
+                </label>
+            </div>
+        </div>
+
+        <!-- Step 4: Competencies -->
+        <div x-show="currentStep === 4" x-transition>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-star mr-2 text-indigo-500"></i>
+                {% trans "Competency Framework" %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{% trans "Select a competency framework template" %}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div @click="formData.competency_template = 'basic'" :class="formData.competency_template === 'basic' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300'" class="border-2 rounded-lg p-6 cursor-pointer hover:border-indigo-500 transition-colors">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Basic Framework" %}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Essential competencies for most organizations" %}</p>
+                </div>
+                <div @click="formData.competency_template = 'advanced'" :class="formData.competency_template === 'advanced' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300'" class="border-2 rounded-lg p-6 cursor-pointer hover:border-indigo-500 transition-colors">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Advanced Framework" %}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{% trans "Comprehensive competencies with technical skills" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Confirmation -->
+        <div x-show="currentStep === 5" x-transition>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-check-circle mr-2 text-green-500"></i>
+                {% trans "Review & Confirm" %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{% trans "Review your setup before completing" %}</p>
+
+            <div class="space-y-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Organization" %}</h3>
+                    <p class="text-gray-600 dark:text-gray-400" x-text="formData.org_name || '{% trans "Not set" %}'"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Departments" %}</h3>
+                    <p class="text-gray-600 dark:text-gray-400" x-text="formData.departments.filter(d => d).length + ' {% trans "departments" %}'"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Competency Framework" %}</h3>
+                    <p class="text-gray-600 dark:text-gray-400" x-text="formData.competency_template || '{% trans "Not selected" %}'"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <button @click="prevStep" x-show="currentStep > 1" class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-chevron-left mr-2"></i>{% trans "Back" %}
+            </button>
+            <div class="ml-auto flex gap-2">
+                <a href="{% url 'dashboard' %}" class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    {% trans "Skip Setup" %}
+                </a>
+                <button @click="nextStep" x-show="currentStep < 5" class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-colors">
+                    {% trans "Next" %} <i class="fas fa-chevron-right ml-2"></i>
+                </button>
+                <button @click="completeSetup" x-show="currentStep === 5" class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-colors">
+                    <i class="fas fa-check mr-2"></i>{% trans "Complete Setup" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setupWizard() {
+    return {
+        currentStep: 1,
+        steps: [
+            { title: '{% trans "Organization" %}', icon: 'fas fa-building' },
+            { title: '{% trans "Departments" %}', icon: 'fas fa-sitemap' },
+            { title: '{% trans "Users" %}', icon: 'fas fa-users' },
+            { title: '{% trans "Competencies" %}', icon: 'fas fa-star' },
+            { title: '{% trans "Review" %}', icon: 'fas fa-check' }
+        ],
+        formData: {
+            org_name: '',
+            industry: '',
+            departments: [''],
+            users_file: null,
+            competency_template: ''
+        },
+
+        init() {
+            // Check if setup already completed
+            const setupCompleted = localStorage.getItem('setup_completed');
+            if (setupCompleted === 'true') {
+                // Redirect to dashboard
+                window.location.href = '{% url "dashboard" %}';
+            }
+        },
+
+        nextStep() {
+            if (this.currentStep < 5) {
+                this.currentStep++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        prevStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        handleFileUpload(event) {
+            this.formData.users_file = event.target.files[0];
+        },
+
+        async completeSetup() {
+            try {
+                const response = await fetch('{% url "accounts:complete-setup" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(this.formData)
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('setup_completed', 'true');
+                    this.showToast('{% trans "Setup completed successfully!" %}', 'success');
+                    setTimeout(() => {
+                        window.location.href = '{% url "dashboard" %}';
+                    }, 1500);
+                } else {
+                    throw new Error('Setup failed');
+                }
+            } catch (error) {
+                console.error('Setup error:', error);
+                this.showToast('{% trans "Setup failed. Please try again." %}', 'error');
+            }
+        },
+
+        showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('setupWizard', setupWizard);
+});
+</script>
+{% endblock %}

@@ -30,4 +30,8 @@ urlpatterns = [
 
     # Password change (for logged in users)
     path('change-password/', template_views.change_password, name='change-password'),
+
+    # Setup wizard
+    path('setup-wizard/', template_views.setup_wizard_view, name='setup-wizard'),
+    path('complete-setup/', template_views.complete_setup, name='complete-setup'),
 ]

@@ -128,7 +128,7 @@
 
         <!-- 3. Təsdiq Gözləyən Bacarıqlar (Menecerlər üçün) -->
         {% if user.role in 'admin,manager' or user.is_staff %}
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'competencies:pending-approvals' %}'">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group" onclick="window.location.href='{% url 'competencies:my-skills' %}'">
             <div class="flex items-start justify-between mb-3">
                 <div class="bg-purple-100 dark:bg-purple-900/30 p-2.5 rounded-lg">
                     <i class="fas fa-user-check text-xl text-purple-600 dark:text-purple-400"></i>

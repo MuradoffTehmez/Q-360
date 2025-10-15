@@ -415,3 +415,76 @@ def password_reset_complete(request):
 
 # Alias for change_password (same as security_settings)
 change_password = security_settings
+
+
+@login_required
+def setup_wizard_view(request):
+    """Setup wizard for first-time configuration (admin only)."""
+    if not request.user.is_admin():
+        messages.error(request, 'Bu səhifəyə yalnız admin giriş edə bilər.')
+        return redirect('dashboard')
+
+    return render(request, 'accounts/setup_wizard.html')
+
+
+@login_required
+def complete_setup(request):
+    """Complete the setup wizard (admin only)."""
+    from django.http import JsonResponse
+    import json
+
+    if not request.user.is_admin():
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+
+        # Create departments
+        from apps.departments.models import Department
+        for dept_name in data.get('departments', []):
+            if dept_name.strip():
+                Department.objects.get_or_create(
+                    name=dept_name.strip(),
+                    defaults={'description': f'Auto-created during setup'}
+                )
+
+        # Load competency framework
+        if data.get('competency_template'):
+            from apps.competencies.models import Competency
+            template = data['competency_template']
+
+            if template == 'basic':
+                basic_competencies = [
+                    ('Communication', 'Effective verbal and written communication skills'),
+                    ('Teamwork', 'Ability to work collaboratively in a team'),
+                    ('Problem Solving', 'Analytical thinking and solution finding'),
+                    ('Leadership', 'Ability to guide and motivate others'),
+                    ('Time Management', 'Efficient use of time and prioritization'),
+                ]
+                for name, desc in basic_competencies:
+                    Competency.objects.get_or_create(
+                        name=name,
+                        defaults={'description': desc, 'category': 'Core'}
+                    )
+            elif template == 'advanced':
+                advanced_competencies = [
+                    ('Strategic Thinking', 'Long-term planning and vision'),
+                    ('Technical Expertise', 'Deep technical knowledge'),
+                    ('Innovation', 'Creative problem solving'),
+                    ('Customer Focus', 'Understanding customer needs'),
+                    ('Data Analysis', 'Data-driven decision making'),
+                    ('Project Management', 'Planning and executing projects'),
+                ]
+                for name, desc in advanced_competencies:
+                    Competency.objects.get_or_create(
+                        name=name,
+                        defaults={'description': desc, 'category': 'Advanced'}
+                    )
+
+        return JsonResponse({'success': True, 'message': 'Setup completed successfully'})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
