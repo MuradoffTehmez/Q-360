@@ -110,6 +110,64 @@
                 <span>{% trans "My Goals" %}</span>
             </a>
 
+            <a href="{% url 'workforce-planning:my-gaps' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-chart-gap w-5 mr-3 text-orange-500"></i>
+                <span>{% trans "My Competency Gaps" %}</span>
+            </a>
+
+            <!-- Workforce Planning Section -->
+            {% if user.is_admin or user.is_manager %}
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Workforce Planning" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'workforce-planning:talent-matrix' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-th w-5 mr-3 text-indigo-500"></i>
+                <span>{% trans "Talent Matrix" %}</span>
+            </a>
+
+            <a href="{% url 'workforce-planning:succession-planning' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-users-cog w-5 mr-3 text-purple-500"></i>
+                <span>{% trans "Succession Planning" %}</span>
+            </a>
+
+            <a href="{% url 'workforce-planning:gap-analysis' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-chart-line w-5 mr-3 text-red-500"></i>
+                <span>{% trans "Gap Analysis" %}</span>
+            </a>
+            {% endif %}
+
+            <!-- Continuous Feedback Section -->
+            <div class="pt-4 pb-2">
+                <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {% trans "Feedback" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'feedback:send-feedback' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-paper-plane w-5 mr-3 text-blue-500"></i>
+                <span>{% trans "Send Feedback" %}</span>
+            </a>
+
+            <a href="{% url 'feedback:received-feedback' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <div class="flex items-center">
+                    <i class="fas fa-inbox w-5 mr-3 text-green-500"></i>
+                    <span>{% trans "Received Feedback" %}</span>
+                </div>
+            </a>
+
+            <a href="{% url 'feedback:recognition-feed' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-heart w-5 mr-3 text-red-500"></i>
+                <span>{% trans "Recognition Feed" %}</span>
+            </a>
+
+            <a href="{% url 'feedback:my-bank' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-database w-5 mr-3 text-purple-500"></i>
+                <span>{% trans "My Feedback Bank" %}</span>
+            </a>
+
             <!-- Notifications Section -->
             <div class="pt-4 pb-2">
                 <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">

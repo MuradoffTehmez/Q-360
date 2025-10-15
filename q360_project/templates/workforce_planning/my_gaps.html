@@ -1,0 +1,186 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Mənim Boşluqlarım - Q360{% endblock %}
+
+{% block page_header %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-user-chart mr-2"></i>
+            {% trans "Mənim Kompetensiya Boşluqlarım" %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">{% trans "Şəxsi İnkişaf Planı" %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase">{% trans "Ümumi Boşluqlar" %}</p>
+                <p class="text-3xl font-bold text-blue-700 dark:text-blue-300 mt-2">{{ stats.total_gaps }}</p>
+            </div>
+            <div class="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-chart-line text-2xl text-blue-600 dark:text-blue-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-6 border border-red-200 dark:border-red-700">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-red-600 dark:text-red-400 uppercase">{% trans "Təcili" %}</p>
+                <p class="text-3xl font-bold text-red-700 dark:text-red-300 mt-2">{{ stats.urgent }}</p>
+            </div>
+            <div class="bg-red-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-exclamation-triangle text-2xl text-red-600 dark:text-red-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl p-6 border border-orange-200 dark:border-orange-700">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-orange-600 dark:text-orange-400 uppercase">{% trans "Yüksək Prioritet" %}</p>
+                <p class="text-3xl font-bold text-orange-700 dark:text-orange-300 mt-2">{{ stats.high }}</p>
+            </div>
+            <div class="bg-orange-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-flag text-2xl text-orange-600 dark:text-orange-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-purple-600 dark:text-purple-400 uppercase">{% trans "Böyük Boşluqlar" %}</p>
+                <p class="text-3xl font-bold text-purple-700 dark:text-purple-300 mt-2">{{ stats.major_gaps }}</p>
+            </div>
+            <div class="bg-purple-500 bg-opacity-20 p-3 rounded-lg">
+                <i class="fas fa-chart-bar text-2xl text-purple-600 dark:text-purple-400"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Gaps -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <i class="fas fa-list mr-2"></i>
+            {% trans "Aktiv Boşluqlar" %}
+        </h2>
+    </div>
+    <div class="p-6">
+        {% if my_gaps %}
+        <div class="space-y-4">
+            {% for gap in my_gaps %}
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ gap.competency.name }}</h3>
+                        {% if gap.target_position %}
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <i class="fas fa-briefcase mr-1"></i>
+                            Hədəf vəzifə: {{ gap.target_position.title }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full
+                            {% if gap.priority == 'urgent' %}bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400
+                            {% elif gap.priority == 'high' %}bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400
+                            {% elif gap.priority == 'medium' %}bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400
+                            {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400{% endif %}">
+                            {{ gap.get_priority_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Cari Bal</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ gap.current_score }}</p>
+                    </div>
+                    <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mb-1">Hədəf Bal</p>
+                        <p class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ gap.target_score }}</p>
+                    </div>
+                    <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <p class="text-xs text-red-600 dark:text-red-400 mb-1">Boşluq</p>
+                        <p class="text-2xl font-bold text-red-700 dark:text-red-300">{{ gap.gap_score }}</p>
+                    </div>
+                </div>
+
+                {% if gap.recommended_actions %}
+                <div class="mb-3">
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
+                        Tövsiyə olunan tədbirlər:
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ gap.recommended_actions }}</p>
+                </div>
+                {% endif %}
+
+                {% if gap.recommended_trainings.all %}
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-graduation-cap mr-1 text-blue-500"></i>
+                        Tövsiyə olunan təlimlər:
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for training in gap.recommended_trainings.all %}
+                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+                            {{ training.title }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-check-circle text-6xl text-green-300 dark:text-green-600 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400 text-lg">{% trans "Təbriklər! Heç bir aktiv boşluğunuz yoxdur." %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Closed Gaps -->
+{% if closed_gaps %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <i class="fas fa-check-double mr-2"></i>
+            {% trans "Bağlanmış Boşluqlar" %}
+        </h2>
+    </div>
+    <div class="p-6">
+        <div class="space-y-3">
+            {% for gap in closed_gaps %}
+            <div class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+                    <div>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ gap.competency.name }}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400">Bağlanma tarixi: {{ gap.closed_date|date:"d.m.Y" }}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-semibold text-green-700 dark:text-green-300">
+                    Boşluq: {{ gap.gap_score }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

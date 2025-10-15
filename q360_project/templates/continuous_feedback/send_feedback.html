@@ -1,0 +1,147 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Rəy Göndər - Q360{% endblock %}
+
+{% block page_header %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <i class="fas fa-paper-plane mr-2"></i>
+            {% trans "Tez Rəy Göndər" %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">{% trans "Həmkarlarınıza Təşəkkür və ya Təklif göndərin" %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                <i class="fas fa-comment-dots mr-2"></i>
+                {% trans "Yeni Rəy" %}
+            </h2>
+        </div>
+        <div class="p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Recipient Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user mr-1"></i>
+                        {% trans "Kimə göndərilir" %} <span class="text-red-500">*</span>
+                    </label>
+                    <select name="recipient" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="">{% trans "İşçi seçin..." %}</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.get_full_name }} - {{ user.profile.position.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Feedback Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-tags mr-1"></i>
+                        {% trans "Rəy Tipi" %} <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
+                            <input type="radio" name="feedback_type" value="recognition" required class="mr-2">
+                            <span class="text-green-600 dark:text-green-400 font-semibold">
+                                <i class="fas fa-thumbs-up mr-1"></i>
+                                {% trans "Təşəkkür / Recognition" %}
+                            </span>
+                        </label>
+                        <label class="flex items-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                            <input type="radio" name="feedback_type" value="improvement" required class="mr-2">
+                            <span class="text-blue-600 dark:text-blue-400 font-semibold">
+                                <i class="fas fa-lightbulb mr-1"></i>
+                                {% trans "Təklif / Improvement" %}
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Visibility -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-eye mr-1"></i>
+                        {% trans "Görünürlük" %} <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <label class="flex items-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <input type="radio" name="visibility" value="private" required class="mr-2">
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-lock mr-1"></i>
+                                {% trans "Şəxsi" %}
+                            </span>
+                        </label>
+                        <label class="flex items-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <input type="radio" name="visibility" value="team" required class="mr-2">
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-users mr-1"></i>
+                                {% trans "Komanda" %}
+                            </span>
+                        </label>
+                        <label class="flex items-center px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <input type="radio" name="visibility" value="public" required class="mr-2">
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-globe mr-1"></i>
+                                {% trans "İctimai" %}
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-heading mr-1"></i>
+                        {% trans "Başlıq" %} <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="title" required maxlength="200"
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="{% trans 'Məsələn: Əla komanda işi!' %}">
+                </div>
+
+                <!-- Message -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-comment mr-1"></i>
+                        {% trans "Mesaj" %} <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="message" required rows="6"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                              placeholder="{% trans 'Rəyinizi burada yazın...' %}"></textarea>
+                </div>
+
+                <!-- Anonymous -->
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_anonymous" id="is_anonymous" class="mr-2">
+                    <label for="is_anonymous" class="text-sm text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-user-secret mr-1"></i>
+                        {% trans "Anonim göndər (alan şəxs mənim adımı görməyəcək)" %}
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        {% trans "Rəyi Göndər" %}
+                    </button>
+                    <a href="{% url 'continuous_feedback:my-feedback' %}" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        {% trans "Ləğv et" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
