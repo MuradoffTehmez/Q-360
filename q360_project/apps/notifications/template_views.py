@@ -389,10 +389,8 @@ def bulk_notification(request):
     total_users = User.objects.filter(is_active=True).count()
     departments_count = Department.objects.filter(is_active=True).count()
 
-    # Recent bulk notifications (last 10)
-    recent_notifications = Notification.objects.values('title', 'notification_type', 'created_at').annotate(
-        recipient_count=Count('id')
-    ).order_by('-created_at')[:10]
+    # Recent notifications (last 10 unique titles)
+    recent_notifications = Notification.objects.order_by('-created_at')[:10]
 
     context = {
         'departments': departments,
