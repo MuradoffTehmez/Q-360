@@ -183,6 +183,40 @@ class UserSkillViewSet(viewsets.ModelViewSet):
         # Regular users can only see their own skills
         return self.queryset.filter(user=user)
 
+    def perform_create(self, serializer):
+        """
+        Override to prevent duplicate pending skills.
+        If user already has a pending skill for the same competency,
+        update the existing one instead of creating a new one.
+        """
+        user = serializer.validated_data.get('user')
+        competency = serializer.validated_data.get('competency')
+
+        # Check if a pending skill already exists for this user-competency combination
+        existing_pending_skill = UserSkill.objects.filter(
+            user=user,
+            competency=competency,
+            approval_status='pending'
+        ).first()
+
+        if existing_pending_skill:
+            # Update the existing pending skill instead of creating a new one
+            for field, value in serializer.validated_data.items():
+                setattr(existing_pending_skill, field, value)
+
+            # Reset approval fields to ensure it stays pending
+            existing_pending_skill.is_approved = False
+            existing_pending_skill.approval_status = 'pending'
+            existing_pending_skill.approved_by = None
+            existing_pending_skill.approved_at = None
+            existing_pending_skill.save()
+
+            # Update the serializer instance to return the updated object
+            serializer.instance = existing_pending_skill
+        else:
+            # No pending skill exists, create a new one
+            serializer.save()
+
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         """Bacarığı təsdiq et (Manager və Admin üçün)."""

@@ -579,8 +579,9 @@ class EvaluationResult(models.Model):
         return f"{self.evaluatee.get_full_name()} - {self.campaign.title}"
 
     def calculate_scores(self):
-        """Calculate and update all scores for this result."""
+        """Calculate and update all scores for this result with weighted averages."""
         from django.db.models import Avg
+        from decimal import Decimal
 
         assignments = EvaluationAssignment.objects.filter(
             campaign=self.campaign,
@@ -590,14 +591,8 @@ class EvaluationResult(models.Model):
 
         self.total_evaluators = assignments.count()
 
-        # Calculate overall score
-        all_scores = Response.objects.filter(
-            assignment__in=assignments,
-            score__isnull=False
-        ).aggregate(avg_score=Avg('score'))
-        self.overall_score = all_scores['avg_score']
-
         # Calculate scores by relationship
+        relationship_scores = {}
         for relationship, field in [
             ('self', 'self_score'),
             ('supervisor', 'supervisor_score'),
@@ -610,7 +605,40 @@ class EvaluationResult(models.Model):
                     assignment__in=rel_assignments,
                     score__isnull=False
                 ).aggregate(avg_score=Avg('score'))
-                setattr(self, field, rel_scores['avg_score'])
+                score = rel_scores['avg_score']
+                setattr(self, field, score)
+                relationship_scores[relationship] = Decimal(str(score)) if score else Decimal('0')
+            else:
+                setattr(self, field, None)
+                relationship_scores[relationship] = Decimal('0')
+
+        # Calculate weighted overall score using campaign weights
+        weighted_sum = Decimal('0')
+        total_weight = Decimal('0')
+
+        weight_map = {
+            'self': self.campaign.weight_self,
+            'supervisor': self.campaign.weight_supervisor,
+            'peer': self.campaign.weight_peer,
+            'subordinate': self.campaign.weight_subordinate,
+        }
+
+        for relationship, score in relationship_scores.items():
+            if score > 0:  # Only include relationships that have scores
+                weight = Decimal(str(weight_map[relationship]))
+                weighted_sum += score * weight
+                total_weight += weight
+
+        # Calculate final weighted score
+        if total_weight > 0:
+            self.overall_score = weighted_sum / total_weight
+        else:
+            # Fallback to simple average if no weights
+            all_scores = Response.objects.filter(
+                assignment__in=assignments,
+                score__isnull=False
+            ).aggregate(avg_score=Avg('score'))
+            self.overall_score = all_scores['avg_score']
 
         # Calculate completion rate
         total_expected = EvaluationAssignment.objects.filter(

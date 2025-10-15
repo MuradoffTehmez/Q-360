@@ -71,14 +71,18 @@ def assign_training_for_development_goal(goal_id):
 
         for resource in training_resources:
             # Check if user is not already assigned to this training
+            # IMPORTANT: Allow re-assignment if previous training was completed
             existing_training = UserTraining.objects.filter(
                 user=goal.user,
                 resource=resource
+            ).exclude(
+                status='completed'  # Allow re-recommendation after completion
             ).first()
 
             if existing_training:
                 logger.info(
-                    f"User {goal.user.username} already assigned to training {resource.title}"
+                    f"User {goal.user.username} already assigned to training {resource.title} "
+                    f"with status {existing_training.status}"
                 )
                 continue
 
@@ -284,12 +288,15 @@ def recommend_trainings_for_user(user_id, competency_ids=None, limit=5):
             }
 
         # Find trainings for these competencies
+        # IMPORTANT: Exclude trainings that user is currently working on (not completed)
+        # Allow recommendations for completed trainings (user may want to retake)
         recommended_trainings = TrainingResource.objects.filter(
             required_competencies__in=competencies,
             is_active=True
         ).exclude(
-            # Exclude already assigned trainings
-            user_trainings__user=user
+            # Exclude only non-completed trainings (pending, in_progress, cancelled, failed)
+            user_trainings__user=user,
+            user_trainings__status__in=['pending', 'in_progress', 'cancelled', 'failed']
         ).distinct()[:limit]
 
         recommendations = []
