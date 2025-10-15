@@ -166,3 +166,63 @@ def training_manage(request):
     if not hasattr(request.user, 'is_admin') or not request.user.is_admin():
         return render(request, '403.html', status=403)
     return catalog(request)
+
+
+@login_required
+def my_certificates(request):
+    """
+    Sertifikat İdarəetməsi - İstifadəçinin tamamladığı təlimlərin sertifikatları.
+
+    Funksiyalar:
+    - Tamamlanmış təlimlər üçün sertifikat linki əlavə etmə
+    - Mövcud sertifikatları görüntüləmə
+    - Sertifikat linkini yeniləmə/silmə
+    """
+    # Get completed trainings with certificates
+    trainings_with_certificates = UserTraining.objects.filter(
+        user=request.user,
+        status='completed',
+        certificate_url__isnull=False
+    ).exclude(certificate_url='').select_related('resource').order_by('-completed_date')
+
+    # Get completed trainings without certificates
+    trainings_without_certificates = UserTraining.objects.filter(
+        user=request.user,
+        status='completed'
+    ).filter(
+        Q(certificate_url__isnull=True) | Q(certificate_url='')
+    ).select_related('resource').order_by('-completed_date')
+
+    # Statistics
+    total_completed = UserTraining.objects.filter(
+        user=request.user,
+        status='completed'
+    ).count()
+
+    with_certificates = trainings_with_certificates.count()
+    without_certificates = trainings_without_certificates.count()
+
+    # Calculate certificate completion rate
+    certificate_rate = (with_certificates / total_completed * 100) if total_completed > 0 else 0
+
+    # Recent certificates (last 5)
+    recent_certificates = trainings_with_certificates[:5]
+
+    # Training types distribution
+    training_types = {}
+    for training in trainings_with_certificates:
+        type_display = training.resource.get_type_display()
+        training_types[type_display] = training_types.get(type_display, 0) + 1
+
+    context = {
+        'trainings_with_certificates': trainings_with_certificates,
+        'trainings_without_certificates': trainings_without_certificates,
+        'total_completed': total_completed,
+        'with_certificates': with_certificates,
+        'without_certificates': without_certificates,
+        'certificate_rate': round(certificate_rate, 1),
+        'recent_certificates': recent_certificates,
+        'training_types': training_types,
+    }
+
+    return render(request, 'training/my_certificates.html', context)

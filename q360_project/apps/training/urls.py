@@ -11,6 +11,7 @@ urlpatterns = [
     path('', template_views.catalog, name='catalog'),
     path('catalog/', template_views.catalog, name='catalog-alias'),
     path('my-trainings/', template_views.my_trainings, name='my-trainings'),
+    path('my-certificates/', template_views.my_certificates, name='my-certificates'),
     path('manage/', template_views.training_manage, name='training-manage'),
     path('<int:pk>/', template_views.training_detail, name='training-detail'),
 ]

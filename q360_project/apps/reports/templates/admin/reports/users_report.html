@@ -314,8 +314,8 @@ function reportFilters() {
                 userName: "{{ stat.user.get_full_name|escapejs }}",
                 initials: "{{ stat.user.first_name.0|default:'' }}{{ stat.user.last_name.0|default:'' }}".toUpperCase(),
                 userUrl: "{% url 'admin:accounts_user_change' stat.user.pk %}",
-                department: "{{ stat.department.name|default:''-|escapejs }}",
-                position: "{{ stat.position|default:''-|escapejs }}",
+                department: "{{ stat.department.name|default:'-'|escapejs }}",
+                position: "{{ stat.position|default:'-'|escapejs }}",
                 avgScore: {{ stat.avg_score|default:0 }},
                 evaluationsCount: {{ stat.evaluations_count }}
             }{% if not forloop.last %},{% endif %}
