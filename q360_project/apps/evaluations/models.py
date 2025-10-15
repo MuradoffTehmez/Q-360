@@ -55,6 +55,40 @@ class EvaluationCampaign(models.Model):
         verbose_name=_('Özünüdəyərləndirməyə İcazə Ver')
     )
 
+    # Relationship weights for final score calculation
+    weight_self = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=20.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name=_('Özünüdəyərləndirmə Çəkisi (%)'),
+        help_text=_('Yekun balda özünüdəyərləndirmənin çəkisi')
+    )
+    weight_supervisor = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=50.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name=_('Rəhbər Çəkisi (%)'),
+        help_text=_('Yekun balda rəhbər qiymətləndir​məsinin çəkisi')
+    )
+    weight_peer = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=20.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name=_('Həmkar Çəkisi (%)'),
+        help_text=_('Yekun balda həmkar qiymətləndirməsinin çəkisi')
+    )
+    weight_subordinate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name=_('Tabelik Çəkisi (%)'),
+        help_text=_('Yekun balda tabelik qiymətləndirməsinin çəkisi')
+    )
+
     # Target audience
     target_departments = models.ManyToManyField(
         'departments.Department',

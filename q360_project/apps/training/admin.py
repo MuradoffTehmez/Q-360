@@ -151,7 +151,7 @@ class UserTrainingAdmin(SimpleHistoryAdmin):
 
     def is_overdue_display(self, obj):
         """Vaxtının keçib-keçmədiyini göstərir."""
-        return '✓' if obj.is_overdue() else '✗'
+        return obj.is_overdue()
     is_overdue_display.short_description = 'Vaxtı Keçib'
     is_overdue_display.boolean = True
 

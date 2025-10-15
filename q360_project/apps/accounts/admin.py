@@ -86,6 +86,7 @@ class UserAdmin(BaseUserAdmin, SimpleHistoryAdmin):
     autocomplete_fields = []  # Required for Profile autocomplete
     ordering = ['last_name', 'first_name']
     readonly_fields = ['date_joined', 'last_login', 'user_statistics']
+    list_select_related = ['department', 'supervisor']  # N+1 query optimization
 
     fieldsets = (
         (None, {

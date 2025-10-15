@@ -118,13 +118,31 @@ def delete_notification(request, pk):
         user=request.user
     )
 
-    if request.method == 'POST':
+    if request.method in ['POST', 'DELETE']:
         notification.delete()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'status': 'success'})
 
         messages.success(request, 'Bildiriş silindi.')
+
+    return redirect('notifications:inbox')
+
+
+@login_required
+def delete_all_notifications(request):
+    """Delete all notifications for the current user."""
+    if request.method == 'DELETE':
+        count = Notification.objects.filter(user=request.user).count()
+        Notification.objects.filter(user=request.user).delete()
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'success',
+                'message': f'{count} bildiriş silindi.'
+            })
+
+        messages.success(request, f'{count} bildiriş silindi.')
 
     return redirect('notifications:inbox')
 

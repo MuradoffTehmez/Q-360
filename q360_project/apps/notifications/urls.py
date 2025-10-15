@@ -14,6 +14,7 @@ urlpatterns = [
     path('<int:pk>/mark-read/', template_views.mark_as_read, name='mark-read'),  # Alternative URL
     path('mark-all-read/', template_views.mark_all_as_read, name='mark-all-as-read'),
     path('<int:pk>/delete/', template_views.delete_notification, name='delete-notification'),
+    path('delete-all/', template_views.delete_all_notifications, name='delete-all-notifications'),
     path('settings/', template_views.notification_settings, name='settings'),
 
     # Email template management (admin only)

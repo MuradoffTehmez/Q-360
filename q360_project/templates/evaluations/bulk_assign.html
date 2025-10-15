@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load static %}
 
-{% block title %}Toplu Tapşırıq Təyini - {{ campaign.title }}{% endblock %}
+{% block title %}Toplu Tapşırıq Təyini{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -12,12 +12,11 @@
                 <h1 class="h3 mb-1">
                     <i class="fas fa-users-cog"></i> Toplu Tapşırıq Təyini
                 </h1>
-                <p class="text-muted">{{ campaign.title }} kampaniyası üçün qiymətləndirmə tapşırıqları yaradın</p>
+                <p class="text-muted">Qiymətləndirmə tapşırıqları yaradın</p>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Səhifə</a></li>
                         <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-list' %}">Kampaniyalar</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'evaluations:campaign-detail' campaign.pk %}">{{ campaign.title }}</a></li>
                         <li class="breadcrumb-item active">Toplu Təyin</li>
                     </ol>
                 </nav>
@@ -207,7 +206,7 @@
 
                         <!-- Form Actions -->
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                            <a href="{% url 'evaluations:campaign-detail' campaign.pk %}" class="btn btn-outline-secondary">
+                            <a href="{% url 'evaluations:campaign-list' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i> Ləğv et
                             </a>
                             <div>

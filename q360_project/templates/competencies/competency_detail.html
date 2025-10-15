@@ -237,7 +237,7 @@ function competencyDetailPage({ id }) {
         },
         async fetchCompetency() {
             try {
-                const response = await fetch(`/api/competencies/api/competencies/${id}/`, { headers: this.authHeaders() });
+                const response = await fetch(`/api/competencies/competencies/${id}/`, { headers: this.authHeaders() });
                 if (response.ok) {
                     this.competency = await response.json();
                 }
@@ -247,7 +247,7 @@ function competencyDetailPage({ id }) {
         },
         async fetchPositions() {
             try {
-                const response = await fetch(`/api/competencies/api/position-competencies/?competency=${id}`, { headers: this.authHeaders() });
+                const response = await fetch(`/api/competencies/position-competencies/?competency=${id}`, { headers: this.authHeaders() });
                 if (response.ok) {
                     const data = await response.json();
                     this.positions = data.results || data || [];
@@ -259,7 +259,7 @@ function competencyDetailPage({ id }) {
         },
         async fetchUsers() {
             try {
-                const response = await fetch(`/api/competencies/api/user-skills/?competency=${id}`, { headers: this.authHeaders() });
+                const response = await fetch(`/api/competencies/user-skills/?competency=${id}`, { headers: this.authHeaders() });
                 if (response.ok) {
                     const data = await response.json();
                     this.users = data.results || data || [];
