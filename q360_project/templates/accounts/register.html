@@ -1,0 +1,638 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Qeydiyyat - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    /* Registration Container */
+    .register-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 2rem 0;
+    }
+
+    .register-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+        animation: shimmer 20s linear infinite;
+    }
+
+    /* Registration Card */
+    .register-card {
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.98);
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+    }
+
+    .register-card-body {
+        padding: 2.5rem;
+    }
+
+    /* Logo Animation */
+    .logo-container {
+        animation: fadeIn 1s ease-out 0.2s both;
+    }
+
+    .logo-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin: 0 auto 1rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .logo-icon:hover {
+        transform: rotate(5deg) scale(1.05);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .register-title {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .register-subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 1.25rem;
+        animation: slideInRight 0.6s ease-out both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.3s; }
+    .form-group:nth-child(2) { animation-delay: 0.35s; }
+    .form-group:nth-child(3) { animation-delay: 0.4s; }
+    .form-group:nth-child(4) { animation-delay: 0.45s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+    .form-group:nth-child(6) { animation-delay: 0.55s; }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .form-control::placeholder {
+        color: #adb5bd;
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 5;
+        transition: color 0.3s ease;
+    }
+
+    .input-with-icon {
+        padding-left: 2.75rem;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 5;
+    }
+
+    .toggle-password:hover {
+        color: #667eea;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Password Strength Meter */
+    .password-strength-meter {
+        height: 4px;
+        background: #e9ecef;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .strength-weak { width: 33%; background: #dc3545; }
+    .strength-medium { width: 66%; background: #ffc107; }
+    .strength-strong { width: 100%; background: #28a745; }
+
+    .password-strength-text {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* Submit Button */
+    .btn-register {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-register::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-register:hover::before {
+        left: 100%;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-register:active {
+        transform: translateY(-1px);
+    }
+
+    /* Card Footer */
+    .register-card-footer {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-top: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    .login-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .login-link:hover {
+        color: #764ba2;
+    }
+
+    /* Alert */
+    .alert-custom {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.25rem;
+        animation: fadeInUp 0.4s ease-out;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger-custom {
+        background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+        color: #dc3545;
+    }
+
+    /* Two column layout for larger fields */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .register-card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .register-title {
+            font-size: 1.6rem;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="register-card card">
+                    <div class="register-card-body">
+                        <!-- Logo and Title -->
+                        <div class="logo-container text-center">
+                            <div class="logo-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h1 class="register-title">Qeydiyyat</h1>
+                            <p class="register-subtitle">Q360 - 360° Qiymətləndirmə Sisteminə xoş gəlmisiniz</p>
+                        </div>
+
+                        <!-- Registration Form -->
+                        <form method="post" action="{% url 'accounts:register' %}" id="registerForm">
+                            {% csrf_token %}
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }}-custom alert-custom">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- Personal Information Section -->
+                            <h6 class="text-muted mb-3 mt-3">
+                                <i class="fas fa-user me-2"></i>Şəxsi Məlumatlar
+                            </h6>
+
+                            <div class="form-row">
+                                <!-- First Name -->
+                                <div class="form-group">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        Ad<span class="required-indicator">*</span>
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Last Name -->
+                                <div class="form-group">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        Soyad<span class="required-indicator">*</span>
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Middle Name -->
+                            <div class="form-group">
+                                <label for="{{ form.middle_name.id_for_label }}" class="form-label">
+                                    Ata adı
+                                </label>
+                                {{ form.middle_name }}
+                                {% if form.middle_name.errors %}
+                                    <div class="invalid-feedback">{{ form.middle_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-row">
+                                <!-- Date of Birth -->
+                                <div class="form-group">
+                                    <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                                        Doğum tarixi
+                                    </label>
+                                    {{ form.date_of_birth }}
+                                    {% if form.date_of_birth.errors %}
+                                        <div class="invalid-feedback">{{ form.date_of_birth.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="form-group">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                        Əlaqə nömrəsi
+                                    </label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}
+                                        <div class="invalid-feedback">{{ form.phone_number.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Account Information Section -->
+                            <h6 class="text-muted mb-3 mt-4">
+                                <i class="fas fa-user-circle me-2"></i>Hesab Məlumatları
+                            </h6>
+
+                            <div class="form-row">
+                                <!-- Username -->
+                                <div class="form-group">
+                                    <label for="{{ form.username.id_for_label }}" class="form-label">
+                                        İstifadəçi adı<span class="required-indicator">*</span>
+                                    </label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                        <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Email -->
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        Email ünvanı<span class="required-indicator">*</span>
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Work Information Section -->
+                            <h6 class="text-muted mb-3 mt-4">
+                                <i class="fas fa-briefcase me-2"></i>İş Məlumatları
+                            </h6>
+
+                            <div class="form-row">
+                                <!-- Position -->
+                                <div class="form-group">
+                                    <label for="{{ form.position.id_for_label }}" class="form-label">
+                                        Vəzifə<span class="required-indicator">*</span>
+                                    </label>
+                                    {{ form.position }}
+                                    {% if form.position.errors %}
+                                        <div class="invalid-feedback">{{ form.position.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Department -->
+                                <div class="form-group">
+                                    <label for="{{ form.department.id_for_label }}" class="form-label">
+                                        Şöbə
+                                    </label>
+                                    {{ form.department }}
+                                    {% if form.department.errors %}
+                                        <div class="invalid-feedback">{{ form.department.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Password Section -->
+                            <h6 class="text-muted mb-3 mt-4">
+                                <i class="fas fa-lock me-2"></i>Şifrə
+                            </h6>
+
+                            <!-- Password -->
+                            <div class="form-group">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    Şifrə<span class="required-indicator">*</span>
+                                </label>
+                                <div class="position-relative">
+                                    {{ form.password1 }}
+                                    <button class="toggle-password" type="button" id="togglePassword1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-bar" id="strengthBar"></div>
+                                </div>
+                                <div class="password-strength-text" id="strengthText"></div>
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password Confirmation -->
+                            <div class="form-group">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    Şifrəni təkrar daxil edin<span class="required-indicator">*</span>
+                                </label>
+                                <div class="position-relative">
+                                    {{ form.password2 }}
+                                    <button class="toggle-password" type="button" id="togglePassword2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="form-group mt-4">
+                                <button type="submit" class="btn btn-register">
+                                    <i class="fas fa-user-plus me-2"></i>Qeydiyyatdan Keç
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="register-card-footer">
+                        <p class="mb-0">
+                            Artıq hesabınız var?
+                            <a href="{% url 'accounts:login' %}" class="login-link">
+                                <i class="fas fa-sign-in-alt me-1"></i>Daxil olun
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    function setupPasswordToggle(buttonId, inputId) {
+        const button = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+
+        if (button && input) {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        }
+    }
+
+    setupPasswordToggle('togglePassword1', '{{ form.password1.id_for_label }}');
+    setupPasswordToggle('togglePassword2', '{{ form.password2.id_for_label }}');
+
+    // Password strength meter
+    const password1Input = document.getElementById('{{ form.password1.id_for_label }}');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+
+    if (password1Input && strengthBar && strengthText) {
+        password1Input.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            // Update bar
+            strengthBar.className = 'password-strength-bar';
+            strengthText.className = 'password-strength-text';
+
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.innerHTML = '<span style="color: #dc3545;">Zəif</span>';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.innerHTML = '<span style="color: #ffc107;">Orta</span>';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.innerHTML = '<span style="color: #28a745;">Güclü</span>';
+            }
+
+            if (password.length === 0) {
+                strengthBar.style.width = '0';
+                strengthText.innerHTML = '';
+            }
+        });
+    }
+
+    // Add focus animations to inputs
+    const inputs = document.querySelectorAll('.form-control, .form-select');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if (this.parentElement.classList.contains('position-relative')) {
+                this.parentElement.style.transform = 'scale(1.005)';
+            } else {
+                this.style.transform = 'scale(1.005)';
+            }
+        });
+
+        input.addEventListener('blur', function() {
+            if (this.parentElement.classList.contains('position-relative')) {
+                this.parentElement.style.transform = 'scale(1)';
+            } else {
+                this.style.transform = 'scale(1)';
+            }
+        });
+    });
+</script>
+{% endblock %}

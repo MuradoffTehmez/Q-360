@@ -448,7 +448,13 @@
 
                     <!-- Card Footer -->
                     <div class="login-card-footer text-center">
-                        <div class="security-badge">
+                        <div class="mb-3">
+                            <p class="mb-2">Hesabınız yoxdur?</p>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus me-2"></i>Qeydiyyatdan keçin
+                            </a>
+                        </div>
+                        <div class="security-badge mt-3">
                             <i class="fas fa-shield-alt"></i>
                             <span>Təhlükəsiz Giriş</span>
                         </div>
