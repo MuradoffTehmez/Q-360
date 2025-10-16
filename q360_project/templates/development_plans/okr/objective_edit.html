@@ -1,0 +1,112 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Məqsədi Redaktə Et" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-edit mr-2"></i>{% trans "Məqsədi Redaktə Et" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'okr:objective_detail' objective.id %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="form-card">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{% trans "Məqsəd" %} *</label>
+                        <input type="text" class="form-control" name="title" value="{{ objective.title }}" required placeholder="{% trans 'Məqsədin adını daxil edin' %}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="{% trans 'Məqsədin təsvirini daxil edin' %}">{{ objective.description }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{% trans "Səviyyə" %} *</label>
+                                <select class="form-control" name="level" required>
+                                    <option value="individual" {% if objective.level == 'individual' %}selected{% endif %}>{% trans "Fərdi" %}</option>
+                                    <option value="department" {% if objective.level == 'department' %}selected{% endif %}>{% trans "Şöbə" %}</option>
+                                    <option value="organization" {% if objective.level == 'organization' %}selected{% endif %}>{% trans "Təşkilat" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{% trans "Status" %} *</label>
+                                <select class="form-control" name="status" required>
+                                    <option value="draft" {% if objective.status == 'draft' %}selected{% endif %}>{% trans "Qaralama" %}</option>
+                                    <option value="active" {% if objective.status == 'active' %}selected{% endif %}>{% trans "Aktiv" %}</option>
+                                    <option value="completed" {% if objective.status == 'completed' %}selected{% endif %}>{% trans "Tamamlanmış" %}</option>
+                                    <option value="cancelled" {% if objective.status == 'cancelled' %}selected{% endif %}>{% trans "Ləğv Edilmiş" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{% trans "İl" %} *</label>
+                                <input type="number" class="form-control" name="fiscal_year" value="{{ objective.fiscal_year }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{% trans "Rüb" %} *</label>
+                                <select class="form-control" name="quarter" required>
+                                    <option value="Q1" {% if objective.quarter == 'Q1' %}selected{% endif %}>Q1</option>
+                                    <option value="Q2" {% if objective.quarter == 'Q2' %}selected{% endif %}>Q2</option>
+                                    <option value="Q3" {% if objective.quarter == 'Q3' %}selected{% endif %}>Q3</option>
+                                    <option value="Q4" {% if objective.quarter == 'Q4' %}selected{% endif %}>Q4</option>
+                                    <option value="annual" {% if objective.quarter == 'annual' %}selected{% endif %}>{% trans "İllik" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Başlanğıc Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="start_date" value="{{ objective.start_date|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Bitmə Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="end_date" value="{{ objective.end_date|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'okr:objective_detail' objective.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>{% trans "Ləğv Et" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i>{% trans "Yadda Saxla" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

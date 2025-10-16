@@ -165,7 +165,7 @@ class StrategicObjective(models.Model):
             return
 
         weighted_progress = sum(
-            (kr.current_value / kr.target_value * 100 if kr.target_value > 0 else 0) * kr.weight
+            (kr.current_value / kr.target_value * 100 if kr.target_value and kr.target_value > 0 else 0) * kr.weight
             for kr in key_results
         )
 
@@ -289,7 +289,7 @@ class KeyResult(models.Model):
     @property
     def progress_percentage(self):
         """Calculate progress percentage."""
-        if self.target_value == 0:
+        if not self.target_value or self.target_value == 0:
             return Decimal('0.00')
         return (self.current_value / self.target_value * 100)
 

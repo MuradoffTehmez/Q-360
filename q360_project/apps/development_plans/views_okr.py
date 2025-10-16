@@ -100,6 +100,33 @@ def objective_create(request):
 
 
 @login_required
+def objective_edit(request, pk):
+    """Edit objective."""
+    objective = get_object_or_404(StrategicObjective, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            objective.title = request.POST.get('title')
+            objective.description = request.POST.get('description')
+            objective.level = request.POST.get('level')
+            objective.status = request.POST.get('status')
+            objective.fiscal_year = request.POST.get('fiscal_year')
+            objective.quarter = request.POST.get('quarter', 'annual')
+            objective.start_date = request.POST.get('start_date')
+            objective.end_date = request.POST.get('end_date')
+            objective.save()
+            return redirect('okr:objective_detail', pk=objective.id)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    context = {
+        'objective': objective,
+        'current_year': 2025,
+    }
+    return render(request, 'development_plans/okr/objective_edit.html', context)
+
+
+@login_required
 @require_http_methods(["POST"])
 def keyresult_create(request, objective_id):
     """Create new key result."""
@@ -117,6 +144,21 @@ def keyresult_create(request, objective_id):
             weight=request.POST.get('weight', 100)
         )
         return JsonResponse({'success': True, 'message': 'Açar nəticə əlavə edildi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def keyresult_complete(request, objective_id, kr_id):
+    """Mark key result as complete."""
+    keyresult = get_object_or_404(KeyResult, pk=kr_id, objective_id=objective_id)
+
+    try:
+        # Set current value to target value
+        keyresult.current_value = keyresult.target_value
+        keyresult.save()
+        return JsonResponse({'success': True, 'message': 'Açar nəticə tamamlandı'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
 
