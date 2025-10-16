@@ -1,60 +1,122 @@
-# Django and Core
+######################################
+# Django Əsas Nüvəsi (Core)
+######################################
 Django==5.1.4
-djangorestframework==3.15.2
+asgiref==3.10.0
+sqlparse==0.5.3
+pytz==2025.2
+tzdata==2025.2
+
+######################################
+# Django Əlavələri və Köməkçi Modullar
+######################################
 django-filter==24.3
 django-cors-headers==4.5.0
-
-# Database
-psycopg2-binary==2.9.10
-dj-database-url==2.2.0
-
-# Authentication & JWT
-djangorestframework-simplejwt==5.4.0
-
-# Async Tasks
-celery==5.4.0
-redis==5.2.1
-django-celery-beat==2.7.0
-
-# Cache
-django-redis==5.4.0
-hiredis==2.3.2  # Optional Redis parser for better performance
-
-# Admin Interface
+django-simple-history==3.8.0
+django-mptt==0.16.0
+django-csp==3.8
+django-timezone-field==7.1
+django-js-asset==3.1.2
 django-jazzmin==3.0.1
 
-# History & Audit
-django-simple-history==3.8.0
+######################################
+# REST API və Avtorizasiya (Auth)
+######################################
+djangorestframework==3.15.2
+djangorestframework_simplejwt==5.4.0
 
-# Tree Structure (for departments)
-django-mptt==0.16.0
+######################################
+# Keşləmə (Caching) / Limitləmə / Redis
+######################################
+django-redis==5.4.0
+django-ratelimit==4.1.0
+redis==5.2.1
+hiredis==2.3.2
 
-# File Upload & Storage
-Pillow==11.0.0
+######################################
+# Asinxron Tapşırıqlar və Celery
+######################################
+celery==5.4.0
+django-celery-beat==2.7.0
+billiard==4.2.2
+kombu==5.5.4
+vine==5.1.0
+amqp==5.3.1
+cron_descriptor==2.0.6
+python-crontab==3.3.0
 
-# Report Generation
-reportlab==4.2.5
+######################################
+# Verilənlər Bazası və ORM
+######################################
+dj-database-url==2.2.0
+psycopg2-binary==2.9.10
+
+######################################
+# Frontend və Statik Fayllar
+######################################
+whitenoise==6.8.2
+pillow==11.0.0
+
+######################################
+# Məlumat, Hesabat və Analitika
+######################################
+numpy==2.3.3
 pandas==2.2.3
 openpyxl==3.1.5
+et_xmlfile==2.0.0
+reportlab==4.2.5
 
-# Sentiment Analysis
-vaderSentiment==3.3.2
-
-# Security
-python-decouple==3.8
+######################################
+# Təhlükəsizlik və Şifrələmə
+######################################
 argon2-cffi==23.1.0
+argon2-cffi-bindings==25.1.0
+cffi==2.0.0
+PyJWT==2.10.1
 
-# Production Server
-gunicorn==23.0.0
-whitenoise==6.8.2
+######################################
+# HTTP və API Müştəriləri
+######################################
+requests==2.32.5
+urllib3==2.5.0
+idna==3.10
+chardet==5.2.0
+charset-normalizer==3.4.3
+certifi==2025.10.5
 
-# Security
-django-csp==3.8  # Content Security Policy
-django-ratelimit==4.1.0  # Rate limiting
-
-# Real-time Notifications
+######################################
+# Kanallar və WebSocket Dəstəyi
+######################################
 channels==4.1.0
 channels-redis==4.2.0
 
-# Development Tools
+######################################
+# Server və Dağıtım (Deployment)
+######################################
+gunicorn==23.0.0
+colorama==0.4.6
+
+######################################
+# İnkişaf Alətləri və Komanda Xətləri
+######################################
+click==8.3.0
+click-plugins==1.1.1.2
+click-didyoumean==0.3.1
+click-repl==0.3.0
+prompt_toolkit==3.0.52
+wcwidth==0.2.14
+
+######################################
+# NLP / Mətin Analizi (Opsional)
+######################################
+vaderSentiment==3.3.2
+
+######################################
+# Digər Yardımçı Kitabxanalar
+######################################
 python-dotenv==1.0.1
+python-decouple==3.8
+packaging==25.0
+typing_extensions==4.15.0
+six==1.17.0
+msgpack==1.1.2
