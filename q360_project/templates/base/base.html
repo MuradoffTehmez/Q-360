@@ -3,21 +3,27 @@
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %}Q360 - {% trans "360° Performance Evaluation System" %}{% endblock %}</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>{% block title %}Q360 - {% trans
+            "360° Performance Evaluation System" %}{% endblock %}</title>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{% static 'img/q360-admin-logo.svg' %}">
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml"
+            href="{% static 'img/q360-admin-logo.svg' %}">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <!-- Bootstrap 5 CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -60,17 +66,20 @@
         }
     </script>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <!-- Chart.js -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <!-- Alpine.js for interactivity -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <!-- Alpine.js for interactivity -->
+        <script defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Custom CSS -->
-    <style>
+        <!-- Custom CSS -->
+        <style>
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
@@ -98,10 +107,10 @@
         }
     </style>
 
-    {% block extra_css %}{% endblock %}
+        {% block extra_css %}{% endblock %}
 
-    <!-- Dark Mode Script (must load before body) -->
-    <script>
+        <!-- Dark Mode Script (must load before body) -->
+        <script>
         // Check for saved theme preference or default to 'light'
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -109,58 +118,65 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-    <div class="min-h-screen flex flex-col" x-data="{ sidebarOpen: true, darkMode: localStorage.theme === 'dark' }">
-        <!-- Navigation -->
-        {% include 'base/navbar.html' %}
+    </head>
+    <body
+        class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        <div class="min-h-screen flex flex-col"
+            x-data="{ sidebarOpen: true, darkMode: localStorage.theme === 'dark' }">
+            <!-- Navigation -->
+            {% include 'base/navbar.html' %}
 
-        <div class="flex flex-1 overflow-hidden">
-            <!-- Sidebar -->
-            {% if user.is_authenticated %}
+            <div class="flex flex-1 overflow-hidden">
+                <!-- Sidebar -->
+                {% if user.is_authenticated %}
                 {% include 'base/sidebar.html' %}
-            {% endif %}
+                {% endif %}
 
-            <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <!-- Breadcrumb -->
-                    {% block breadcrumb %}{% endblock %}
+                <!-- Main Content -->
+                <main
+                    class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                        <!-- Breadcrumb -->
+                        {% block breadcrumb %}{% endblock %}
 
-                    <!-- Messages -->
-                    {% if messages %}
+                        <!-- Messages -->
+                        {% if messages %}
                         <div class="space-y-3 mb-6 animate-fade-in-up">
                             {% for message in messages %}
-                                <div class="flex items-center justify-between bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-900 border border-{{ message.tags }}-400 dark:border-{{ message.tags }}-600 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 px-4 py-3 rounded-lg shadow-sm" role="alert" x-data="{ show: true }" x-show="show" x-transition>
-                                    <span class="flex items-center">
-                                        <i class="fas fa-info-circle mr-2"></i>
-                                        {{ message }}
-                                    </span>
-                                    <button @click="show = false" class="ml-4 text-{{ message.tags }}-500 hover:text-{{ message.tags }}-700 dark:hover:text-{{ message.tags }}-300">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
+                            <div
+                                class="flex items-center justify-between bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-900 border border-{{ message.tags }}-400 dark:border-{{ message.tags }}-600 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 px-4 py-3 rounded-lg shadow-sm"
+                                role="alert" x-data="{ show: true }"
+                                x-show="show" x-transition>
+                                <span class="flex items-center">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    {{ message }}
+                                </span>
+                                <button @click="show = false"
+                                    class="ml-4 text-{{ message.tags }}-500 hover:text-{{ message.tags }}-700 dark:hover:text-{{ message.tags }}-300">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                             {% endfor %}
                         </div>
-                    {% endif %}
+                        {% endif %}
 
-                    <!-- Page Header -->
-                    {% block page_header %}{% endblock %}
+                        <!-- Page Header -->
+                        {% block page_header %}{% endblock %}
 
-                    <!-- Main Content -->
-                    <div class="animate-fade-in">
-                        {% block content %}{% endblock %}
+                        <!-- Main Content -->
+                        <div class="animate-fade-in">
+                            {% block content %}{% endblock %}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
+
+            <!-- Footer -->
+            {% include 'base/footer.html' %}
         </div>
 
-        <!-- Footer -->
-        {% include 'base/footer.html' %}
-    </div>
-
-    <!-- Dark Mode Toggle Script -->
-    <script>
+        <!-- Dark Mode Toggle Script -->
+        <script>
         function toggleDarkMode() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -172,15 +188,18 @@
         }
     </script>
 
-    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-    <!-- Custom JS -->
-    <script src="{% static 'js/main.js' %}"></script>
+        <!-- Custom JS -->
+        <script src="{% static 'js/main.js' %}"></script>
 
-    {% block extra_js %}{% endblock %}
-</body>
+        {% block extra_js %}{% endblock %}
+    </body>
 </html>
