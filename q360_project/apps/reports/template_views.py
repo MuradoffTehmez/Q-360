@@ -328,7 +328,7 @@ def analytics_dashboard(request):
 
     from datetime import date, timedelta
     from apps.departments.models import Department
-    from apps.training.models import Training
+    from apps.training.models import TrainingResource
     from apps.audit.models import AuditLog
 
     # Get or calculate today's KPI

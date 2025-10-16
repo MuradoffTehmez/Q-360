@@ -268,7 +268,7 @@ class SystemKPI(models.Model):
         from apps.accounts.models import User
         from apps.evaluations.models import EvaluationCampaign, EvaluationAssignment
         from apps.departments.models import Department
-        from apps.training.models import Training
+        from apps.training.models import TrainingResource, UserTraining
         from apps.audit.models import AuditLog
 
         today = date.today()
@@ -302,8 +302,8 @@ class SystemKPI(models.Model):
         total_departments = Department.objects.count()
 
         # Training metrics
-        total_trainings = Training.objects.count()
-        active_trainings = Training.objects.filter(status='active').count()
+        total_trainings = TrainingResource.objects.count()
+        active_trainings = UserTraining.objects.filter(status='in_progress').count()
 
         # Security metrics
         login_attempts_today = AuditLog.objects.filter(
