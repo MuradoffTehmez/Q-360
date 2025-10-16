@@ -239,6 +239,9 @@ CACHES = {
     }
 }
 
+# CELERY_TASK_ALWAYS_EAGER = True
+# CELERY_TASK_EAGER_PROPAGATES = True
+
 # Redis Cache Configuration (commented out - install django-redis if needed)
 # CACHES = {
 #     'default': {
