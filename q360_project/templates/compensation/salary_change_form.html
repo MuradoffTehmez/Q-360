@@ -158,7 +158,7 @@
 
                     <div class="form-group">
                         <label>{% trans "Ödəniş Tezliyi" %}</label>
-                        <select class="form-control" name="pay_frequency">
+                        <select class="form-control" name="payment_frequency">
                             <option value="monthly">{% trans "Aylıq" %}</option>
                             <option value="biweekly">{% trans "İki Həftədə Bir" %}</option>
                             <option value="weekly">{% trans "Həftəlik" %}</option>
@@ -167,7 +167,19 @@
 
                     <div class="form-group">
                         <label>{% trans "Dəyişiklik Səbəbi" %} *</label>
-                        <textarea class="form-control" name="reason" rows="4" required placeholder="{% trans 'Performans artımı, terfi, bazar düzəlişi və s.' %}"></textarea>
+                        <select class="form-control" name="change_reason" required>
+                            <option value="promotion">{% trans "Terfi" %}</option>
+                            <option value="merit_increase">{% trans "Performans Artımı" %}</option>
+                            <option value="market_adjustment">{% trans "Bazar Düzəlişi" %}</option>
+                            <option value="cost_of_living">{% trans "Həyat Dəyəri Artımı" %}</option>
+                            <option value="retention">{% trans "Saxlama" %}</option>
+                            <option value="other">{% trans "Digər" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Qeydlər" %}</label>
+                        <textarea class="form-control" name="notes" rows="3" placeholder="{% trans 'Əlavə məlumat və ya izahat' %}"></textarea>
                     </div>
 
                     <!-- Salary Comparison Preview -->

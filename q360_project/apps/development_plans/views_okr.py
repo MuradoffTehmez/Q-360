@@ -178,6 +178,50 @@ def keyresult_complete(request, objective_id, kr_id):
 
 
 @login_required
+def keyresult_edit(request, kr_id):
+    """Edit key result."""
+    keyresult = get_object_or_404(KeyResult, pk=kr_id)
+
+    if request.method == 'POST':
+        try:
+            keyresult.title = request.POST.get('title')
+            keyresult.description = request.POST.get('description', '')
+            keyresult.unit = request.POST.get('unit')
+            keyresult.baseline_value = request.POST.get('baseline_value', 0)
+            keyresult.target_value = request.POST.get('target_value')
+            keyresult.current_value = request.POST.get('current_value', keyresult.current_value)
+            keyresult.weight = request.POST.get('weight', 100)
+            keyresult.save()
+            return JsonResponse({'success': True, 'message': 'Açar nəticə yeniləndi'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    context = {'keyresult': keyresult}
+    return render(request, 'development_plans/okr/keyresult_edit.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def keyresult_update_value(request, kr_id):
+    """Update key result current value."""
+    import json
+    keyresult = get_object_or_404(KeyResult, pk=kr_id)
+
+    try:
+        data = json.loads(request.body)
+        current_value = data.get('current_value')
+        keyresult.current_value = current_value
+        keyresult.save()
+        return JsonResponse({
+            'success': True,
+            'message': 'Dəyər yeniləndi',
+            'progress_percentage': keyresult.progress_percentage
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
 def kpi_dashboard(request):
     """KPI dashboard."""
     user_kpis = KPI.objects.filter(owner=request.user, is_active=True)

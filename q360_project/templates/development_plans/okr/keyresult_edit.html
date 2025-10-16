@@ -1,0 +1,114 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ keyresult.title }} - {% trans "Redaktə" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-edit mr-2"></i>{% trans "Açar Nəticəni Redaktə Et" %}</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <form id="editKRForm" method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label>{% trans "Başlıq" %} *</label>
+                            <input type="text" class="form-control" name="title" value="{{ keyresult.title }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>{% trans "Təsvir" %}</label>
+                            <textarea class="form-control" name="description" rows="3">{{ keyresult.description }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{% trans "Başlanğıc Dəyər" %} *</label>
+                                    <input type="number" class="form-control" name="baseline_value" value="{{ keyresult.baseline_value }}" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{% trans "Hədəf Dəyər" %} *</label>
+                                    <input type="number" class="form-control" name="target_value" value="{{ keyresult.target_value }}" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{% trans "Cari Dəyər" %} *</label>
+                                    <input type="number" class="form-control" name="current_value" value="{{ keyresult.current_value }}" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{% trans "Vahid" %}</label>
+                                    <select class="form-control" name="unit">
+                                        <option value="number" {% if keyresult.unit == 'number' %}selected{% endif %}>{% trans "Ədəd" %}</option>
+                                        <option value="percentage" {% if keyresult.unit == 'percentage' %}selected{% endif %}>%</option>
+                                        <option value="currency" {% if keyresult.unit == 'currency' %}selected{% endif %}>AZN</option>
+                                        <option value="days" {% if keyresult.unit == 'days' %}selected{% endif %}>{% trans "Gün" %}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{% trans "Çəki" %} (%)</label>
+                                    <input type="number" class="form-control" name="weight" value="{{ keyresult.weight|default:100 }}" min="0" max="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'okr:objective_detail' keyresult.objective.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>{% trans "Yadda Saxla" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('editKRForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '{% url "okr:objective_detail" keyresult.objective.id %}';
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
+});
+</script>
+{% endblock %}

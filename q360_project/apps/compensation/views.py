@@ -35,8 +35,29 @@ def compensation_dashboard(request):
 def salary_list(request):
     """List all salary information (for managers)."""
     if not request.user.is_manager():
-        return redirect('compensation:dashboard')
+        # For regular users, show their own salary info
+        user = request.user
+        salary = SalaryInformation.objects.filter(user=user, is_active=True).first()
+        allowances = Allowance.objects.filter(user=user, is_active=True)
+        deductions = Deduction.objects.filter(user=user, is_active=True)
+        salary_history = SalaryInformation.objects.filter(user=user).order_by('-effective_date')
 
+        total_allowances = sum(a.amount for a in allowances)
+        total_deductions = sum(d.amount for d in deductions)
+        net_salary = (salary.base_salary if salary else 0) + total_allowances - total_deductions
+
+        context = {
+            'salary': salary,
+            'allowances': allowances,
+            'deductions': deductions,
+            'salary_history': salary_history,
+            'total_allowances': total_allowances,
+            'total_deductions': total_deductions,
+            'net_salary': net_salary,
+        }
+        return render(request, 'compensation/salary_list.html', context)
+
+    # For managers - show all salaries
     salaries = SalaryInformation.objects.select_related('user').filter(is_active=True)
 
     search = request.GET.get('search', '')
@@ -47,8 +68,8 @@ def salary_list(request):
             Q(user__employee_id__icontains=search)
         )
 
-    context = {'salaries': salaries, 'search': search}
-    return render(request, 'compensation/salary_list.html', context)
+    context = {'salaries': salaries, 'search': search, 'is_manager_view': True}
+    return render(request, 'compensation/salary_manager_list.html', context)
 
 
 @login_required

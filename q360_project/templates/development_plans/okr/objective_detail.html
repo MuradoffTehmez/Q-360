@@ -585,7 +585,7 @@ document.getElementById('addKRForm').addEventListener('submit', function(e) {
 function updateKR(id) {
     const value = prompt('{% trans "Cari dəyəri daxil edin" %}:');
     if (value !== null) {
-        fetch(`/okr/keyresults/${id}/update/`, {
+        fetch('{% url "okr:keyresult_update_value" 0 %}'.replace('/0/', `/${id}/`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -605,7 +605,7 @@ function updateKR(id) {
 }
 
 function editKR(id) {
-    window.location.href = `/okr/keyresults/${id}/edit/`;
+    window.location.href = '{% url "okr:keyresult_edit" 0 %}'.replace('/0/', `/${id}/`);
 }
 
 function toggleMilestone(id) {
