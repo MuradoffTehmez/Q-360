@@ -34,22 +34,49 @@ class Notification(models.Model):
     def save(self, *args, **kwargs):
         # Call the original save method
         is_new = self.pk is None
+        skip_websocket = kwargs.pop('skip_websocket', False)
         super().save(*args, **kwargs)
-        
+
         # If this is a new notification, send it via WebSocket
-        if is_new:
+        if is_new and not skip_websocket:
             self.send_real_time_notification()
-    
+
     def send_real_time_notification(self):
-        """Send this notification via WebSocket to the user"""
-        from .services import send_notification_to_user
-        
-        send_notification_to_user(
-            user_id=self.user.id,
-            title=self.title,
-            message=self.message,
-            notification_type=self.notification_type
-        )
+        """Send this notification via WebSocket to the user (without creating a new notification)"""
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+
+            channel_layer = get_channel_layer()
+
+            # If channel layer is not configured, skip WebSocket notification
+            if channel_layer is None:
+                return
+
+            # Prepare message data
+            notification_data = {
+                'id': self.id,
+                'title': self.title,
+                'message': self.message,
+                'type': self.notification_type,
+                'timestamp': self.created_at.isoformat(),
+                'is_read': self.is_read,
+                'link': self.link
+            }
+
+            # Send to user's notification group
+            async_to_sync(channel_layer.group_send)(
+                f"notifications_{self.user.id}",
+                {
+                    'type': 'notification_message',
+                    'message': notification_data
+                }
+            )
+        except Exception as e:
+            # Log error but don't fail the notification creation
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to send real-time notification: {e}")
     
     def mark_as_read(self):
         """Mark notification as read and update read_at timestamp"""
