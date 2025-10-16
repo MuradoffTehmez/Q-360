@@ -307,6 +307,13 @@
                                 <i class="fas fa-dollar-sign w-3 mr-2 text-emerald-400"></i>
                                 <span>{% trans "Əmək Haqqı" %}</span>
                             </a>
+                            {% if user.is_admin or user.is_manager %}
+                            <a href="{% url 'compensation:salary_change' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-edit w-3 mr-2 text-emerald-400"></i>
+                                <span>{% trans "Maaş Dəyişdir" %}</span>
+                            </a>
+                            {% endif %}
                             <a href="{% url 'compensation:bonus_list' %}"
                                 class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
                                 <i class="fas fa-gift w-3 mr-2 text-emerald-400"></i>
@@ -346,6 +353,11 @@
                                 <span>{% trans "İştirak Təqvimi" %}</span>
                             </a>
                             {% if user.is_manager %}
+                            <a href="{% url 'leave_attendance:pending_approvals' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-check-circle w-3 mr-2 text-violet-400"></i>
+                                <span>{% trans "Gözləyən Təsdiqləmələr" %}</span>
+                            </a>
                             <a href="{% url 'leave_attendance:team_calendar' %}"
                                 class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
                                 <i class="fas fa-users-cog w-3 mr-2 text-violet-400"></i>
@@ -398,6 +410,11 @@
                                 class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
                                 <i class="fas fa-plus-circle w-3 mr-2 text-amber-400"></i>
                                 <span>{% trans "Yeni Vakansiya" %}</span>
+                            </a>
+                            <a href="{% url 'recruitment:candidate_pipeline' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-columns w-3 mr-2 text-amber-400"></i>
+                                <span>{% trans "Namizəd Pipeline" %}</span>
                             </a>
                             {% endif %}
                             <a href="{% url 'recruitment:job_list' %}"

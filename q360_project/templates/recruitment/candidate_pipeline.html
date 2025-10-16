@@ -1,0 +1,435 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Namizəd Pipeline" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pipeline-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .pipeline-container {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        min-height: 600px;
+    }
+    .pipeline-column {
+        min-width: 280px;
+        max-width: 300px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        padding: 1rem;
+        flex-shrink: 0;
+    }
+    .pipeline-column-header {
+        font-weight: bold;
+        font-size: 0.875rem;
+        color: #374151;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #d1d5db;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .candidate-card {
+        background: white;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: move;
+        transition: all 0.3s ease;
+    }
+    .candidate-card:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    .candidate-card.dragging {
+        opacity: 0.5;
+    }
+    .candidate-name {
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+    .candidate-job {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    .candidate-meta {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .candidate-rating {
+        color: #fbbf24;
+    }
+    .stage-count {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 0.125rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+
+    /* Stage-specific colors */
+    .stage-received { border-top: 3px solid #3b82f6; }
+    .stage-screening { border-top: 3px solid #8b5cf6; }
+    .stage-interview { border-top: 3px solid #f59e0b; }
+    .stage-assessment { border-top: 3px solid #10b981; }
+    .stage-offer { border-top: 3px solid #06b6d4; }
+    .stage-hired { border-top: 3px solid #22c55e; }
+    .stage-rejected { border-top: 3px solid #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="pipeline-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-columns mr-2"></i>{% trans "Namizəd Pipeline" %}</h2>
+                <p class="mb-0">{% trans "Namizədləri mərhələlər arasında sürükləyin" %}</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="form-inline justify-content-end">
+                    <select class="form-control mr-2" id="jobFilter" onchange="filterByJob(this.value)">
+                        <option value="">{% trans "Bütün Vakansiyalar" %}</option>
+                        {% for job in jobs %}
+                        <option value="{{ job.id }}" {% if selected_job and selected_job.id == job.id %}selected{% endif %}>
+                            {{ job.title }} ({{ job.application_count }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <a href="{% url 'recruitment:dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <strong>{% trans "Ümumi Namizədlər" %}:</strong> {{ all_applications|length }} |
+                <strong>{% trans "Aktiv" %}:</strong> {{ pipeline_stages.received|length|add:pipeline_stages.screening|length|add:pipeline_stages.interview|length|add:pipeline_stages.assessment|length|add:pipeline_stages.offer|length }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Kanban Board -->
+    <div class="pipeline-container">
+        <!-- Received -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-received">
+                <span>{% trans "Alındı" %}</span>
+                <span class="stage-count">{{ pipeline_stages.received|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="received" id="stage-received">
+                {% for app in pipeline_stages.received %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Screening -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-screening">
+                <span>{% trans "Sınaq" %}</span>
+                <span class="stage-count">{{ pipeline_stages.screening|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="screening" id="stage-screening">
+                {% for app in pipeline_stages.screening %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Interview -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-interview">
+                <span>{% trans "Müsahibə" %}</span>
+                <span class="stage-count">{{ pipeline_stages.interview|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="interview" id="stage-interview">
+                {% for app in pipeline_stages.interview %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Assessment -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-assessment">
+                <span>{% trans "Qiymətləndirmə" %}</span>
+                <span class="stage-count">{{ pipeline_stages.assessment|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="assessment" id="stage-assessment">
+                {% for app in pipeline_stages.assessment %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Offer -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-offer">
+                <span>{% trans "Təklif" %}</span>
+                <span class="stage-count">{{ pipeline_stages.offer|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="offer" id="stage-offer">
+                {% for app in pipeline_stages.offer %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Hired -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-hired">
+                <span>{% trans "İşə Qəbul" %}</span>
+                <span class="stage-count">{{ pipeline_stages.hired|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="hired" id="stage-hired">
+                {% for app in pipeline_stages.hired %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    {% if app.rating %}
+                    <div class="candidate-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= app.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                        {% if app.years_of_experience %}
+                        <span><i class="fas fa-briefcase"></i> {{ app.years_of_experience }}y</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="pipeline-column">
+            <div class="pipeline-column-header stage-rejected">
+                <span>{% trans "Rədd Edildi" %}</span>
+                <span class="stage-count">{{ pipeline_stages.rejected|length }}</span>
+            </div>
+            <div class="sortable-list" data-stage="rejected" id="stage-rejected">
+                {% for app in pipeline_stages.rejected %}
+                <div class="candidate-card" data-id="{{ app.id }}">
+                    <div class="candidate-name">{{ app.full_name }}</div>
+                    <div class="candidate-job">{{ app.job_posting.title }}</div>
+                    <div class="candidate-meta">
+                        <span><i class="fas fa-calendar-alt"></i> {{ app.applied_at|date:"d M" }}</span>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'recruitment:application_detail' app.id %}" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Sortable.js for drag-and-drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+function filterByJob(jobId) {
+    if (jobId) {
+        window.location.href = `/recruitment/pipeline/${jobId}/`;
+    } else {
+        window.location.href = '/recruitment/pipeline/';
+    }
+}
+
+// Initialize Sortable on all pipeline columns
+document.querySelectorAll('.sortable-list').forEach(function(el) {
+    new Sortable(el, {
+        group: 'pipeline',
+        animation: 150,
+        ghostClass: 'dragging',
+        onEnd: function(evt) {
+            const applicationId = evt.item.dataset.id;
+            const newStatus = evt.to.dataset.stage;
+            const oldStatus = evt.from.dataset.stage;
+
+            // Update stage count badges
+            updateStageCounts();
+
+            // Send update to server
+            updateApplicationStatus(applicationId, newStatus, oldStatus);
+        }
+    });
+});
+
+function updateStageCounts() {
+    document.querySelectorAll('.sortable-list').forEach(function(list) {
+        const count = list.querySelectorAll('.candidate-card').length;
+        const header = list.previousElementSibling;
+        const badge = header.querySelector('.stage-count');
+        if (badge) {
+            badge.textContent = count;
+        }
+    });
+}
+
+function updateApplicationStatus(applicationId, newStatus, oldStatus) {
+    fetch(`/recruitment/applications/${applicationId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `status=${newStatus}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            console.log(data.message);
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+            // Revert the move
+            location.reload();
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}');
+        location.reload();
+    });
+}
+</script>
+{% endblock %}

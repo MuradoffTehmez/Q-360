@@ -1,0 +1,237 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Gözləyən Təsdiqləmələr" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .approval-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .request-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #ffc107;
+        transition: all 0.3s ease;
+    }
+    .request-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    .badge-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="approval-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-tasks mr-2"></i>{% trans "Gözləyən Təsdiqləmələr" %}</h2>
+                <p class="mb-0">{% trans "Komandanızın məzuniyyət sorğuları" %}</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Gözləyən Sorğular" %}</h6>
+                    <h2 class="text-warning">{{ pending_requests|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Təsdiq Gözləyən Sorğular" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for request in pending_requests %}
+                    <div class="request-card" id="request-{{ request.id }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-user mr-2"></i>{{ request.user.get_full_name }}
+                                </h6>
+                                <small class="text-muted">{{ request.user.department.name|default:"" }}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">{% trans "Məzuniyyət Növü" %}:</small><br>
+                                <strong>{{ request.leave_type.name }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">{% trans "Tarix" %}:</small><br>
+                                <strong>{{ request.start_date|date:"d M Y" }} - {{ request.end_date|date:"d M Y" }}</strong>
+                                <br>
+                                <small class="text-info">
+                                    <i class="fas fa-calendar-day mr-1"></i>{{ request.number_of_days }} {% trans "gün" %}
+                                </small>
+                            </div>
+                            <div class="col-md-3 text-right action-buttons justify-content-end">
+                                <button type="button" class="btn btn-success btn-sm" onclick="approveRequest({{ request.id }})">
+                                    <i class="fas fa-check mr-1"></i>{% trans "Təsdiqlə" %}
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="showRejectModal({{ request.id }})">
+                                    <i class="fas fa-times mr-1"></i>{% trans "Rədd Et" %}
+                                </button>
+                            </div>
+                        </div>
+                        {% if request.reason %}
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <small class="text-muted">{% trans "Səbəb" %}:</small>
+                                <p class="mb-0">{{ request.reason }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock mr-1"></i>{% trans "Yaradılma" %}: {{ request.created_at|date:"d M Y, H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-check-circle fa-4x mb-3"></i>
+                        <p>{% trans "Təsdiq gözləyən sorğu yoxdur" %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Məzuniyyət Sorğusunu Rədd Et" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="rejectForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="rejectRequestId" name="request_id">
+                    <div class="form-group">
+                        <label>{% trans "Rədd Səbəbi" %} *</label>
+                        <textarea class="form-control" name="reason" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                <button type="button" class="btn btn-danger" onclick="submitReject()">{% trans "Rədd Et" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function approveRequest(requestId) {
+    if (!confirm('{% trans "Bu məzuniyyət sorğusunu təsdiqləmək istədiyinizə əminsiniz?" %}')) {
+        return;
+    }
+
+    fetch(`/leave/request/${requestId}/approve/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove card from list
+            document.getElementById(`request-${requestId}`).remove();
+            alert(data.message);
+
+            // Reload if no more requests
+            if (document.querySelectorAll('.request-card').length === 0) {
+                location.reload();
+            }
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+}
+
+let currentRejectId = null;
+
+function showRejectModal(requestId) {
+    currentRejectId = requestId;
+    document.getElementById('rejectRequestId').value = requestId;
+    $('#rejectModal').modal('show');
+}
+
+function submitReject() {
+    const form = document.getElementById('rejectForm');
+    const formData = new FormData(form);
+    const requestId = currentRejectId;
+
+    fetch(`/leave/request/${requestId}/reject/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#rejectModal').modal('hide');
+            document.getElementById(`request-${requestId}`).remove();
+            alert(data.message);
+
+            // Reload if no more requests
+            if (document.querySelectorAll('.request-card').length === 0) {
+                location.reload();
+            }
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

@@ -116,3 +116,87 @@ def team_leave_calendar(request):
         'current_year': current_year,
     }
     return render(request, 'leave_attendance/team_calendar.html', context)
+
+
+@login_required
+def pending_approvals(request):
+    """Pending leave requests for approval (managers only)."""
+    if not request.user.is_manager():
+        return redirect('leave_attendance:leave_dashboard')
+
+    # Get pending requests from team members
+    team = User.objects.filter(supervisor=request.user)
+    pending_requests = LeaveRequest.objects.filter(
+        user__in=team,
+        status='pending'
+    ).select_related('user', 'leave_type').order_by('-created_at')
+
+    context = {'pending_requests': pending_requests}
+    return render(request, 'leave_attendance/pending_approvals.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def approve_leave_request(request, pk):
+    """Approve leave request and update balance."""
+    leave_request = get_object_or_404(LeaveRequest, pk=pk)
+
+    # Check if user is the manager
+    if leave_request.user.supervisor != request.user and not request.user.is_superuser:
+        return JsonResponse({'success': False, 'message': 'İcazəniz yoxdur'}, status=403)
+
+    try:
+        # Update status
+        leave_request.status = 'approved'
+        leave_request.approved_by = request.user
+        leave_request.approved_at = date.today()
+        leave_request.save()
+
+        # Update leave balance
+        leave_balance = LeaveBalance.objects.get(
+            user=leave_request.user,
+            leave_type=leave_request.leave_type,
+            year=leave_request.start_date.year
+        )
+
+        # Calculate days
+        days_used = leave_request.calculate_days()
+        leave_balance.used_days += days_used
+        leave_balance.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Məzuniyyət sorğusu təsdiqləndi'
+        })
+    except LeaveBalance.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'İşçinin məzuniyyət balansı tapılmadı'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def reject_leave_request(request, pk):
+    """Reject leave request."""
+    leave_request = get_object_or_404(LeaveRequest, pk=pk)
+
+    # Check if user is the manager
+    if leave_request.user.supervisor != request.user and not request.user.is_superuser:
+        return JsonResponse({'success': False, 'message': 'İcazəniz yoxdur'}, status=403)
+
+    try:
+        leave_request.status = 'rejected'
+        leave_request.approved_by = request.user
+        leave_request.approved_at = date.today()
+        leave_request.rejection_reason = request.POST.get('reason', '')
+        leave_request.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Məzuniyyət sorğusu rədd edildi'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

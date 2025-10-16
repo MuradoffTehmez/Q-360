@@ -156,3 +156,66 @@ def interview_create(request, application_id):
         return JsonResponse({'success': True, 'message': 'Müsahibə planlaşdırıldı'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+def candidate_pipeline(request, job_id=None):
+    """Kanban-style candidate pipeline view."""
+    if not (request.user.is_manager() or request.user.is_admin):
+        return redirect('recruitment:dashboard')
+
+    # Get job posting
+    jobs = JobPosting.objects.filter(status='open')
+    selected_job = None
+
+    if job_id:
+        selected_job = get_object_or_404(JobPosting, id=job_id)
+        applications = Application.objects.filter(job_posting=selected_job)
+    else:
+        # Show all open positions
+        applications = Application.objects.filter(job_posting__status='open')
+
+    # Group applications by status
+    pipeline_stages = {
+        'received': applications.filter(status='received'),
+        'screening': applications.filter(status='screening'),
+        'interview': applications.filter(status='interview'),
+        'assessment': applications.filter(status='assessment'),
+        'offer': applications.filter(status='offer'),
+        'hired': applications.filter(status='hired'),
+        'rejected': applications.filter(status='rejected'),
+    }
+
+    context = {
+        'jobs': jobs,
+        'selected_job': selected_job,
+        'pipeline_stages': pipeline_stages,
+        'all_applications': applications,
+    }
+    return render(request, 'recruitment/candidate_pipeline.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_application_status(request, application_id):
+    """Update application status (for pipeline drag-drop)."""
+    application = get_object_or_404(Application, id=application_id)
+
+    if not (request.user.is_manager() or request.user.is_admin):
+        return JsonResponse({'success': False, 'message': 'İcazəniz yoxdur'}, status=403)
+
+    try:
+        new_status = request.POST.get('status')
+        notes = request.POST.get('notes', '')
+
+        application.status = new_status
+        if notes:
+            application.notes = (application.notes + '\n\n' + notes).strip()
+        application.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Status dəyişdirildi: {application.get_status_display()}'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

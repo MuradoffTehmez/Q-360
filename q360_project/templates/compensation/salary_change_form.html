@@ -1,0 +1,282 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Maaş Dəyişikliyi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .salary-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .current-salary-card {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .salary-comparison {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: 2rem 0;
+    }
+    .salary-box {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 8px;
+        flex: 1;
+        margin: 0 0.5rem;
+    }
+    .salary-box.old {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+    }
+    .salary-box.new {
+        background: #d1fae5;
+        border: 2px solid #10b981;
+    }
+    .salary-amount {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="salary-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-hand-holding-usd mr-2"></i>{% trans "Maaş Dəyişikliyi" %}</h2>
+                <p class="mb-0">{% trans "İşçinin maaşını dəyişdirin" %}</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'compensation:salary_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            {% if employee %}
+            <!-- Selected Employee Info -->
+            <div class="current-salary-card">
+                <h5>{% trans "Seçilmiş İşçi" %}</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>{% trans "Ad Soyad" %}:</strong> {{ employee.get_full_name }}</p>
+                        <p><strong>{% trans "Şöbə" %}:</strong> {{ employee.department.name|default:"-" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>{% trans "Vəzifə" %}:</strong> {{ employee.position.title|default:"-" }}</p>
+                        {% if current_salary %}
+                        <p><strong>{% trans "Cari Maaş" %}:</strong>
+                            <span class="text-success font-weight-bold">{{ current_salary.base_salary }} {{ current_salary.currency }}</span>
+                        </p>
+                        {% else %}
+                        <p><strong>{% trans "Cari Maaş" %}:</strong> <span class="text-muted">{% trans "Təyin edilməyib" %}</span></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-card">
+                <form method="post" id="salaryChangeForm">
+                    {% csrf_token %}
+
+                    {% if not employee %}
+                    <!-- Employee Selection -->
+                    <div class="form-group">
+                        <label>{% trans "İşçi Seçin" %} *</label>
+                        <select class="form-control" name="employee_id" id="employeeSelect" required>
+                            <option value="">{% trans "Seçin..." %}</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}"
+                                data-salary="{{ emp.salary_information.first.base_salary|default:'0' }}"
+                                data-currency="{{ emp.salary_information.first.currency|default:'AZN' }}">
+                                {{ emp.get_full_name }} - {{ emp.department.name|default:'-' }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="currentSalaryDisplay" class="alert alert-info" style="display: none;">
+                        <strong>{% trans "Cari Maaş" %}:</strong> <span id="currentSalaryAmount"></span>
+                    </div>
+                    {% else %}
+                    <input type="hidden" name="employee_id" value="{{ employee.id }}">
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Yeni Maaş" %} *</label>
+                                <input type="number" class="form-control" name="new_salary" id="newSalary" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Valyuta" %}</label>
+                                <select class="form-control" name="currency">
+                                    <option value="AZN">AZN</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Qüvvəyə Minmə Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="effective_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Maaş Dərəcəsi" %}</label>
+                                <input type="text" class="form-control" name="salary_grade" placeholder="Məsələn: L5, M3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Ödəniş Tezliyi" %}</label>
+                        <select class="form-control" name="pay_frequency">
+                            <option value="monthly">{% trans "Aylıq" %}</option>
+                            <option value="biweekly">{% trans "İki Həftədə Bir" %}</option>
+                            <option value="weekly">{% trans "Həftəlik" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Dəyişiklik Səbəbi" %} *</label>
+                        <textarea class="form-control" name="reason" rows="4" required placeholder="{% trans 'Performans artımı, terfi, bazar düzəlişi və s.' %}"></textarea>
+                    </div>
+
+                    <!-- Salary Comparison Preview -->
+                    <div id="salaryComparisonPreview" class="salary-comparison" style="display: none;">
+                        <div class="salary-box old">
+                            <small class="text-muted">{% trans "Əvvəlki Maaş" %}</small>
+                            <div class="salary-amount" id="oldSalaryPreview">0 AZN</div>
+                        </div>
+                        <div style="font-size: 2rem; color: #10b981;">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="salary-box new">
+                            <small class="text-muted">{% trans "Yeni Maaş" %}</small>
+                            <div class="salary-amount" id="newSalaryPreview">0 AZN</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'compensation:salary_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>{% trans "Ləğv Et" %}
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check mr-1"></i>{% trans "Maaşı Dəyişdir" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentSalary = {{ current_salary.base_salary|default:'0' }};
+let currentCurrency = '{{ current_salary.currency|default:"AZN" }}';
+
+{% if not employee %}
+// Employee selection change
+document.getElementById('employeeSelect').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    currentSalary = parseFloat(selectedOption.dataset.salary) || 0;
+    currentCurrency = selectedOption.dataset.currency || 'AZN';
+
+    if (this.value) {
+        document.getElementById('currentSalaryDisplay').style.display = 'block';
+        document.getElementById('currentSalaryAmount').textContent = `${currentSalary} ${currentCurrency}`;
+    } else {
+        document.getElementById('currentSalaryDisplay').style.display = 'none';
+    }
+
+    updateSalaryPreview();
+});
+{% endif %}
+
+// New salary input change
+document.getElementById('newSalary').addEventListener('input', updateSalaryPreview);
+
+function updateSalaryPreview() {
+    const newSalary = parseFloat(document.getElementById('newSalary').value) || 0;
+    const currency = document.querySelector('select[name="currency"]').value;
+
+    if (newSalary > 0 && currentSalary > 0) {
+        document.getElementById('salaryComparisonPreview').style.display = 'flex';
+        document.getElementById('oldSalaryPreview').textContent = `${currentSalary} ${currentCurrency}`;
+        document.getElementById('newSalaryPreview').textContent = `${newSalary} ${currency}`;
+
+        // Calculate percentage change
+        const percentChange = ((newSalary - currentSalary) / currentSalary * 100).toFixed(1);
+        const changeIndicator = percentChange > 0 ? '▲' : '▼';
+        const changeColor = percentChange > 0 ? '#10b981' : '#ef4444';
+
+        document.getElementById('newSalaryPreview').innerHTML = `
+            ${newSalary} ${currency}<br>
+            <small style="color: ${changeColor};">${changeIndicator} ${Math.abs(percentChange)}%</small>
+        `;
+    } else {
+        document.getElementById('salaryComparisonPreview').style.display = 'none';
+    }
+}
+
+// Form submission
+document.getElementById('salaryChangeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    if (!confirm('{% trans "Maaş dəyişikliyini təsdiqləyirsiniz?" %}')) {
+        return;
+    }
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '{% url "compensation:salary_list" %}';
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+});
+</script>
+{% endblock %}

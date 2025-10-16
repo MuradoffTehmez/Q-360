@@ -79,3 +79,76 @@ def compensation_history(request):
     history = CompensationHistory.objects.filter(user=request.user).order_by('-effective_date')
     context = {'history': history}
     return render(request, 'compensation/history.html', context)
+
+
+@login_required
+def salary_change_form(request, user_id=None):
+    """Form to change employee salary (managers/HR only)."""
+    if not (request.user.is_manager() or request.user.is_admin):
+        return redirect('compensation:dashboard')
+
+    # If user_id provided, get that user, otherwise show selection
+    employee = None
+    current_salary = None
+
+    if user_id:
+        employee = get_object_or_404(User, id=user_id)
+        current_salary = SalaryInformation.objects.filter(user=employee, is_active=True).first()
+
+    if request.method == 'POST':
+        try:
+            employee_id = request.POST.get('employee_id')
+            employee = get_object_or_404(User, id=employee_id)
+
+            # Get current salary
+            current_salary_obj = SalaryInformation.objects.filter(
+                user=employee,
+                is_active=True
+            ).first()
+
+            old_amount = current_salary_obj.base_salary if current_salary_obj else 0
+            new_amount = request.POST.get('new_salary')
+
+            # Deactivate old salary
+            if current_salary_obj:
+                current_salary_obj.is_active = False
+                current_salary_obj.save()
+
+            # Create new salary record
+            new_salary = SalaryInformation.objects.create(
+                user=employee,
+                base_salary=new_amount,
+                currency=request.POST.get('currency', 'AZN'),
+                salary_grade=request.POST.get('salary_grade', ''),
+                pay_frequency=request.POST.get('pay_frequency', 'monthly'),
+                is_active=True
+            )
+
+            # Create compensation history entry
+            CompensationHistory.objects.create(
+                user=employee,
+                change_type='salary_increase' if float(new_amount) > float(old_amount) else 'salary_decrease',
+                old_value=old_amount,
+                new_value=new_amount,
+                effective_date=request.POST.get('effective_date'),
+                reason=request.POST.get('reason'),
+                approved_by=request.user
+            )
+
+            return JsonResponse({
+                'success': True,
+                'message': f'{employee.get_full_name()} üçün maaş dəyişdirildi'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # GET request - show form
+    from apps.departments.models import Department
+    employees = User.objects.filter(is_active=True).select_related('department')
+
+    context = {
+        'employees': employees,
+        'employee': employee,
+        'current_salary': current_salary,
+    }
+    return render(request, 'compensation/salary_change_form.html', context)
