@@ -6,6 +6,9 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 from datetime import date
 from .models import LeaveType, LeaveBalance, LeaveRequest, Attendance, Holiday
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 @login_required

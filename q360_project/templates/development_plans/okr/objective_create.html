@@ -1,0 +1,127 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni Məqsəd Yarat" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-plus-circle mr-2"></i>{% trans "Yeni Məqsəd Yarat" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'okr:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="form-card">
+                <form method="post" id="createObjectiveForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{% trans "Məqsəd" %} *</label>
+                        <input type="text" class="form-control" name="title" required placeholder="{% trans 'Məqsədin adını daxil edin' %}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="{% trans 'Məqsədin təsvirini daxil edin' %}"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Səviyyə" %} *</label>
+                                <select class="form-control" name="level" required>
+                                    <option value="individual">{% trans "Fərdi" %}</option>
+                                    <option value="department">{% trans "Şöbə" %}</option>
+                                    <option value="organization">{% trans "Təşkilat" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "İl" %} *</label>
+                                <input type="number" class="form-control" name="fiscal_year" value="{{ current_year }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Rüb" %} *</label>
+                                <select class="form-control" name="quarter" required>
+                                    <option value="Q1">Q1</option>
+                                    <option value="Q2">Q2</option>
+                                    <option value="Q3">Q3</option>
+                                    <option value="Q4">Q4</option>
+                                    <option value="annual" selected>{% trans "İllik" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Başlanğıc Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Bitmə Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'okr:dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>{% trans "Ləğv Et" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i>{% trans "Yarat" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('createObjectiveForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "okr:objective_create" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/okr/objectives/${data.objective_id}/`;
+        } else {
+            alert('Xəta: ' + (data.message || '{% trans "Məqsəd yaradılarkən xəta baş verdi" %}'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta: ' + error.message);
+    });
+});
+</script>
+{% endblock %}

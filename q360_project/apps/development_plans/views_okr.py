@@ -73,24 +73,30 @@ def objective_detail(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 def objective_create(request):
     """Create new objective."""
-    try:
-        objective = StrategicObjective.objects.create(
-            title=request.POST.get('title'),
-            description=request.POST.get('description'),
-            level=request.POST.get('level'),
-            fiscal_year=request.POST.get('fiscal_year'),
-            quarter=request.POST.get('quarter', 'annual'),
-            start_date=request.POST.get('start_date'),
-            end_date=request.POST.get('end_date'),
-            owner=request.user,
-            created_by=request.user
-        )
-        return JsonResponse({'success': True, 'objective_id': objective.id})
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
+    if request.method == 'POST':
+        try:
+            objective = StrategicObjective.objects.create(
+                title=request.POST.get('title'),
+                description=request.POST.get('description'),
+                level=request.POST.get('level'),
+                fiscal_year=request.POST.get('fiscal_year'),
+                quarter=request.POST.get('quarter', 'annual'),
+                start_date=request.POST.get('start_date'),
+                end_date=request.POST.get('end_date'),
+                owner=request.user,
+                created_by=request.user
+            )
+            return JsonResponse({'success': True, 'objective_id': objective.id})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # GET request - show form
+    context = {
+        'current_year': 2025,
+    }
+    return render(request, 'development_plans/okr/objective_create.html', context)
 
 
 @login_required

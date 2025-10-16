@@ -1,0 +1,208 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Komanda Məzuniyyət Təqvimi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .team-member-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+    .team-member-card.on-leave { border-left-color: #17a2b8; }
+    .team-member-card.upcoming { border-left-color: #ffc107; }
+    .team-member-card.available { border-left-color: #28a745; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="calendar-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-users mr-2"></i>{% trans "Komanda Məzuniyyət Təqvimi" %}</h2>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <label class="mr-2">{% trans "Ay" %}:</label>
+                <select name="month" class="form-control mr-2">
+                    {% for i in "123456789012" %}
+                    <option value="{{ forloop.counter }}" {% if forloop.counter == current_month %}selected{% endif %}>
+                        {{ forloop.counter }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label class="mr-2">{% trans "İl" %}:</label>
+                <select name="year" class="form-control mr-2">
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> {% trans "Axtar" %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Mövcud" %}</h6>
+                    <h2 class="text-success">{{ stats.available|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Məzuniyyətdə" %}</h6>
+                    <h2 class="text-info">{{ stats.on_leave|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Planlaşdırılmış" %}</h6>
+                    <h2 class="text-warning">{{ stats.upcoming|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Ümumi" %}</h6>
+                    <h2 class="text-primary">{{ team_members.count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Komanda Üzvləri" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for member in team_members %}
+                    <div class="team-member-card {{ member.status }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    {% if member.profile_picture %}
+                                    <img src="{{ member.profile_picture.url }}" class="rounded-circle mr-2" width="40" height="40" alt="{{ member.get_full_name }}">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-center mr-2" style="width:40px; height:40px;">
+                                        <strong>{{ member.first_name.0 }}{{ member.last_name.0 }}</strong>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ member.get_full_name }}</h6>
+                                        <small class="text-muted">{{ member.job_title|default:"N/A" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">{% trans "Status" %}:</small><br>
+                                <span class="badge badge-{% if member.status == 'on-leave' %}info{% elif member.status == 'upcoming' %}warning{% else %}success{% endif %}">
+                                    {% if member.status == 'on-leave' %}{% trans "Məzuniyyətdə" %}{% elif member.status == 'upcoming' %}{% trans "Planlaşdırılmış" %}{% else %}{% trans "Mövcud" %}{% endif %}
+                                </span>
+                            </div>
+                            <div class="col-md-4">
+                                {% if member.current_leave %}
+                                <small class="text-muted">{% trans "Məzuniyyət" %}:</small><br>
+                                <strong>{{ member.current_leave.start_date|date:"d M" }} - {{ member.current_leave.end_date|date:"d M Y" }}</strong>
+                                <br><small>{{ member.current_leave.leave_type.name }}</small>
+                                {% else %}
+                                <small class="text-muted">{% trans "Aktiv məzuniyyət yoxdur" %}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <small class="text-muted">{% trans "Qalıq" %}:</small><br>
+                                <strong>{{ member.available_days|default:0 }} {% trans "gün" %}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-4">{% trans "Komanda üzvü yoxdur" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Leaves -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Planlaşdırılmış Məzuniyyətlər" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "İşçi" %}</th>
+                                    <th>{% trans "Növ" %}</th>
+                                    <th>{% trans "Başlanğıc" %}</th>
+                                    <th>{% trans "Bitmə" %}</th>
+                                    <th>{% trans "Gün Sayı" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in upcoming_leaves %}
+                                <tr>
+                                    <td>{{ leave.user.get_full_name }}</td>
+                                    <td>{{ leave.leave_type.name }}</td>
+                                    <td>{{ leave.start_date|date:"d M Y" }}</td>
+                                    <td>{{ leave.end_date|date:"d M Y" }}</td>
+                                    <td>{{ leave.number_of_days }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if leave.status == 'approved' %}success{% else %}warning{% endif %}">
+                                            {{ leave.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">{% trans "Planlaşdırılmış məzuniyyət yoxdur" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

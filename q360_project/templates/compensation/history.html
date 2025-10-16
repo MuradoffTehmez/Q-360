@@ -1,0 +1,161 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Kompensasiya Tarixçəsi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #e0e0e0;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -2.4rem;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #667eea;
+    }
+    .history-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-history mr-2"></i>{% trans "Kompensasiya Tarixçəsi" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'compensation:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Maaş Dəyişiklik Tarixçəsi" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for change in salary_changes %}
+                        <div class="timeline-item">
+                            <div class="history-card">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <small class="text-muted">{% trans "Tarix" %}</small>
+                                        <h6>{{ change.effective_date|date:"d M Y" }}</h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">{% trans "Əsas Maaş" %}</small>
+                                        <h6>{{ change.base_salary }} AZN</h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">{% trans "Dəyişiklik" %}</small>
+                                        <h6>
+                                            {% if change.change_amount > 0 %}
+                                            <span class="text-success">+{{ change.change_amount }} AZN</span>
+                                            {% elif change.change_amount < 0 %}
+                                            <span class="text-danger">{{ change.change_amount }} AZN</span>
+                                            {% else %}
+                                            <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted">{% trans "Səbəb" %}</small>
+                                        <h6>{{ change.change_reason|default:"-" }}</h6>
+                                    </div>
+                                </div>
+                                {% if change.notes %}
+                                <div class="row mt-2">
+                                    <div class="col-md-12">
+                                        <small class="text-muted">{% trans "Qeydlər" %}:</small>
+                                        <p class="mb-0">{{ change.notes }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center text-muted py-4">{% trans "Tarixçə yoxdur" %}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Bonus Tarixçəsi" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Tarix" %}</th>
+                                    <th>{% trans "Növ" %}</th>
+                                    <th>{% trans "Məbləğ" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Səbəb" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bonus in bonus_history %}
+                                <tr>
+                                    <td>{{ bonus.payment_date|date:"d M Y" }}</td>
+                                    <td>{{ bonus.get_bonus_type_display }}</td>
+                                    <td><strong>{{ bonus.amount }} AZN</strong></td>
+                                    <td>
+                                        <span class="badge badge-{% if bonus.status == 'paid' %}success{% elif bonus.status == 'approved' %}primary{% else %}warning{% endif %}">
+                                            {{ bonus.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ bonus.reason|default:"-"|truncatewords:10 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">{% trans "Bonus tarixçəsi yoxdur" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

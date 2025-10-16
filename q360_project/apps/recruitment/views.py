@@ -50,24 +50,30 @@ def job_posting_detail(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 def job_posting_create(request):
     """Create new job posting."""
-    try:
-        job = JobPosting.objects.create(
-            title=request.POST.get('title'),
-            code=request.POST.get('code'),
-            department_id=request.POST.get('department'),
-            description=request.POST.get('description'),
-            responsibilities=request.POST.get('responsibilities'),
-            requirements=request.POST.get('requirements'),
-            employment_type=request.POST.get('employment_type'),
-            location=request.POST.get('location'),
-            created_by=request.user
-        )
-        return JsonResponse({'success': True, 'job_id': job.id})
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
+    if request.method == 'POST':
+        try:
+            job = JobPosting.objects.create(
+                title=request.POST.get('title'),
+                code=request.POST.get('code'),
+                department_id=request.POST.get('department'),
+                description=request.POST.get('description'),
+                responsibilities=request.POST.get('responsibilities'),
+                requirements=request.POST.get('requirements'),
+                employment_type=request.POST.get('employment_type'),
+                location=request.POST.get('location'),
+                created_by=request.user
+            )
+            return JsonResponse({'success': True, 'job_id': job.id})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # GET request - show form
+    from apps.departments.models import Department
+    departments = Department.objects.all()
+    context = {'departments': departments}
+    return render(request, 'recruitment/job_create.html', context)
 
 
 @login_required
@@ -100,11 +106,34 @@ def application_update_status(request, pk):
 @login_required
 def interview_calendar(request):
     """Interview calendar view."""
+    from datetime import datetime, timedelta
+    from django.utils import timezone
+
     interviews = Interview.objects.filter(
         status='scheduled'
     ).select_related('application', 'application__job_posting').order_by('scheduled_date')
 
-    context = {'interviews': interviews}
+    completed_interviews = Interview.objects.filter(
+        status='completed'
+    ).select_related('application', 'application__job_posting').order_by('-scheduled_date')[:10]
+
+    # Calculate statistics
+    today = timezone.now().date()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+
+    today_count = interviews.filter(scheduled_date__date=today).count()
+    this_week_count = interviews.filter(
+        scheduled_date__date__gte=week_start,
+        scheduled_date__date__lte=week_end
+    ).count()
+
+    context = {
+        'interviews': interviews,
+        'completed_interviews': completed_interviews,
+        'today_count': today_count,
+        'this_week_count': this_week_count,
+    }
     return render(request, 'recruitment/interview_calendar.html', context)
 
 

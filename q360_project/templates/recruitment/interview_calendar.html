@@ -1,0 +1,193 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Müsahibə Təqvimi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .interview-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+    .interview-card.scheduled { border-left-color: #ffc107; }
+    .interview-card.completed { border-left-color: #28a745; }
+    .interview-card.cancelled { border-left-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="calendar-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-calendar-alt mr-2"></i>{% trans "Müsahibə Təqvimi" %}</h2>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'recruitment:dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Planlaşdırılmış" %}</h6>
+                    <h2 class="text-warning">{{ interviews|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Bu həftə" %}</h6>
+                    <h2 class="text-primary">{{ this_week_count|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Bu gün" %}</h6>
+                    <h2 class="text-success">{{ today_count|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interviews List -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Gələcək Müsahibələr" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for interview in interviews %}
+                    <div class="interview-card {{ interview.status }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-1">{{ interview.application.first_name }} {{ interview.application.last_name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-briefcase mr-1"></i>{{ interview.application.job_posting.title }}
+                                </small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">{% trans "Tarix və Vaxt" %}:</small><br>
+                                <strong>{{ interview.scheduled_date|date:"d M Y, H:i" }}</strong>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">{% trans "Növ" %}:</small><br>
+                                <strong>{{ interview.get_interview_type_display }}</strong>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge badge-{% if interview.status == 'scheduled' %}warning{% elif interview.status == 'completed' %}success{% else %}secondary{% endif %}">
+                                    {{ interview.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="col-md-1 text-right">
+                                <a href="{% url 'recruitment:application_detail' interview.application.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% if interview.location %}
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ interview.location }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if interview.meeting_link %}
+                        <div class="row mt-1">
+                            <div class="col-md-12">
+                                <small>
+                                    <i class="fas fa-link mr-1"></i>
+                                    <a href="{{ interview.meeting_link }}" target="_blank">{% trans "Müsahibə linki" %}</a>
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-calendar-times fa-4x mb-3"></i>
+                        <p>{% trans "Planlaşdırılmış müsahibə yoxdur" %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Interviews -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Tamamlanmış Müsahibələr" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Namizəd" %}</th>
+                                    <th>{% trans "Vakansiya" %}</th>
+                                    <th>{% trans "Tarix" %}</th>
+                                    <th>{% trans "Növ" %}</th>
+                                    <th>{% trans "Bal" %}</th>
+                                    <th>{% trans "Əməliyyatlar" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for interview in completed_interviews %}
+                                <tr>
+                                    <td>{{ interview.application.first_name }} {{ interview.application.last_name }}</td>
+                                    <td>{{ interview.application.job_posting.title }}</td>
+                                    <td>{{ interview.scheduled_date|date:"d M Y" }}</td>
+                                    <td>{{ interview.get_interview_type_display }}</td>
+                                    <td>
+                                        {% if interview.score %}
+                                        <strong class="text-primary">{{ interview.score }}/100</strong>
+                                        {% else %}
+                                        <small class="text-muted">-</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'recruitment:application_detail' interview.application.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">{% trans "Tamamlanmış müsahibə yoxdur" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

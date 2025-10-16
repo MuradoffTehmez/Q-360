@@ -166,15 +166,22 @@
             <a href="{% url 'development-plans:my-goals' %}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-goals' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-bullseye w-5 mr-3 text-red-500 relative z-10"></i>
+                <i class="fas fa-tasks w-5 mr-3 text-red-500 relative z-10"></i>
                 <span class="relative z-10">{% trans "My Goals" %}</span>
+            </a>
+
+            <a href="{% url 'development-plans:team-goals' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/team-goals' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-users w-5 mr-3 text-blue-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Team Goals" %}</span>
             </a>
 
             <a href="{% url 'development-plans:goal-templates' %}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/goal-templates' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Goal Suggestions" %}</span>
+                <span class="relative z-10">{% trans "Goal Templates" %}</span>
             </a>
 
             <a href="{% url 'workforce-planning:my-gaps' %}"
@@ -275,14 +282,16 @@
                             </h4>
                         </div>
 
+                        <!-- P-File (Employee Files) -->
                         <a href="{% url 'pfile:employee_list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/employee_list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/pfile' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
                                 class="fas fa-id-card w-4 mr-3 text-cyan-500 relative z-10"></i>
                             <span class="text-sm relative z-10">{% trans "P-File (İşçi Faylları)" %}</span>
                         </a>
 
+                        <!-- Compensation & Benefits -->
                         <a href="{% url 'compensation:dashboard' %}"
                             class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/compensation' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -291,14 +300,61 @@
                             <span class="text-sm relative z-10">{% trans "Kompensasiya" %}</span>
                         </a>
 
+                        <!-- Compensation Submenu -->
+                        <div class="pl-6 space-y-1">
+                            <a href="{% url 'compensation:salary_list' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-dollar-sign w-3 mr-2 text-emerald-400"></i>
+                                <span>{% trans "Əmək Haqqı" %}</span>
+                            </a>
+                            <a href="{% url 'compensation:bonus_list' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-gift w-3 mr-2 text-emerald-400"></i>
+                                <span>{% trans "Bonuslar" %}</span>
+                            </a>
+                            <a href="{% url 'compensation:history' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-history w-3 mr-2 text-emerald-400"></i>
+                                <span>{% trans "Tarixçə" %}</span>
+                            </a>
+                        </div>
+
+                        <!-- Leave & Attendance -->
                         <a href="{% url 'leave_attendance:leave_dashboard' %}"
                             class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/leave' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
                                 class="fas fa-calendar-alt w-4 mr-3 text-violet-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Məzuniyyət" %}</span>
+                            <span class="text-sm relative z-10">{% trans "Məzuniyyət və İştirak" %}</span>
                         </a>
 
+                        <!-- Leave Submenu -->
+                        <div class="pl-6 space-y-1">
+                            <a href="{% url 'leave_attendance:leave_request_create' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-plus-circle w-3 mr-2 text-violet-400"></i>
+                                <span>{% trans "Yeni Sorğu" %}</span>
+                            </a>
+                            <a href="{% url 'leave_attendance:leave_request_list' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-file-alt w-3 mr-2 text-violet-400"></i>
+                                <span>{% trans "Bütün Sorğular" %}</span>
+                            </a>
+                            <a href="{% url 'leave_attendance:attendance_calendar' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-calendar-check w-3 mr-2 text-violet-400"></i>
+                                <span>{% trans "İştirak Təqvimi" %}</span>
+                            </a>
+                            {% if user.is_manager %}
+                            <a href="{% url 'leave_attendance:team_calendar' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-users-cog w-3 mr-2 text-violet-400"></i>
+                                <span>{% trans "Komanda Təqvimi" %}</span>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- OKR/KPI -->
                         <a href="{% url 'okr:dashboard' %}"
                             class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/okr' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -307,6 +363,26 @@
                             <span class="text-sm relative z-10">{% trans "OKR/KPI" %}</span>
                         </a>
 
+                        <!-- OKR Submenu -->
+                        <div class="pl-6 space-y-1">
+                            <a href="{% url 'okr:objective_create' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-plus-circle w-3 mr-2 text-rose-400"></i>
+                                <span>{% trans "Yeni Məqsəd" %}</span>
+                            </a>
+                            <a href="{% url 'okr:objective_list' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-list w-3 mr-2 text-rose-400"></i>
+                                <span>{% trans "Bütün Məqsədlər" %}</span>
+                            </a>
+                            <a href="{% url 'okr:kpi_dashboard' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-chart-line w-3 mr-2 text-rose-400"></i>
+                                <span>{% trans "KPI Dashboard" %}</span>
+                            </a>
+                        </div>
+
+                        <!-- Recruitment (ATS) -->
                         <a href="{% url 'recruitment:dashboard' %}"
                             class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/recruitment' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -314,6 +390,27 @@
                                 class="fas fa-user-tie w-4 mr-3 text-amber-500 relative z-10"></i>
                             <span class="text-sm relative z-10">{% trans "İşə Qəbul (ATS)" %}</span>
                         </a>
+
+                        <!-- Recruitment Submenu -->
+                        <div class="pl-6 space-y-1">
+                            {% if user.is_admin or user.is_manager %}
+                            <a href="{% url 'recruitment:job_create' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-plus-circle w-3 mr-2 text-amber-400"></i>
+                                <span>{% trans "Yeni Vakansiya" %}</span>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'recruitment:job_list' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-briefcase w-3 mr-2 text-amber-400"></i>
+                                <span>{% trans "Bütün Vakansiyalar" %}</span>
+                            </a>
+                            <a href="{% url 'recruitment:interview_calendar' %}"
+                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
+                                <i class="fas fa-calendar w-3 mr-2 text-amber-400"></i>
+                                <span>{% trans "Müsahibə Təqvimi" %}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

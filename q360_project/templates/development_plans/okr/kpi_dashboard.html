@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "KPI Dashboard" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-tachometer-alt mr-2"></i>{% trans "KPI Dashboard" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'okr:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for kpi in user_kpis %}
+        <div class="col-md-4">
+            <div class="kpi-card">
+                <h5 class="mb-3">{{ kpi.name }}</h5>
+                <div class="kpi-value">{{ kpi.current_value|default:"0" }}</div>
+                <small class="text-muted">{% trans "Hədəf" %}: {{ kpi.target_value }}</small>
+                <div class="progress mt-2" style="height: 8px;">
+                    <div class="progress-bar" style="width: {{ kpi.progress_percentage }}%"></div>
+                </div>
+                <p class="mt-2 mb-0">
+                    <small>{{ kpi.description|default:"" }}</small>
+                </p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-tachometer-alt fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "KPI yoxdur" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni Məzuniyyət Sorğusu" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .balance-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-plus-circle mr-2"></i>{% trans "Yeni Məzuniyyət Sorğusu" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-card">
+                <form method="post" id="leaveRequestForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>{% trans "Məzuniyyət Növü" %} *</label>
+                        <select class="form-control" name="leave_type" id="leaveType" required>
+                            <option value="">{% trans "Seçin" %}</option>
+                            {% for leave_type in leave_types %}
+                            <option value="{{ leave_type.id }}" data-balance="{{ leave_type.available_days }}">
+                                {{ leave_type.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Başlanğıc Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="start_date" id="startDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Bitmə Tarixi" %} *</label>
+                                <input type="date" class="form-control" name="end_date" id="endDate" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Səbəb" %}</label>
+                        <textarea class="form-control" name="reason" rows="4" placeholder="{% trans 'Məzuniyyət səbəbini qeyd edin...' %}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Əvəzedici" %}</label>
+                        <select class="form-control" name="substitute">
+                            <option value="">{% trans "Seçin" %}</option>
+                            {% for user in colleagues %}
+                            <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">{% trans "Sizin olmadığınız müddətdə vəzifənizi yerinə yetirəcək şəxs" %}</small>
+                    </div>
+
+                    <div class="alert alert-info" id="daysInfo" style="display: none;">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="daysText"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="saveAsDraft" name="save_as_draft">
+                            <label class="custom-control-label" for="saveAsDraft">
+                                {% trans "Qaralama kimi saxla" %}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>{% trans "Ləğv Et" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i>{% trans "Göndər" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="balance-info">
+                <h5 class="mb-3">{% trans "Məzuniyyət Balansı" %}</h5>
+                <div id="balanceDisplay">
+                    <p class="text-white-50">{% trans "Məzuniyyət növü seçin" %}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{% trans "Qeydlər" %}</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success mr-2"></i>
+                            {% trans "İllik məzuniyyət 21 təqvim günüdür" %}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success mr-2"></i>
+                            {% trans "Xəstəlik məzuniyyəti tibbi arayış tələb edir" %}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success mr-2"></i>
+                            {% trans "Sorğu təsdiq üçün rəhbərə göndəriləcək" %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('leaveType').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const balance = selectedOption.dataset.balance;
+    const balanceDisplay = document.getElementById('balanceDisplay');
+
+    if (balance !== undefined && balance !== '') {
+        balanceDisplay.innerHTML = `
+            <h2 class="mb-0">${balance} {% trans "gün" %}</h2>
+            <small>{% trans "Mövcud balans" %}</small>
+        `;
+    } else {
+        balanceDisplay.innerHTML = '<p class="text-white-50">{% trans "Məzuniyyət növü seçin" %}</p>';
+    }
+});
+
+function calculateDays() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        const daysInfo = document.getElementById('daysInfo');
+        const daysText = document.getElementById('daysText');
+
+        daysText.textContent = `{% trans "Ümumi" %}: ${diffDays} {% trans "gün" %}`;
+        daysInfo.style.display = 'block';
+    }
+}
+
+document.getElementById('startDate').addEventListener('change', calculateDays);
+document.getElementById('endDate').addEventListener('change', calculateDays);
+
+document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "leave_attendance:leave_request_create" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '{% url "leave_attendance:leave_dashboard" %}';
+        } else {
+            alert('Xəta: ' + (data.message || '{% trans "Sorğu yaradılarkən xəta baş verdi" %}'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta: ' + error.message);
+    });
+});
+</script>
+{% endblock %}
