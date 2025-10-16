@@ -1,0 +1,3 @@
+# Keep logs directory in VCS without committing runtime log files
+*
+!.gitignore
