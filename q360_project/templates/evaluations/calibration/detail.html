@@ -1,0 +1,258 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Kalibrasiya Detallı" %} - {{ result.evaluatee.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .score-adjustment-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .category-bar {
+        background: #e5e7eb;
+        height: 30px;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    .category-fill {
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        height: 100%;
+        border-radius: 15px;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="detail-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>{{ result.evaluatee.get_full_name }}</h2>
+                <p class="mb-0">
+                    <i class="fas fa-building mr-1"></i>{{ result.evaluatee.department.name|default:"-" }} |
+                    <i class="fas fa-briefcase ml-2 mr-1"></i>{{ result.evaluatee.position|default:"-" }}
+                </p>
+                <p class="mb-0 mt-2">
+                    <strong>{% trans "Kampaniya" %}:</strong> {{ result.campaign.title }}
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                <div class="h1 mb-0">{{ result.overall_score|floatformat:2 }}</div>
+                <small>{% trans "Ümumi Bal" %}</small>
+                {% if result.is_finalized %}
+                <br><span class="badge badge-success mt-2">{% trans "Yekunlaşdırılıb" %}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Score Adjustment -->
+        <div class="col-md-6">
+            <div class="score-adjustment-card mb-4">
+                <h5><i class="fas fa-sliders-h mr-2"></i>{% trans "Bal Tənzimlənməsi" %}</h5>
+                <hr>
+                <form id="adjustmentForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{% trans "Cari Ümumi Bal" %}</label>
+                        <input type="text" class="form-control" value="{{ result.overall_score|floatformat:2 }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Yeni Bal" %} *</label>
+                        <input type="number" class="form-control" id="newScore" name="overall_score"
+                               min="0" max="5" step="0.01" value="{{ result.overall_score|floatformat:2 }}" required>
+                        <small class="text-muted">{% trans "0.00 - 5.00 arasında daxil edin" %}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Tənzimləmə Səbəbi" %}</label>
+                        <textarea class="form-control" name="reason" rows="3"
+                                  placeholder="{% trans 'Balın niyə dəyişdirildiyini qeyd edin' %}"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="adjustScore()">
+                        <i class="fas fa-save mr-1"></i>{% trans "Balı Yenilə" %}
+                    </button>
+                    {% if not result.is_finalized %}
+                    <button type="button" class="btn btn-success" onclick="finalizeResult()">
+                        <i class="fas fa-check mr-1"></i>{% trans "Yekunlaşdır" %}
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Relationship Breakdown -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">{% trans "Əlaqə Növü üzrə Ballar" %}</h6>
+                </div>
+                <div class="card-body">
+                    {% for rel in relationship_breakdown %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><strong>{{ rel.display }}</strong> ({{ rel.count }})</span>
+                            <span class="text-primary"><strong>{{ rel.avg_score|floatformat:2 }}</strong></span>
+                        </div>
+                        <div class="category-bar">
+                            <div class="category-fill" style="width: {{ rel.avg_score|floatformat:0|add:"0"|floatformat:0 }}0%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Analysis -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">{% trans "Kateqoriya üzrə Analiz" %}</h6>
+                </div>
+                <div class="card-body">
+                    {% for cat in category_scores %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><strong>{{ cat.name }}</strong></span>
+                            <span class="text-primary"><strong>{{ cat.avg_score }}</strong></span>
+                        </div>
+                        <div class="category-bar">
+                            <div class="category-fill" style="width: {{ cat.avg_score|floatformat:0|add:"0" }}0%"></div>
+                        </div>
+                        <small class="text-muted">{{ cat.response_count }} {% trans "cavab" %}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">{% trans "Kateqoriya məlumatı tapılmadı" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Evaluators List -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{% trans "Qiymətləndirənlər" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Ad" %}</th>
+                                    <th>{% trans "Əlaqə" %}</th>
+                                    <th>{% trans "Tarix" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>
+                                        {% if assignment.relationship == 'self' %}
+                                            {{ assignment.evaluatee.get_full_name }}
+                                        {% else %}
+                                            {{ assignment.evaluator.get_full_name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary">{{ assignment.get_relationship_display }}</span>
+                                    </td>
+                                    <td>
+                                        <small>{{ assignment.completed_at|date:"d M Y" }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 text-center">
+            <a href="{% url 'evaluations:calibration-dashboard' result.campaign.id %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Kalibrasiya Dashboard-a Qayıt" %}
+            </a>
+            <a href="{% url 'evaluations:individual-result' result.id %}" class="btn btn-info">
+                <i class="fas fa-chart-bar mr-1"></i>{% trans "Tam Hesabata Bax" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function adjustScore() {
+    const form = document.getElementById('adjustmentForm');
+    const formData = new FormData(form);
+    const newScore = document.getElementById('newScore').value;
+
+    if (!newScore || newScore < 0 || newScore > 5) {
+        alert('{% trans "Zəhmət olmasa 0 ilə 5 arasında bal daxil edin" %}');
+        return;
+    }
+
+    if (!confirm('{% trans "Balı dəyişdirmək istədiyinizə əminsiniz?" %}')) {
+        return;
+    }
+
+    fetch('{% url "evaluations:adjust-score" result.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+}
+
+function finalizeResult() {
+    if (!confirm('{% trans "Bu qiymətləndirməni yekunlaşdırmaq istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz." %}')) {
+        return;
+    }
+
+    fetch('{% url "evaluations:finalize-result" result.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

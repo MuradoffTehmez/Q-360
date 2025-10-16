@@ -1,0 +1,272 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Kalibrasiya Dashboard" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calibration-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .result-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid #e5e7eb;
+    }
+    .result-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    .result-card.finalized {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+    }
+    .result-card.needs-attention {
+        border-left-color: #ef4444;
+    }
+    .score-badge {
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+    .score-excellent { background: #d1fae5; color: #065f46; }
+    .score-good { background: #dbeafe; color: #1e40af; }
+    .score-average { background: #fef3c7; color: #92400e; }
+    .score-poor { background: #fee2e2; color: #991b1b; }
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="calibration-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-balance-scale mr-2"></i>{% trans "Kalibrasiya Dashboard" %}</h2>
+                <p class="mb-0">{{ campaign.title }} - {% trans "Qiymətləndirmə Nəticələrinin Tənzimlənməsi" %}</p>
+            </div>
+            <div class="col-md-4 text-right">
+                {% if user.is_admin %}
+                <button class="btn btn-success" onclick="bulkFinalize()">
+                    <i class="fas fa-check-double mr-1"></i>{% trans "Hamısını Yekunlaşdır" %}
+                </button>
+                {% endif %}
+                <a href="{% url 'evaluations:results' campaign.id %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h3>{{ stats.total_evaluations }}</h3>
+                <p class="text-muted mb-0">{% trans "Ümumi Qiymətləndirmə" %}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                <h3>{{ stats.avg_score|floatformat:2 }}</h3>
+                <p class="text-muted mb-0">{% trans "Ortalama Bal" %}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h3>{{ stats.finalized_count }}</h3>
+                <p class="text-muted mb-0">{% trans "Yekunlaşdırılmış" %}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                <h3>{{ stats.pending_count }}</h3>
+                <p class="text-muted mb-0">{% trans "Gözləyən" %}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Bal Paylanması" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <i class="fas fa-trophy fa-2x text-success"></i>
+                            </div>
+                            <h4 class="text-success">{{ score_distribution.excellent }}</h4>
+                            <p class="text-muted">{% trans "Əla" %} (4.5+)</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <i class="fas fa-thumbs-up fa-2x text-primary"></i>
+                            </div>
+                            <h4 class="text-primary">{{ score_distribution.good }}</h4>
+                            <p class="text-muted">{% trans "Yaxşı" %} (3.5-4.5)</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <i class="fas fa-minus-circle fa-2x text-warning"></i>
+                            </div>
+                            <h4 class="text-warning">{{ score_distribution.average }}</h4>
+                            <p class="text-muted">{% trans "Orta" %} (2.5-3.5)</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                            </div>
+                            <h4 class="text-danger">{{ score_distribution.needs_improvement }}</h4>
+                            <p class="text-muted">{% trans "Təkmilləşdirmə Tələb Olunur" %} (<2.5)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Stats (Admin only) -->
+    {% if dept_stats %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Şöbələr üzrə Statistika" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Şöbə" %}</th>
+                                    <th>{% trans "Say" %}</th>
+                                    <th>{% trans "Ortalama Bal" %}</th>
+                                    <th>{% trans "Yekunlaşdırılmış" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in dept_stats %}
+                                <tr>
+                                    <td>{{ dept.name }}</td>
+                                    <td>{{ dept.count }}</td>
+                                    <td><strong>{{ dept.avg_score|floatformat:2 }}</strong></td>
+                                    <td>{{ dept.finalized }} / {{ dept.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Results List -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Qiymətləndirmə Nəticələri" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for result in results %}
+                    <div class="result-card {% if result.is_finalized %}finalized{% elif result.overall_score < 2.5 %}needs-attention{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">{{ result.evaluatee.get_full_name }}</h6>
+                                <small class="text-muted">
+                                    {{ result.evaluatee.department.name|default:"-" }} - {{ result.evaluatee.position|default:"-" }}
+                                </small>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="score-badge {% if result.overall_score >= 4.5 %}score-excellent{% elif result.overall_score >= 3.5 %}score-good{% elif result.overall_score >= 2.5 %}score-average{% else %}score-poor{% endif %}">
+                                    {{ result.overall_score|floatformat:2 }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">{% trans "Özüm" %}: {{ result.self_score|floatformat:2|default:"-" }}</small>
+                                <small class="text-muted d-block">{% trans "Rəhbər" %}: {{ result.supervisor_score|floatformat:2|default:"-" }}</small>
+                                <small class="text-muted d-block">{% trans "Həmkar" %}: {{ result.peer_score|floatformat:2|default:"-" }}</small>
+                                <small class="text-muted d-block">{% trans "Tabelik" %}: {{ result.subordinate_score|floatformat:2|default:"-" }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">{% trans "Qiymətləndirənlər" %}:</small><br>
+                                <strong>{{ result.total_evaluators }}</strong>
+                                {% if result.is_finalized %}
+                                <br><span class="badge badge-success mt-1">{% trans "Yekunlaşdırılıb" %}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <a href="{% url 'evaluations:calibration-detail' result.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> {% trans "Düzəlt" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-4x mb-3"></i>
+                        <p>{% trans "Heç bir nəticə tapılmadı" %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function bulkFinalize() {
+    if (!confirm('{% trans "Bütün qiymətləndirmələri yekunlaşdırmaq istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz." %}')) {
+        return;
+    }
+
+    fetch('{% url "evaluations:bulk-finalize" campaign.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('{% trans "Xəta" %}: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('{% trans "Xəta baş verdi" %}: ' + error.message);
+    });
+}
+</script>
+{% endblock %}
