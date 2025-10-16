@@ -1,0 +1,126 @@
+[WARNING] 2025-10-16 21:35:20 | django.request:248 | log_response | Not Found: /audit/security-dashboard/
+[WARNING] 2025-10-16 21:35:20 | django.server:213 | log_message | "GET /audit/security-dashboard/ HTTP/1.1" 404 7210
+[INFO] 2025-10-16 21:35:21 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145312
+[ERROR] 2025-10-16 21:35:23 | django.request:248 | log_response | Internal Server Error: /reports/analytics/
+Traceback (most recent call last):
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\lahiyeler\q360\q360_project\apps\reports\template_views.py", line 340, in analytics_dashboard
+    today_kpi = SystemKPI.calculate_today_kpis()
+  File "C:\lahiyeler\q360\q360_project\apps\reports\models.py", line 271, in calculate_today_kpis
+    from apps.training.models import Training
+ImportError: cannot import name 'Training' from 'apps.training.models' (C:\lahiyeler\q360\q360_project\apps\training\models.py). Did you mean: 'training'?
+[ERROR] 2025-10-16 21:35:23 | django.server:213 | log_message | "GET /reports/analytics/ HTTP/1.1" 500 114421
+[INFO] 2025-10-16 21:35:24 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145312
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145312
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/jazzmin/css/main.css HTTP/1.1" 200 16969
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/css/all.min.css HTTP/1.1" 200 103009
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/css/admin_custom.css HTTP/1.1" 200 23595
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 62440
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/adminlte/img/AdminLTELogo.png HTTP/1.1" 200 2637
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/adminlte/js/adminlte.min.js HTTP/1.1" 200 44244
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/js/admin_enhancements.js HTTP/1.1" 200 19581
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/jazzmin/js/main.js HTTP/1.1" 200 2391
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/bootswatch/darkly/bootstrap.min.css HTTP/1.1" 200 164202
+[INFO] 2025-10-16 21:35:26 | django.server:213 | log_message | "GET /static/vendor/adminlte/css/adminlte.min.css HTTP/1.1" 200 1382975
+[INFO] 2025-10-16 21:35:27 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2 HTTP/1.1" 200 25392
+[INFO] 2025-10-16 21:35:27 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 156400
+[INFO] 2025-10-16 21:35:27 | django.server:213 | log_message | "GET /static/vendor/adminlte/img/AdminLTELogo.png HTTP/1.1" 200 2637
+[WARNING] 2025-10-16 21:35:29 | django.request:248 | log_response | Not Found: /audit/security-dashboard/
+[WARNING] 2025-10-16 21:35:29 | django.server:213 | log_message | "GET /audit/security-dashboard/ HTTP/1.1" 404 7210
+[WARNING] 2025-10-16 21:35:29 | django.request:248 | log_response | Not Found: /favicon.ico
+[WARNING] 2025-10-16 21:35:29 | django.server:213 | log_message | "GET /favicon.ico HTTP/1.1" 404 7042
+[INFO] 2025-10-16 21:35:30 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145312
+[ERROR] 2025-10-16 21:35:33 | django.request:248 | log_response | Internal Server Error: /reports/analytics/
+Traceback (most recent call last):
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\lahiyeler\q360\q360_project\apps\reports\template_views.py", line 340, in analytics_dashboard
+    today_kpi = SystemKPI.calculate_today_kpis()
+  File "C:\lahiyeler\q360\q360_project\apps\reports\models.py", line 271, in calculate_today_kpis
+    from apps.training.models import Training
+ImportError: cannot import name 'Training' from 'apps.training.models' (C:\lahiyeler\q360\q360_project\apps\training\models.py). Did you mean: 'training'?
+[ERROR] 2025-10-16 21:35:33 | django.server:213 | log_message | "GET /reports/analytics/ HTTP/1.1" 500 114421
+[INFO] 2025-10-16 21:35:34 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145312
+[INFO] 2025-10-16 21:39:45 | django.utils.autoreload:266 | trigger_reload | C:\lahiyeler\q360\q360_project\apps\reports\models.py changed, reloading.
+[INFO] 2025-10-16 21:39:46 | django.utils.autoreload:668 | run_with_reloader | Watching for file changes with StatReloader
+[INFO] 2025-10-16 21:50:23 | django.server:213 | log_message | "GET /reports/analytics/ HTTP/1.1" 200 105728
+[INFO] 2025-10-16 21:50:23 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 21:50:35 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145309
+[WARNING] 2025-10-16 21:50:37 | django.request:248 | log_response | Not Found: /audit/security-dashboard/
+[WARNING] 2025-10-16 21:50:37 | django.server:213 | log_message | "GET /audit/security-dashboard/ HTTP/1.1" 404 7210
+[INFO] 2025-10-16 21:50:39 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145309
+[INFO] 2025-10-16 21:50:41 | django.server:213 | log_message | "GET /admin/ HTTP/1.1" 200 145309
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/bootswatch/darkly/bootstrap.min.css HTTP/1.1" 200 164202
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/adminlte/img/AdminLTELogo.png HTTP/1.1" 200 2637
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 62440
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/adminlte/js/adminlte.min.js HTTP/1.1" 200 44244
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/jazzmin/js/main.js HTTP/1.1" 200 2391
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/js/admin_enhancements.js HTTP/1.1" 200 19581
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/jazzmin/css/main.css HTTP/1.1" 200 16969
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/css/admin_custom.css HTTP/1.1" 200 23595
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/css/all.min.css HTTP/1.1" 200 103009
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/adminlte/css/adminlte.min.css HTTP/1.1" 200 1382975
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2 HTTP/1.1" 200 25392
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 156400
+[INFO] 2025-10-16 21:50:42 | django.server:213 | log_message | "GET /static/vendor/adminlte/img/AdminLTELogo.png HTTP/1.1" 200 2637
+[WARNING] 2025-10-16 21:50:44 | django.request:248 | log_response | Not Found: /audit/security-dashboard/
+[WARNING] 2025-10-16 21:50:44 | django.server:213 | log_message | "GET /audit/security-dashboard/ HTTP/1.1" 404 7210
+[WARNING] 2025-10-16 21:50:44 | django.request:248 | log_response | Not Found: /favicon.ico
+[WARNING] 2025-10-16 21:50:44 | django.server:213 | log_message | "GET /favicon.ico HTTP/1.1" 404 7042
+[INFO] 2025-10-16 22:48:51 | django.utils.autoreload:668 | run_with_reloader | Watching for file changes with StatReloader
+[INFO] 2025-10-16 22:49:01 | django.server:213 | log_message | "GET /accounts/profile/edit/ HTTP/1.1" 200 106880
+[INFO] 2025-10-16 22:49:01 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:49:26 | django.server:213 | log_message | "GET /dashboard/ HTTP/1.1" 200 112062
+[INFO] 2025-10-16 22:49:26 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:49:34 | django.server:213 | log_message | "POST /i18n/setlang/ HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:49:34 | django.server:213 | log_message | "GET /dashboard/ HTTP/1.1" 200 112062
+[INFO] 2025-10-16 22:49:34 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:49:55 | django.server:213 | log_message | "GET /accounts/profile/ HTTP/1.1" 200 100732
+[INFO] 2025-10-16 22:49:56 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:49:56 | django.server:213 | log_message | "GET /api/competencies/user-skills/my_skills/ HTTP/1.1" 200 438
+[INFO] 2025-10-16 22:50:04 | django.server:213 | log_message | "GET /evaluations/my-assignments/ HTTP/1.1" 200 96653
+[INFO] 2025-10-16 22:50:04 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:50:08 | django.server:213 | log_message | "GET /competencies/my-skills/ HTTP/1.1" 200 95300
+[INFO] 2025-10-16 22:50:08 | django.server:213 | log_message | "GET /api/competencies/user-skills/my_skills/ HTTP/1.1" 200 438
+[INFO] 2025-10-16 22:50:08 | django.server:213 | log_message | "GET /api/competencies/user-skills/my_skills/ HTTP/1.1" 200 438
+[INFO] 2025-10-16 22:50:08 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:50:35 | django.server:213 | log_message | "GET /accounts/logout/ HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:50:35 | django.server:213 | log_message | "GET /accounts/login/ HTTP/1.1" 200 48626
+[INFO] 2025-10-16 22:50:35 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:50:35 | django.server:213 | log_message | "GET /accounts/login/?next=/api/notifications/%3Flimit%3D5 HTTP/1.1" 200 46308
+[INFO] 2025-10-16 22:50:48 | django.server:213 | log_message | "GET /accounts/register/ HTTP/1.1" 200 53627
+[INFO] 2025-10-16 22:50:48 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:50:48 | django.server:213 | log_message | "GET /accounts/login/?next=/api/notifications/%3Flimit%3D5 HTTP/1.1" 200 46308
+[INFO] 2025-10-16 22:51:48 | django.server:213 | log_message | "GET /accounts/register/ HTTP/1.1" 200 53627
+[INFO] 2025-10-16 22:51:49 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:51:49 | django.server:213 | log_message | "GET /accounts/login/?next=/api/notifications/%3Flimit%3D5 HTTP/1.1" 200 46308
+[INFO] 2025-10-16 22:51:59 | django.server:213 | log_message | "GET /admin/evaluations/ HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:51:59 | django.server:213 | log_message | "GET /admin/login/?next=/admin/evaluations/ HTTP/1.1" 200 3545
+[INFO] 2025-10-16 22:51:59 | django.server:213 | log_message | "GET /static/js/admin_enhancements.js HTTP/1.1" 304 0
+[INFO] 2025-10-16 22:52:11 | django.server:213 | log_message | "POST /admin/login/?next=/admin/evaluations/ HTTP/1.1" 302 0
+[INFO] 2025-10-16 22:52:11 | django.server:213 | log_message | "GET /admin/evaluations/ HTTP/1.1" 200 69976
+[INFO] 2025-10-16 22:52:13 | django.server:213 | log_message | "GET /admin/accounts/role/ HTTP/1.1" 200 62438
+[INFO] 2025-10-16 22:52:13 | django.server:213 | log_message | "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[INFO] 2025-10-16 22:52:15 | django.server:213 | log_message | "GET /reports/analytics/ HTTP/1.1" 200 105728
+[INFO] 2025-10-16 22:52:15 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:52:22 | django.server:213 | log_message | "GET /admin/accounts/role/ HTTP/1.1" 200 62438
+[INFO] 2025-10-16 22:52:27 | django.server:213 | log_message | "GET /help/ HTTP/1.1" 200 106584
+[INFO] 2025-10-16 22:52:28 | django.server:213 | log_message | "GET /api/notifications/?limit=5 HTTP/1.1" 200 33
+[INFO] 2025-10-16 22:52:36 | django.server:213 | log_message | "GET /admin/departments/organization/ HTTP/1.1" 200 62419
+[INFO] 2025-10-16 22:52:36 | django.server:213 | log_message | "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[INFO] 2025-10-16 22:52:42 | django.server:213 | log_message | "GET /admin/departments/position/ HTTP/1.1" 200 69135
+[INFO] 2025-10-16 22:52:42 | django.server:213 | log_message | "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[INFO] 2025-10-16 22:52:44 | django.server:213 | log_message | "GET /admin/departments/position/1/change/ HTTP/1.1" 200 74314
+[INFO] 2025-10-16 22:52:44 | django.server:213 | log_message | "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[INFO] 2025-10-17 00:54:07 | django.utils.autoreload:668 | run_with_reloader | Watching for file changes with StatReloader

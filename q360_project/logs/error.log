@@ -1,0 +1,39 @@
+[ERROR] 2025-10-16 21:34:53 | django.request:248 | log_response | Internal Server Error: /reports/analytics/
+Traceback (most recent call last):
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\lahiyeler\q360\q360_project\apps\reports\template_views.py", line 340, in analytics_dashboard
+    today_kpi = SystemKPI.calculate_today_kpis()
+  File "C:\lahiyeler\q360\q360_project\apps\reports\models.py", line 271, in calculate_today_kpis
+    from apps.training.models import Training
+ImportError: cannot import name 'Training' from 'apps.training.models' (C:\lahiyeler\q360\q360_project\apps\training\models.py). Did you mean: 'training'?
+[ERROR] 2025-10-16 21:35:23 | django.request:248 | log_response | Internal Server Error: /reports/analytics/
+Traceback (most recent call last):
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\lahiyeler\q360\q360_project\apps\reports\template_views.py", line 340, in analytics_dashboard
+    today_kpi = SystemKPI.calculate_today_kpis()
+  File "C:\lahiyeler\q360\q360_project\apps\reports\models.py", line 271, in calculate_today_kpis
+    from apps.training.models import Training
+ImportError: cannot import name 'Training' from 'apps.training.models' (C:\lahiyeler\q360\q360_project\apps\training\models.py). Did you mean: 'training'?
+[ERROR] 2025-10-16 21:35:33 | django.request:248 | log_response | Internal Server Error: /reports/analytics/
+Traceback (most recent call last):
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\lahiyeler\q360\q360_project\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\lahiyeler\q360\q360_project\apps\reports\template_views.py", line 340, in analytics_dashboard
+    today_kpi = SystemKPI.calculate_today_kpis()
+  File "C:\lahiyeler\q360\q360_project\apps\reports\models.py", line 271, in calculate_today_kpis
+    from apps.training.models import Training
+ImportError: cannot import name 'Training' from 'apps.training.models' (C:\lahiyeler\q360\q360_project\apps\training\models.py). Did you mean: 'training'?

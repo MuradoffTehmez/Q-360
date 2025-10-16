@@ -21,7 +21,7 @@ wheels/
 *.egg
 
 # Django
-*.log
+
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -53,9 +53,9 @@ htmlcov/
 .tox/
 
 # Logs
-logs/*.log
-!logs/.gitignore
-*.log
+# logs/*.log
+# !logs/.gitignore
+# *.log
 
 
 # Database
