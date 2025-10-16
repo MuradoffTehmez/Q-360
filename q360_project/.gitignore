@@ -53,9 +53,9 @@ htmlcov/
 .tox/
 
 # Logs
-# logs/*.log
-# !logs/.gitignore
-# *.log
+logs/*.log
+!logs/.gitignore
+*.log
 
 
 # Database

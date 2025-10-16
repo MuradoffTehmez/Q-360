@@ -56,9 +56,9 @@ htmlcov/
 .tox/
 
 # Logs
-# /logs/
-# q360_project/logs/*.log
-# !q360_project/logs/.gitignore
+/logs/
+q360_project/logs/*.log
+!q360_project/logs/.gitignore
 
 
 # Database
