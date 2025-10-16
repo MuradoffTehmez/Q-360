@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 from simple_history.models import HistoricalRecords
 from apps.accounts.models import User
+from apps.departments.models import Department
 
 
 class SalaryInformation(models.Model):
@@ -504,3 +505,96 @@ class Deduction(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.get_deduction_type_display()}"
+
+
+class DepartmentBudget(models.Model):
+    """
+    Department salary budget tracking.
+    Allows budget validation for salary changes.
+    """
+
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name='salary_budgets',
+        verbose_name=_('Departament')
+    )
+    fiscal_year = models.IntegerField(
+        verbose_name=_('Maliyyə İli')
+    )
+    annual_budget = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('İllik Büdcə'),
+        help_text=_('Departamentin illik maaş büdcəsi')
+    )
+    currency = models.CharField(
+        max_length=3,
+        default='AZN',
+        verbose_name=_('Valyuta')
+    )
+    utilized_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name=_('İstifadə Olunan Məbləğ')
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name=_('Qeydlər')
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('Aktiv')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Yaradılma Tarixi')
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Yenilənmə Tarixi')
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_budgets',
+        verbose_name=_('Yaradan')
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _('Departament Büdcəsi')
+        verbose_name_plural = _('Departament Büdcələri')
+        ordering = ['-fiscal_year']
+        unique_together = [['department', 'fiscal_year']]
+        indexes = [
+            models.Index(fields=['department', 'fiscal_year']),
+        ]
+
+    def __str__(self):
+        return f"{self.department.name} - {self.fiscal_year} - {self.annual_budget} {self.currency}"
+
+    @property
+    def remaining_budget(self):
+        """Calculate remaining budget."""
+        return self.annual_budget - self.utilized_amount
+
+    @property
+    def utilization_percentage(self):
+        """Calculate budget utilization percentage."""
+        if self.annual_budget > 0:
+            return (self.utilized_amount / self.annual_budget) * 100
+        return Decimal('0.00')
+
+    @property
+    def is_over_budget(self):
+        """Check if budget is exceeded."""
+        return self.utilized_amount > self.annual_budget
+
+    def can_afford(self, amount):
+        """Check if department can afford additional salary expense."""
+        return (self.utilized_amount + amount) <= self.annual_budget

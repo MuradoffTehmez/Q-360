@@ -3,8 +3,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.db.models import Q
-from .models import SalaryInformation, CompensationHistory, Bonus, Allowance, Deduction
+from django.db.models import Q, Sum
+from decimal import Decimal
+from datetime import date
+from .models import (
+    SalaryInformation, CompensationHistory, Bonus,
+    Allowance, Deduction, DepartmentBudget
+)
 from apps.accounts.models import User
 
 
@@ -106,38 +111,79 @@ def salary_change_form(request, user_id=None):
                 is_active=True
             ).first()
 
-            old_amount = current_salary_obj.base_salary if current_salary_obj else 0
-            new_amount = request.POST.get('new_salary')
+            old_amount = current_salary_obj.base_salary if current_salary_obj else Decimal('0.00')
+            new_amount = Decimal(request.POST.get('new_salary'))
+            currency = request.POST.get('currency', 'AZN')
+
+            # BUDGET VALIDATION
+            if employee.department:
+                current_year = date.today().year
+                dept_budget = DepartmentBudget.objects.filter(
+                    department=employee.department,
+                    fiscal_year=current_year,
+                    is_active=True
+                ).first()
+
+                if dept_budget:
+                    # Calculate the increase (or decrease)
+                    salary_difference = new_amount - old_amount
+
+                    # Check if department can afford this increase
+                    if salary_difference > 0:  # Only check for increases
+                        if not dept_budget.can_afford(salary_difference):
+                            return JsonResponse({
+                                'success': False,
+                                'message': (
+                                    f'Büdcə kifayət etmir! '
+                                    f'Departament: {employee.department.name}, '
+                                    f'Qalıq büdcə: {dept_budget.remaining_budget} {dept_budget.currency}, '
+                                    f'Tələb olunan: {salary_difference} {currency}'
+                                ),
+                                'budget_exceeded': True,
+                                'remaining_budget': float(dept_budget.remaining_budget),
+                                'required_amount': float(salary_difference)
+                            })
+
+                        # Update utilized amount
+                        dept_budget.utilized_amount += salary_difference
+                        dept_budget.save()
 
             # Deactivate old salary
             if current_salary_obj:
                 current_salary_obj.is_active = False
+                current_salary_obj.end_date = date.today()
                 current_salary_obj.save()
 
             # Create new salary record
             new_salary = SalaryInformation.objects.create(
                 user=employee,
                 base_salary=new_amount,
-                currency=request.POST.get('currency', 'AZN'),
-                salary_grade=request.POST.get('salary_grade', ''),
-                pay_frequency=request.POST.get('pay_frequency', 'monthly'),
-                is_active=True
+                currency=currency,
+                payment_frequency=request.POST.get('payment_frequency', 'monthly'),
+                effective_date=request.POST.get('effective_date', date.today()),
+                is_active=True,
+                updated_by=request.user
             )
 
             # Create compensation history entry
             CompensationHistory.objects.create(
                 user=employee,
-                change_type='salary_increase' if float(new_amount) > float(old_amount) else 'salary_decrease',
-                old_value=old_amount,
-                new_value=new_amount,
-                effective_date=request.POST.get('effective_date'),
-                reason=request.POST.get('reason'),
-                approved_by=request.user
+                previous_salary=old_amount if old_amount > 0 else None,
+                new_salary=new_amount,
+                currency=currency,
+                change_reason=request.POST.get('change_reason', 'other'),
+                effective_date=request.POST.get('effective_date', date.today()),
+                notes=request.POST.get('notes', ''),
+                approved_by=request.user,
+                created_by=request.user
             )
 
             return JsonResponse({
                 'success': True,
-                'message': f'{employee.get_full_name()} üçün maaş dəyişdirildi'
+                'message': f'{employee.get_full_name()} üçün maaş uğurla dəyişdirildi',
+                'old_salary': float(old_amount),
+                'new_salary': float(new_amount),
+                'change_percentage': float((new_amount - old_amount) / old_amount * 100) if old_amount > 0 else 0
             })
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})

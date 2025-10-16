@@ -6,7 +6,8 @@ from .models import (
     CompensationHistory,
     Bonus,
     Allowance,
-    Deduction
+    Deduction,
+    DepartmentBudget
 )
 
 
@@ -169,3 +170,48 @@ class DeductionAdmin(SimpleHistoryAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(DepartmentBudget)
+class DepartmentBudgetAdmin(SimpleHistoryAdmin):
+    """Admin for Department Budget."""
+
+    list_display = [
+        'department', 'fiscal_year', 'annual_budget', 'utilized_amount',
+        'utilization_percentage_display', 'remaining_budget_display', 'is_active'
+    ]
+    list_filter = ['fiscal_year', 'is_active', 'currency']
+    search_fields = ['department__name', 'notes']
+    readonly_fields = ['created_at', 'updated_at', 'utilization_percentage_display', 'remaining_budget_display']
+
+    fieldsets = (
+        ('Departament Məlumatları', {
+            'fields': ('department', 'fiscal_year')
+        }),
+        ('Büdcə Məlumatları', {
+            'fields': ('annual_budget', 'utilized_amount', 'currency', 'remaining_budget_display', 'utilization_percentage_display')
+        }),
+        ('Status', {
+            'fields': ('is_active', 'notes')
+        }),
+        ('Sistem Məlumatları', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def utilization_percentage_display(self, obj):
+        """Display utilization percentage."""
+        percentage = obj.utilization_percentage
+        color = 'green' if percentage < 80 else 'orange' if percentage < 100 else 'red'
+        return f'<span style="color: {color}; font-weight: bold;">{percentage:.2f}%</span>'
+    utilization_percentage_display.short_description = 'İstifadə Faizi'
+    utilization_percentage_display.allow_tags = True
+
+    def remaining_budget_display(self, obj):
+        """Display remaining budget."""
+        remaining = obj.remaining_budget
+        color = 'green' if remaining > 0 else 'red'
+        return f'<span style="color: {color}; font-weight: bold;">{remaining} {obj.currency}</span>'
+    remaining_budget_display.short_description = 'Qalıq Büdcə'
+    remaining_budget_display.allow_tags = True

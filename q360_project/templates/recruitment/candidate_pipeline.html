@@ -367,6 +367,64 @@
 <!-- Sortable.js for drag-and-drop -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; animation: slideIn 0.3s ease-out;';
+    toast.innerHTML = `
+        <strong>${type === 'success' ? '✓' : '✗'}</strong> ${message}
+        <button type="button" class="close ml-2" onclick="this.parentElement.remove()">
+            <span>&times;</span>
+        </button>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
+    }
+    .candidate-card.updating {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .sortable-ghost {
+        opacity: 0.4;
+        background: #e5e7eb;
+    }
+`;
+document.head.appendChild(style);
+
 function filterByJob(jobId) {
     if (jobId) {
         window.location.href = `/recruitment/pipeline/${jobId}/`;
@@ -379,18 +437,38 @@ function filterByJob(jobId) {
 document.querySelectorAll('.sortable-list').forEach(function(el) {
     new Sortable(el, {
         group: 'pipeline',
-        animation: 150,
-        ghostClass: 'dragging',
+        animation: 200,
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        ghostClass: 'sortable-ghost',
+        dragClass: 'dragging',
+        chosenClass: 'chosen',
+        forceFallback: true,
+        fallbackClass: 'dragging',
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+        onStart: function(evt) {
+            evt.item.style.cursor = 'grabbing';
+        },
         onEnd: function(evt) {
+            evt.item.style.cursor = 'move';
+
             const applicationId = evt.item.dataset.id;
             const newStatus = evt.to.dataset.stage;
             const oldStatus = evt.from.dataset.stage;
 
-            // Update stage count badges
+            // Don't update if dropped in same column
+            if (newStatus === oldStatus) {
+                return;
+            }
+
+            // Add loading state
+            evt.item.classList.add('updating');
+
+            // Update stage count badges immediately for better UX
             updateStageCounts();
 
             // Send update to server
-            updateApplicationStatus(applicationId, newStatus, oldStatus);
+            updateApplicationStatus(applicationId, newStatus, oldStatus, evt);
         }
     });
 });
@@ -398,7 +476,7 @@ document.querySelectorAll('.sortable-list').forEach(function(el) {
 function updateStageCounts() {
     document.querySelectorAll('.sortable-list').forEach(function(list) {
         const count = list.querySelectorAll('.candidate-card').length;
-        const header = list.previousElementSibling;
+        const header = list.closest('.pipeline-column').querySelector('.pipeline-column-header');
         const badge = header.querySelector('.stage-count');
         if (badge) {
             badge.textContent = count;
@@ -406,30 +484,58 @@ function updateStageCounts() {
     });
 }
 
-function updateApplicationStatus(applicationId, newStatus, oldStatus) {
+function updateApplicationStatus(applicationId, newStatus, oldStatus, evt) {
     fetch(`/recruitment/applications/${applicationId}/update-status/`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
         },
-        body: `status=${newStatus}`
+        body: JSON.stringify({ status: newStatus })
     })
     .then(response => response.json())
     .then(data => {
+        // Remove loading state
+        evt.item.classList.remove('updating');
+
         if (data.success) {
-            // Show success message
-            console.log(data.message);
+            // Show success toast
+            const statusLabels = {
+                'received': '{% trans "Alındı" %}',
+                'screening': '{% trans "Sınaq" %}',
+                'interview': '{% trans "Müsahibə" %}',
+                'assessment': '{% trans "Qiymətləndirmə" %}',
+                'offer': '{% trans "Təklif" %}',
+                'hired': '{% trans "İşə Qəbul" %}',
+                'rejected': '{% trans "Rədd Edildi" %}'
+            };
+            const candidateName = evt.item.querySelector('.candidate-name').textContent;
+            showToast(`${candidateName} "${statusLabels[newStatus]}" mərhələsinə köçürüldü`, 'success');
         } else {
-            alert('{% trans "Xəta" %}: ' + data.message);
-            // Revert the move
-            location.reload();
+            // Show error and revert
+            showToast('{% trans "Xəta" %}: ' + (data.message || '{% trans "Namizəd statusunu yeniləmək mümkün olmadı" %}'), 'danger');
+            // Revert the move by moving the item back
+            const oldColumn = document.querySelector(`[data-stage="${oldStatus}"]`);
+            oldColumn.appendChild(evt.item);
+            updateStageCounts();
         }
     })
     .catch(error => {
-        alert('{% trans "Xəta baş verdi" %}');
-        location.reload();
+        // Remove loading state
+        evt.item.classList.remove('updating');
+
+        // Show error and revert
+        showToast('{% trans "Şəbəkə xətası baş verdi" %}', 'danger');
+        console.error('Error:', error);
+
+        // Revert the move
+        const oldColumn = document.querySelector(`[data-stage="${oldStatus}"]`);
+        oldColumn.appendChild(evt.item);
+        updateStageCounts();
     });
 }
+
+// Add keyboard shortcut hint (optional)
+console.log('💡 Kanban Pipeline hazırdır! Namizədləri sürükləyərək mərhələlər arasında köçürün.');
 </script>
 {% endblock %}
