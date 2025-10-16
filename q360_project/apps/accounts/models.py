@@ -234,19 +234,95 @@ class Profile(models.Model):
         verbose_name=_('İstifadəçi')
     )
 
-    # Professional information
+    # Personal information
     date_of_birth = models.DateField(
         null=True,
         blank=True,
         verbose_name=_('Doğum Tarixi')
     )
+    place_of_birth = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Doğum Yeri')
+    )
+    nationality = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Vətəndaşlıq')
+    )
+    national_id = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Şəxsiyyət Vəsiqəsi')
+    )
+    marital_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('single', 'Subay'),
+            ('married', 'Evli'),
+            ('divorced', 'Boşanmış'),
+            ('widowed', 'Dul')
+        ],
+        blank=True,
+        verbose_name=_('Ailə Vəziyyəti')
+    )
+    number_of_children = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('Uşaq Sayı')
+    )
+
+    # Professional information
     hire_date = models.DateField(
         null=True,
         blank=True,
         verbose_name=_('İşə Qəbul Tarixi')
     )
+    probation_end_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('Sınaq Müddəti Bitmə Tarixi')
+    )
+    contract_type = models.CharField(
+        max_length=50,
+        choices=[
+            ('permanent', 'Daimi'),
+            ('temporary', 'Müvəqqəti'),
+            ('contract', 'Müqavilə'),
+            ('probation', 'Sınaq Müddəti')
+        ],
+        default='permanent',
+        verbose_name=_('Müqavilə Növü')
+    )
+    contract_start_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('Müqavilə Başlanğıc Tarixi')
+    )
+    contract_end_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('Müqavilə Bitmə Tarixi')
+    )
+    termination_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('İşdən Çıxma Tarixi')
+    )
+    termination_reason = models.TextField(
+        blank=True,
+        verbose_name=_('İşdən Çıxma Səbəbi')
+    )
+
+    # Education
     education_level = models.CharField(
         max_length=100,
+        choices=[
+            ('high_school', 'Orta Məktəb'),
+            ('vocational', 'Texniki'),
+            ('bachelor', 'Bakalavr'),
+            ('master', 'Magistr'),
+            ('phd', 'PhD/Doktorantura')
+        ],
         blank=True,
         verbose_name=_('Təhsil Səviyyəsi')
     )
@@ -254,6 +330,16 @@ class Profile(models.Model):
         max_length=200,
         blank=True,
         verbose_name=_('İxtisas')
+    )
+    university = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Universitet')
+    )
+    graduation_year = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('Məzuniyyət İli')
     )
 
     # Contact information
@@ -266,9 +352,67 @@ class Profile(models.Model):
         blank=True,
         verbose_name=_('İş Telefonu')
     )
+    personal_email = models.EmailField(
+        blank=True,
+        verbose_name=_('Şəxsi E-poçt')
+    )
+    personal_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_('Şəxsi Telefon')
+    )
     address = models.TextField(
         blank=True,
         verbose_name=_('Ünvan')
+    )
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Şəhər')
+    )
+    postal_code = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_('Poçt Kodu')
+    )
+
+    # Emergency contact
+    emergency_contact_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Fövqəladə Əlaqə Adı')
+    )
+    emergency_contact_relationship = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Qohumluq Əlaqəsi')
+    )
+    emergency_contact_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_('Fövqəladə Əlaqə Telefonu')
+    )
+
+    # Insurance & Benefits
+    health_insurance_number = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Tibbi Sığorta Nömrəsi')
+    )
+    health_insurance_provider = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Tibbi Sığorta Təminatçısı')
+    )
+    pension_insurance_number = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Pensiya Sığortası Nömrəsi')
+    )
+    tax_id = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Vergi Nömrəsi')
     )
 
     # System preferences
@@ -318,3 +462,6 @@ class Profile(models.Model):
                 years -= 1
             return years
         return 0
+
+# Import extended models
+from .models_extended import EmployeeDocument, WorkHistory
