@@ -216,9 +216,22 @@
 
                         <hr>
 
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
                             <i class="fas fa-magic"></i> Hesabat Yarat
                         </button>
+
+                        <div class="mt-3">
+                            <h6 class="text-muted mb-2">İxrac Et:</h6>
+                            <button type="button" class="btn btn-outline-success btn-sm w-100 mb-1" onclick="exportReport('excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-1" onclick="exportReport('pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="exportReport('csv')">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -333,5 +346,65 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Export function
+function exportReport(format) {
+    const campaign = document.getElementById('campaign').value;
+    if (!campaign) {
+        alert('Zəhmət olmasa kampaniya seçin!');
+        return;
+    }
+
+    // Create hidden form for export
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "reports:export-custom" %}';
+
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+
+    // Add export format
+    const formatInput = document.createElement('input');
+    formatInput.type = 'hidden';
+    formatInput.name = 'export_format';
+    formatInput.value = format;
+    form.appendChild(formatInput);
+
+    // Add campaign
+    const campaignInput = document.createElement('input');
+    campaignInput.type = 'hidden';
+    campaignInput.name = 'campaign';
+    campaignInput.value = campaign;
+    form.appendChild(campaignInput);
+
+    // Add department if selected
+    const department = document.getElementById('department');
+    if (department && department.value) {
+        const deptInput = document.createElement('input');
+        deptInput.type = 'hidden';
+        deptInput.name = 'department';
+        deptInput.value = department.value;
+        form.appendChild(deptInput);
+    }
+
+    // Add selected users
+    const usersSelect = document.getElementById('users');
+    Array.from(usersSelect.selectedOptions).forEach(option => {
+        const userInput = document.createElement('input');
+        userInput.type = 'hidden';
+        userInput.name = 'users';
+        userInput.value = option.value;
+        form.appendChild(userInput);
+    });
+
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
 </script>
 {% endblock %}

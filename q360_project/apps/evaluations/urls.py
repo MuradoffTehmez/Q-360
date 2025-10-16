@@ -8,6 +8,7 @@ from .views import (
     EvaluationAssignmentViewSet, ResponseViewSet, EvaluationResultViewSet
 )
 from . import template_views
+from . import views_calibration
 
 router = DefaultRouter()
 router.register(r'api/campaigns', EvaluationCampaignViewSet, basename='campaign-api')
@@ -54,6 +55,13 @@ urlpatterns = [
     # Results URLs
     path('results/<int:campaign_pk>/', template_views.evaluation_results, name='results'),
     path('result/<int:result_pk>/', template_views.individual_result, name='individual-result'),
+
+    # Calibration URLs
+    path('calibration/<int:campaign_id>/', views_calibration.calibration_dashboard, name='calibration-dashboard'),
+    path('calibration/result/<int:result_id>/', views_calibration.calibration_detail, name='calibration-detail'),
+    path('calibration/result/<int:result_id>/adjust/', views_calibration.adjust_score, name='adjust-score'),
+    path('calibration/result/<int:result_id>/finalize/', views_calibration.finalize_result, name='finalize-result'),
+    path('calibration/campaign/<int:campaign_id>/bulk-finalize/', views_calibration.bulk_finalize, name='bulk-finalize'),
 
     # API URLs
     path('', include(router.urls)),

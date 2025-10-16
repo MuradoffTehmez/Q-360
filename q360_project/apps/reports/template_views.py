@@ -13,7 +13,7 @@ import json
 from apps.evaluations.models import EvaluationResult, EvaluationCampaign, Response, EvaluationAssignment
 from apps.accounts.models import User
 from .models import Report, RadarChartData
-from .utils import generate_pdf_report, generate_excel_report, calculate_radar_data
+from .utils import generate_pdf_report, generate_excel_report, generate_csv_report, calculate_radar_data
 
 
 @login_required
@@ -522,3 +522,124 @@ def custom_report_builder(request):
     }
 
     return render(request, 'reports/custom_report_builder.html', context)
+
+
+@login_required
+def export_custom_report(request):
+    """Export custom report in various formats (PDF/Excel/CSV)."""
+    if request.method != 'POST':
+        return redirect('reports:custom-builder')
+
+    export_format = request.POST.get('export_format', 'excel')
+    campaign_id = request.POST.get('campaign')
+    department_id = request.POST.get('department')
+    user_ids = request.POST.getlist('users')
+
+    # Build query (same as custom_report_builder)
+    results_query = EvaluationResult.objects.select_related('evaluatee', 'campaign', 'evaluatee__department')
+
+    if campaign_id:
+        results_query = results_query.filter(campaign_id=campaign_id)
+
+    if department_id:
+        results_query = results_query.filter(evaluatee__department_id=department_id)
+
+    if user_ids:
+        results_query = results_query.filter(evaluatee_id__in=user_ids)
+
+    results = results_query.all()
+
+    if not results.exists():
+        messages.error(request, 'Seçilmiş meyarlara uyğun heç bir nəticə tapılmadı.')
+        return redirect('reports:custom-builder')
+
+    # Generate export based on format
+    if export_format == 'pdf':
+        # For PDF, we'll export first result as sample
+        # In production, you might want to create a combined PDF
+        if results.first():
+            pdf_content = generate_pdf_report(results.first())
+            response = HttpResponse(pdf_content, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.pdf"'
+            return response
+
+    elif export_format == 'excel':
+        # Generate Excel with all results
+        import openpyxl
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from io import BytesIO
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Custom Report"
+
+        # Header style
+        header_fill = PatternFill(start_color="667eea", end_color="667eea", fill_type="solid")
+        header_font = Font(color="FFFFFF", bold=True, size=12)
+
+        # Headers
+        headers = [
+            'İşçi ID', 'Ad Soyad', 'Şöbə', 'Vəzifə', 'Kampaniya',
+            'Ümumi Bal', 'Özüm', 'Rəhbər', 'Həmkar', 'Tabelik', 'Tarix'
+        ]
+
+        for col, header in enumerate(headers, start=1):
+            cell = ws.cell(row=1, column=col)
+            cell.value = header
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal='center')
+
+        # Data
+        for row, result in enumerate(results, start=2):
+            ws.cell(row=row, column=1).value = result.evaluatee.employee_id or result.evaluatee.username
+            ws.cell(row=row, column=2).value = result.evaluatee.get_full_name()
+            ws.cell(row=row, column=3).value = str(result.evaluatee.department) if result.evaluatee.department else '-'
+            ws.cell(row=row, column=4).value = result.evaluatee.position or '-'
+            ws.cell(row=row, column=5).value = result.campaign.title
+            ws.cell(row=row, column=6).value = float(result.overall_score) if result.overall_score else 0
+            ws.cell(row=row, column=7).value = float(result.self_score) if result.self_score else 0
+            ws.cell(row=row, column=8).value = float(result.supervisor_score) if result.supervisor_score else 0
+            ws.cell(row=row, column=9).value = float(result.peer_score) if result.peer_score else 0
+            ws.cell(row=row, column=10).value = float(result.subordinate_score) if result.subordinate_score else 0
+            ws.cell(row=row, column=11).value = result.calculated_at.strftime('%d.%m.%Y') if result.calculated_at else '-'
+
+        # Auto-size columns
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            ws.column_dimensions[column_letter].width = adjusted_width
+
+        buffer = BytesIO()
+        wb.save(buffer)
+        excel_content = buffer.getvalue()
+        buffer.close()
+
+        response = HttpResponse(
+            excel_content,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.xlsx"'
+        return response
+
+    elif export_format == 'csv':
+        # Generate CSV
+        csv_content = generate_csv_report(results, include_fields=[
+            'employee_id', 'full_name', 'department', 'position', 'campaign',
+            'overall_score', 'self_score', 'supervisor_score', 'peer_score',
+            'subordinate_score', 'calculated_at'
+        ])
+
+        response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.csv"'
+        return response
+
+    messages.error(request, 'Etibarsız ixrac formatı.')
+    return redirect('reports:custom-builder')

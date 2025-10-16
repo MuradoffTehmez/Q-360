@@ -215,3 +215,61 @@ def generate_excel_report(campaign):
     buffer.close()
 
     return excel_content
+
+
+def generate_csv_report(results_queryset, include_fields=None):
+    """Generate CSV report from queryset."""
+    import csv
+    from io import StringIO
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # Default fields if not specified
+    if not include_fields:
+        include_fields = [
+            'employee_id', 'full_name', 'department', 'position',
+            'overall_score', 'self_score', 'supervisor_score',
+            'peer_score', 'subordinate_score'
+        ]
+
+    # Headers
+    headers = []
+    for field in include_fields:
+        headers.append(field.replace('_', ' ').title())
+    writer.writerow(headers)
+
+    # Data rows
+    for result in results_queryset:
+        row = []
+        for field in include_fields:
+            if field == 'employee_id':
+                row.append(result.evaluatee.employee_id or result.evaluatee.username)
+            elif field == 'full_name':
+                row.append(result.evaluatee.get_full_name())
+            elif field == 'department':
+                row.append(str(result.evaluatee.department) if result.evaluatee.department else '-')
+            elif field == 'position':
+                row.append(result.evaluatee.position or '-')
+            elif field == 'overall_score':
+                row.append(float(result.overall_score) if result.overall_score else 0)
+            elif field == 'self_score':
+                row.append(float(result.self_score) if result.self_score else 0)
+            elif field == 'supervisor_score':
+                row.append(float(result.supervisor_score) if result.supervisor_score else 0)
+            elif field == 'peer_score':
+                row.append(float(result.peer_score) if result.peer_score else 0)
+            elif field == 'subordinate_score':
+                row.append(float(result.subordinate_score) if result.subordinate_score else 0)
+            elif field == 'campaign':
+                row.append(result.campaign.title if result.campaign else '-')
+            elif field == 'calculated_at':
+                row.append(result.calculated_at.strftime('%d.%m.%Y %H:%M') if result.calculated_at else '-')
+            else:
+                row.append('-')
+        writer.writerow(row)
+
+    csv_content = output.getvalue()
+    output.close()
+
+    return csv_content.encode('utf-8-sig')  # BOM for Excel compatibility

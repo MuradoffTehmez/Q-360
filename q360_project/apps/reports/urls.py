@@ -18,6 +18,7 @@ urlpatterns = [
     # Export
     path('export/pdf/<int:result_pk>/', template_views.export_pdf, name='export-pdf'),
     path('export/excel/<int:campaign_pk>/', template_views.export_excel, name='export-excel'),
+    path('export/custom/', template_views.export_custom_report, name='export-custom'),
 
     # API
     path('api/', include(router.urls)),
