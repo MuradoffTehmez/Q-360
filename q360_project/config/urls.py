@@ -64,6 +64,13 @@ urlpatterns = [
     path('workforce-planning/', include(('apps.workforce_planning.urls', 'workforce_planning'), namespace='workforce-planning')),
     path('feedback/', include(('apps.continuous_feedback.urls', 'continuous_feedback'), namespace='feedback')),
 
+    # New HRIS Modules
+    path('pfile/', include('apps.accounts.urls_pfile', namespace='pfile')),
+    path('compensation/', include('apps.compensation.urls', namespace='compensation')),
+    path('leave/', include('apps.leave_attendance.urls', namespace='leave_attendance')),
+    path('okr/', include('apps.development_plans.urls_okr', namespace='okr')),
+    path('recruitment/', include('apps.recruitment.urls', namespace='recruitment')),
+
     # API endpoints (all under /api/ prefix)
     path('api/notifications/', get_recent_notifications, name='api-notifications'),
     path('api/', include('config.api_urls')),
