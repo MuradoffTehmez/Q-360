@@ -349,7 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())
@@ -370,19 +371,38 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    // Notification already deleted, just remove from UI
+                    const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (item) {
+                        item.style.opacity = '0';
+                        setTimeout(() => item.remove(), 300);
+                    }
+                    showToast('Bildiriş artıq silinib', 'info');
+                    return null;
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
+            if (data && data.success) {
                 const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
                 item.style.opacity = '0';
                 setTimeout(() => item.remove(), 300);
                 showToast('Bildiriş silindi', 'success');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Xəta baş verdi', 'error');
+        });
     }
 
     function markAllAsRead() {
@@ -390,7 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())
@@ -407,7 +428,8 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())

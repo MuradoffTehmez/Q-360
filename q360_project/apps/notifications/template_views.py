@@ -37,13 +37,18 @@ def inbox(request):
     notifications = notifications.order_by('-created_at')
 
     # Statistics
+    from datetime import date
     total_count = Notification.objects.filter(user=user).count()
     unread_count = Notification.objects.filter(user=user, is_read=False).count()
+    read_count = Notification.objects.filter(user=user, is_read=True).count()
+    today_count = Notification.objects.filter(user=user, created_at__date=date.today()).count()
 
     context = {
         'notifications': notifications,
         'total_count': total_count,
         'unread_count': unread_count,
+        'read_count': read_count,
+        'today_count': today_count,
         'filter_type': filter_type,
     }
 
@@ -86,7 +91,7 @@ def mark_as_read(request, pk):
     notification.save()
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({'success': True, 'message': 'Bildiriş oxunmuş kimi işarələndi.'})
 
     messages.success(request, 'Bildiriş oxunmuş kimi işarələndi.')
     return redirect('notifications:inbox')
@@ -102,7 +107,7 @@ def mark_all_as_read(request):
         ).update(is_read=True, read_at=timezone.now())
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({'success': True, 'message': 'Bütün bildirişlər oxunmuş kimi işarələndi.'})
 
         messages.success(request, 'Bütün bildirişlər oxunmuş kimi işarələndi.')
 
@@ -122,7 +127,7 @@ def delete_notification(request, pk):
         notification.delete()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({'success': True, 'message': 'Bildiriş silindi.'})
 
         messages.success(request, 'Bildiriş silindi.')
 
@@ -138,7 +143,7 @@ def delete_all_notifications(request):
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
-                'status': 'success',
+                'success': True,
                 'message': f'{count} bildiriş silindi.'
             })
 
