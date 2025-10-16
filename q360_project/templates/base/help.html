@@ -2,28 +2,45 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Kömək və Dəstək - Q360{% endblock %}
+{% block title %}{% trans "Help and Support - Q360" %}{% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Ana Səhifə</a></li>
-            <li class="breadcrumb-item active">Kömək</li>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <li>
+                <a href="{% url 'dashboard' %}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-chevron-right text-xs mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">{% trans "Help Center" %}</span>
+            </li>
         </ol>
     </nav>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="card-body text-white py-5 text-center">
-                    <h1 class="display-5 mb-3"><i class="fas fa-life-ring me-3"></i>Kömək Mərkəzi</h1>
-                    <p class="lead mb-4">Q360 - 360° Qiymətləndirmə Sistemi ilə bağlı hər şeyi burada tapa bilərsiniz</p>
-                    <div class="input-group input-group-lg" style="max-width: 600px; margin: 0 auto;">
-                        <input type="text" class="form-control" placeholder="Axtardığınızı yazın..." id="searchInput">
-                        <button class="btn btn-light" type="button">
-                            <i class="fas fa-search"></i>
-                        </button>
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div class="px-8 py-12 text-center text-white">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white/10 backdrop-blur-sm rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-life-ring text-3xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">{% trans "Help Center" %}</h1>
+                <p class="text-xl text-blue-100 mb-8">
+                    {% trans "Everything you need to know about Q360 - 360° Performance Evaluation System" %}
+                </p>
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            placeholder="{% trans 'Search for help...' %}" 
+                            class="w-full px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/30 transition-all"
+                            id="searchInput"
+                        >
+                        <i class="fas fa-search absolute right-6 top-1/2 transform -translate-y-1/2 text-blue-200"></i>
                     </div>
                 </div>
             </div>
@@ -31,295 +48,289 @@
     </div>
 
     <!-- Quick Links -->
-    <div class="row mb-5">
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 border-primary text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-primary text-white rounded-circle p-3 d-inline-block mb-3">
-                        <i class="fas fa-book fa-2x"></i>
-                    </div>
-                    <h5 class="card-title">İstifadəçi Təlimatı</h5>
-                    <p class="card-text text-muted">Sistemdən necə istifadə edəcəyinizi öyrənin</p>
-                    <a href="#userguide" class="btn btn-outline-primary">Oxu</a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <a href="#userguide" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-center group-hover:transform group-hover:-translate-y-2 border border-gray-200 dark:border-gray-700">
+                <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-book text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "User Guide" %}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{% trans "Learn how to use the system" %}</p>
             </div>
-        </div>
+        </a>
 
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 border-success text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-success text-white rounded-circle p-3 d-inline-block mb-3">
-                        <i class="fas fa-video fa-2x"></i>
-                    </div>
-                    <h5 class="card-title">Video Dərslər</h5>
-                    <p class="card-text text-muted">Əməliyyatları izləyərək öyrənin</p>
-                    <a href="#videos" class="btn btn-outline-success">İzlə</a>
+        <a href="#videos" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-center group-hover:transform group-hover:-translate-y-2 border border-gray-200 dark:border-gray-700">
+                <div class="bg-green-100 dark:bg-green-900/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-video text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "Video Tutorials" %}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{% trans "Watch step-by-step guides" %}</p>
             </div>
-        </div>
+        </a>
 
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 border-info text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-info text-white rounded-circle p-3 d-inline-block mb-3">
-                        <i class="fas fa-question-circle fa-2x"></i>
-                    </div>
-                    <h5 class="card-title">Tez-tez Soruşulanlar</h5>
-                    <p class="card-text text-muted">Ən çox verilən sualların cavabları</p>
-                    <a href="#faq" class="btn btn-outline-info">Bax</a>
+        <a href="#faq" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-center group-hover:transform group-hover:-translate-y-2 border border-gray-200 dark:border-gray-700">
+                <div class="bg-purple-100 dark:bg-purple-900/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-question-circle text-purple-600 dark:text-purple-400 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "FAQ" %}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{% trans "Frequently asked questions" %}</p>
             </div>
-        </div>
+        </a>
 
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 border-warning text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-warning text-white rounded-circle p-3 d-inline-block mb-3">
-                        <i class="fas fa-headset fa-2x"></i>
-                    </div>
-                    <h5 class="card-title">Texniki Dəstək</h5>
-                    <p class="card-text text-muted">Problemlərinizi bizimlə paylaşın</p>
-                    <a href="mailto:support@q360.gov.az" class="btn btn-outline-warning">Əlaqə</a>
+        <a href="#contact" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-center group-hover:transform group-hover:-translate-y-2 border border-gray-200 dark:border-gray-700">
+                <div class="bg-orange-100 dark:bg-orange-900/30 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-headset text-orange-600 dark:text-orange-400 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "Technical Support" %}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{% trans "Get help from our team" %}</p>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- User Guide Section -->
-    <div id="userguide" class="card shadow-sm mb-5">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="fas fa-book-open me-2"></i>İstifadəçi Təlimatı</h4>
+    <div id="userguide" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg mb-12 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 rounded-lg p-2">
+                    <i class="fas fa-book-open text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">{% trans "User Guide" %}</h2>
+                    <p class="text-blue-100">{% trans "Step-by-step instructions for using Q360" %}</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <h5 class="text-primary"><i class="fas fa-sign-in-alt me-2"></i>Sistemə Giriş</h5>
-                    <ol class="text-muted">
-                        <li>İstifadəçi adınızı və şifrənizi daxil edin</li>
-                        <li>İlk girişdə şifrənizi dəyişməyiniz tövsiyə olunur</li>
-                        <li>Dashboard səhifəsinə yönləndiriləcəksiniz</li>
-                    </ol>
+        
+        <div class="p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3">
+                            <i class="fas fa-sign-in-alt text-blue-600 dark:text-blue-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "System Login" %}</h3>
+                            <ol class="text-gray-600 dark:text-gray-400 space-y-1 text-sm">
+                                <li>1. {% trans "Enter your username and password" %}</li>
+                                <li>2. {% trans "Change your password on first login (recommended)" %}</li>
+                                <li>3. {% trans "You will be redirected to the dashboard" %}</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-green-100 dark:bg-green-900/30 rounded-lg p-3">
+                            <i class="fas fa-chart-line text-green-600 dark:text-green-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "Viewing Reports" %}</h3>
+                            <ol class="text-gray-600 dark:text-gray-400 space-y-1 text-sm">
+                                <li>1. {% trans "Go to Reports menu" %}</li>
+                                <li>2. {% trans "Open 'My Reports' section" %}</li>
+                                <li>3. {% trans "Select desired campaign" %}</li>
+                                <li>4. {% trans "View detailed reports and charts" %}</li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-6 mb-4">
-                    <h5 class="text-primary"><i class="fas fa-clipboard-check me-2"></i>Qiymətləndirmənin Tamamlanması</h5>
-                    <ol class="text-muted">
-                        <li>"Mənim Tapşırıqlarım" bölməsinə keçin</li>
-                        <li>Tamamlanmamış qiymətləndirməni seçin</li>
-                        <li>Bütün sualları cavablandırın</li>
-                        <li>"Göndər" düyməsinə basın</li>
-                    </ol>
-                </div>
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-purple-100 dark:bg-purple-900/30 rounded-lg p-3">
+                            <i class="fas fa-clipboard-check text-purple-600 dark:text-purple-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "Completing Evaluations" %}</h3>
+                            <ol class="text-gray-600 dark:text-gray-400 space-y-1 text-sm">
+                                <li>1. {% trans "Go to 'My Assignments' section" %}</li>
+                                <li>2. {% trans "Select incomplete evaluation" %}</li>
+                                <li>3. {% trans "Answer all questions carefully" %}</li>
+                                <li>4. {% trans "Click 'Submit' button" %}</li>
+                            </ol>
+                        </div>
+                    </div>
 
-                <div class="col-md-6 mb-4">
-                    <h5 class="text-primary"><i class="fas fa-chart-line me-2"></i>Hesabatların Baxılması</h5>
-                    <ol class="text-muted">
-                        <li>"Hesabatlar" menyusuna keçin</li>
-                        <li>"Mənim Hesabatlarım" bölməsini açın</li>
-                        <li>İstədiyiniz kampaniyanı seçin</li>
-                        <li>Detallı hesabat və qrafiklərə baxın</li>
-                    </ol>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <h5 class="text-primary"><i class="fas fa-bullseye me-2"></i>İnkişaf Məqsədlərinin Müəyyənləşdirilməsi</h5>
-                    <ol class="text-muted">
-                        <li>"Mənim Məqsədlərim" səhifəsinə keçin</li>
-                        <li>"Yeni Məqsəd" düyməsini klikləyin</li>
-                        <li>Məqsədin detallarını daxil edin</li>
-                        <li>İrəliləyişi mütəmadi olaraq qeyd edin</li>
-                    </ol>
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-3">
+                            <i class="fas fa-bullseye text-orange-600 dark:text-orange-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{% trans "Setting Development Goals" %}</h3>
+                            <ol class="text-gray-600 dark:text-gray-400 space-y-1 text-sm">
+                                <li>1. {% trans "Go to 'My Goals' page" %}</li>
+                                <li>2. {% trans "Click 'New Goal' button" %}</li>
+                                <li>3. {% trans "Enter goal details and timeline" %}</li>
+                                <li>4. {% trans "Track progress regularly" %}</li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="alert alert-info">
-                <i class="fas fa-lightbulb me-2"></i>
-                <strong>Məsləhət:</strong> Hər bir bölmədə "?" ikonu ilə əlavə kömək məlumatlarını tapa bilərsiniz.
+            <div class="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-lightbulb text-blue-500 text-lg mt-1"></i>
+                    <div>
+                        <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">{% trans "Pro Tip" %}</h4>
+                        <p class="text-blue-700 dark:text-blue-300 text-sm">
+                            {% trans "Look for the '?' icon in each section for additional help and tooltips throughout the system." %}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- FAQ Section -->
-    <div id="faq" class="card shadow-sm mb-5">
-        <div class="card-header bg-info text-white">
-            <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Tez-tez Soruşulan Suallar</h4>
+    <div id="faq" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg mb-12 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 rounded-lg p-2">
+                    <i class="fas fa-question-circle text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">{% trans "Frequently Asked Questions" %}</h2>
+                    <p class="text-purple-100">{% trans "Quick answers to common questions" %}</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="accordion" id="faqAccordion">
-                <!-- Evaluation Questions -->
-                <h5 class="text-info mb-3"><i class="fas fa-clipboard-list me-2"></i>Qiymətləndirmə</h5>
 
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                            Qiymətləndirməni necə tamamlayım?
-                        </button>
-                    </h2>
-                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            <strong>Addım 1:</strong> Sol menyudan "Mənim Tapşırıqlarım" bölməsinə keçin.<br>
-                            <strong>Addım 2:</strong> Aktiv qiymətləndirməni seçin və "Başla" düyməsini klikləyin.<br>
-                            <strong>Addım 3:</strong> Bütün sualları diqqətlə oxuyub cavablandırın.<br>
-                            <strong>Addım 4:</strong> "Yadda saxla" ilə qaralama olaraq saxlaya və ya "Göndər" ilə tamamlaya bilərsiniz.
-                        </div>
-                    </div>
+        <div class="p-8">
+            <!-- Evaluation Questions -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-clipboard-list text-blue-500 mr-3"></i>
+                    {% trans "Evaluation Questions" %}
+                </h3>
+                <div class="space-y-4">
+                    {% include 'help/faq_item.html' with 
+                        id="faq1" 
+                        question="How do I complete an evaluation?" 
+                        answer="<strong>Step 1:</strong> Go to 'My Assignments' from the left menu.<br>
+                               <strong>Step 2:</strong> Select the active evaluation and click 'Start'.<br>
+                               <strong>Step 3:</strong> Read and answer all questions carefully.<br>
+                               <strong>Step 4:</strong> Use 'Save' for draft or 'Submit' to complete."
+                    %}
+
+                    {% include 'help/faq_item.html' with 
+                        id="faq2" 
+                        question="Can I change my evaluation after submitting?" 
+                        answer="No, you cannot change an evaluation after submission. Please review all answers before submitting. You can make unlimited changes while in draft mode."
+                    %}
                 </div>
+            </div>
 
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                            Qiymətləndirməni göndərdikdən sonra dəyişə bilərəmmi?
-                        </button>
-                    </h2>
-                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Xeyr, qiymətləndirməni göndərdikdən sonra onu dəyişə bilməzsiniz. Ona görə də göndərmədən əvvəl
-                            bütün cavablarınızı yoxlayın. Qaralama rejimində isə istənilən sayda dəyişiklik edə bilərsiniz.
-                        </div>
-                    </div>
+            <!-- Report Questions -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-chart-bar text-green-500 mr-3"></i>
+                    {% trans "Report Questions" %}
+                </h3>
+                <div class="space-y-4">
+                    {% include 'help/faq_item.html' with 
+                        id="faq3" 
+                        question="How can I view my reports?" 
+                        answer="Go to the Reports section from the top menu and select 'My Reports'. Here you can see results from all your campaigns and performance trends."
+                    %}
+
+                    {% include 'help/faq_item.html' with 
+                        id="faq4" 
+                        question="Can I export reports to PDF or Excel?" 
+                        answer="Yes, there is an 'Export' button in the top right corner of the report page. You can download your report in PDF or Excel format."
+                    %}
                 </div>
+            </div>
 
-                <div class="accordion-item mb-4">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                            Mənim cavablarımı başqaları görə bilərmi?
-                        </button>
-                    </h2>
-                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Xeyr, qiymətləndirmələr tam məxfidir. Yalnız anonim olaraq ümumi nəticələrdə istifadə olunur.
-                            İndividual cavablarınız heç kim tərəfindən görünməz.
-                        </div>
-                    </div>
-                </div>
+            <!-- Technical Questions -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-cog text-orange-500 mr-3"></i>
+                    {% trans "Technical Questions" %}
+                </h3>
+                <div class="space-y-4">
+                    {% include 'help/faq_item.html' with 
+                        id="faq5" 
+                        question="How do I change my password?" 
+                        answer="Go to 'Security' section from your profile menu and fill out the 'Change Password' form. Enter your current password and new password (twice), then click 'Save'."
+                    %}
 
-                <!-- Reports Questions -->
-                <h5 class="text-info mb-3"><i class="fas fa-chart-bar me-2"></i>Hesabatlar</h5>
-
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                            Hesabatlarımı necə görə bilərəm?
-                        </button>
-                    </h2>
-                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Yuxarı menyudan "Hesabatlar" bölməsinə keçin və "Mənim Hesabatlarım" seçin. Burada bütün
-                            kampaniyalarınızın nəticələrini və performans trendlərini görə bilərsiniz.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item mb-4">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                            Hesabatları PDF və ya Excel formatında ixrac edə bilərəmmi?
-                        </button>
-                    </h2>
-                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Bəli, hesabat səhifəsinin yuxarı sağ küncündə "İxrac" düyməsi var. Buradan PDF və ya Excel
-                            formatında hesabatınızı yükləyə bilərsiniz.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Technical Questions -->
-                <h5 class="text-info mb-3"><i class="fas fa-cog me-2"></i>Texniki</h5>
-
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
-                            Şifrəmi necə dəyişə bilərəm?
-                        </button>
-                    </h2>
-                    <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Profil menyusundan "Təhlükəsizlik" bölməsinə keçin və "Şifrə Dəyişikliyi" formasını doldurun.
-                            Cari şifrənizi və yeni şifrənizi (2 dəfə) daxil edib "Yadda saxla" düyməsini klikləyin.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
-                            Şifrəmi unutmuşam, nə etməliyəm?
-                        </button>
-                    </h2>
-                    <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            İnsan Resursları departamenti ilə və ya texniki dəstək komandası ilə əlaqə saxlayın. Onlar sizə
-                            yeni şifrə verəcəklər. E-poçt: support@q360.gov.az
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item mb-2">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
-                            Hansı brauzerdən istifadə etməliyəm?
-                        </button>
-                    </h2>
-                    <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Q360 sistemi bütün müasir brauzerlərdə işləyir: Google Chrome, Mozilla Firefox, Microsoft Edge,
-                            Safari. Ən yaxşı təcrübə üçün brauzerin son versiyasından istifadə edin.
-                        </div>
-                    </div>
+                    {% include 'help/faq_item.html' with 
+                        id="faq6" 
+                        question="I forgot my password, what should I do?" 
+                        answer="Contact the Human Resources department or technical support team. They will provide you with a new password. Email: support@q360.az"
+                    %}
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Contact Section -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Bizə Yazın</h4>
+    <div id="contact" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 rounded-lg p-2">
+                    <i class="fas fa-envelope text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">{% trans "Contact Support" %}</h2>
+                    <p class="text-green-100">{% trans "Get help from our support team" %}</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 mb-3 text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-envelope fa-3x text-success"></i>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div class="text-center">
+                    <div class="bg-green-100 dark:bg-green-900/30 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-envelope text-green-600 dark:text-green-400 text-2xl"></i>
                     </div>
-                    <h6>E-poçt Dəstəyi</h6>
-                    <p class="text-muted small">Ümumi suallar və dəstək üçün</p>
-                    <a href="mailto:support@q360.gov.az" class="btn btn-outline-success btn-sm">support@q360.gov.az</a>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Email Support" %}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">{% trans "For general questions and support" %}</p>
+                    <a href="mailto:support@q360.az" class="inline-flex items-center text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium">
+                        support@q360.az
+                    </a>
                 </div>
 
-                <div class="col-md-4 mb-3 text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-phone fa-3x text-primary"></i>
+                <div class="text-center">
+                    <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-phone text-blue-600 dark:text-blue-400 text-2xl"></i>
                     </div>
-                    <h6>Telefon Dəstəyi</h6>
-                    <p class="text-muted small">İş günləri: 09:00 - 18:00</p>
-                    <a href="tel:+994123456789" class="btn btn-outline-primary btn-sm">+994 12 XXX XX XX</a>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Phone Support" %}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">{% trans "Business days: 09:00 - 18:00" %}</p>
+                    <a href="tel:+994123456789" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                        +994 12 XXX XX XX
+                    </a>
                 </div>
 
-                <div class="col-md-4 mb-3 text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-user-shield fa-3x text-warning"></i>
+                <div class="text-center">
+                    <div class="bg-orange-100 dark:bg-orange-900/30 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-shield text-orange-600 dark:text-orange-400 text-2xl"></i>
                     </div>
-                    <h6>Administrator</h6>
-                    <p class="text-muted small">Sistem administratoru ilə əlaqə</p>
-                    <a href="mailto:admin@q360.gov.az" class="btn btn-outline-warning btn-sm">admin@q360.gov.az</a>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{% trans "Administrator" %}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">{% trans "Contact system administrator" %}</p>
+                    <a href="mailto:admin@q360.az" class="inline-flex items-center text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium">
+                        admin@q360.az
+                    </a>
                 </div>
             </div>
 
-            <hr class="my-4">
-
-            <div class="alert alert-light text-center">
-                <h6 class="mb-3">Əlavə Resurslar</h6>
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{% url 'privacy' %}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-shield-alt me-1"></i>Məxfilik Siyasəti
+            <div class="border-t dark:border-gray-700 pt-8">
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-6">{% trans "Additional Resources" %}</h4>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="{% url 'privacy' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 transition-colors">
+                        <i class="fas fa-shield-alt mr-2 text-blue-500"></i>
+                        {% trans "Privacy Policy" %}
                     </a>
-                    <a href="{% url 'terms' %}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-file-contract me-1"></i>İstifadə Şərtləri
+                    <a href="{% url 'terms' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 transition-colors">
+                        <i class="fas fa-file-contract mr-2 text-green-500"></i>
+                        {% trans "Terms of Service" %}
                     </a>
-                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-home me-1"></i>Ana Səhifəyə Qayıt
+                    <a href="{% url 'dashboard' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 transition-colors">
+                        <i class="fas fa-home mr-2 text-purple-500"></i>
+                        {% trans "Back to Dashboard" %}
                     </a>
                 </div>
             </div>
@@ -328,28 +339,64 @@
 </div>
 
 <style>
-    .card {
-        transition: transform 0.2s;
+    .faq-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
     }
-    .card:hover {
-        transform: translateY(-5px);
+    
+    .faq-item:hover {
+        border-color: #3b82f6;
+    }
+    
+    .dark .faq-item {
+        border-color: #374151;
+    }
+    
+    .dark .faq-item:hover {
+        border-color: #60a5fa;
     }
 </style>
 
 <script>
-// Simple search functionality
-document.getElementById('searchInput')?.addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const accordionItems = document.querySelectorAll('.accordion-item');
-
-    accordionItems.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        if (text.includes(searchTerm)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
-        }
+    // Search functionality
+    document.getElementById('searchInput')?.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const faqItems = document.querySelectorAll('[data-faq-item]');
+        
+        faqItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = 'block';
+                // Highlight matching text
+                const question = item.querySelector('[data-question]');
+                if (question) {
+                    const originalText = question.getAttribute('data-original-text') || question.textContent;
+                    question.setAttribute('data-original-text', originalText);
+                    const highlightedText = originalText.replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<mark class="bg-yellow-200 dark:bg-yellow-800">${match}</mark>`
+                    );
+                    question.innerHTML = highlightedText;
+                }
+            } else {
+                item.style.display = 'none';
+            }
+        });
     });
-});
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
 </script>
 {% endblock %}
