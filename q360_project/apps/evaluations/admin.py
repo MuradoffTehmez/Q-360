@@ -527,9 +527,10 @@ class EvaluationResultAdmin(admin.ModelAdmin):
             return '-'
         score = float(obj.overall_score)
         color = '#28a745' if score >= 4 else '#ffc107' if score >= 3 else '#dc3545'
+        score_formatted = f'{score:.2f}'
         return format_html(
-            '<span style="color: {}; font-weight: bold; font-size: 16px;">{:.2f}/5</span>',
-            color, score
+            '<span style="color: {}; font-weight: bold; font-size: 16px;">{}/5</span>',
+            color, score_formatted
         )
     overall_score_display.short_description = 'Ümumi Bal'
 
