@@ -119,6 +119,10 @@ class GoalUpdateView(LoginRequiredMixin, UpdateView):
 @login_required
 def goal_complete(request, pk):
     """Mark goal as completed."""
+    if request.method != 'POST':
+        messages.error(request, 'Bu əməliyyat yalnız POST metodu ilə edilə bilər.')
+        return redirect('development-plans:goal-detail', pk=pk)
+
     goal = get_object_or_404(DevelopmentGoal, pk=pk, user=request.user)
 
     goal.status = 'completed'
