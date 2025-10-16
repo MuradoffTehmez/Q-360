@@ -13,9 +13,9 @@
         <p class="mt-1 text-gray-600 dark:text-gray-400">{% trans "Manage organizational capabilities and skill expectations" %}</p>
     </div>
     {% if user.is_admin %}
-    <a href="javascript:void(0)" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:shadow-indigo-500/40">
+    <button @click="openCreateModal" type="button" class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:shadow-indigo-500/40">
         <i class="fas fa-plus mr-2"></i>{% trans "Create Competency" %}
-    </a>
+    </button>
     {% endif %}
 </div>
 {% endblock %}
@@ -164,6 +164,50 @@
             </button>
         </div>
     </div>
+
+    <!-- Create Competency Modal -->
+    <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="showCreateModal = false"></div>
+            <div class="relative w-full max-w-2xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Create New Competency" %}</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Define a new competency for organizational use" %}</p>
+                </div>
+                <form @submit.prevent="submitCreateCompetency">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{% trans "Name" %} *</label>
+                            <input type="text" x-model="newCompetency.name" required
+                                   class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" />
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{% trans "Description" %}</label>
+                            <textarea x-model="newCompetency.description" rows="3"
+                                      class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"></textarea>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" x-model="newCompetency.is_active" class="rounded border-gray-300 text-indigo-500 focus:ring-indigo-200" />
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">{% trans "Active" %}</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex gap-3">
+                        <button type="button" @click="showCreateModal = false"
+                                class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:border-gray-300 hover:text-gray-800 dark:border-gray-700 dark:text-gray-300">
+                            {% trans "Cancel" %}
+                        </button>
+                        <button type="submit" :disabled="creatingCompetency"
+                                class="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:shadow-indigo-500/40 disabled:opacity-50">
+                            <span x-show="!creatingCompetency">{% trans "Create" %}</span>
+                            <span x-show="creatingCompetency"><i class="fas fa-spinner fa-spin mr-2"></i>{% trans "Creating..." %}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -178,9 +222,51 @@ function competencyPage() {
         filters: { search: '', status: '' },
         pagination: { current: 1, next: null, previous: null },
         formatter: new Intl.NumberFormat('az-AZ'),
+        showCreateModal: false,
+        creatingCompetency: false,
+        newCompetency: { name: '', description: '', is_active: true },
         init() {
             this.fetchStats();
             this.fetchCompetencies();
+        },
+        openCreateModal() {
+            this.newCompetency = { name: '', description: '', is_active: true };
+            this.showCreateModal = true;
+        },
+        async submitCreateCompetency() {
+            this.creatingCompetency = true;
+            try {
+                const response = await fetch('/api/competencies/competencies/', {
+                    method: 'POST',
+                    headers: {
+                        ...this.authHeaders(),
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    body: JSON.stringify(this.newCompetency)
+                });
+
+                if (response.ok) {
+                    this.showCreateModal = false;
+                    await this.fetchCompetencies(1);
+                    await this.fetchStats();
+                    alert('{% trans "Competency created successfully" %}');
+                } else {
+                    const error = await response.json();
+                    alert('{% trans "Error" %}: ' + (error.detail || '{% trans "Could not create competency" %}'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('{% trans "Network error occurred" %}');
+            } finally {
+                this.creatingCompetency = false;
+            }
+        },
+        getCsrfToken() {
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='));
+            return cookieValue ? cookieValue.split('=')[1] : '';
         },
         formatNumber(value) {
             return this.formatter.format(value || 0);

@@ -1,0 +1,144 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Vakansiya Redaktə Et" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-edit mr-2"></i>{% trans "Vakansiya Redaktə Et" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'recruitment:job_detail' job.id %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="form-card">
+                <form method="post" id="editJobForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{% trans "Vəzifə Adı" %} *</label>
+                        <input type="text" class="form-control" name="title" value="{{ job.title }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Kod" %} *</label>
+                                <input type="text" class="form-control" name="code" value="{{ job.code }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Şöbə" %} *</label>
+                                <select class="form-control" name="department" required>
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if job.department_id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %} *</label>
+                        <textarea class="form-control" name="description" rows="3" required>{{ job.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Vəzifə Öhdəlikləri" %} *</label>
+                        <textarea class="form-control" name="responsibilities" rows="3" required>{{ job.responsibilities }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Tələblər" %} *</label>
+                        <textarea class="form-control" name="requirements" rows="3" required>{{ job.requirements }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "İşə Qəbul Növü" %}</label>
+                                <select class="form-control" name="employment_type">
+                                    <option value="full_time" {% if job.employment_type == 'full_time' %}selected{% endif %}>{% trans "Tam Ştatlı" %}</option>
+                                    <option value="part_time" {% if job.employment_type == 'part_time' %}selected{% endif %}>{% trans "Qismən Ştatlı" %}</option>
+                                    <option value="contract" {% if job.employment_type == 'contract' %}selected{% endif %}>{% trans "Müqavilə" %}</option>
+                                    <option value="temporary" {% if job.employment_type == 'temporary' %}selected{% endif %}>{% trans "Müvəqqəti" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "İş Yeri" %}</label>
+                                <input type="text" class="form-control" name="location" value="{{ job.location }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Status" %}</label>
+                                <select class="form-control" name="status">
+                                    <option value="draft" {% if job.status == 'draft' %}selected{% endif %}>{% trans "Qaralama" %}</option>
+                                    <option value="open" {% if job.status == 'open' %}selected{% endif %}>{% trans "Açıq" %}</option>
+                                    <option value="closed" {% if job.status == 'closed' %}selected{% endif %}>{% trans "Bağlı" %}</option>
+                                    <option value="on_hold" {% if job.status == 'on_hold' %}selected{% endif %}>{% trans "Gözləmədə" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'recruitment:job_detail' job.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>{% trans "Ləğv Et" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i>{% trans "Yadda Saxla" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('editJobForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "recruitment:job_edit" job.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/recruitment/jobs/${data.job_id}/`;
+        } else {
+            alert('Xəta: ' + (data.message || '{% trans "Vakansiya yenilənərkən xəta baş verdi" %}'));
+        }
+    })
+    .catch(error => {
+        alert('Xəta: ' + error.message);
+    });
+});
+</script>
+{% endblock %}

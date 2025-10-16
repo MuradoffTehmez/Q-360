@@ -1,0 +1,202 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Komanda Təqvimi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: 150px repeat(7, 1fr);
+        gap: 1px;
+        background: #e0e0e0;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .calendar-header-cell {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+    .calendar-cell {
+        background: white;
+        padding: 0.75rem;
+        min-height: 60px;
+    }
+    .calendar-employee-name {
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+    }
+    .leave-indicator {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+    .leave-annual {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    .leave-sick {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    .leave-other {
+        background: #fef3c7;
+        color: #92400e;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="calendar-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2><i class="fas fa-calendar-alt mr-2"></i>{% trans "Komanda İzin Təqvimi" %}</h2>
+                <p class="mb-0 opacity-75">{% trans "Komanda üzvlərinin izin cədvəli" %}</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="mb-0">{{ current_month }}/{{ current_year }}</h5>
+                            <small class="text-muted">{% trans "Təsdiq edilmiş izinlər" %}</small>
+                        </div>
+                        <div>
+                            <span class="badge badge-info mr-2">
+                                <i class="fas fa-users mr-1"></i>{{ team.count }} {% trans "üzv" %}
+                            </span>
+                            <span class="badge badge-primary">
+                                <i class="fas fa-calendar-check mr-1"></i>{{ leave_requests.count }} {% trans "izin" %}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if leave_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>{% trans "İşçi" %}</th>
+                                    <th>{% trans "İzin Növü" %}</th>
+                                    <th>{% trans "Başlanğıc" %}</th>
+                                    <th>{% trans "Son" %}</th>
+                                    <th>{% trans "Günlər" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in leave_requests %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-user-circle mr-2 text-primary"></i>
+                                        <strong>{{ leave.user.get_full_name }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if leave.leave_type.name == 'Annual Leave' %}badge-primary{% elif 'Sick' in leave.leave_type.name %}badge-danger{% else %}badge-warning{% endif %}">
+                                            {{ leave.leave_type.name }}
+                                        </span>
+                                    </td>
+                                    <td>{{ leave.start_date|date:"d M Y" }}</td>
+                                    <td>{{ leave.end_date|date:"d M Y" }}</td>
+                                    <td>
+                                        <strong class="text-info">{{ leave.days_requested }}</strong> {% trans "gün" %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check-circle mr-1"></i>{% trans "Təsdiq edilib" %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "Bu dövr üçün təsdiq edilmiş izin yoxdur" %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members Summary -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Komanda Üzvləri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for member in team %}
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-user-circle fa-2x text-primary mr-3"></i>
+                                    <div>
+                                        <strong>{{ member.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ member.department.name }}</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    {% with member_leaves=leave_requests|filter_by_user:member %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-day mr-1"></i>
+                                        {% if member_leaves %}
+                                            {{ member_leaves.count }} {% trans "izin" %}
+                                        {% else %}
+                                            {% trans "İzin yoxdur" %}
+                                        {% endif %}
+                                    </small>
+                                    {% endwith %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-center text-muted py-3">{% trans "Komanda üzvü yoxdur" %}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Optional: Add interactive calendar features here
+console.log('Team calendar loaded with {{ leave_requests.count }} approved leaves');
+</script>
+{% endblock %}

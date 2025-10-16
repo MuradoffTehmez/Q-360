@@ -77,6 +77,34 @@ def job_posting_create(request):
 
 
 @login_required
+def job_posting_edit(request, pk):
+    """Edit job posting."""
+    job = get_object_or_404(JobPosting, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            job.title = request.POST.get('title')
+            job.code = request.POST.get('code')
+            job.department_id = request.POST.get('department')
+            job.description = request.POST.get('description')
+            job.responsibilities = request.POST.get('responsibilities')
+            job.requirements = request.POST.get('requirements')
+            job.employment_type = request.POST.get('employment_type')
+            job.location = request.POST.get('location')
+            job.status = request.POST.get('status', job.status)
+            job.save()
+            return JsonResponse({'success': True, 'job_id': job.id})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # GET request - show form
+    from apps.departments.models import Department
+    departments = Department.objects.all()
+    context = {'job': job, 'departments': departments}
+    return render(request, 'recruitment/job_edit.html', context)
+
+
+@login_required
 def application_detail(request, pk):
     """Application detail view."""
     application = get_object_or_404(
@@ -84,7 +112,17 @@ def application_detail(request, pk):
         pk=pk
     )
 
-    context = {'application': application}
+    # Get interviews for this application
+    interviews = Interview.objects.filter(application=application).select_related('interviewer').order_by('-scheduled_date')
+
+    # Get notes (if you have notes model, add it. For now empty list)
+    notes = []
+
+    context = {
+        'application': application,
+        'interviews': interviews,
+        'notes': notes
+    }
     return render(request, 'recruitment/application_detail.html', context)
 
 
