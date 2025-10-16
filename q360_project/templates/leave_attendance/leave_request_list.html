@@ -1,0 +1,339 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Məzuniyyət Sorğuları" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .request-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .request-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .request-card.draft { border-color: #6c757d; }
+    .request-card.submitted { border-color: #17a2b8; }
+    .request-card.approved { border-color: #28a745; }
+    .request-card.rejected { border-color: #dc3545; }
+    .request-card.cancelled { border-color: #6c757d; }
+
+    .filter-section {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-file-alt mr-2"></i>{% trans "Məzuniyyət Sorğuları" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'leave_attendance:leave_request_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>{% trans "Yeni Sorğu" %}
+            </a>
+            <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="form-row align-items-end">
+            <div class="col-md-3">
+                <label>{% trans "Status" %}</label>
+                <select name="status" class="form-control">
+                    <option value="">{% trans "Hamısı" %}</option>
+                    <option value="draft">{% trans "Qaralama" %}</option>
+                    <option value="submitted">{% trans "Göndərilmiş" %}</option>
+                    <option value="approved">{% trans "Təsdiqlənmiş" %}</option>
+                    <option value="rejected">{% trans "Rədd edilmiş" %}</option>
+                    <option value="cancelled">{% trans "Ləğv edilmiş" %}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>{% trans "Məzuniyyət Növü" %}</label>
+                <select name="leave_type" class="form-control">
+                    <option value="">{% trans "Hamısı" %}</option>
+                    {% for leave_type in leave_types %}
+                    <option value="{{ leave_type.id }}">{{ leave_type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>{% trans "Başlanğıc" %}</label>
+                <input type="date" name="start_date" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label>{% trans "Bitmə" %}</label>
+                <input type="date" name="end_date" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-search"></i> {% trans "Axtar" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Gözləyən" %}</h6>
+                    <h2 class="text-info">{{ status_counts.submitted|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Təsdiqlənmiş" %}</h6>
+                    <h2 class="text-success">{{ status_counts.approved|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Rədd edilmiş" %}</h6>
+                    <h2 class="text-danger">{{ status_counts.rejected|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-secondary">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Ümumi" %}</h6>
+                    <h2>{{ requests.count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Requests List -->
+    <div class="row">
+        {% for request in requests %}
+        <div class="col-md-6">
+            <div class="request-card {{ request.status }}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="mb-1">
+                            <i class="fas fa-umbrella-beach mr-2 text-primary"></i>
+                            {{ request.leave_type.name }}
+                        </h5>
+                        <span class="badge badge-{% if request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% elif request.status == 'submitted' %}info{% else %}secondary{% endif %}">
+                            {{ request.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="mb-0">{{ request.number_of_days }}</h4>
+                        <small class="text-muted">{% trans "gün" %}</small>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <small class="text-muted">{% trans "Başlanğıc" %}:</small><br>
+                        <strong>{{ request.start_date|date:"d M Y" }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">{% trans "Bitmə" %}:</small><br>
+                        <strong>{{ request.end_date|date:"d M Y" }}</strong>
+                    </div>
+                </div>
+
+                {% if request.reason %}
+                <p class="mb-2">
+                    <small><strong>{% trans "Səbəb" %}:</strong> {{ request.reason|truncatewords:20 }}</small>
+                </p>
+                {% endif %}
+
+                {% if request.status == 'approved' %}
+                <div class="alert alert-success py-2 mb-2">
+                    <small>
+                        <i class="fas fa-check-circle mr-1"></i>
+                        {% trans "Təsdiq edən" %}: {{ request.approved_by.get_full_name }}
+                        <br>{% trans "Tarix" %}: {{ request.approved_at|date:"d M Y H:i" }}
+                    </small>
+                </div>
+                {% elif request.status == 'rejected' %}
+                <div class="alert alert-danger py-2 mb-2">
+                    <small>
+                        <i class="fas fa-times-circle mr-1"></i>
+                        {% trans "Rədd edən" %}: {{ request.approved_by.get_full_name }}
+                        {% if request.rejection_reason %}
+                        <br>{% trans "Səbəb" %}: {{ request.rejection_reason }}
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-muted">
+                        <i class="far fa-clock mr-1"></i>{{ request.created_at|date:"d M Y" }}
+                    </small>
+                    <div>
+                        {% if request.status == 'draft' %}
+                        <button class="btn btn-sm btn-outline-primary" onclick="editRequest({{ request.id }})">
+                            <i class="fas fa-edit"></i> {% trans "Redaktə" %}
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="submitRequest({{ request.id }})">
+                            <i class="fas fa-paper-plane"></i> {% trans "Göndər" %}
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRequest({{ request.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% elif request.status == 'submitted' %}
+                        <button class="btn btn-sm btn-outline-warning" onclick="cancelRequest({{ request.id }})">
+                            <i class="fas fa-ban"></i> {% trans "Ləğv Et" %}
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-sm btn-outline-info" onclick="viewDetails({{ request.id }})">
+                            <i class="fas fa-eye"></i> {% trans "Detallar" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Sorğu yoxdur" %}</p>
+            <a href="{% url 'leave_attendance:leave_request_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>{% trans "İlk sorğunu yarat" %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if requests.has_other_pages %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if requests.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.previous_page_number }}">{% trans "Əvvəlki" %}</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in requests.paginator.page_range %}
+                    <li class="page-item {% if requests.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if requests.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.next_page_number }}">{% trans "Növbəti" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Sorğu Detalları" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function submitRequest(id) {
+    if (confirm('{% trans "Sorğunu göndərmək istədiyinizdən əminsiniz?" %}')) {
+        fetch(`/leave/requests/${id}/submit/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function cancelRequest(id) {
+    if (confirm('{% trans "Sorğunu ləğv etmək istədiyinizdən əminsiniz?" %}')) {
+        fetch(`/leave/requests/${id}/cancel/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function deleteRequest(id) {
+    if (confirm('{% trans "Sorğunu silmək istədiyinizdən əminsiniz?" %}')) {
+        fetch(`/leave/requests/${id}/delete/`, {
+            method: 'DELETE',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function editRequest(id) {
+    window.location.href = `/leave/requests/${id}/edit/`;
+}
+
+function viewDetails(id) {
+    fetch(`/leave/requests/${id}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('detailsContent').innerHTML = data.html;
+                $('#detailsModal').modal('show');
+            }
+        });
+}
+</script>
+{% endblock %}

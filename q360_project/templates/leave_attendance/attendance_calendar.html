@@ -1,0 +1,289 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "İştirak Təqvimi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .calendar-container {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .day-cell {
+        min-height: 100px;
+        border: 1px solid #e0e0e0;
+        padding: 0.5rem;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .day-cell:hover {
+        background: #f8f9fa;
+    }
+    .day-cell.today {
+        background: #fff3cd;
+        border-color: #ffc107;
+    }
+    .day-cell.weekend {
+        background: #f8f9fa;
+    }
+    .day-cell.present {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+    }
+    .day-cell.absent {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+    }
+    .day-cell.leave {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+    }
+    .day-cell.holiday {
+        background: #e2e3e5;
+        border-left: 4px solid #6c757d;
+    }
+    .day-number {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .attendance-status {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="calendar-header">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h2><i class="fas fa-calendar-check mr-2"></i>{% trans "İştirak Təqvimi" %}</h2>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="btn-group">
+                    <a href="?month={{ prev_month }}" class="btn btn-light">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <button class="btn btn-light" disabled>
+                        {{ current_month_name }} {{ current_year }}
+                    </button>
+                    <a href="?month={{ next_month }}" class="btn btn-light">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-right">
+                <a href="{% url 'leave_attendance:leave_dashboard' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <div class="stats-card border-success">
+                <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "İştirak" %}</h6>
+                <h3 class="text-success">{{ stats.present|default:0 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stats-card border-danger">
+                <i class="fas fa-times-circle text-danger fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "Qeyri-iş" %}</h6>
+                <h3 class="text-danger">{{ stats.absent|default:0 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stats-card border-info">
+                <i class="fas fa-umbrella-beach text-info fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "Məzuniyyət" %}</h6>
+                <h3 class="text-info">{{ stats.leave|default:0 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stats-card border-secondary">
+                <i class="fas fa-mug-hot text-secondary fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "Bayram" %}</h6>
+                <h3 class="text-secondary">{{ stats.holiday|default:0 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stats-card border-warning">
+                <i class="fas fa-clock text-warning fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "Gec Gəlmə" %}</h6>
+                <h3 class="text-warning">{{ stats.late|default:0 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stats-card border-primary">
+                <i class="fas fa-percentage text-primary fa-2x mb-2"></i>
+                <h6 class="text-muted">{% trans "İştirak %" %}</h6>
+                <h3 class="text-primary">{{ stats.attendance_rate|default:0 }}%</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-around align-items-center">
+                <small><span class="badge badge-success">■</span> {% trans "İştirak" %}</small>
+                <small><span class="badge badge-danger">■</span> {% trans "Qeyri-iş" %}</small>
+                <small><span class="badge badge-info">■</span> {% trans "Məzuniyyət" %}</small>
+                <small><span class="badge badge-secondary">■</span> {% trans "Bayram" %}</small>
+                <small><span class="badge badge-warning">■</span> {% trans "Gec Gəlmə" %}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-container">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th class="text-center">{% trans "Bazar ertəsi" %}</th>
+                    <th class="text-center">{% trans "Çərşənbə axşamı" %}</th>
+                    <th class="text-center">{% trans "Çərşənbə" %}</th>
+                    <th class="text-center">{% trans "Cümə axşamı" %}</th>
+                    <th class="text-center">{% trans "Cümə" %}</th>
+                    <th class="text-center bg-light">{% trans "Şənbə" %}</th>
+                    <th class="text-center bg-light">{% trans "Bazar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in calendar_weeks %}
+                <tr>
+                    {% for day in week %}
+                    <td class="day-cell {% if day.is_today %}today{% endif %} {% if day.is_weekend %}weekend{% endif %} {% if day.status %}{{ day.status }}{% endif %}"
+                        onclick="showDayDetails('{{ day.date }}')">
+                        {% if day.day %}
+                        <div class="day-number">{{ day.day }}</div>
+                        {% if day.status %}
+                        <div class="attendance-status">
+                            {% if day.status == 'present' %}
+                            <i class="fas fa-check-circle text-success"></i> {% trans "İştirak" %}
+                            {% if day.check_in %}
+                            <br><small>{{ day.check_in|time:"H:i" }}</small>
+                            {% endif %}
+                            {% elif day.status == 'absent' %}
+                            <i class="fas fa-times-circle text-danger"></i> {% trans "Qeyri-iş" %}
+                            {% elif day.status == 'leave' %}
+                            <i class="fas fa-umbrella-beach text-info"></i> {% trans "Məzuniyyət" %}
+                            {% if day.leave_type %}
+                            <br><small>{{ day.leave_type }}</small>
+                            {% endif %}
+                            {% elif day.status == 'holiday' %}
+                            <i class="fas fa-mug-hot text-secondary"></i> {% trans "Bayram" %}
+                            {% if day.holiday_name %}
+                            <br><small>{{ day.holiday_name }}</small>
+                            {% endif %}
+                            {% endif %}
+                            {% if day.is_late %}
+                            <br><span class="badge badge-warning badge-sm">{% trans "GEC" %}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <button class="btn btn-primary mr-2" onclick="markToday()">
+                <i class="fas fa-check mr-1"></i>{% trans "Bu gün iştirak" %}
+            </button>
+            <a href="{% url 'leave_attendance:leave_request_create' %}" class="btn btn-outline-primary mr-2">
+                <i class="fas fa-plus mr-1"></i>{% trans "Məzuniyyət sorğusu" %}
+            </a>
+            <button class="btn btn-outline-secondary" onclick="exportCalendar()">
+                <i class="fas fa-download mr-1"></i>{% trans "İxrac et" %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Day Details Modal -->
+<div class="modal fade" id="dayDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dayDetailsTitle">{% trans "Gün Detalları" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="dayDetailsContent">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Bağla" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showDayDetails(date) {
+    fetch(`/leave/attendance/day-details/?date=${date}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('dayDetailsTitle').innerHTML = data.date_formatted;
+                document.getElementById('dayDetailsContent').innerHTML = data.html;
+                $('#dayDetailsModal').modal('show');
+            }
+        });
+}
+
+function markToday() {
+    if (confirm('{% trans "Bu gün iştirakınızı qeyd etmək istəyirsiniz?" %}')) {
+        fetch('/leave/attendance/mark-today/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function exportCalendar() {
+    window.location.href = '/leave/attendance/export/?month={{ current_month }}&year={{ current_year }}';
+}
+</script>
+{% endblock %}

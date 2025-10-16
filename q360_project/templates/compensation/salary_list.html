@@ -1,0 +1,214 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Əmək Haqqı Məlumatları" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .salary-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+    .salary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-money-check-alt mr-2"></i>{% trans "Əmək Haqqı Məlumatları" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'compensation:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Current Salary Info -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="salary-card">
+                <div class="salary-header">
+                    <div>
+                        <h4>{{ request.user.get_full_name }}</h4>
+                        <p class="text-muted mb-0">{{ request.user.job_title|default:"N/A" }}</p>
+                    </div>
+                    <div class="text-right">
+                        <h5 class="text-muted mb-0">{% trans "Cari Əmək Haqqı" %}</h5>
+                        <h2 class="text-primary mb-0">{{ salary.base_salary|default:"0" }} AZN</h2>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <h6 class="text-muted">{% trans "Əsas Maaş" %}</h6>
+                        <h5>{{ salary.base_salary|default:"0" }} AZN</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-muted">{% trans "Əlavələr" %}</h6>
+                        <h5 class="text-success">+{{ total_allowances|default:"0" }} AZN</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-muted">{% trans "Tutulmalar" %}</h6>
+                        <h5 class="text-danger">-{{ total_deductions|default:"0" }} AZN</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-muted">{% trans "Xalis Maaş" %}</h6>
+                        <h5 class="text-primary">{{ net_salary|default:"0" }} AZN</h5>
+                    </div>
+                </div>
+
+                {% if salary %}
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <small class="text-muted">{% trans "Qüvvəyə Minmə Tarixi" %}:</small><br>
+                        <strong>{{ salary.effective_date|date:"d M Y" }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">{% trans "Maaş Növü" %}:</small><br>
+                        <strong>{{ salary.get_salary_type_display }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">{% trans "Ödəniş Tezliyi" %}:</small><br>
+                        <strong>{{ salary.get_payment_frequency_display }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Allowances -->
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle mr-2"></i>{% trans "Əlavələr" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if allowances %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Növ" %}</th>
+                                    <th>{% trans "Məbləğ" %}</th>
+                                    <th>{% trans "Tezlik" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for allowance in allowances %}
+                                <tr>
+                                    <td>{{ allowance.get_allowance_type_display }}</td>
+                                    <td><strong>{{ allowance.amount }} AZN</strong></td>
+                                    <td>{{ allowance.get_frequency_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">{% trans "Əlavə yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Deductions -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-minus-circle mr-2"></i>{% trans "Tutulmalar" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if deductions %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Növ" %}</th>
+                                    <th>{% trans "Məbləğ" %}</th>
+                                    <th>{% trans "Tezlik" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for deduction in deductions %}
+                                <tr>
+                                    <td>{{ deduction.get_deduction_type_display }}</td>
+                                    <td><strong>{{ deduction.amount }} AZN</strong></td>
+                                    <td>{{ deduction.get_frequency_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">{% trans "Tutulma yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salary History -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history mr-2"></i>{% trans "Maaş Tarixçəsi" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if salary_history %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Tarix" %}</th>
+                                    <th>{% trans "Əsas Maaş" %}</th>
+                                    <th>{% trans "Maaş Növü" %}</th>
+                                    <th>{% trans "Dəyişiklik" %}</th>
+                                    <th>{% trans "Səbəb" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in salary_history %}
+                                <tr>
+                                    <td>{{ history.effective_date|date:"d M Y" }}</td>
+                                    <td><strong>{{ history.base_salary }} AZN</strong></td>
+                                    <td>{{ history.get_salary_type_display }}</td>
+                                    <td>
+                                        {% if history.change_reason %}
+                                        <span class="badge badge-info">{{ history.change_reason }}</span>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ history.notes|default:"-"|truncatewords:10 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">{% trans "Tarixçə yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

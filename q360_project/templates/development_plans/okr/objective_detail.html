@@ -1,0 +1,549 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ objective.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .objective-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .kr-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .kr-card.on-track { border-left-color: #28a745; }
+    .kr-card.at-risk { border-left-color: #ffc107; }
+    .kr-card.off-track { border-left-color: #dc3545; }
+
+    .circular-progress {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(
+            #667eea var(--progress),
+            #e0e0e0 var(--progress)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .circular-progress::before {
+        content: '';
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+    }
+    .circular-progress-value {
+        position: relative;
+        z-index: 1;
+        font-weight: bold;
+        color: #667eea;
+        font-size: 2rem;
+    }
+    .update-item {
+        padding: 1rem;
+        border-left: 3px solid #e0e0e0;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .milestone-item {
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+    .milestone-item.completed {
+        border-color: #28a745;
+        background: #d4edda;
+    }
+    .milestone-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Objective Header -->
+    <div class="objective-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge badge-{% if objective.level == 'individual' %}primary{% elif objective.level == 'department' %}success{% else %}warning{% endif %} badge-lg mr-2">
+                        {{ objective.get_level_display }}
+                    </span>
+                    <span class="badge badge-light badge-lg">
+                        {{ objective.get_quarter_display }} {{ objective.fiscal_year }}
+                    </span>
+                </div>
+                <h2 class="mb-2">{{ objective.title }}</h2>
+                <p class="mb-3">{{ objective.description }}</p>
+                <div class="d-flex gap-2">
+                    <span class="badge badge-{% if objective.status == 'active' %}success{% elif objective.status == 'completed' %}info{% elif objective.status == 'draft' %}warning{% else %}secondary{% endif %} badge-lg">
+                        {{ objective.get_status_display }}
+                    </span>
+                    {% if objective.is_private %}
+                    <span class="badge badge-secondary badge-lg">
+                        <i class="fas fa-lock"></i> {% trans "Şəxsi" %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="circular-progress mx-auto" style="--progress: {{ objective.progress_percentage }}%">
+                    <span class="circular-progress-value">{{ objective.progress_percentage|floatformat:0 }}%</span>
+                </div>
+                <small class="mt-2 d-block">{% trans "Ümumi Tərəqqi" %}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="{% url 'okr:objective_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+            <button class="btn btn-primary" onclick="editObjective()">
+                <i class="fas fa-edit mr-1"></i>{% trans "Redaktə Et" %}
+            </button>
+            <button class="btn btn-success" data-toggle="modal" data-target="#addKRModal">
+                <i class="fas fa-plus mr-1"></i>{% trans "Açar Nəticə Əlavə Et" %}
+            </button>
+            {% if objective.status == 'draft' %}
+            <button class="btn btn-info" onclick="activateObjective()">
+                <i class="fas fa-check mr-1"></i>{% trans "Aktivləşdir" %}
+            </button>
+            {% elif objective.status == 'active' %}
+            <button class="btn btn-warning" onclick="completeObjective()">
+                <i class="fas fa-flag-checkered mr-1"></i>{% trans "Tamamla" %}
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Key Results -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-key mr-2 text-primary"></i>{% trans "Açar Nəticələr" %} ({{ key_results.count }})</h4>
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addKRModal">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Əlavə Et" %}
+                    </button>
+                </div>
+
+                {% for kr in key_results %}
+                <div class="kr-card {% if kr.progress_percentage >= 100 %}on-track{% elif kr.progress_percentage >= 70 %}on-track{% elif kr.progress_percentage >= 40 %}at-risk{% else %}off-track{% endif %}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">{{ kr.title }}</h5>
+                            {% if kr.description %}
+                            <p class="text-muted mb-2"><small>{{ kr.description }}</small></p>
+                            {% endif %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <small class="text-muted">{% trans "Tərəqqi" %}:</small>
+                                <small><strong>{{ kr.current_value }} / {{ kr.target_value }} {{ kr.get_unit_display }}</strong></small>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-{% if kr.progress_percentage >= 70 %}success{% elif kr.progress_percentage >= 40 %}warning{% else %}danger{% endif %}"
+                                     style="width: {{ kr.progress_percentage }}%">
+                                    {{ kr.progress_percentage|floatformat:0 }}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <h2 class="text-{% if kr.progress_percentage >= 70 %}success{% elif kr.progress_percentage >= 40 %}warning{% else %}danger{% endif %}">
+                                {{ kr.progress_percentage|floatformat:0 }}%
+                            </h2>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-primary" onclick="updateKR({{ kr.id }})">
+                                    <i class="fas fa-chart-line"></i> {% trans "Yenilə" %}
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="editKR({{ kr.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% if kr.last_updated %}
+                    <small class="text-muted">
+                        <i class="far fa-clock mr-1"></i>{% trans "Son yenilənmə" %}: {{ kr.last_updated|date:"d M Y, H:i" }}
+                    </small>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-key fa-3x mb-3"></i>
+                    <p>{% trans "Açar nəticə yoxdur" %}</p>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addKRModal">
+                        <i class="fas fa-plus mr-1"></i>{% trans "İlk açar nəticəni əlavə et" %}
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Milestones -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-flag mr-2 text-success"></i>{% trans "Mərhələlər" %}</h4>
+                    <button class="btn btn-sm btn-primary" onclick="addMilestone()">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Əlavə Et" %}
+                    </button>
+                </div>
+
+                {% for milestone in milestones %}
+                <div class="milestone-item {% if milestone.is_completed %}completed{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" {% if milestone.is_completed %}checked{% endif %}
+                                       onchange="toggleMilestone({{ milestone.id }})">
+                                <label class="form-check-label">
+                                    <strong>{{ milestone.title }}</strong>
+                                </label>
+                            </div>
+                            {% if milestone.description %}
+                            <p class="mb-1 mt-1"><small>{{ milestone.description }}</small></p>
+                            {% endif %}
+                            <small class="text-muted">
+                                <i class="far fa-calendar mr-1"></i>{{ milestone.due_date|date:"d M Y" }}
+                            </small>
+                        </div>
+                        {% if milestone.is_completed %}
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> {% trans "Tamamlandı" %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted py-3">{% trans "Mərhələ yoxdur" %}</p>
+                {% endfor %}
+            </div>
+
+            <!-- Progress Updates -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-comments mr-2 text-info"></i>{% trans "Tərəqqi Yenilənmələri" %}</h4>
+                    <button class="btn btn-sm btn-primary" onclick="addUpdate()">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Yenilənmə Əlavə Et" %}
+                    </button>
+                </div>
+
+                {% for update in progress_updates %}
+                <div class="update-item">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>{{ update.created_by.get_full_name }}</strong>
+                        <small class="text-muted">{{ update.created_at|date:"d M Y, H:i" }}</small>
+                    </div>
+                    <p class="mb-0">{{ update.content }}</p>
+                    {% if update.progress_value %}
+                    <div class="mt-2">
+                        <span class="badge badge-primary">{% trans "Tərəqqi" %}: {{ update.progress_value }}%</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-center text-muted py-3">{% trans "Yenilənmə yoxdur" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Objective Info -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Məqsəd Məlumatları" %}</h5>
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Məsul" %}:</small><br>
+                    <strong>{{ objective.owner.get_full_name|default:"N/A" }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Başlanğıc Tarixi" %}:</small><br>
+                    <strong>{{ objective.start_date|date:"d M Y" }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Bitmə Tarixi" %}:</small><br>
+                    <strong>{{ objective.end_date|date:"d M Y" }}</strong>
+                    {% if objective.days_remaining %}
+                    <br><span class="badge badge-{% if objective.days_remaining < 30 %}danger{% else %}info{% endif %}">
+                        {{ objective.days_remaining }} {% trans "gün qalıb" %}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if objective.department %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Şöbə" %}:</small><br>
+                    <strong>{{ objective.department.name }}</strong>
+                </div>
+                {% endif %}
+                {% if objective.parent_objective %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Əsas Məqsəd" %}:</small><br>
+                    <a href="{% url 'okr:objective_detail' objective.parent_objective.id %}">
+                        {{ objective.parent_objective.title }}
+                    </a>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Yaradılma Tarixi" %}:</small><br>
+                    <strong>{{ objective.created_at|date:"d M Y" }}</strong>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Statistika" %}</h5>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Açar Nəticələr" %}</small>
+                        <small><strong>{{ key_results.count }}</strong></small>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Tamamlanmış KR" %}</small>
+                        <small><strong>{{ completed_krs }}</strong></small>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Mərhələlər" %}</small>
+                        <small><strong>{{ milestones.count }}</strong></small>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Tamamlanmış Mərhələlər" %}</small>
+                        <small><strong>{{ completed_milestones }}</strong></small>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Yenilənmələr" %}</small>
+                        <small><strong>{{ progress_updates.count }}</strong></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aligned Objectives -->
+            {% if child_objectives %}
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Bağlı Məqsədlər" %}</h5>
+                {% for child in child_objectives %}
+                <div class="mb-2">
+                    <a href="{% url 'okr:objective_detail' child.id %}">
+                        <small>{{ child.title }}</small>
+                    </a>
+                    <div class="progress mt-1" style="height: 5px;">
+                        <div class="progress-bar" style="width: {{ child.progress_percentage }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Activity Log -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Son Fəaliyyətlər" %}</h5>
+                <div class="timeline">
+                    {% for activity in recent_activities %}
+                    <div class="mb-3">
+                        <small class="text-muted">{{ activity.created_at|date:"d M, H:i" }}</small>
+                        <p class="mb-0"><small>{{ activity.description }}</small></p>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted">{% trans "Fəaliyyət yoxdur" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Key Result Modal -->
+<div class="modal fade" id="addKRModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Açar Nəticə Əlavə Et" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="addKRForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Başlıq" %} *</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Başlanğıc" %} *</label>
+                                <input type="number" class="form-control" name="start_value" value="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Hədəf" %} *</label>
+                                <input type="number" class="form-control" name="target_value" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Vahid" %}</label>
+                                <select class="form-control" name="unit">
+                                    <option value="number">{% trans "Ədəd" %}</option>
+                                    <option value="percentage">%</option>
+                                    <option value="currency">AZN</option>
+                                    <option value="days">{% trans "Gün" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editObjective() {
+    window.location.href = '{% url "okr:objective_list" %}{{ objective.id }}/edit/';
+}
+
+function activateObjective() {
+    if (confirm('{% trans "Məqsədi aktivləşdirmək istədiyinizdən əminsiniz?" %}')) {
+        fetch('{{ objective.id }}/activate/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function completeObjective() {
+    if (confirm('{% trans "Məqsədi tamamlamaq istədiyinizdən əminsiniz?" %}')) {
+        fetch('{{ objective.id }}/complete/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+document.getElementById('addKRForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "okr:keyresult_create" objective.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addKRModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+
+function updateKR(id) {
+    const value = prompt('{% trans "Cari dəyəri daxil edin" %}:');
+    if (value !== null) {
+        fetch(`/okr/keyresults/${id}/update/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({current_value: value})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function editKR(id) {
+    window.location.href = `/okr/keyresults/${id}/edit/`;
+}
+
+function toggleMilestone(id) {
+    fetch(`/okr/milestones/${id}/toggle/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function addMilestone() {
+    window.location.href = '{% url "okr:objective_detail" objective.id %}#add-milestone';
+}
+
+function addUpdate() {
+    window.location.href = '{% url "okr:objective_detail" objective.id %}#add-update';
+}
+</script>
+{% endblock %}

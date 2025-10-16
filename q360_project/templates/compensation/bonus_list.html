@@ -1,0 +1,233 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Bonuslar və Mükafatlar" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bonus-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #28a745;
+        transition: transform 0.2s;
+    }
+    .bonus-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .bonus-amount {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .stat-box {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-gift mr-2"></i>{% trans "Bonuslar və Mükafatlar" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'compensation:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-box">
+                <h6>{% trans "Bu İl Cəmi" %}</h6>
+                <h2>{{ yearly_total|default:"0" }} AZN</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <h6>{% trans "Bu Ay" %}</h6>
+                <h2>{{ monthly_total|default:"0" }} AZN</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <h6>{% trans "Bonus Sayı" %}</h6>
+                <h2>{{ bonuses.count }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <h6>{% trans "Ortalama Bonus" %}</h6>
+                <h2>{{ average_bonus|default:"0" }} AZN</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <label class="mr-2">{% trans "Filter:" %}</label>
+                <select name="year" class="form-control mr-2">
+                    <option value="">{% trans "Bütün illər" %}</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+                <select name="bonus_type" class="form-control mr-2">
+                    <option value="">{% trans "Bütün növlər" %}</option>
+                    <option value="performance">{% trans "Performans Bonusu" %}</option>
+                    <option value="annual">{% trans "İllik Bonus" %}</option>
+                    <option value="project">{% trans "Layihə Bonusu" %}</option>
+                    <option value="spot">{% trans "Spot Bonus" %}</option>
+                </select>
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-filter"></i> {% trans "Tətbiq Et" %}
+                </button>
+                <a href="{% url 'compensation:bonus_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> {% trans "Sıfırla" %}
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bonuses List -->
+    <div class="row">
+        {% for bonus in bonuses %}
+        <div class="col-md-6">
+            <div class="bonus-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-1">
+                            <i class="fas fa-award text-warning mr-2"></i>
+                            {{ bonus.get_bonus_type_display }}
+                        </h5>
+                        <p class="text-muted mb-2">
+                            <small>
+                                <i class="far fa-calendar mr-1"></i>{{ bonus.payment_date|date:"d M Y" }}
+                            </small>
+                        </p>
+                        {% if bonus.reason %}
+                        <p class="mb-2">
+                            <small><strong>{% trans "Səbəb" %}:</strong> {{ bonus.reason|truncatewords:15 }}</small>
+                        </p>
+                        {% endif %}
+                        {% if bonus.notes %}
+                        <p class="mb-0">
+                            <small class="text-muted">{{ bonus.notes|truncatewords:20 }}</small>
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <div class="bonus-amount">{{ bonus.amount }} AZN</div>
+                        <span class="badge badge-{% if bonus.status == 'paid' %}success{% elif bonus.status == 'approved' %}primary{% elif bonus.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                            {{ bonus.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% if bonus.performance_rating %}
+                <div class="mt-2 pt-2 border-top">
+                    <small class="text-muted">{% trans "Performans Reytinqi" %}:</small>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ bonus.performance_rating }}0%"></div>
+                    </div>
+                    <small><strong>{{ bonus.performance_rating }}/5</strong></small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-gift fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Bonus yoxdur" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if bonuses.has_other_pages %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if bonuses.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bonuses.previous_page_number }}">{% trans "Əvvəlki" %}</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in bonuses.paginator.page_range %}
+                    <li class="page-item {% if bonuses.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if bonuses.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bonuses.next_page_number }}">{% trans "Növbəti" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Yearly Chart -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line mr-2"></i>{% trans "İllik Bonus Qrafiki" %}</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bonusChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Sample chart - replace with actual data from backend
+const ctx = document.getElementById('bonusChart');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'],
+        datasets: [{
+            label: '{% trans "Bonuslar (AZN)" %}',
+            data: {{ monthly_data|default:"[0,0,0,0,0,0,0,0,0,0,0,0]" }},
+            backgroundColor: 'rgba(40, 167, 69, 0.5)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

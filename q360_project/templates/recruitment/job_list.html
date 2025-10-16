@@ -1,0 +1,414 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Vakansiyalar" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .job-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .job-card.active { border-left-color: #28a745; }
+    .job-card.closed { border-left-color: #6c757d; opacity: 0.7; }
+    .job-card.draft { border-left-color: #ffc107; }
+
+    .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+    .job-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+    }
+    .filter-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-briefcase mr-2"></i>{% trans "Vakansiyalar" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#createJobModal">
+                <i class="fas fa-plus mr-1"></i>{% trans "Yeni Vakansiya" %}
+            </button>
+            <a href="{% url 'recruitment:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-card">
+        <form method="get" class="form-row align-items-end">
+            <div class="col-md-3">
+                <label>{% trans "Status" %}</label>
+                <select name="status" class="form-control">
+                    <option value="">{% trans "Hamısı" %}</option>
+                    <option value="active">{% trans "Aktiv" %}</option>
+                    <option value="draft">{% trans "Qaralama" %}</option>
+                    <option value="closed">{% trans "Bağlı" %}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>{% trans "Şöbə" %}</label>
+                <select name="department" class="form-control">
+                    <option value="">{% trans "Hamısı" %}</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>{% trans "İşə Qəbul Növü" %}</label>
+                <select name="employment_type" class="form-control">
+                    <option value="">{% trans "Hamısı" %}</option>
+                    <option value="full_time">{% trans "Tam Ştatlı" %}</option>
+                    <option value="part_time">{% trans "Qismən Ştatlı" %}</option>
+                    <option value="contract">{% trans "Müqavilə" %}</option>
+                    <option value="temporary">{% trans "Müvəqqəti" %}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-search"></i> {% trans "Axtar" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Aktiv Vakansiyalar" %}</h6>
+                    <h2 class="text-primary">{{ stats.active|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Ümumi Müraciətlər" %}</h6>
+                    <h2 class="text-success">{{ stats.total_applications|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Yeni Müraciətlər" %}</h6>
+                    <h2 class="text-warning">{{ stats.new_applications|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h6 class="text-muted">{% trans "Müsahibələr" %}</h6>
+                    <h2 class="text-info">{{ stats.interviews|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs List -->
+    <div class="row">
+        {% for job in jobs %}
+        <div class="col-md-6">
+            <div class="job-card {{ job.status }}" onclick="window.location.href='{% url 'recruitment:job_detail' job.id %}'">
+                <div class="job-header">
+                    <div>
+                        <h4 class="mb-1">{{ job.title }}</h4>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-building mr-1"></i>{{ job.department.name }}
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge badge-{% if job.status == 'active' %}success{% elif job.status == 'draft' %}warning{% else %}secondary{% endif %} badge-lg">
+                            {{ job.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <p class="mb-2">{{ job.description|truncatewords:30 }}</p>
+
+                <div class="job-meta">
+                    <div>
+                        <small class="text-muted"><i class="fas fa-map-marker-alt mr-1"></i>{% trans "Yer" %}:</small><br>
+                        <strong>{{ job.location|default:"N/A" }}</strong>
+                    </div>
+                    <div>
+                        <small class="text-muted"><i class="fas fa-briefcase mr-1"></i>{% trans "Növ" %}:</small><br>
+                        <strong>{{ job.get_employment_type_display }}</strong>
+                    </div>
+                    <div>
+                        <small class="text-muted"><i class="fas fa-users mr-1"></i>{% trans "Müraciətlər" %}:</small><br>
+                        <strong>{{ job.applications_count|default:0 }}</strong>
+                    </div>
+                    <div>
+                        <small class="text-muted"><i class="fas fa-calendar mr-1"></i>{% trans "Yayımlanma" %}:</small><br>
+                        <strong>{{ job.posted_date|date:"d M Y" }}</strong>
+                    </div>
+                    {% if job.closing_date %}
+                    <div>
+                        <small class="text-muted"><i class="fas fa-calendar-times mr-1"></i>{% trans "Son tarix" %}:</small><br>
+                        <strong>{{ job.closing_date|date:"d M Y" }}</strong>
+                        {% if job.days_until_close %}
+                        <span class="badge badge-{% if job.days_until_close < 7 %}danger{% else %}info{% endif %} badge-sm ml-1">
+                            {{ job.days_until_close }} {% trans "gün" %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if job.is_urgent %}
+                        <span class="badge badge-danger">
+                            <i class="fas fa-exclamation-circle"></i> {% trans "TƏCİLİ" %}
+                        </span>
+                        {% endif %}
+                        {% if job.is_remote %}
+                        <span class="badge badge-info">
+                            <i class="fas fa-home"></i> {% trans "Uzaqdan" %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); editJob({{ job.id }})">
+                            <i class="fas fa-edit"></i> {% trans "Redaktə" %}
+                        </button>
+                        {% if job.status == 'draft' %}
+                        <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); publishJob({{ job.id }})">
+                            <i class="fas fa-check"></i> {% trans "Yayımla" %}
+                        </button>
+                        {% elif job.status == 'active' %}
+                        <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation(); closeJob({{ job.id }})">
+                            <i class="fas fa-times"></i> {% trans "Bağla" %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-briefcase fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Vakansiya yoxdur" %}</p>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#createJobModal">
+                <i class="fas fa-plus mr-1"></i>{% trans "İlk vakansiyanı yarat" %}
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if jobs.has_other_pages %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if jobs.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ jobs.previous_page_number }}">{% trans "Əvvəlki" %}</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in jobs.paginator.page_range %}
+                    <li class="page-item {% if jobs.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if jobs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ jobs.next_page_number }}">{% trans "Növbəti" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Create Job Modal -->
+<div class="modal fade" id="createJobModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Yeni Vakansiya" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="createJobForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Vəzifə Adı" %} *</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Kod" %} *</label>
+                                <input type="text" class="form-control" name="code" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Şöbə" %} *</label>
+                                <select class="form-control" name="department" required>
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %} *</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Vəzifə Öhdəlikləri" %} *</label>
+                        <textarea class="form-control" name="responsibilities" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Tələblər" %} *</label>
+                        <textarea class="form-control" name="requirements" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "İşə Qəbul Növü" %}</label>
+                                <select class="form-control" name="employment_type">
+                                    <option value="full_time">{% trans "Tam Ştatlı" %}</option>
+                                    <option value="part_time">{% trans "Qismən Ştatlı" %}</option>
+                                    <option value="contract">{% trans "Müqavilə" %}</option>
+                                    <option value="temporary">{% trans "Müvəqqəti" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "İş Yeri" %}</label>
+                                <input type="text" class="form-control" name="location">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Son Müraciət Tarixi" %}</label>
+                                <input type="date" class="form-control" name="closing_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Boş Yer Sayı" %}</label>
+                                <input type="number" class="form-control" name="openings" value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Yarat" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('createJobForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "recruitment:job_create" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#createJobModal').modal('hide');
+            window.location.href = `/recruitment/jobs/${data.job_id}/`;
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+
+function editJob(id) {
+    window.location.href = `/recruitment/jobs/${id}/edit/`;
+}
+
+function publishJob(id) {
+    if (confirm('{% trans "Vakansiyanı yayımlamaq istədiyinizdən əminsiniz?" %}')) {
+        fetch(`/recruitment/jobs/${id}/publish/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function closeJob(id) {
+    if (confirm('{% trans "Vakansiyanı bağlamaq istədiyinizdən əminsiniz?" %}')) {
+        fetch(`/recruitment/jobs/${id}/close/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

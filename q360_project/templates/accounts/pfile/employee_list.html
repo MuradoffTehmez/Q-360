@@ -1,0 +1,114 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "İşçilər - P-File" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .employee-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .employee-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    .employee-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .filter-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-users mr-2"></i>{% trans "İşçilər" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'admin:accounts_user_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>{% trans "Yeni İşçi Əlavə Et" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="form-inline">
+            <div class="form-group mr-3 mb-2">
+                <input type="text" name="search" class="form-control" placeholder="{% trans 'Axtarış...' %}" value="{{ search_query }}">
+            </div>
+            <div class="form-group mr-3 mb-2">
+                <select name="department" class="form-control">
+                    <option value="">{% trans "Bütün Şöbələr" %}</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group mr-3 mb-2">
+                <select name="role" class="form-control">
+                    <option value="">{% trans "Bütün Rollar" %}</option>
+                    <option value="superadmin" {% if selected_role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                    <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="manager" {% if selected_role == 'manager' %}selected{% endif %}>Manager</option>
+                    <option value="employee" {% if selected_role == 'employee' %}selected{% endif %}>Employee</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">
+                <i class="fas fa-search mr-1"></i>{% trans "Axtar" %}
+            </button>
+            <a href="{% url 'pfile:employee_list' %}" class="btn btn-secondary mb-2 ml-2">
+                <i class="fas fa-times mr-1"></i>{% trans "Sıfırla" %}
+            </a>
+        </form>
+    </div>
+
+    <!-- Employee List -->
+    <div class="row">
+        {% for employee in employees %}
+        <div class="col-md-6 col-lg-4">
+            <div class="employee-card" onclick="window.location.href='{% url 'pfile:employee_detail' employee.id %}'">
+                <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                        {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url }}" class="employee-avatar" alt="{{ employee.get_full_name }}">
+                        {% else %}
+                        <div class="employee-avatar bg-secondary d-flex align-items-center justify-content-center text-white">
+                            <i class="fas fa-user fa-2x"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ employee.get_full_name }}</h6>
+                        <p class="text-muted mb-0"><small>{{ employee.position|default:"N/A" }}</small></p>
+                        <p class="text-muted mb-0"><small><i class="fas fa-building mr-1"></i>{{ employee.department|default:"N/A" }}</small></p>
+                        <p class="mb-0"><small><strong>ID:</strong> {{ employee.employee_id|default:"N/A" }}</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-users fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Heç bir işçi tapılmadı" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

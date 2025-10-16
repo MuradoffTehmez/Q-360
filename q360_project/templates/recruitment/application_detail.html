@@ -1,0 +1,532 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ application.first_name }} {{ application.last_name }} - {% trans "Müraciət" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .candidate-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    .status-timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+    .status-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #e0e0e0;
+    }
+    .status-timeline-item.active::before {
+        background: #667eea;
+    }
+    .status-timeline-item::after {
+        content: '';
+        position: absolute;
+        left: -1.75rem;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        border: 2px solid white;
+    }
+    .status-timeline-item.active::after {
+        background: #667eea;
+    }
+    .status-timeline-item.completed::after {
+        background: #28a745;
+    }
+    .status-timeline-item.rejected::after {
+        background: #dc3545;
+    }
+    .interview-card {
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .note-card {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+    }
+    .score-badge {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Candidate Header -->
+    <div class="candidate-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2">{{ application.first_name }} {{ application.last_name }}</h2>
+                <p class="mb-2">
+                    <i class="fas fa-briefcase mr-2"></i>{{ application.job_posting.title }}
+                </p>
+                <p class="mb-3">
+                    <i class="fas fa-envelope mr-2"></i>{{ application.email }}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-phone mr-2"></i>{{ application.phone|default:"N/A" }}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-calendar mr-2"></i>{{ application.applied_at|date:"d M Y" }}
+                </p>
+                <span class="badge badge-{% if application.status == 'received' %}info{% elif application.status == 'screening' %}warning{% elif application.status == 'interview' %}primary{% elif application.status == 'hired' %}success{% else %}secondary{% endif %} badge-lg">
+                    {{ application.get_status_display }}
+                </span>
+            </div>
+            <div class="col-md-4 text-center">
+                {% if application.overall_score %}
+                <div class="score-badge mx-auto" style="background: {% if application.overall_score >= 80 %}#28a745{% elif application.overall_score >= 60 %}#ffc107{% else %}#dc3545{% endif %};">
+                    {{ application.overall_score }}
+                </div>
+                <small>{% trans "Ümumi Bal" %}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="{% url 'recruitment:job_detail' application.job_posting.id %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="changeStatus('screening')">
+                    <i class="fas fa-search mr-1"></i>{% trans "Yoxlamaya Göndər" %}
+                </button>
+                <button class="btn btn-primary" onclick="scheduleInterview()">
+                    <i class="fas fa-calendar-plus mr-1"></i>{% trans "Müsahibə Planlaşdır" %}
+                </button>
+                <button class="btn btn-info" onclick="changeStatus('offer')">
+                    <i class="fas fa-handshake mr-1"></i>{% trans "Təklif Göndər" %}
+                </button>
+                <button class="btn btn-danger" onclick="rejectApplication()">
+                    <i class="fas fa-times mr-1"></i>{% trans "Rədd Et" %}
+                </button>
+            </div>
+            {% if application.resume %}
+            <a href="{{ application.resume.url }}" target="_blank" class="btn btn-outline-primary" download>
+                <i class="fas fa-download mr-1"></i>{% trans "CV Yüklə" %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Candidate Information -->
+            <div class="section-card">
+                <h4 class="mb-3"><i class="fas fa-user mr-2 text-primary"></i>{% trans "Namizəd Məlumatları" %}</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Ad Soyad" %}:</small><br>
+                        <strong>{{ application.first_name }} {{ application.last_name }}</strong>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Email" %}:</small><br>
+                        <strong>{{ application.email }}</strong>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Telefon" %}:</small><br>
+                        <strong>{{ application.phone|default:"N/A" }}</strong>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Ünvan" %}:</small><br>
+                        <strong>{{ application.address|default:"N/A" }}</strong>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "İş Təcrübəsi" %}:</small><br>
+                        <strong>{{ application.years_of_experience|default:"N/A" }} {% trans "il" %}</strong>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Təhsil Səviyyəsi" %}:</small><br>
+                        <strong>{{ application.education_level|default:"N/A" }}</strong>
+                    </div>
+                    {% if application.current_company %}
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Hazırkı Şirkət" %}:</small><br>
+                        <strong>{{ application.current_company }}</strong>
+                    </div>
+                    {% endif %}
+                    {% if application.current_position %}
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">{% trans "Hazırkı Vəzifə" %}:</small><br>
+                        <strong>{{ application.current_position }}</strong>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if application.cover_letter %}
+                <hr>
+                <h5 class="mb-2">{% trans "Müraciət Məktubu" %}</h5>
+                <p>{{ application.cover_letter }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Interviews -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-comments mr-2 text-success"></i>{% trans "Müsahibələr" %}</h4>
+                    <button class="btn btn-sm btn-primary" onclick="scheduleInterview()">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Yeni" %}
+                    </button>
+                </div>
+
+                {% for interview in interviews %}
+                <div class="interview-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ interview.get_interview_type_display }}</h6>
+                            <p class="mb-1">
+                                <i class="far fa-calendar mr-1"></i>{{ interview.scheduled_date|date:"d M Y, H:i" }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-user mr-1"></i>{{ interview.interviewer.get_full_name }}
+                            </p>
+                            {% if interview.location %}
+                            <p class="mb-0">
+                                <i class="fas fa-map-marker-alt mr-1"></i>{{ interview.location }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="text-right">
+                            <span class="badge badge-{% if interview.status == 'scheduled' %}warning{% elif interview.status == 'completed' %}success{% elif interview.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                {{ interview.get_status_display }}
+                            </span>
+                            {% if interview.score %}
+                            <br><strong class="text-primary">{{ interview.score }}/100</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if interview.feedback %}
+                    <hr class="my-2">
+                    <small><strong>{% trans "Rəy" %}:</strong> {{ interview.feedback }}</small>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-center text-muted py-3">{% trans "Müsahibə planlaşdırılmayıb" %}</p>
+                {% endfor %}
+            </div>
+
+            <!-- Notes -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-sticky-note mr-2 text-warning"></i>{% trans "Qeydlər" %}</h4>
+                    <button class="btn btn-sm btn-primary" onclick="addNote()">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Qeyd Əlavə Et" %}
+                    </button>
+                </div>
+
+                <div id="notesList">
+                    {% for note in notes %}
+                    <div class="note-card">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ note.created_by.get_full_name }}</strong>
+                            <small class="text-muted">{{ note.created_at|date:"d M Y, H:i" }}</small>
+                        </div>
+                        <p class="mb-0 mt-2">{{ note.content }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-3">{% trans "Qeyd yoxdur" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Status Timeline -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Status Xəritəsi" %}</h5>
+                <div class="status-timeline">
+                    <div class="status-timeline-item {% if application.status == 'received' %}active{% endif %}">
+                        <strong>{% trans "Alınmış" %}</strong>
+                        <br><small class="text-muted">{{ application.applied_at|date:"d M Y" }}</small>
+                    </div>
+                    <div class="status-timeline-item {% if application.status == 'screening' %}active{% endif %}">
+                        <strong>{% trans "Yoxlama" %}</strong>
+                        {% if application.screening_date %}
+                        <br><small class="text-muted">{{ application.screening_date|date:"d M Y" }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="status-timeline-item {% if application.status == 'interview' %}active{% endif %}">
+                        <strong>{% trans "Müsahibə" %}</strong>
+                        {% if interviews %}
+                        <br><small class="text-muted">{{ interviews.first.scheduled_date|date:"d M Y" }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="status-timeline-item {% if application.status == 'offer' %}active{% endif %}">
+                        <strong>{% trans "Təklif" %}</strong>
+                        {% if application.offer_date %}
+                        <br><small class="text-muted">{{ application.offer_date|date:"d M Y" }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="status-timeline-item {% if application.status == 'hired' %}completed{% elif application.status == 'rejected' %}rejected{% endif %}">
+                        <strong>{% if application.status == 'hired' %}{% trans "İşə Qəbul" %}{% elif application.status == 'rejected' %}{% trans "Rədd" %}{% else %}{% trans "Final" %}{% endif %}</strong>
+                        {% if application.hired_date %}
+                        <br><small class="text-muted">{{ application.hired_date|date:"d M Y" }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Qualifications -->
+            {% if application.skills %}
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Bacarıqlar" %}</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in application.skills.split:',' %}
+                    <span class="badge badge-primary">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Documents -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Sənədlər" %}</h5>
+                {% if application.resume %}
+                <div class="mb-2">
+                    <a href="{{ application.resume.url }}" target="_blank" class="btn btn-outline-primary btn-sm btn-block">
+                        <i class="fas fa-file-pdf mr-1"></i>{% trans "CV" %}
+                    </a>
+                </div>
+                {% endif %}
+                {% if application.portfolio_url %}
+                <div class="mb-2">
+                    <a href="{{ application.portfolio_url }}" target="_blank" class="btn btn-outline-info btn-sm btn-block">
+                        <i class="fas fa-link mr-1"></i>{% trans "Portfolio" %}
+                    </a>
+                </div>
+                {% endif %}
+                {% if application.linkedin_url %}
+                <div class="mb-2">
+                    <a href="{{ application.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm btn-block">
+                        <i class="fab fa-linkedin mr-1"></i>LinkedIn
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Source -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Mənbə" %}</h5>
+                <p class="mb-0">
+                    <i class="fas fa-globe mr-2"></i>
+                    {% if application.source %}
+                    {{ application.get_source_display }}
+                    {% else %}
+                    {% trans "Bilinmir" %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Interview Modal -->
+<div class="modal fade" id="scheduleInterviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Müsahibə Planlaşdır" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="scheduleInterviewForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Müsahibə Növü" %} *</label>
+                        <select class="form-control" name="interview_type" required>
+                            <option value="phone">{% trans "Telefon" %}</option>
+                            <option value="video">{% trans "Video" %}</option>
+                            <option value="onsite">{% trans "Ofisdə" %}</option>
+                            <option value="technical">{% trans "Texniki" %}</option>
+                            <option value="final">{% trans "Final" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Tarix və Vaxt" %} *</label>
+                        <input type="datetime-local" class="form-control" name="scheduled_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Müsahibəçi" %} *</label>
+                        <select class="form-control" name="interviewer" required>
+                            <option value="">{% trans "Seçin" %}</option>
+                            <!-- Options loaded dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Yer / Link" %}</label>
+                        <input type="text" class="form-control" name="location">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Qeydlər" %}</label>
+                        <textarea class="form-control" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Planlaşdır" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Qeyd Əlavə Et" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="addNoteForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Qeyd" %} *</label>
+                        <textarea class="form-control" name="content" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function changeStatus(status) {
+    if (confirm('{% trans "Statusu dəyişmək istədiyinizdən əminsiniz?" %}')) {
+        fetch('{% url "recruitment:application_detail" application.id %}change-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({status: status})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function rejectApplication() {
+    const reason = prompt('{% trans "Rədd səbəbini qeyd edin" %}:');
+    if (reason) {
+        fetch('{% url "recruitment:application_detail" application.id %}reject/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({reason: reason})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function scheduleInterview() {
+    $('#scheduleInterviewModal').modal('show');
+}
+
+document.getElementById('scheduleInterviewForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "recruitment:application_detail" application.id %}schedule-interview/', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#scheduleInterviewModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+
+function addNote() {
+    $('#addNoteModal').modal('show');
+}
+
+document.getElementById('addNoteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "recruitment:application_detail" application.id %}add-note/', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addNoteModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+</script>
+{% endblock %}

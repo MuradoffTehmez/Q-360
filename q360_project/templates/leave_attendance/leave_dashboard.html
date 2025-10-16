@@ -1,0 +1,138 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Məzuniyyət İdarəetməsi" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .balance-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .balance-card h3 {
+        font-size: 2.5rem;
+        margin: 0.5rem 0;
+    }
+    .request-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-calendar-alt mr-2"></i>{% trans "Məzuniyyət İdarəetməsi" %}</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'leave_attendance:leave_request_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>{% trans "Yeni Sorğu" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Leave Balances -->
+    <div class="row">
+        {% for balance in balances %}
+        <div class="col-md-3">
+            <div class="balance-card">
+                <h6>{{ balance.leave_type.name }}</h6>
+                <h3>{{ balance.available_days }}</h3>
+                <small>{% trans "gün qalıb" %}</small>
+                <hr style="border-color: rgba(255,255,255,0.3);">
+                <div class="d-flex justify-content-between">
+                    <small>{% trans "İstifadə" %}: {{ balance.used_days }}</small>
+                    <small>{% trans "Hüquq" %}: {{ balance.entitled_days }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-4">
+            <p class="text-muted">{% trans "Məzuniyyət balansı yoxdur" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pending Requests Alert -->
+    {% if pending_requests > 0 %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-2"></i>
+        {{ pending_requests }} {% trans "gözləyən sorğunuz var" %}
+    </div>
+    {% endif %}
+
+    <!-- Recent Requests -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{% trans "Son Sorğular" %}</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Növ" %}</th>
+                            <th>{% trans "Başlanğıc" %}</th>
+                            <th>{% trans "Bitmə" %}</th>
+                            <th>{% trans "Gün Sayı" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Əməliyyatlar" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in recent_requests %}
+                        <tr>
+                            <td>{{ request.leave_type.name }}</td>
+                            <td>{{ request.start_date }}</td>
+                            <td>{{ request.end_date }}</td>
+                            <td>{{ request.number_of_days }}</td>
+                            <td>
+                                <span class="badge badge-{% if request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}warning{% endif %}">
+                                    {{ request.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if request.status == 'draft' %}
+                                <button class="btn btn-sm btn-outline-primary" onclick="editRequest({{ request.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRequest({{ request.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">{% trans "Sorğu yoxdur" %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <a href="{% url 'leave_attendance:leave_request_list' %}" class="btn btn-outline-primary mr-2">
+                <i class="fas fa-list mr-1"></i>{% trans "Bütün Sorğular" %}
+            </a>
+            <a href="{% url 'leave_attendance:attendance_calendar' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-calendar mr-1"></i>{% trans "İştirak Təqvimi" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Kompensasiya və Müavinətlər" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 {
+        color: #667eea;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-money-bill-wave mr-2"></i>{% trans "Kompensasiya və Müavinətlər" %}</h2>
+
+    <!-- Salary Information -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h6 class="text-muted">{% trans "Əsas Maaş" %}</h6>
+                <h3>{{ salary_info.base_salary|default:"N/A" }} {{ salary_info.currency|default:"AZN" }}</h3>
+                <small class="text-muted">{{ salary_info.get_payment_frequency_display|default:"Aylıq" }}</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h6 class="text-muted">{% trans "Bu İl Bonuslar" %}</h6>
+                <h3>{{ bonuses|length }}</h3>
+                <small class="text-muted">{% trans "ədəd" %}</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <h6 class="text-muted">{% trans "Aktiv Müavinətlər" %}</h6>
+                <h3>{{ allowances|length }}</h3>
+                <small class="text-muted">{% trans "növ" %}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bonuses -->
+    <div class="info-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5><i class="fas fa-gift mr-2"></i>{% trans "Son Bonuslar" %}</h5>
+            <a href="{% url 'compensation:bonus_list' %}" class="btn btn-sm btn-outline-primary">{% trans "Hamısını Gör" %}</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Növ" %}</th>
+                        <th>{% trans "Məbləğ" %}</th>
+                        <th>{% trans "Maliyyə İli" %}</th>
+                        <th>{% trans "Status" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bonus in bonuses %}
+                    <tr>
+                        <td>{{ bonus.get_bonus_type_display }}</td>
+                        <td>{{ bonus.amount }} {{ bonus.currency }}</td>
+                        <td>{{ bonus.fiscal_year }}</td>
+                        <td><span class="badge badge-{{ bonus.status }}">{{ bonus.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">{% trans "Bonus yoxdur" %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Allowances & Deductions -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-plus-circle mr-2 text-success"></i>{% trans "Müavinətlər" %}</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tbody>
+                            {% for allowance in allowances %}
+                            <tr>
+                                <td>{{ allowance.get_allowance_type_display }}</td>
+                                <td class="text-right">+{{ allowance.amount }} {{ allowance.currency }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">{% trans "Müavinət yoxdur" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-minus-circle mr-2 text-danger"></i>{% trans "Tutmalar" %}</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tbody>
+                            {% for deduction in deductions %}
+                            <tr>
+                                <td>{{ deduction.get_deduction_type_display }}</td>
+                                <td class="text-right">-{{ deduction.amount }}{% if deduction.calculation_method == 'percentage' %}%{% else %} {{ deduction.currency }}{% endif %}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">{% trans "Tutma yoxdur" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <a href="{% url 'compensation:history' %}" class="btn btn-outline-primary">
+                <i class="fas fa-history mr-1"></i>{% trans "Kompensasiya Tarixçəsi" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

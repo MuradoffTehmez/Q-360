@@ -1,0 +1,387 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ job.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .job-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .application-item {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .application-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .stat-badge {
+        background: rgba(255,255,255,0.2);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        text-align: center;
+    }
+    .timeline-item {
+        padding-left: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #e0e0e0;
+    }
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        left: -4px;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Job Header -->
+    <div class="job-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2">{{ job.title }}</h2>
+                <p class="mb-3">
+                    <i class="fas fa-building mr-2"></i>{{ job.department.name }}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-map-marker-alt mr-2"></i>{{ job.location|default:"N/A" }}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-briefcase mr-2"></i>{{ job.get_employment_type_display }}
+                </p>
+                <div class="d-flex gap-2">
+                    <span class="badge badge-{% if job.status == 'active' %}success{% elif job.status == 'draft' %}warning{% else %}secondary{% endif %} badge-lg">
+                        {{ job.get_status_display }}
+                    </span>
+                    {% if job.is_urgent %}
+                    <span class="badge badge-danger badge-lg">
+                        <i class="fas fa-exclamation-circle"></i> {% trans "TƏCİLİ" %}
+                    </span>
+                    {% endif %}
+                    {% if job.is_remote %}
+                    <span class="badge badge-info badge-lg">
+                        <i class="fas fa-home"></i> {% trans "Uzaqdan" %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="stat-badge">
+                            <h3 class="mb-0">{{ applications.count }}</h3>
+                            <small>{% trans "Müraciətlər" %}</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-badge">
+                            <h3 class="mb-0">{{ job.openings|default:1 }}</h3>
+                            <small>{% trans "Boş Yer" %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="{% url 'recruitment:job_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
+            </a>
+            <button class="btn btn-primary" onclick="editJob()">
+                <i class="fas fa-edit mr-1"></i>{% trans "Redaktə Et" %}
+            </button>
+            {% if job.status == 'draft' %}
+            <button class="btn btn-success" onclick="publishJob()">
+                <i class="fas fa-check mr-1"></i>{% trans "Yayımla" %}
+            </button>
+            {% elif job.status == 'active' %}
+            <button class="btn btn-warning" onclick="closeJob()">
+                <i class="fas fa-times mr-1"></i>{% trans "Bağla" %}
+            </button>
+            {% endif %}
+            <button class="btn btn-info" onclick="shareJob()">
+                <i class="fas fa-share-alt mr-1"></i>{% trans "Paylaş" %}
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Job Description -->
+            <div class="section-card">
+                <h4 class="mb-3"><i class="fas fa-file-alt mr-2 text-primary"></i>{% trans "İş Təsviri" %}</h4>
+                <p>{{ job.description }}</p>
+            </div>
+
+            <!-- Responsibilities -->
+            <div class="section-card">
+                <h4 class="mb-3"><i class="fas fa-tasks mr-2 text-success"></i>{% trans "Vəzifə Öhdəlikləri" %}</h4>
+                <div>{{ job.responsibilities|linebreaks }}</div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="section-card">
+                <h4 class="mb-3"><i class="fas fa-clipboard-check mr-2 text-warning"></i>{% trans "Tələblər" %}</h4>
+                <div>{{ job.requirements|linebreaks }}</div>
+            </div>
+
+            <!-- Applications -->
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-users mr-2 text-info"></i>{% trans "Müraciətlər" %} ({{ applications.count }})</h4>
+                    <div>
+                        <select id="statusFilter" class="form-control form-control-sm" onchange="filterApplications()">
+                            <option value="">{% trans "Bütün statuslar" %}</option>
+                            <option value="received">{% trans "Alınmış" %}</option>
+                            <option value="screening">{% trans "Yoxlama" %}</option>
+                            <option value="interview">{% trans "Müsahibə" %}</option>
+                            <option value="offer">{% trans "Təklif" %}</option>
+                            <option value="hired">{% trans "İşə Qəbul" %}</option>
+                            <option value="rejected">{% trans "Rədd" %}</option>
+                        </select>
+                    </div>
+                </div>
+
+                {% for app in applications %}
+                <div class="application-item" onclick="window.location.href='{% url 'recruitment:application_detail' app.id %}'">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h6 class="mb-0">{{ app.first_name }} {{ app.last_name }}</h6>
+                            <small class="text-muted">{{ app.email }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">{% trans "Telefon" %}:</small><br>
+                            <small>{{ app.phone|default:"N/A" }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">{% trans "İş Təcrübəsi" %}:</small><br>
+                            <small>{{ app.years_of_experience|default:"N/A" }} {% trans "il" %}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge badge-{% if app.status == 'received' %}info{% elif app.status == 'screening' %}warning{% elif app.status == 'interview' %}primary{% elif app.status == 'hired' %}success{% else %}secondary{% endif %}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">{{ app.applied_at|date:"d M Y" }}</small>
+                        </div>
+                        <div class="col-md-1 text-right">
+                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); viewApplication({{ app.id }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p>{% trans "Hələ müraciət yoxdur" %}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Job Info -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Vakansiya Məlumatları" %}</h5>
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Vakansiya Kodu" %}:</small><br>
+                    <strong>{{ job.code }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Yayımlanma Tarixi" %}:</small><br>
+                    <strong>{{ job.posted_date|date:"d M Y" }}</strong>
+                </div>
+                {% if job.closing_date %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Son Müraciət Tarixi" %}:</small><br>
+                    <strong>{{ job.closing_date|date:"d M Y" }}</strong>
+                    {% if job.days_until_close %}
+                    <br><span class="badge badge-{% if job.days_until_close < 7 %}danger{% else %}info{% endif %}">
+                        {{ job.days_until_close }} {% trans "gün qalıb" %}
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Məsul Şəxs" %}:</small><br>
+                    <strong>{{ job.hiring_manager.get_full_name|default:"N/A" }}</strong>
+                </div>
+                {% if job.salary_range_min or job.salary_range_max %}
+                <div class="mb-3">
+                    <small class="text-muted">{% trans "Maaş Aralığı" %}:</small><br>
+                    <strong>{{ job.salary_range_min|default:"N/A" }} - {{ job.salary_range_max|default:"N/A" }} AZN</strong>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Application Statistics -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Müraciət Statistikası" %}</h5>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Alınmış" %}</small>
+                        <small><strong>{{ app_stats.received|default:0 }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-info" style="width: {{ app_stats.received_pct|default:0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Yoxlama" %}</small>
+                        <small><strong>{{ app_stats.screening|default:0 }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-warning" style="width: {{ app_stats.screening_pct|default:0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Müsahibə" %}</small>
+                        <small><strong>{{ app_stats.interview|default:0 }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-primary" style="width: {{ app_stats.interview_pct|default:0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "İşə Qəbul" %}</small>
+                        <small><strong>{{ app_stats.hired|default:0 }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ app_stats.hired_pct|default:0 }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>{% trans "Rədd" %}</small>
+                        <small><strong>{{ app_stats.rejected|default:0 }}</strong></small>
+                    </div>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar bg-danger" style="width: {{ app_stats.rejected_pct|default:0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="section-card">
+                <h5 class="mb-3">{% trans "Son Fəaliyyətlər" %}</h5>
+                <div class="timeline">
+                    {% for activity in recent_activities %}
+                    <div class="timeline-item">
+                        <small class="text-muted">{{ activity.created_at|date:"d M, H:i" }}</small>
+                        <p class="mb-0"><small>{{ activity.description }}</small></p>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted">{% trans "Fəaliyyət yoxdur" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editJob() {
+    window.location.href = '{% url "recruitment:job_list" %}' + '{{ job.id }}/edit/';
+}
+
+function publishJob() {
+    if (confirm('{% trans "Vakansiyanı yayımlamaq istədiyinizdən əminsiniz?" %}')) {
+        fetch('{% url "recruitment:job_list" %}{{ job.id }}/publish/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function closeJob() {
+    if (confirm('{% trans "Vakansiyanı bağlamaq istədiyinizdən əminsiniz?" %}')) {
+        fetch('{% url "recruitment:job_list" %}{{ job.id }}/close/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+function shareJob() {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ job.title }}',
+            text: '{{ job.description|truncatewords:20 }}',
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url);
+        alert('{% trans "Link kopyalandı" %}');
+    }
+}
+
+function viewApplication(id) {
+    window.location.href = '{% url "recruitment:application_detail" 0 %}'.replace('0', id);
+}
+
+function filterApplications() {
+    const status = document.getElementById('statusFilter').value;
+    window.location.href = '?status=' + status;
+}
+</script>
+{% endblock %}

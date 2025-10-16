@@ -1,0 +1,250 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "OKR Dashboard" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .okr-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+    .progress-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: conic-gradient(#667eea var(--progress), #e0e0e0 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .progress-circle::before {
+        content: '';
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+    }
+    .progress-text {
+        position: relative;
+        z-index: 1;
+        font-weight: bold;
+        color: #667eea;
+    }
+    .kr-item {
+        padding: 0.75rem;
+        border-left: 3px solid #e0e0e0;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="fas fa-bullseye mr-2"></i>{% trans "OKR Dashboard" %}</h2>
+            <p class="text-muted">{{ current_year }} {% trans "İli" %}</p>
+        </div>
+        <div class="col-md-6 text-right">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#createObjectiveModal">
+                <i class="fas fa-plus mr-1"></i>{% trans "Yeni Məqsəd" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- My Objectives -->
+    <h4 class="mb-3">{% trans "Mənim Məqsədlərim" %}</h4>
+    <div class="row">
+        {% for obj in my_objectives %}
+        <div class="col-md-6">
+            <div class="okr-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h5>{{ obj.title }}</h5>
+                        <p class="text-muted mb-2"><small>{{ obj.get_quarter_display }} - {{ obj.get_level_display }}</small></p>
+                        <p class="mb-3">{{ obj.description|truncatewords:20 }}</p>
+
+                        <!-- Key Results -->
+                        <h6 class="mb-2"><small>{% trans "Açar Nəticələr" %}:</small></h6>
+                        {% for kr in obj.key_results.all %}
+                        <div class="kr-item">
+                            <div class="d-flex justify-content-between">
+                                <small><strong>{{ kr.title }}</strong></small>
+                                <small class="text-muted">{{ kr.current_value }}/{{ kr.target_value }} {{ kr.get_unit_display }}</small>
+                            </div>
+                            <div class="progress mt-1" style="height: 5px;">
+                                <div class="progress-bar" style="width: {{ kr.progress_percentage }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="ml-3">
+                        <div class="progress-circle" style="--progress: {{ obj.progress_percentage }}%">
+                            <span class="progress-text">{{ obj.progress_percentage|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'okr:objective_detail' obj.id %}" class="btn btn-sm btn-outline-primary">
+                        {% trans "Detallar" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-bullseye fa-4x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Hələ heç bir məqsəd yoxdur" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Department Objectives -->
+    {% if dept_objectives %}
+    <h4 class="mb-3 mt-4">{% trans "Şöbə Məqsədləri" %}</h4>
+    <div class="row">
+        {% for obj in dept_objectives %}
+        <div class="col-md-4">
+            <div class="okr-card">
+                <h6>{{ obj.title }}</h6>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-success" style="width: {{ obj.progress_percentage }}%">
+                        {{ obj.progress_percentage|floatformat:0 }}%
+                    </div>
+                </div>
+                <small class="text-muted">{% trans "Məsul" %}: {{ obj.owner.get_full_name|default:"N/A" }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Organization Objectives -->
+    {% if org_objectives %}
+    <h4 class="mb-3 mt-4">{% trans "Təşkilat Məqsədləri" %}</h4>
+    <div class="row">
+        {% for obj in org_objectives %}
+        <div class="col-md-4">
+            <div class="okr-card border-left-warning">
+                <h6>{{ obj.title }}</h6>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-warning" style="width: {{ obj.progress_percentage }}%">
+                        {{ obj.progress_percentage|floatformat:0 }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Create Objective Modal -->
+<div class="modal fade" id="createObjectiveModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Yeni Məqsəd Yarat" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="createObjectiveForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Məqsəd" %} *</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Səviyyə" %}</label>
+                                <select class="form-control" name="level">
+                                    <option value="individual">{% trans "Fərdi" %}</option>
+                                    <option value="department">{% trans "Şöbə" %}</option>
+                                    <option value="organization">{% trans "Təşkilat" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "İl" %}</label>
+                                <input type="number" class="form-control" name="fiscal_year" value="{{ current_year }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{% trans "Rüb" %}</label>
+                                <select class="form-control" name="quarter">
+                                    <option value="Q1">Q1</option>
+                                    <option value="Q2">Q2</option>
+                                    <option value="Q3">Q3</option>
+                                    <option value="Q4">Q4</option>
+                                    <option value="annual" selected>{% trans "İllik" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Başlanğıc Tarixi" %}</label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{% trans "Bitmə Tarixi" %}</label>
+                                <input type="date" class="form-control" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Yarat" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('createObjectiveForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "okr:objective_create" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#createObjectiveModal').modal('hide');
+            window.location.href = `/okr/objectives/${data.objective_id}/`;
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+</script>
+{% endblock %}
