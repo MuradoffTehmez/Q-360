@@ -1,7 +1,7 @@
 """Admin configuration for OKR models."""
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from .models_okr import StrategicObjective, KeyResult, KPI, KPIMeasurement
+from .models_okr import StrategicObjective, KeyResult, KPI, KPIMeasurement, Milestone, ObjectiveUpdate
 
 
 class KeyResultInline(admin.TabularInline):
@@ -183,3 +183,59 @@ class KPIMeasurementAdmin(SimpleHistoryAdmin):
         """Display achievement percentage."""
         return f"{obj.achievement_percentage:.2f}%"
     achievement_percentage.short_description = 'Nail Olma %'
+
+
+@admin.register(Milestone)
+class MilestoneAdmin(SimpleHistoryAdmin):
+    """Admin for Milestones."""
+
+    list_display = [
+        'title', 'objective', 'due_date', 'is_completed',
+        'completed_at', 'created_by', 'created_at'
+    ]
+    list_filter = ['is_completed', 'due_date', 'created_at']
+    search_fields = ['title', 'description', 'objective__title']
+    date_hierarchy = 'due_date'
+    readonly_fields = ['created_at', 'updated_at', 'completed_at']
+
+    fieldsets = (
+        ('Əsas Məlumat', {
+            'fields': ('objective', 'title', 'description')
+        }),
+        ('Tarix və Status', {
+            'fields': ('due_date', 'is_completed', 'completed_at')
+        }),
+        ('Sistem Məlumatları', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(ObjectiveUpdate)
+class ObjectiveUpdateAdmin(SimpleHistoryAdmin):
+    """Admin for Objective Updates."""
+
+    list_display = [
+        'objective', 'content_preview', 'progress_value',
+        'created_by', 'created_at'
+    ]
+    list_filter = ['created_at', 'objective__level']
+    search_fields = ['content', 'objective__title']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at']
+
+    fieldsets = (
+        ('Əsas Məlumat', {
+            'fields': ('objective', 'content', 'progress_value')
+        }),
+        ('Sistem Məlumatları', {
+            'fields': ('created_by', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def content_preview(self, obj):
+        """Display content preview."""
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_preview.short_description = 'Məzmun'

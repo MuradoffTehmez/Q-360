@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q, Avg
-from .models_okr import StrategicObjective, KeyResult, KPI, KPIMeasurement
+from django.utils import timezone
+from .models_okr import StrategicObjective, KeyResult, KPI, KPIMeasurement, Milestone, ObjectiveUpdate
 
 
 @login_required
@@ -64,11 +65,24 @@ def objective_list(request):
 def objective_detail(request, pk):
     """Objective detail with key results."""
     objective = get_object_or_404(
-        StrategicObjective.objects.prefetch_related('key_results', 'child_objectives'),
+        StrategicObjective.objects.prefetch_related(
+            'key_results',
+            'child_objectives',
+            'milestones',
+            'progress_updates'
+        ),
         pk=pk
     )
 
-    context = {'objective': objective}
+    # Get milestones and updates
+    milestones = objective.milestones.all().order_by('due_date')
+    updates = objective.progress_updates.all().order_by('-created_at')
+
+    context = {
+        'objective': objective,
+        'milestones': milestones,
+        'updates': updates,
+    }
     return render(request, 'development_plans/okr/objective_detail.html', context)
 
 
@@ -188,5 +202,75 @@ def kpi_measurement_create(request, kpi_id):
             measured_by=request.user
         )
         return JsonResponse({'success': True, 'message': 'Ölçmə əlavə edildi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def milestone_create(request, objective_id):
+    """Create milestone for objective."""
+    objective = get_object_or_404(StrategicObjective, pk=objective_id)
+
+    try:
+        milestone = Milestone.objects.create(
+            objective=objective,
+            title=request.POST.get('title'),
+            description=request.POST.get('description', ''),
+            due_date=request.POST.get('due_date'),
+            created_by=request.user
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Mərhələ əlavə edildi',
+            'milestone': {
+                'id': milestone.id,
+                'title': milestone.title,
+                'due_date': milestone.due_date.strftime('%Y-%m-%d'),
+                'is_completed': milestone.is_completed
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def milestone_complete(request, objective_id, milestone_id):
+    """Mark milestone as complete."""
+    milestone = get_object_or_404(Milestone, pk=milestone_id, objective_id=objective_id)
+
+    try:
+        milestone.is_completed = True
+        milestone.completed_at = timezone.now()
+        milestone.save()
+        return JsonResponse({'success': True, 'message': 'Mərhələ tamamlandı'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def objective_update_create(request, objective_id):
+    """Create progress update for objective."""
+    objective = get_object_or_404(StrategicObjective, pk=objective_id)
+
+    try:
+        update = ObjectiveUpdate.objects.create(
+            objective=objective,
+            content=request.POST.get('content'),
+            progress_value=request.POST.get('progress_value', None),
+            created_by=request.user
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Yenilənmə əlavə edildi',
+            'update': {
+                'id': update.id,
+                'content': update.content,
+                'progress_value': str(update.progress_value) if update.progress_value else None,
+                'created_at': update.created_at.strftime('%Y-%m-%d %H:%M')
+            }
+        })
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})

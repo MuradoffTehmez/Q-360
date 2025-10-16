@@ -496,3 +496,112 @@ class KPIMeasurement(models.Model):
         if self.kpi.target_value == 0:
             return Decimal('0.00')
         return (self.actual_value / self.kpi.target_value * 100)
+
+
+class Milestone(models.Model):
+    """
+    Milestones for objectives - intermediate checkpoints.
+    """
+    objective = models.ForeignKey(
+        StrategicObjective,
+        on_delete=models.CASCADE,
+        related_name='milestones',
+        verbose_name=_('Məqsəd')
+    )
+    title = models.CharField(
+        max_length=200,
+        verbose_name=_('Başlıq')
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name=_('Təsvir')
+    )
+    due_date = models.DateField(
+        verbose_name=_('Bitmə Tarixi')
+    )
+    is_completed = models.BooleanField(
+        default=False,
+        verbose_name=_('Tamamlanıb')
+    )
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Tamamlanma Tarixi')
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_milestones',
+        verbose_name=_('Yaradan')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Yaradılma Tarixi')
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Yenilənmə Tarixi')
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _('Mərhələ')
+        verbose_name_plural = _('Mərhələlər')
+        ordering = ['due_date', '-created_at']
+        indexes = [
+            models.Index(fields=['objective']),
+            models.Index(fields=['is_completed']),
+        ]
+
+    def __str__(self):
+        return f"{self.objective.title} - {self.title}"
+
+
+class ObjectiveUpdate(models.Model):
+    """
+    Progress updates and comments for objectives.
+    """
+    objective = models.ForeignKey(
+        StrategicObjective,
+        on_delete=models.CASCADE,
+        related_name='progress_updates',
+        verbose_name=_('Məqsəd')
+    )
+    content = models.TextField(
+        verbose_name=_('Məzmun')
+    )
+    progress_value = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal('0.00')), MaxValueValidator(Decimal('100.00'))],
+        verbose_name=_('Tərəqqi Dəyəri %')
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='objective_updates',
+        verbose_name=_('Yaradan')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Yaradılma Tarixi')
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _('Məqsəd Yenilənməsi')
+        verbose_name_plural = _('Məqsəd Yenilənmələri')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['objective']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.objective.title} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"

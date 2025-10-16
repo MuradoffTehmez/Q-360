@@ -149,13 +149,13 @@
             <!-- Key Results -->
             <div class="section-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="mb-0"><i class="fas fa-key mr-2 text-primary"></i>{% trans "Açar Nəticələr" %} ({{ key_results.count }})</h4>
+                    <h4 class="mb-0"><i class="fas fa-key mr-2 text-primary"></i>{% trans "Açar Nəticələr" %} ({{ objective.key_results.count }})</h4>
                     <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addKRModal">
                         <i class="fas fa-plus mr-1"></i>{% trans "Əlavə Et" %}
                     </button>
                 </div>
 
-                {% for kr in key_results %}
+                {% for kr in objective.key_results.all %}
                 <div class="kr-card {% if kr.progress_percentage >= 100 %}on-track{% elif kr.progress_percentage >= 70 %}on-track{% elif kr.progress_percentage >= 40 %}at-risk{% else %}off-track{% endif %}">
                     <div class="row">
                         <div class="col-md-8">
@@ -253,7 +253,7 @@
                     </button>
                 </div>
 
-                {% for update in progress_updates %}
+                {% for update in updates %}
                 <div class="update-item">
                     <div class="d-flex justify-content-between mb-2">
                         <strong>{{ update.created_by.get_full_name }}</strong>
@@ -320,13 +320,13 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Açar Nəticələr" %}</small>
-                        <small><strong>{{ key_results.count }}</strong></small>
+                        <small><strong>{{ objective.key_results.count }}</strong></small>
                     </div>
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Tamamlanmış KR" %}</small>
-                        <small><strong>{{ completed_krs }}</strong></small>
+                        <small><strong>{{ objective.key_results.filter|length }}</strong></small>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -338,22 +338,22 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Tamamlanmış Mərhələlər" %}</small>
-                        <small><strong>{{ completed_milestones }}</strong></small>
+                        <small><strong>{% for m in milestones %}{% if m.is_completed %}1{% endif %}{% endfor %}</strong></small>
                     </div>
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Yenilənmələr" %}</small>
-                        <small><strong>{{ progress_updates.count }}</strong></small>
+                        <small><strong>{{ updates.count }}</strong></small>
                     </div>
                 </div>
             </div>
 
             <!-- Aligned Objectives -->
-            {% if child_objectives %}
+            {% if objective.child_objectives.all %}
             <div class="section-card">
                 <h5 class="mb-3">{% trans "Bağlı Məqsədlər" %}</h5>
-                {% for child in child_objectives %}
+                {% for child in objective.child_objectives.all %}
                 <div class="mb-2">
                     <a href="{% url 'okr:objective_detail' child.id %}">
                         <small>{{ child.title }}</small>
@@ -407,7 +407,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>{% trans "Başlanğıc" %} *</label>
-                                <input type="number" class="form-control" name="start_value" value="0" required>
+                                <input type="number" class="form-control" name="baseline_value" value="0" required>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -427,6 +427,77 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Milestone Modal -->
+<div class="modal fade" id="addMilestoneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Mərhələ Əlavə Et" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="addMilestoneForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Başlıq" %} *</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Bitmə Tarixi" %} *</label>
+                        <input type="date" class="form-control" name="due_date" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Update Modal -->
+<div class="modal fade" id="addUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Tərəqqi Yenilənməsi Əlavə Et" %}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="addUpdateForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{% trans "Məzmun" %} *</label>
+                        <textarea class="form-control" name="content" rows="4" required
+                                  placeholder="{% trans 'Tərəqqi ilə bağlı məlumat, qarşılaşılan çətinliklər və s.' %}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Tərəqqi Dəyəri (İstəyə bağlı)" %}</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="progress_value"
+                                   min="0" max="100" step="0.01"
+                                   placeholder="{% trans 'Məsələn: 75' %}">
+                            <div class="input-group-append">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">{% trans "0-100 arası dəyər daxil edin" %}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -526,7 +597,7 @@ function editKR(id) {
 }
 
 function toggleMilestone(id) {
-    fetch(`/okr/milestones/${id}/toggle/`, {
+    fetch(`{% url 'okr:milestone_complete' objective.id 0 %}`.replace('/0/', `/${id}/`), {
         method: 'POST',
         headers: {'X-CSRFToken': '{{ csrf_token }}'}
     })
@@ -534,18 +605,66 @@ function toggleMilestone(id) {
     .then(data => {
         if (data.success) {
             location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
         }
     });
 }
 
 function addMilestone() {
-    alert('{% trans "Mərhələ əlavə etmək funksionallığı tezliklə əlavə ediləcək" %}');
-    // TODO: Implement milestone creation modal
+    $('#addMilestoneModal').modal('show');
 }
 
 function addUpdate() {
-    alert('{% trans "Tərəqqi yenilənməsi əlavə etmək funksionallığı tezliklə əlavə ediləcək" %}');
-    // TODO: Implement progress update modal
+    $('#addUpdateModal').modal('show');
 }
+
+// Add Milestone Form Submit
+document.getElementById('addMilestoneForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "okr:milestone_create" objective.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addMilestoneModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
+});
+
+// Add Update Form Submit
+document.getElementById('addUpdateForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('{% url "okr:objective_update_create" objective.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addUpdateModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Xəta baş verdi: ' + error);
+    });
+});
 </script>
 {% endblock %}
