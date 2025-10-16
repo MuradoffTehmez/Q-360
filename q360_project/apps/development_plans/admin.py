@@ -14,3 +14,7 @@ class ProgressLogAdmin(admin.ModelAdmin):
     list_display = ['goal', 'progress_percentage', 'logged_by', 'created_at']
     list_filter = ['created_at']
     search_fields = ['goal__title', 'note']
+
+
+# Import OKR admin configuration
+from .admin_okr import *

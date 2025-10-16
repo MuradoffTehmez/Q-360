@@ -149,3 +149,7 @@ class ProgressLog(models.Model):
 
     def __str__(self):
         return f"{self.goal.title} - {self.progress_percentage}%"
+
+
+# Import OKR models
+from .models_okr import StrategicObjective, KeyResult, KPI, KPIMeasurement

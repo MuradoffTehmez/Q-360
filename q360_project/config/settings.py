@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'apps.search',
     'apps.workforce_planning',
     'apps.continuous_feedback',
+    'apps.compensation',
+    'apps.leave_attendance',
+    'apps.recruitment',
 ]
 
 MIDDLEWARE = [
