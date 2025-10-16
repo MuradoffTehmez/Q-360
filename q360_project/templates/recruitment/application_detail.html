@@ -311,9 +311,7 @@
             <div class="section-card">
                 <h5 class="mb-3">{% trans "Bacarıqlar" %}</h5>
                 <div class="d-flex flex-wrap gap-2">
-                    {% for skill in application.skills.split:',' %}
-                    <span class="badge badge-primary">{{ skill }}</span>
-                    {% endfor %}
+                    {{ application.skills }}
                 </div>
             </div>
             {% endif %}

@@ -539,11 +539,13 @@ function toggleMilestone(id) {
 }
 
 function addMilestone() {
-    window.location.href = '{% url "okr:objective_detail" objective.id %}#add-milestone';
+    alert('{% trans "Mərhələ əlavə etmək funksionallığı tezliklə əlavə ediləcək" %}');
+    // TODO: Implement milestone creation modal
 }
 
 function addUpdate() {
-    window.location.href = '{% url "okr:objective_detail" objective.id %}#add-update';
+    alert('{% trans "Tərəqqi yenilənməsi əlavə etmək funksionallığı tezliklə əlavə ediləcək" %}');
+    // TODO: Implement progress update modal
 }
 </script>
 {% endblock %}

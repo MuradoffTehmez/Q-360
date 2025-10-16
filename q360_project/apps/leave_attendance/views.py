@@ -109,9 +109,18 @@ def team_leave_calendar(request):
         end_date__month__gte=current_month - 1
     ).select_related('user', 'leave_type')
 
+    # Add leave count for each team member
+    team_with_counts = []
+    for member in team:
+        leave_count = leave_requests.filter(user=member).count()
+        team_with_counts.append({
+            'member': member,
+            'leave_count': leave_count
+        })
+
     context = {
         'leave_requests': leave_requests,
-        'team': team,
+        'team': team_with_counts,
         'current_month': current_month,
         'current_year': current_year,
     }
