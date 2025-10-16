@@ -8,11 +8,11 @@
     x-transition:enter-end="translate-x-0">
     <div class="flex flex-col h-full">
         <!-- User Info Card -->
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
             <div class="flex items-center space-x-3">
                 {% if user.profile_picture %}
                 <img src="{{ user.profile_picture.url }}"
-                    class="w-12 h-12 rounded-full ring-2 ring-blue-500 dark:ring-blue-400"
+                    class="w-12 h-12 rounded-full ring-2 ring-blue-500 dark:ring-blue-400 shadow-md"
                     alt="Profile">
                 {% else %}
                 <div
@@ -37,146 +37,168 @@
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <!-- Home -->
             <a href="{% url 'dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {% if request.path == '/' %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400{% else %}text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
-                <i class="fas fa-home w-5 mr-3"></i>
-                <span>{% trans "Home" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if request.path == '/' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-home w-5 mr-3 relative z-10"></i>
+                <span class="relative z-10">{% trans "Home" %}</span>
             </a>
 
             <!-- Evaluations Section -->
-            <div class="pt-4 pb-2">
+            <div class="pt-6 pb-2">
                 <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-clipboard-check w-4 mr-2 text-blue-500"></i>
                     {% trans "Evaluations" %}
                 </h3>
             </div>
 
             <a href="{% url 'evaluations:my-assignments' %}"
-                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex items-center">
+                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-assignments' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="flex items-center relative z-10">
                     <i class="fas fa-tasks w-5 mr-3"></i>
                     <span>{% trans "My Assignments" %}</span>
                 </div>
                 <span
-                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full"
+                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full relative z-10"
                     id="pendingAssignmentsCount">0</span>
             </a>
 
             <a href="{% url 'evaluations:campaign-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-calendar-alt w-5 mr-3"></i>
-                <span>{% trans "Campaigns" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/campaign' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-calendar-alt w-5 mr-3 relative z-10"></i>
+                <span class="relative z-10">{% trans "Campaigns" %}</span>
             </a>
 
             <!-- Reports Section -->
-            <div class="pt-4 pb-2">
+            <div class="pt-6 pb-2">
                 <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-chart-bar w-4 mr-2 text-green-500"></i>
                     {% trans "Reports" %}
                 </h3>
             </div>
 
             <a href="{% url 'reports:my-reports' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-chart-line w-5 mr-3"></i>
-                <span>{% trans "My Reports" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-reports' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-chart-line w-5 mr-3 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Reports" %}</span>
             </a>
 
             {% if user.is_manager %}
             <a href="{% url 'reports:team-reports' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-users w-5 mr-3"></i>
-                <span>{% trans "Team Reports" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/team-reports' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-users w-5 mr-3 relative z-10"></i>
+                <span class="relative z-10">{% trans "Team Reports" %}</span>
             </a>
             {% endif %}
 
             <a href="{% url 'reports:custom-builder' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-cogs w-5 mr-3 text-purple-500"></i>
-                <span>{% trans "Custom Report Builder" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/custom-builder' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-cogs w-5 mr-3 text-purple-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Custom Report Builder" %}</span>
             </a>
 
             <!-- Skills & Training Section -->
-            <div class="pt-4 pb-2">
+            <div class="pt-6 pb-2">
                 <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-graduation-cap w-4 mr-2 text-amber-500"></i>
                     {% trans "Skills & Training" %}
                 </h3>
             </div>
 
             <a href="{% url 'competencies:my-skills' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-star w-5 mr-3 text-yellow-500"></i>
-                <span>{% trans "My Skills" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-skills' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-star w-5 mr-3 text-yellow-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Skills" %}</span>
             </a>
 
             <a href="{% url 'competencies:gap-analysis' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-chart-bar w-5 mr-3 text-orange-500"></i>
-                <span>{% trans "Skill Gap Analysis" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/gap-analysis' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-chart-bar w-5 mr-3 text-orange-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Skill Gap Analysis" %}</span>
             </a>
 
             <a href="{% url 'competencies:competency-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-lightbulb w-5 mr-3 text-purple-500"></i>
-                <span>{% trans "Competencies" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/competency-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-lightbulb w-5 mr-3 text-purple-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Competencies" %}</span>
             </a>
 
             <a href="{% url 'training:my-trainings' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-graduation-cap w-5 mr-3 text-green-500"></i>
-                <span>{% trans "My Trainings" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-trainings' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-graduation-cap w-5 mr-3 text-green-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Trainings" %}</span>
             </a>
 
             <a href="{% url 'training:my-certificates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-certificate w-5 mr-3 text-amber-500"></i>
-                <span>{% trans "My Certificates" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-certificates' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-certificate w-5 mr-3 text-amber-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Certificates" %}</span>
             </a>
 
             <a href="{% url 'training:catalog' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-book w-5 mr-3 text-indigo-500"></i>
-                <span>{% trans "Training Catalog" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/catalog' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-book w-5 mr-3 text-indigo-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Training Catalog" %}</span>
             </a>
 
             <!-- Development Section -->
-            <div class="pt-4 pb-2">
+            <div class="pt-6 pb-2">
                 <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-bullseye w-4 mr-2 text-red-500"></i>
                     {% trans "Development" %}
                 </h3>
             </div>
 
             <a href="{% url 'development-plans:my-goals' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-bullseye w-5 mr-3 text-red-500"></i>
-                <span>{% trans "My Goals" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-goals' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-bullseye w-5 mr-3 text-red-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Goals" %}</span>
             </a>
 
             <a href="{% url 'development-plans:goal-templates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500"></i>
-                <span>{% trans "Goal Suggestions" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/goal-templates' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Goal Suggestions" %}</span>
             </a>
 
             <a href="{% url 'workforce-planning:my-gaps' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-chart-gap w-5 mr-3 text-orange-500"></i>
-                <span>{% trans "My Competency Gaps" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-gaps' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-chart-gap w-5 mr-3 text-orange-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Competency Gaps" %}</span>
             </a>
 
             <!-- HR Tools Section (Collapsible) -->
             {% if user.is_admin or user.is_manager %}
-            <div class="pt-4" x-data="{ hrToolsOpen: false }">
+            <div class="pt-6" x-data="{ hrToolsOpen: false }">
                 <button @click="hrToolsOpen = !hrToolsOpen"
-                    class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-                    <span>{% trans "HR Tools" %}</span>
+                    class="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:text-gray-900 dark:hover:text-white transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-tools w-4 mr-2 text-indigo-500"></i>
+                        <span>{% trans "HR Tools" %}</span>
+                    </div>
                     <i
-                        class="fas fa-chevron-down transition-transform duration-200"
+                        class="fas fa-chevron-down transition-transform duration-200 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                         :class="{ 'rotate-180': hrToolsOpen }"></i>
                 </button>
 
-                <div x-show="hrToolsOpen"
+                <div x-show="hrToolsOpen" x-cloak
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-1"
                     x-transition:enter-end="opacity-100 translate-y-0"
@@ -186,109 +208,111 @@
                     class="space-y-1 mt-2">
                     <!-- Workforce Planning Submenu -->
                     <div
-                        class="pl-3 border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-1">
+                        class="pl-3 border-l-2 border-indigo-200 dark:border-indigo-800 ml-3 space-y-1">
                         <a href="{% url 'workforce-planning:talent-matrix' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/talent-matrix' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-th w-5 mr-3 text-indigo-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Talent Matrix"
-                                %}</span>
+                                class="fas fa-th w-4 mr-3 text-indigo-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Talent Matrix" %}</span>
                         </a>
 
                         <a
                             href="{% url 'workforce-planning:succession-planning' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/succession-planning' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-users-cog w-5 mr-3 text-purple-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Succession Planning"
-                                %}</span>
+                                class="fas fa-users-cog w-4 mr-3 text-purple-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Succession Planning" %}</span>
                         </a>
 
                         <a href="{% url 'workforce-planning:gap-analysis' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/gap-analysis' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-chart-line w-5 mr-3 text-red-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Gap Analysis"
-                                %}</span>
+                                class="fas fa-chart-line w-4 mr-3 text-red-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Gap Analysis" %}</span>
                         </a>
 
                         <a href="{% url 'accounts:user-list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/user-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-users w-5 mr-3 text-blue-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Users Management"
-                                %}</span>
+                                class="fas fa-users w-4 mr-3 text-blue-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Users Management" %}</span>
                         </a>
 
                         <a href="{% url 'departments:department-list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/department-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-building w-5 mr-3 text-teal-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Departments"
-                                %}</span>
+                                class="fas fa-building w-4 mr-3 text-teal-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Departments" %}</span>
                         </a>
 
                         <a href="{% url 'competencies:competency-manage' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/competency-manage' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-cogs w-5 mr-3 text-orange-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Competencies"
-                                %}</span>
+                                class="fas fa-cogs w-4 mr-3 text-orange-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Competencies" %}</span>
                         </a>
 
                         <a href="{% url 'training:training-manage' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/training-manage' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-chalkboard-teacher w-5 mr-3 text-green-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Training Programs"
-                                %}</span>
+                                class="fas fa-chalkboard-teacher w-4 mr-3 text-green-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Training Programs" %}</span>
                         </a>
 
                         <!-- New HRIS Modules -->
-                        <div class="pt-2 pb-1">
+                        <div class="pt-4 pb-2">
                             <h4
-                                class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                                class="px-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider flex items-center">
+                                <i class="fas fa-database w-3 mr-2 text-cyan-500"></i>
                                 {% trans "HRIS" %}
                             </h4>
                         </div>
 
                         <a href="{% url 'pfile:employee_list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/employee_list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-id-card w-5 mr-3 text-cyan-500 text-xs"></i>
-                            <span class="text-xs">{% trans
-                                "P-File (İşçi Faylları)" %}</span>
+                                class="fas fa-id-card w-4 mr-3 text-cyan-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "P-File (İşçi Faylları)" %}</span>
                         </a>
 
                         <a href="{% url 'compensation:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/compensation' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-money-bill-wave w-5 mr-3 text-emerald-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Kompensasiya"
-                                %}</span>
+                                class="fas fa-money-bill-wave w-4 mr-3 text-emerald-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Kompensasiya" %}</span>
                         </a>
 
                         <a href="{% url 'leave_attendance:leave_dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/leave' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-calendar-alt w-5 mr-3 text-violet-500 text-xs"></i>
-                            <span class="text-xs">{% trans "Məzuniyyət"
-                                %}</span>
+                                class="fas fa-calendar-alt w-4 mr-3 text-violet-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "Məzuniyyət" %}</span>
                         </a>
 
                         <a href="{% url 'okr:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/okr' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-bullseye w-5 mr-3 text-rose-500 text-xs"></i>
-                            <span class="text-xs">{% trans "OKR/KPI" %}</span>
+                                class="fas fa-bullseye w-4 mr-3 text-rose-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "OKR/KPI" %}</span>
                         </a>
 
                         <a href="{% url 'recruitment:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/recruitment' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <i
-                                class="fas fa-user-tie w-5 mr-3 text-amber-500 text-xs"></i>
-                            <span class="text-xs">{% trans "İşə Qəbul (ATS)"
-                                %}</span>
+                                class="fas fa-user-tie w-4 mr-3 text-amber-500 relative z-10"></i>
+                            <span class="text-sm relative z-10">{% trans "İşə Qəbul (ATS)" %}</span>
                         </a>
                     </div>
                 </div>
@@ -296,141 +320,50 @@
             {% endif %}
 
             <!-- Continuous Feedback Section -->
-            <div class="pt-4 pb-2">
+            <div class="pt-6 pb-2">
                 <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-comment-dots w-4 mr-2 text-blue-500"></i>
                     {% trans "Feedback" %}
                 </h3>
             </div>
 
             <a href="{% url 'feedback:send-feedback' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-paper-plane w-5 mr-3 text-blue-500"></i>
-                <span>{% trans "Send Feedback" %}</span>
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/send-feedback' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-paper-plane w-5 mr-3 text-blue-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Send Feedback" %}</span>
             </a>
 
-            <a href="{% url 'feedback:received-feedback' %}"
-                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex items-center">
-                    <i class="fas fa-inbox w-5 mr-3 text-green-500"></i>
-                    <span>{% trans "Received Feedback" %}</span>
-                </div>
+            <a href="{% url 'feedback:my-feedback' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-feedback' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-inbox w-5 mr-3 text-green-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "My Feedback" %}</span>
             </a>
-
-            <a href="{% url 'feedback:recognition-feed' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-heart w-5 mr-3 text-red-500"></i>
-                <span>{% trans "Recognition Feed" %}</span>
-            </a>
-
-            <a href="{% url 'feedback:my-bank' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-database w-5 mr-3 text-purple-500"></i>
-                <span>{% trans "My Feedback Bank" %}</span>
-            </a>
-
-            <a href="{% url 'continuous_feedback:proactive-suggestions' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500"></i>
-                <span>{% trans "Proactive Suggestions" %}</span>
-            </a>
-
-            <!-- Notifications Section -->
-            <div class="pt-4 pb-2">
-                <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {% trans "Notifications" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'notifications:inbox' %}"
-                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex items-center">
-                    <i class="fas fa-inbox w-5 mr-3"></i>
-                    <span>{% trans "Inbox" %}</span>
-                </div>
-                <span
-                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-500 rounded-full"
-                    id="unreadNotificationsCount">0</span>
-            </a>
-
-            {% if user.is_admin or user.is_manager %}
-            <a href="{% url 'notifications:bulk-notification' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-bullhorn w-5 mr-3 text-orange-500"></i>
-                <span>{% trans "Bulk Notifications" %}</span>
-            </a>
-            {% endif %}
-
-            {% if user.is_admin %}
-            <a href="{% url 'notifications:email-templates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-file-alt w-5 mr-3"></i>
-                <span>{% trans "Templates" %}</span>
-            </a>
-            {% endif %}
-
-            <!-- Admin Section (System Tools) -->
-            {% if user.is_admin %}
-            <div class="pt-4 pb-2">
-                <h3
-                    class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {% trans "System" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'evaluations:question-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-question-circle w-5 mr-3 text-blue-500"></i>
-                <span>{% trans "Question Library" %}</span>
-            </a>
-
-            {% if user.role == 'superadmin' %}
-            <a href="{% url 'accounts:rbac-matrix' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-shield-alt w-5 mr-3 text-purple-500"></i>
-                <span>{% trans "RBAC Matrix" %}</span>
-            </a>
-            {% endif %}
-
-            <a href="{% url 'audit:security-dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-shield-alt w-5 mr-3 text-red-500"></i>
-                <span>{% trans "Security Dashboard" %}</span>
-            </a>
-
-            <a href="/admin/"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i
-                    class="fas fa-tools w-5 mr-3 text-gray-600 dark:text-gray-400"></i>
-                <span>{% trans "Admin Panel" %}</span>
-            </a>
-            {% endif %}
         </nav>
 
-        <!-- Bottom Section -->
-        <div
-            class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-            <a href="{% url 'accounts:profile' %}"
-                class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200">
-                <i class="fas fa-user mr-2"></i>
-                {% trans "Profile" %}
-            </a>
-            <a href="{% url 'accounts:settings' %}"
-                class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200">
-                <i class="fas fa-cog mr-2"></i>
-                {% trans "Settings" %}
-            </a>
-            <p
-                class="text-xs text-center text-gray-500 dark:text-gray-400 pt-2">
-                {% trans "Version" %} 1.0.0
-            </p>
+        <!-- Profile & Logout Section -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+            <div class="space-y-2">
+                <a href="{% url 'accounts:profile' %}"
+                    class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-700 group">
+                    <i
+                        class="fas fa-user-circle w-5 mr-3 text-blue-500 group-hover:text-blue-600 transition-colors"></i>
+                    <span>{% trans "Profile" %}</span>
+                </a>
+
+                <form method="post" action="{% url 'accounts:logout' %}"
+                    class="w-full">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-lg transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-sm border border-transparent hover:border-red-200 dark:hover:border-red-800 group">
+                        <i
+                            class="fas fa-sign-out-alt w-5 mr-3 group-hover:text-red-700 dark:group-hover:text-red-300 transition-colors"></i>
+                        <span>{% trans "Logout" %}</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </aside>
-
-<!-- Sidebar Toggle Button (Mobile) -->
-<button @click="sidebarOpen = !sidebarOpen"
-    class="md:hidden fixed bottom-4 right-4 z-50 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200">
-    <i class="fas fa-bars text-xl"></i>
-</button>

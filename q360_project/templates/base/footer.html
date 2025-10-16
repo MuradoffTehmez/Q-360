@@ -1,61 +1,202 @@
 {% load i18n %}
 {% load static %}
 
-<footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- About Section -->
-            <div class="col-span-1">
-                <div class="flex items-center space-x-2 mb-4">
-                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg">
+<footer class="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Main Footer Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-8 mb-8">
+            <!-- Brand Section -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shadow-lg">
                         <i class="fas fa-chart-pie text-white text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Q360</h3>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Q360</h3>
+                        <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">Performance Suite</p>
+                    </div>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {% trans "Professional 360° Performance Evaluation System" %}
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                    {% trans "Professional 360° Performance Evaluation System designed to help organizations achieve excellence through comprehensive talent management and development solutions." %}
                 </p>
+                <div class="flex space-x-3">
+                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        <i class="fab fa-linkedin text-sm"></i>
+                    </a>
+                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        <i class="fab fa-twitter text-sm"></i>
+                    </a>
+                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                        <i class="fab fa-facebook text-sm"></i>
+                    </a>
+                </div>
             </div>
 
-            <!-- Quick Links -->
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-                    {% trans "Quick Links" %}
+            <!-- Platform -->
+            <div class="lg:col-span-1">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-cube mr-2 text-blue-500 text-xs"></i>
+                    {% trans "Platform" %}
                 </h4>
-                <ul class="space-y-2">
-                    <li><a href="{% url 'dashboard' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{% trans "Dashboard" %}</a></li>
-                    <li><a href="{% url 'help' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{% trans "Help" %}</a></li>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="{% url 'dashboard' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Dashboard" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'evaluations:my-assignments' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Evaluations" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'competencies:my-skills' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Skills" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'training:my-trainings' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Training" %}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
             <!-- Resources -->
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+            <div class="lg:col-span-1">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-book mr-2 text-green-500 text-xs"></i>
                     {% trans "Resources" %}
                 </h4>
-                <ul class="space-y-2">
-                    <li><a href="{% url 'privacy' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{% trans "Privacy Policy" %}</a></li>
-                    <li><a href="{% url 'terms' %}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{% trans "Terms of Service" %}</a></li>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="{% url 'help' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Help Center" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Documentation" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "API" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Community" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Support -->
+            <div class="lg:col-span-1">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-shield-alt mr-2 text-purple-500 text-xs"></i>
+                    {% trans "Support" %}
+                </h4>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="{% url 'privacy' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Privacy Policy" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'terms' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Terms of Service" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Security" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                            <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                            {% trans "Status" %}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
             <!-- Contact -->
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+            <div class="lg:col-span-1">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fas fa-envelope mr-2 text-red-500 text-xs"></i>
                     {% trans "Contact" %}
                 </h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400">support@q360.az</p>
+                <div class="space-y-3">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                        <a href="mailto:support@q360.az" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            support@q360.az
+                        </a>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-phone mr-2 text-green-500"></i>
+                        <span>+994 12 345 67 89</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                        <span>Baku, Azerbaijan</span>
+                    </div>
+                </div>
+                
+                <!-- Newsletter Signup -->
+                <div class="mt-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{% trans "Stay updated with our newsletter" %}</p>
+                    <div class="flex space-x-2">
+                        <input type="email" placeholder="{% trans 'Your email' %}" 
+                            class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <button class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors duration-200">
+                            <i class="fas fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <p class="text-sm text-gray-500 dark:text-gray-400">© 2025 Q360. {% trans "All rights reserved." %}</p>
-                <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mt-4 md:mt-0">
-                    <span>v1.0.0</span>
-                    <button onclick="toggleDarkMode()" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
+        <!-- Bottom Bar -->
+        <div class="pt-8 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+                <!-- Copyright -->
+                <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>© 2025 Q360 Performance Suite. {% trans "All rights reserved." %}</span>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-globe text-xs"></i>
+                        <span>{% trans "Made with ❤️ in Azerbaijan" %}</span>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code-branch text-xs"></i>
+                        <span>v1.0.0</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-shield-check text-xs text-green-500"></i>
+                        <span>{% trans "Secure & Reliable" %}</span>
+                    </div>
+                    <button onclick="toggleDarkMode()" class="flex items-center space-x-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group">
+                        <i class="fas fa-moon dark:hidden group-hover:scale-110 transition-transform"></i>
+                        <i class="fas fa-sun hidden dark:inline group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs">{% trans "Theme" %}</span>
                     </button>
                 </div>
             </div>
