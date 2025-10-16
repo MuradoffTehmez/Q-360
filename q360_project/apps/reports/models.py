@@ -130,3 +130,211 @@ class ReportGenerationLog(models.Model):
         if self.status == 'completed' and self.file:
             return f'/reports/download/{self.pk}/'
         return None
+
+
+class SystemKPI(models.Model):
+    """
+    System-wide KPI tracking for admin analytics dashboard.
+    Stores daily snapshots of key performance indicators.
+    """
+
+    date = models.DateField(
+        unique=True,
+        verbose_name=_('Tarix'),
+        help_text=_('KPI snapshot tarixi')
+    )
+
+    # User metrics
+    total_users = models.IntegerField(
+        default=0,
+        verbose_name=_('Ümumi İstifadəçilər')
+    )
+    active_users = models.IntegerField(
+        default=0,
+        verbose_name=_('Aktiv İstifadəçilər')
+    )
+    new_users_today = models.IntegerField(
+        default=0,
+        verbose_name=_('Bu gün qeydiyyatdan keçənlər')
+    )
+    users_logged_in_today = models.IntegerField(
+        default=0,
+        verbose_name=_('Bu gün giriş edənlər')
+    )
+
+    # Evaluation metrics
+    total_campaigns = models.IntegerField(
+        default=0,
+        verbose_name=_('Ümumi Kampaniyalar')
+    )
+    active_campaigns = models.IntegerField(
+        default=0,
+        verbose_name=_('Aktiv Kampaniyalar')
+    )
+    total_evaluations = models.IntegerField(
+        default=0,
+        verbose_name=_('Ümumi Qiymətləndirmələr')
+    )
+    completed_evaluations = models.IntegerField(
+        default=0,
+        verbose_name=_('Tamamlanmış Qiymətləndirmələr')
+    )
+    evaluations_completed_today = models.IntegerField(
+        default=0,
+        verbose_name=_('Bu gün tamamlananlar')
+    )
+    completion_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        verbose_name=_('Tamamlanma Faizi')
+    )
+
+    # Department metrics
+    total_departments = models.IntegerField(
+        default=0,
+        verbose_name=_('Ümumi Şöbələr')
+    )
+
+    # Training metrics
+    total_trainings = models.IntegerField(
+        default=0,
+        verbose_name=_('Ümumi Təlimlər')
+    )
+    active_trainings = models.IntegerField(
+        default=0,
+        verbose_name=_('Davam edən Təlimlər')
+    )
+
+    # Security metrics
+    login_attempts_today = models.IntegerField(
+        default=0,
+        verbose_name=_('Bu gün giriş cəhdləri')
+    )
+    failed_login_attempts_today = models.IntegerField(
+        default=0,
+        verbose_name=_('Bu gün uğursuz girişlər')
+    )
+    security_threats_detected = models.IntegerField(
+        default=0,
+        verbose_name=_('Aşkar edilmiş təhlükələr')
+    )
+
+    # System health
+    average_response_time = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0,
+        verbose_name=_('Orta cavab müddəti (ms)'),
+        help_text=_('Millisaniyə ilə')
+    )
+    database_size_mb = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name=_('Verilənlər bazası ölçüsü (MB)')
+    )
+
+    # Metadata
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Yaradılma Tarixi')
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Yenilənmə Tarixi')
+    )
+
+    class Meta:
+        verbose_name = _('Sistem KPI')
+        verbose_name_plural = _('Sistem KPI-ləri')
+        ordering = ['-date']
+        indexes = [
+            models.Index(fields=['-date']),
+        ]
+
+    def __str__(self):
+        return f"KPI - {self.date}"
+
+    @classmethod
+    def calculate_today_kpis(cls):
+        """
+        Calculate and save KPIs for today.
+        Should be called by a daily scheduled task (Celery beat).
+        """
+        from datetime import date, timedelta
+        from django.utils import timezone
+        from django.db.models import Count, Avg
+        from apps.accounts.models import User
+        from apps.evaluations.models import EvaluationCampaign, EvaluationAssignment
+        from apps.departments.models import Department
+        from apps.training.models import Training
+        from apps.audit.models import AuditLog
+
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+
+        # User metrics
+        total_users = User.objects.count()
+        active_users = User.objects.filter(is_active=True).count()
+        new_users_today = User.objects.filter(date_joined__date=today).count()
+
+        # Users who logged in today
+        users_logged_in_today = AuditLog.objects.filter(
+            action='login_success',
+            created_at__date=today
+        ).values('user').distinct().count()
+
+        # Evaluation metrics
+        total_campaigns = EvaluationCampaign.objects.count()
+        active_campaigns = EvaluationCampaign.objects.filter(status='active').count()
+        total_evaluations = EvaluationAssignment.objects.count()
+        completed_evaluations = EvaluationAssignment.objects.filter(status='completed').count()
+        evaluations_completed_today = EvaluationAssignment.objects.filter(
+            completed_at__date=today
+        ).count()
+
+        completion_rate = 0
+        if total_evaluations > 0:
+            completion_rate = (completed_evaluations / total_evaluations) * 100
+
+        # Department metrics
+        total_departments = Department.objects.count()
+
+        # Training metrics
+        total_trainings = Training.objects.count()
+        active_trainings = Training.objects.filter(status='active').count()
+
+        # Security metrics
+        login_attempts_today = AuditLog.objects.filter(
+            action__in=['login_success', 'login_failure'],
+            created_at__date=today
+        ).count()
+        failed_login_attempts_today = AuditLog.objects.filter(
+            action='login_failure',
+            created_at__date=today
+        ).count()
+
+        # Create or update KPI record
+        kpi, created = cls.objects.update_or_create(
+            date=today,
+            defaults={
+                'total_users': total_users,
+                'active_users': active_users,
+                'new_users_today': new_users_today,
+                'users_logged_in_today': users_logged_in_today,
+                'total_campaigns': total_campaigns,
+                'active_campaigns': active_campaigns,
+                'total_evaluations': total_evaluations,
+                'completed_evaluations': completed_evaluations,
+                'evaluations_completed_today': evaluations_completed_today,
+                'completion_rate': round(completion_rate, 2),
+                'total_departments': total_departments,
+                'total_trainings': total_trainings,
+                'active_trainings': active_trainings,
+                'login_attempts_today': login_attempts_today,
+                'failed_login_attempts_today': failed_login_attempts_today,
+            }
+        )
+
+        return kpi

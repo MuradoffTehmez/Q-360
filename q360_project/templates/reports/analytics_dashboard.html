@@ -1,0 +1,765 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Admin Analytics Dashboard" %} - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --success: #48bb78;
+    --warning: #ed8936;
+    --danger: #f56565;
+    --info: #4299e1;
+    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.analytics-header {
+    background: var(--gradient-1);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.analytics-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid var(--card-color, var(--primary));
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-gradient, var(--gradient-1));
+}
+
+.kpi-card.primary { --card-color: #667eea; --card-gradient: var(--gradient-1); }
+.kpi-card.success { --card-color: #48bb78; --card-gradient: var(--gradient-4); }
+.kpi-card.warning { --card-color: #ed8936; --card-gradient: var(--gradient-2); }
+.kpi-card.info { --card-color: #4299e1; --card-gradient: var(--gradient-3); }
+.kpi-card.danger { --card-color: #f56565; --card-gradient: var(--gradient-2); }
+
+.kpi-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    background: var(--card-gradient, var(--gradient-1));
+    color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--card-gradient, var(--gradient-1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin: 0.5rem 0;
+}
+
+.kpi-label {
+    color: #718096;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-change {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.kpi-change.positive {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.kpi-change.negative {
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.chart-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chart-card-title i {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--gradient-1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-modern thead {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.table-modern th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #4a5568;
+    border-bottom: 2px solid #cbd5e0;
+}
+
+.table-modern th:first-child {
+    border-radius: 12px 0 0 0;
+}
+
+.table-modern th:last-child {
+    border-radius: 0 12px 0 0;
+}
+
+.table-modern td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #2d3748;
+}
+
+.table-modern tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table-modern tbody tr:hover {
+    background-color: #f7fafc;
+}
+
+.badge {
+    padding: 0.375rem 0.875rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.badge-primary { background: #e6f2ff; color: #2563eb; }
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+}
+
+.activity-item:hover {
+    background-color: #f7fafc;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-icon.blue { background: #dbeafe; color: #1e40af; }
+.activity-icon.green { background: #d1fae5; color: #065f46; }
+.activity-icon.orange { background: #fed7aa; color: #9a3412; }
+
+.progress-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: #e2e8f0;
+    stroke-width: 8;
+}
+
+.progress-ring-progress {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.stagger > * {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger > *:nth-child(6) { animation-delay: 0.6s; }
+
+@media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .kpi-card, .chart-card { box-shadow: none; border: 1px solid #e2e8f0; }
+}
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="analytics-header">
+    <div class="flex items-center justify-between relative z-10">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">📊 Admin Analytics Dashboard</h1>
+            <p class="text-white/90 text-lg">Sistem genişliyi KPI və performans metrikaları</p>
+            <p class="text-white/70 text-sm mt-1">Son yenilənmə: {{ today_kpi.updated_at|date:"d.m.Y H:i" }}</p>
+        </div>
+        <div class="flex gap-3 no-print">
+            <button onclick="window.print()" class="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 transition-all border border-white/20 font-semibold">
+                <i class="fas fa-print mr-2"></i>{% trans "Print" %}
+            </button>
+            <button onclick="exportData()" class="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 transition-all border border-white/20 font-semibold">
+                <i class="fas fa-download mr-2"></i>{% trans "Export" %}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- KPI Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 stagger">
+    <!-- Total Users -->
+    <div class="kpi-card primary">
+        <div class="flex items-start justify-between mb-4">
+            <div class="kpi-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <span class="kpi-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ today_kpi.new_users_today }}
+            </span>
+        </div>
+        <p class="kpi-label">{% trans "Total Users" %}</p>
+        <p class="kpi-value">{{ today_kpi.total_users|default:0 }}</p>
+        <p class="text-sm text-gray-600 mt-2">
+            <span class="font-semibold text-green-600">{{ today_kpi.active_users }}</span> aktiv
+        </p>
+    </div>
+
+    <!-- Completion Rate -->
+    <div class="kpi-card success">
+        <div class="flex items-start justify-between mb-4">
+            <div class="kpi-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <span class="kpi-change {% if today_kpi.completion_rate >= 80 %}positive{% else %}negative{% endif %}">
+                {{ today_kpi.completion_rate }}%
+            </span>
+        </div>
+        <p class="kpi-label">{% trans "Completion Rate" %}</p>
+        <p class="kpi-value">{{ today_kpi.completed_evaluations|default:0 }}</p>
+        <p class="text-sm text-gray-600 mt-2">
+            / {{ today_kpi.total_evaluations }} {% trans "total" %}
+        </p>
+    </div>
+
+    <!-- Active Campaigns -->
+    <div class="kpi-card warning">
+        <div class="flex items-start justify-between mb-4">
+            <div class="kpi-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <span class="badge badge-warning">{% trans "Active" %}</span>
+        </div>
+        <p class="kpi-label">{% trans "Active Campaigns" %}</p>
+        <p class="kpi-value">{{ today_kpi.active_campaigns|default:0 }}</p>
+        <p class="text-sm text-gray-600 mt-2">
+            / {{ today_kpi.total_campaigns }} {% trans "total" %}
+        </p>
+    </div>
+
+    <!-- Security Status -->
+    <div class="kpi-card {% if today_kpi.failed_login_attempts_today > 10 %}danger{% else %}info{% endif %}">
+        <div class="flex items-start justify-between mb-4">
+            <div class="kpi-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <span class="kpi-change {% if today_kpi.failed_login_attempts_today > 10 %}negative{% else %}positive{% endif %}">
+                {{ system_health.login_success_rate }}%
+            </span>
+        </div>
+        <p class="kpi-label">{% trans "Login Success Rate" %}</p>
+        <p class="kpi-value">{{ system_health.login_success_rate }}%</p>
+        <p class="text-sm text-gray-600 mt-2">
+            <span class="font-semibold text-red-600">{{ today_kpi.failed_login_attempts_today }}</span> uğursuz
+        </p>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- User Trend Chart -->
+    <div class="chart-card animate-fade-in">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-users"></i>
+                <span>{% trans "User Activity Trend" %}</span>
+            </div>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="userTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Evaluation Trend Chart -->
+    <div class="chart-card animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-chart-line"></i>
+                <span>{% trans "Evaluation Completion Trend" %}</span>
+            </div>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="evaluationTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Department Performance & Top Performers -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Department Performance -->
+    <div class="chart-card animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-building"></i>
+                <span>{% trans "Department Performance" %}</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            {% if dept_performance %}
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>{% trans "Rank" %}</th>
+                        <th>{% trans "Department" %}</th>
+                        <th>{% trans "Avg Score" %}</th>
+                        <th>{% trans "Employees" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in dept_performance|slice:":5" %}
+                    <tr>
+                        <td>
+                            <span class="badge {% if forloop.counter == 1 %}badge-success{% elif forloop.counter == 2 %}badge-primary{% else %}badge-warning{% endif %}">
+                                #{{ forloop.counter }}
+                            </span>
+                        </td>
+                        <td class="font-semibold">{{ dept.name }}</td>
+                        <td>
+                            <span class="font-bold text-lg" style="color: {% if dept.avg_score >= 4 %}#48bb78{% elif dept.avg_score >= 3 %}#ed8936{% else %}#f56565{% endif %}">
+                                {{ dept.avg_score }}
+                            </span>
+                        </td>
+                        <td>{{ dept.employees }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center text-gray-500 py-8">{% trans "No department data available" %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="chart-card animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-trophy"></i>
+                <span>{% trans "Top Performers" %}</span>
+            </div>
+        </div>
+        <div class="space-y-3">
+            {% if top_performers %}
+                {% for performer in top_performers|slice:":5" %}
+                <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br {% if forloop.counter == 1 %}from-yellow-400 to-yellow-600{% elif forloop.counter == 2 %}from-gray-400 to-gray-600{% elif forloop.counter == 3 %}from-orange-400 to-orange-600{% else %}from-blue-400 to-blue-600{% endif %} flex items-center justify-center text-white font-bold text-lg">
+                            {{ forloop.counter }}
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-900 truncate">{{ performer.name }}</p>
+                        <p class="text-sm text-gray-600 truncate">{{ performer.department }} • {{ performer.position }}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="text-2xl font-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            {{ performer.score }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p class="text-center text-gray-500 py-8">{% trans "No performance data available" %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Security & System Health -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Security Trend -->
+    <div class="chart-card lg:col-span-2 animate-fade-in" style="animation-delay: 0.4s;">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-lock"></i>
+                <span>{% trans "Security Monitoring" %}</span>
+            </div>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="securityTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="chart-card animate-fade-in" style="animation-delay: 0.5s;">
+        <div class="chart-card-header">
+            <div class="chart-card-title">
+                <i class="fas fa-heartbeat"></i>
+                <span>{% trans "System Health" %}</span>
+            </div>
+        </div>
+        <div class="space-y-6">
+            <!-- Active Users Percentage -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-gray-700">{% trans "Active Users" %}</span>
+                    <span class="text-sm font-bold text-primary">{{ system_health.active_users_percent }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: {{ system_health.active_users_percent }}%"></div>
+                </div>
+            </div>
+
+            <!-- Login Success Rate -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-gray-700">{% trans "Login Success" %}</span>
+                    <span class="text-sm font-bold text-success">{{ system_health.login_success_rate }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-500 to-teal-600 h-3 rounded-full transition-all duration-500" style="width: {{ system_health.login_success_rate }}%"></div>
+                </div>
+            </div>
+
+            <!-- Database Size -->
+            <div class="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-database text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 font-semibold">{% trans "Database Size" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ system_health.database_size|floatformat:1 }} MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div class="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-tachometer-alt text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600 font-semibold">{% trans "Avg Response Time" %}</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ system_health.response_time|floatformat:0 }} ms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="chart-card animate-fade-in" style="animation-delay: 0.6s;">
+    <div class="chart-card-header">
+        <div class="chart-card-title">
+            <i class="fas fa-history"></i>
+            <span>{% trans "Recent Activities" %}</span>
+        </div>
+    </div>
+    <div class="space-y-2">
+        {% if recent_activities %}
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-icon {{ activity.color }}">
+                    <i class="fas {{ activity.icon }}"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ activity.message }}</p>
+                    <p class="text-xs text-gray-500">{{ activity.time|timesince }} ago</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p class="text-center text-gray-500 py-8">{% trans "No recent activities" %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Chart.js default configuration
+Chart.defaults.font.family = "'Inter', 'Segoe UI', system-ui, sans-serif";
+Chart.defaults.color = '#4a5568';
+
+// Parse data from backend
+const userTrendData = {{ user_trend|safe }};
+const evaluationTrendData = {{ evaluation_trend|safe }};
+const securityTrendData = {{ security_trend|safe }};
+
+// User Trend Chart
+const userTrendCtx = document.getElementById('userTrendChart').getContext('2d');
+new Chart(userTrendCtx, {
+    type: 'line',
+    data: {
+        labels: userTrendData.labels,
+        datasets: [
+            {
+                label: 'Aktiv İstifadəçilər',
+                data: userTrendData.active_users,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            },
+            {
+                label: 'Yeni İstifadəçilər',
+                data: userTrendData.new_users,
+                borderColor: '#48bb78',
+                backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom' },
+            tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Evaluation Trend Chart
+const evaluationTrendCtx = document.getElementById('evaluationTrendChart').getContext('2d');
+new Chart(evaluationTrendCtx, {
+    type: 'bar',
+    data: {
+        labels: evaluationTrendData.labels,
+        datasets: [{
+            label: 'Tamamlanma Faizi (%)',
+            data: evaluationTrendData.completion_rate,
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderRadius: 8,
+            yAxisID: 'y'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom' }
+        },
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Security Trend Chart
+const securityTrendCtx = document.getElementById('securityTrendChart').getContext('2d');
+new Chart(securityTrendCtx, {
+    type: 'line',
+    data: {
+        labels: securityTrendData.labels,
+        datasets: [
+            {
+                label: 'Giriş Cəhdləri',
+                data: securityTrendData.login_attempts,
+                borderColor: '#4299e1',
+                backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Uğursuz Girişlər',
+                data: securityTrendData.failed_attempts,
+                borderColor: '#f56565',
+                backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom' }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Export function
+function exportData() {
+    alert('Export funksiyası tezliklə aktiv olacaq!');
+    // TODO: Implement export to Excel/PDF
+}
+
+// Auto-refresh every 5 minutes
+setTimeout(() => {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

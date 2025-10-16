@@ -12,7 +12,7 @@ import json
 
 from apps.evaluations.models import EvaluationResult, EvaluationCampaign, Response, EvaluationAssignment
 from apps.accounts.models import User
-from .models import Report, RadarChartData
+from .models import Report, RadarChartData, SystemKPI
 from .utils import generate_pdf_report, generate_excel_report, generate_csv_report, calculate_radar_data
 
 
@@ -318,61 +318,200 @@ def comparison_report(request):
 
 @login_required
 def analytics_dashboard(request):
-    """Advanced analytics dashboard (admin only)."""
+    """
+    Advanced analytics dashboard with comprehensive KPIs (admin only).
+    Displays system-wide metrics, trends, and insights.
+    """
     if not request.user.is_admin():
         messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
         return redirect('dashboard')
 
-    # Overall statistics
-    total_campaigns = EvaluationCampaign.objects.count()
-    active_campaigns = EvaluationCampaign.objects.filter(status='active').count()
-    total_evaluations = EvaluationAssignment.objects.filter(status='completed').count()
-    total_users = User.objects.filter(is_active=True).count()
+    from datetime import date, timedelta
+    from apps.departments.models import Department
+    from apps.training.models import Training
+    from apps.audit.models import AuditLog
 
-    # Latest campaign analysis
+    # Get or calculate today's KPI
+    today = date.today()
+    today_kpi = SystemKPI.objects.filter(date=today).first()
+
+    if not today_kpi:
+        # Calculate if doesn't exist
+        today_kpi = SystemKPI.calculate_today_kpis()
+
+    # Get KPI trend data (last 30 days)
+    thirty_days_ago = today - timedelta(days=30)
+    kpi_history = SystemKPI.objects.filter(
+        date__gte=thirty_days_ago
+    ).order_by('date')
+
+    # Prepare trend data for charts
+    user_trend = {
+        'labels': [],
+        'active_users': [],
+        'new_users': []
+    }
+
+    evaluation_trend = {
+        'labels': [],
+        'completion_rate': [],
+        'completed_count': []
+    }
+
+    security_trend = {
+        'labels': [],
+        'login_attempts': [],
+        'failed_attempts': []
+    }
+
+    for kpi in kpi_history:
+        date_label = kpi.date.strftime('%d %b')
+
+        # User trends
+        user_trend['labels'].append(date_label)
+        user_trend['active_users'].append(kpi.active_users)
+        user_trend['new_users'].append(kpi.new_users_today)
+
+        # Evaluation trends
+        evaluation_trend['labels'].append(date_label)
+        evaluation_trend['completion_rate'].append(float(kpi.completion_rate))
+        evaluation_trend['completed_count'].append(kpi.evaluations_completed_today)
+
+        # Security trends
+        security_trend['labels'].append(date_label)
+        security_trend['login_attempts'].append(kpi.login_attempts_today)
+        security_trend['failed_attempts'].append(kpi.failed_login_attempts_today)
+
+    # Department performance comparison
+    departments = Department.objects.filter(is_active=True)
+    dept_performance = []
+
     latest_campaign = EvaluationCampaign.objects.filter(
         status__in=['active', 'completed']
     ).order_by('-created_at').first()
 
-    campaign_stats = None
     if latest_campaign:
-        results = EvaluationResult.objects.filter(campaign=latest_campaign)
-        campaign_stats = {
-            'title': latest_campaign.title,
-            'total_evaluations': latest_campaign.assignments.count(),
-            'completed': latest_campaign.assignments.filter(status='completed').count(),
-            'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'],
-            'participation_rate': latest_campaign.get_completion_rate(),
-        }
+        for dept in departments:
+            dept_results = EvaluationResult.objects.filter(
+                campaign=latest_campaign,
+                evaluatee__department=dept
+            )
 
-    # Score distribution
-    score_ranges = {
-        '0-2': 0,
-        '2-3': 0,
-        '3-4': 0,
-        '4-5': 0,
+            if dept_results.exists():
+                avg_score = dept_results.aggregate(Avg('overall_score'))['overall_score__avg']
+                dept_performance.append({
+                    'name': dept.name,
+                    'avg_score': round(float(avg_score), 2) if avg_score else 0,
+                    'count': dept_results.count(),
+                    'employees': User.objects.filter(department=dept, is_active=True).count()
+                })
+
+    # Sort by average score
+    dept_performance.sort(key=lambda x: x['avg_score'], reverse=True)
+
+    # Top performers (last campaign)
+    top_performers = []
+    if latest_campaign:
+        top_results = EvaluationResult.objects.filter(
+            campaign=latest_campaign
+        ).select_related('evaluatee').order_by('-overall_score')[:10]
+
+        for result in top_results:
+            top_performers.append({
+                'name': result.evaluatee.get_full_name(),
+                'department': str(result.evaluatee.department) if result.evaluatee.department else '-',
+                'position': result.evaluatee.position or '-',
+                'score': float(result.overall_score) if result.overall_score else 0
+            })
+
+    # System health metrics
+    system_health = {
+        'database_size': float(today_kpi.database_size_mb) if today_kpi.database_size_mb else 0,
+        'response_time': float(today_kpi.average_response_time) if today_kpi.average_response_time else 0,
+        'active_users_percent': round((today_kpi.active_users / today_kpi.total_users * 100) if today_kpi.total_users > 0 else 0, 1),
+        'login_success_rate': round(
+            ((today_kpi.login_attempts_today - today_kpi.failed_login_attempts_today) / today_kpi.login_attempts_today * 100)
+            if today_kpi.login_attempts_today > 0 else 100, 1
+        )
+    }
+
+    # Recent activity summary
+    recent_activities = []
+
+    # New users today
+    new_users_today = User.objects.filter(date_joined__date=today).select_related('department')[:5]
+    for user in new_users_today:
+        recent_activities.append({
+            'type': 'user_joined',
+            'icon': 'fa-user-plus',
+            'color': 'blue',
+            'message': f'{user.get_full_name()} qeydiyyatdan keçdi',
+            'time': user.date_joined
+        })
+
+    # Recent evaluations
+    recent_evals = EvaluationAssignment.objects.filter(
+        completed_at__date=today
+    ).select_related('evaluatee', 'evaluator')[:5]
+    for eval in recent_evals:
+        recent_activities.append({
+            'type': 'evaluation_completed',
+            'icon': 'fa-check-circle',
+            'color': 'green',
+            'message': f'{eval.evaluator.get_full_name()} tərəfindən {eval.evaluatee.get_full_name()} qiymətləndirildi',
+            'time': eval.completed_at
+        })
+
+    # Sort by time
+    recent_activities.sort(key=lambda x: x['time'], reverse=True)
+    recent_activities = recent_activities[:10]
+
+    # Score distribution for latest campaign
+    score_distribution = {
+        'labels': ['0-2', '2-3', '3-4', '4-5'],
+        'data': [0, 0, 0, 0]
     }
 
     if latest_campaign:
+        results = EvaluationResult.objects.filter(campaign=latest_campaign)
         for result in results:
             if result.overall_score:
                 score = float(result.overall_score)
                 if score < 2:
-                    score_ranges['0-2'] += 1
+                    score_distribution['data'][0] += 1
                 elif score < 3:
-                    score_ranges['2-3'] += 1
+                    score_distribution['data'][1] += 1
                 elif score < 4:
-                    score_ranges['3-4'] += 1
+                    score_distribution['data'][2] += 1
                 else:
-                    score_ranges['4-5'] += 1
+                    score_distribution['data'][3] += 1
 
     context = {
-        'total_campaigns': total_campaigns,
-        'active_campaigns': active_campaigns,
-        'total_evaluations': total_evaluations,
-        'total_users': total_users,
-        'campaign_stats': campaign_stats,
-        'score_distribution': json.dumps(score_ranges),
+        # Today's KPIs
+        'today_kpi': today_kpi,
+
+        # Trend data (JSON for charts)
+        'user_trend': json.dumps(user_trend),
+        'evaluation_trend': json.dumps(evaluation_trend),
+        'security_trend': json.dumps(security_trend),
+
+        # Department comparison
+        'dept_performance': dept_performance,
+
+        # Top performers
+        'top_performers': top_performers,
+
+        # System health
+        'system_health': system_health,
+
+        # Recent activities
+        'recent_activities': recent_activities,
+
+        # Score distribution
+        'score_distribution': json.dumps(score_distribution),
+
+        # Campaign info
+        'latest_campaign': latest_campaign,
     }
 
     return render(request, 'reports/analytics_dashboard.html', context)
