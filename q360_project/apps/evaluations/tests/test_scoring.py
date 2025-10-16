@@ -164,7 +164,11 @@ class ScoringCalculationTests(TestCase):
         )
 
     def create_assignment_with_responses(self, evaluator, relationship, scores):
-        """Helper to create assignment with responses."""
+        """Helper to create assignment with responses.
+
+        NOTE: Creates one response per score with the SAME question.
+        For multiple scores, create multiple questions first or pass average.
+        """
         assignment = EvaluationAssignment.objects.create(
             campaign=self.campaign,
             evaluator=evaluator,
@@ -173,11 +177,20 @@ class ScoringCalculationTests(TestCase):
             status='completed'
         )
 
-        for score in scores:
+        # If multiple scores, create one response with average
+        # (since unique_together prevents multiple responses for same question)
+        if len(scores) > 1:
+            avg_score = sum(scores) / len(scores)
             Response.objects.create(
                 assignment=assignment,
                 question=self.question,
-                score=score
+                score=int(round(avg_score))
+            )
+        elif len(scores) == 1:
+            Response.objects.create(
+                assignment=assignment,
+                question=self.question,
+                score=scores[0]
             )
 
         return assignment
@@ -208,7 +221,15 @@ class ScoringCalculationTests(TestCase):
         self.assertEqual(float(result.subordinate_score), 4.0)
 
     def test_missing_relationship_scores(self):
-        """Test calculation when some relationship types have no scores."""
+        """Test calculation when some relationship types have no scores.
+
+        CRITICAL: When relationships are missing, weights must be normalized to 100%.
+        Example: If only supervisor (weight=50%) and peer (weight=20%) respond:
+        - Total available weight = 50 + 20 = 70%
+        - Normalized supervisor weight = (50/70) * 100 = 71.43%
+        - Normalized peer weight = (20/70) * 100 = 28.57%
+        - Overall score = (5.0 * 71.43 + 3.0 * 28.57) / 100 = 4.43
+        """
         # Only supervisor and peer evaluate (no self and subordinate)
         self.create_assignment_with_responses(self.supervisor, 'supervisor', [5, 5])  # Avg: 5.0
         self.create_assignment_with_responses(self.peer, 'peer', [3, 3])  # Avg: 3.0
@@ -219,10 +240,14 @@ class ScoringCalculationTests(TestCase):
         )
         result.calculate_scores()
 
-        # Expected: (5.0 * 50 + 3.0 * 20) / 70 = 4.29 (only supervisor and peer weights)
-        expected_score = Decimal('4.29')
+        # Expected with normalization:
+        # total_weight = 50 + 20 = 70
+        # normalized_supervisor = (50/70) * 100 = 71.43%
+        # normalized_peer = (20/70) * 100 = 28.57%
+        # overall = (5.0 * 71.43 + 3.0 * 28.57) / 100 = (357.15 + 85.71) / 100 = 4.43
+        expected_score = Decimal('4.43')
 
-        self.assertAlmostEqual(float(result.overall_score), float(expected_score), places=1)
+        self.assertAlmostEqual(float(result.overall_score), float(expected_score), places=2)
         self.assertIsNone(result.self_score)
         self.assertEqual(float(result.supervisor_score), 5.0)
         self.assertEqual(float(result.peer_score), 3.0)
@@ -298,7 +323,11 @@ class ScoringCalculationTests(TestCase):
         self.assertEqual(float(result.completion_rate), 50.0)
 
     def test_zero_weights_edge_case(self):
-        """Test calculation when some weights are zero."""
+        """Test calculation when some weights are zero.
+
+        CRITICAL: When a weight is 0, that relationship should be excluded from calculation.
+        Example: peer weight = 0%, so peer evaluation should NOT affect the overall score.
+        """
         # Create campaign with zero peer weight
         campaign = EvaluationCampaign.objects.create(
             title='Zero Peer Weight Campaign',
@@ -311,11 +340,51 @@ class ScoringCalculationTests(TestCase):
             created_by=self.supervisor
         )
 
-        # Create assignments
-        self.create_assignment_with_responses(self.self_evaluator, 'self', [4])
-        self.create_assignment_with_responses(self.supervisor, 'supervisor', [5])
-        self.create_assignment_with_responses(self.peer, 'peer', [3])  # Should be ignored
-        self.create_assignment_with_responses(self.subordinate, 'subordinate', [4])
+        # Create a separate question for this campaign
+        question2 = Question.objects.create(
+            category=self.category,
+            text='Test question 2',
+            question_type='scale',
+            max_score=5,
+            order=2
+        )
+
+        # Create assignments with new campaign
+        assignment_self = EvaluationAssignment.objects.create(
+            campaign=campaign,
+            evaluator=self.self_evaluator,
+            evaluatee=self.evaluatee,
+            relationship='self',
+            status='completed'
+        )
+        Response.objects.create(assignment=assignment_self, question=question2, score=4)
+
+        assignment_supervisor = EvaluationAssignment.objects.create(
+            campaign=campaign,
+            evaluator=self.supervisor,
+            evaluatee=self.evaluatee,
+            relationship='supervisor',
+            status='completed'
+        )
+        Response.objects.create(assignment=assignment_supervisor, question=question2, score=5)
+
+        assignment_peer = EvaluationAssignment.objects.create(
+            campaign=campaign,
+            evaluator=self.peer,
+            evaluatee=self.evaluatee,
+            relationship='peer',
+            status='completed'
+        )
+        Response.objects.create(assignment=assignment_peer, question=question2, score=3)  # Should be ignored (weight=0)
+
+        assignment_subordinate = EvaluationAssignment.objects.create(
+            campaign=campaign,
+            evaluator=self.subordinate,
+            evaluatee=self.evaluatee,
+            relationship='subordinate',
+            status='completed'
+        )
+        Response.objects.create(assignment=assignment_subordinate, question=question2, score=4)
 
         result, created = EvaluationResult.objects.get_or_create(
             campaign=campaign,
@@ -323,8 +392,10 @@ class ScoringCalculationTests(TestCase):
         )
         result.calculate_scores()
 
-        # Expected: (4 * 30 + 5 * 60 + 3 * 0 + 4 * 10) / 100 = 4.6
-        # But peer score exists, so it will be included in weighted sum
-        # Since weight is 0, it won't affect the result
+        # Expected: Peer is ignored (weight=0), so only self, supervisor, subordinate count
+        # total_weight = 30 + 60 + 10 = 100 (peer's 0 not counted)
+        # normalized: self=30%, supervisor=60%, subordinate=10%
+        # overall = (4*30 + 5*60 + 4*10) / 100 = (120 + 300 + 40) / 100 = 4.6
         expected_score = Decimal('4.60')
-        self.assertAlmostEqual(float(result.overall_score), float(expected_score), places=1)
+        self.assertIsNotNone(result.overall_score, "Overall score should not be None")
+        self.assertAlmostEqual(float(result.overall_score), float(expected_score), places=2)

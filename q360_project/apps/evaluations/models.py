@@ -638,16 +638,20 @@ class EvaluationResult(models.Model):
                     score__isnull=False
                 ).aggregate(avg_score=Avg('score'))
                 score = rel_scores['avg_score']
-                setattr(self, field, score)
-                relationship_scores[relationship] = Decimal(str(score)) if score else Decimal('0')
+                # IMPORTANT: Convert to Decimal to maintain precision
+                if score is not None:
+                    decimal_score = Decimal(str(score))
+                    setattr(self, field, decimal_score)
+                    relationship_scores[relationship] = decimal_score
+                else:
+                    setattr(self, field, None)
+                    relationship_scores[relationship] = Decimal('0')
             else:
                 setattr(self, field, None)
                 relationship_scores[relationship] = Decimal('0')
 
         # Calculate weighted overall score using campaign weights
-        weighted_sum = Decimal('0')
-        total_weight = Decimal('0')
-
+        # CRITICAL FIX: Properly normalize weights when some relationships are missing
         weight_map = {
             'self': self.campaign.weight_self,
             'supervisor': self.campaign.weight_supervisor,
@@ -655,17 +659,29 @@ class EvaluationResult(models.Model):
             'subordinate': self.campaign.weight_subordinate,
         }
 
+        # Calculate total weight of relationships that actually have scores AND non-zero weights
+        total_weight_available = Decimal('0')
         for relationship, score in relationship_scores.items():
-            if score > 0:  # Only include relationships that have scores
+            if score > 0:  # Only count relationships with actual scores
                 weight = Decimal(str(weight_map[relationship]))
-                weighted_sum += score * weight
-                total_weight += weight
+                if weight > 0:  # Only count non-zero weights
+                    total_weight_available += weight
 
-        # Calculate final weighted score
-        if total_weight > 0:
-            self.overall_score = weighted_sum / total_weight
+        # Calculate weighted average with normalized weights
+        if total_weight_available > 0:
+            weighted_sum = Decimal('0')
+            for relationship, score in relationship_scores.items():
+                if score > 0:
+                    original_weight = Decimal(str(weight_map[relationship]))
+                    if original_weight > 0:  # Only include non-zero weights
+                        # Normalize weight: scale to 100%
+                        normalized_weight = (original_weight / total_weight_available) * Decimal('100')
+                        weighted_sum += score * normalized_weight
+
+            # Final score is weighted_sum / 100 (since weights are percentages)
+            self.overall_score = weighted_sum / Decimal('100')
         else:
-            # Fallback to simple average if no weights
+            # Fallback to simple average if no scores available
             all_scores = Response.objects.filter(
                 assignment__in=assignments,
                 score__isnull=False
