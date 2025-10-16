@@ -35,7 +35,14 @@ def job_posting_list(request):
     if status_filter:
         jobs = jobs.filter(status=status_filter)
 
-    context = {'jobs': jobs, 'status_filter': status_filter}
+    from apps.departments.models import Department
+    departments = Department.objects.all()
+
+    context = {
+        'jobs': jobs,
+        'status_filter': status_filter,
+        'departments': departments
+    }
     return render(request, 'recruitment/job_list.html', context)
 
 
@@ -54,6 +61,9 @@ def job_posting_create(request):
     """Create new job posting."""
     if request.method == 'POST':
         try:
+            closing_date = request.POST.get('closing_date') or None
+            number_of_positions = request.POST.get('openings', 1)
+
             job = JobPosting.objects.create(
                 title=request.POST.get('title'),
                 code=request.POST.get('code'),
@@ -62,7 +72,9 @@ def job_posting_create(request):
                 responsibilities=request.POST.get('responsibilities'),
                 requirements=request.POST.get('requirements'),
                 employment_type=request.POST.get('employment_type'),
-                location=request.POST.get('location'),
+                location=request.POST.get('location', ''),
+                closing_date=closing_date,
+                number_of_positions=number_of_positions,
                 created_by=request.user
             )
             return JsonResponse({'success': True, 'job_id': job.id})
@@ -113,7 +125,7 @@ def application_detail(request, pk):
     )
 
     # Get interviews for this application
-    interviews = Interview.objects.filter(application=application).select_related('interviewer').order_by('-scheduled_date')
+    interviews = Interview.objects.filter(application=application).prefetch_related('interviewers').order_by('-scheduled_date')
 
     # Get notes (if you have notes model, add it. For now empty list)
     notes = []
@@ -137,6 +149,98 @@ def application_update_status(request, pk):
         application.status = new_status
         application.save()
         return JsonResponse({'success': True, 'message': 'Status yeniləndi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def application_change_status(request, pk):
+    """Change application status via JSON."""
+    import json
+    application = get_object_or_404(Application, pk=pk)
+
+    try:
+        data = json.loads(request.body)
+        new_status = data.get('status')
+        application.status = new_status
+        application.save()
+        return JsonResponse({'success': True, 'message': 'Status yeniləndi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def application_reject(request, pk):
+    """Reject application."""
+    import json
+    application = get_object_or_404(Application, pk=pk)
+
+    try:
+        data = json.loads(request.body)
+        reason = data.get('reason', '')
+        application.status = 'rejected'
+        if reason:
+            application.notes = (application.notes + '\n\n' + f'Rədd səbəbi: {reason}').strip()
+        application.save()
+        return JsonResponse({'success': True, 'message': 'Müraciət rədd edildi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def application_schedule_interview(request, pk):
+    """Schedule interview for application."""
+    application = get_object_or_404(Application, pk=pk)
+
+    try:
+        interview_type = request.POST.get('interview_type')
+        scheduled_date = request.POST.get('scheduled_date')
+        interviewer_id = request.POST.get('interviewer')
+        location = request.POST.get('location', '')
+        notes = request.POST.get('notes', '')
+        duration_minutes = request.POST.get('duration_minutes', 60)
+
+        from apps.accounts.models import User
+
+        interview = Interview.objects.create(
+            application=application,
+            interview_type=interview_type,
+            scheduled_date=scheduled_date,
+            location=location,
+            duration_minutes=duration_minutes,
+            created_by=request.user
+        )
+
+        # Add interviewer if provided
+        if interviewer_id:
+            interviewer = User.objects.get(id=interviewer_id)
+            interview.interviewers.add(interviewer)
+
+        # Update application status to interview
+        application.status = 'interview'
+        application.save()
+
+        return JsonResponse({'success': True, 'message': 'Müsahibə planlaşdırıldı'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def application_add_note(request, pk):
+    """Add note to application."""
+    application = get_object_or_404(Application, pk=pk)
+
+    try:
+        content = request.POST.get('content', '')
+        if content:
+            note_text = f'\n\n[{request.user.get_full_name()} - {timezone.now().strftime("%d/%m/%Y %H:%M")}]: {content}'
+            application.notes = (application.notes or '') + note_text
+            application.save()
+        return JsonResponse({'success': True, 'message': 'Qeyd əlavə edildi'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
 

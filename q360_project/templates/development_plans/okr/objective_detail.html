@@ -512,6 +512,18 @@
 
 {% block extra_js %}
 <script>
+// Handle hash anchors to open modals
+$(document).ready(function() {
+    const hash = window.location.hash;
+    if (hash === '#add-update') {
+        $('#addUpdateModal').modal('show');
+    } else if (hash === '#add-milestone') {
+        $('#addMilestoneModal').modal('show');
+    } else if (hash === '#update-progress') {
+        $('#addUpdateModal').modal('show');
+    }
+});
+
 function editObjective() {
     window.location.href = '{% url "okr:objective_list" %}{{ objective.id }}/edit/';
 }

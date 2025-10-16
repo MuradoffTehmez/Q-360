@@ -217,9 +217,14 @@
                             <p class="mb-1">
                                 <i class="far fa-calendar mr-1"></i>{{ interview.scheduled_date|date:"d M Y, H:i" }}
                             </p>
+                            {% if interview.interviewers.all %}
                             <p class="mb-1">
-                                <i class="fas fa-user mr-1"></i>{{ interview.interviewer.get_full_name }}
+                                <i class="fas fa-user mr-1"></i>
+                                {% for interviewer in interview.interviewers.all %}
+                                    {{ interviewer.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
                             </p>
+                            {% endif %}
                             {% if interview.location %}
                             <p class="mb-0">
                                 <i class="fas fa-map-marker-alt mr-1"></i>{{ interview.location }}
@@ -441,7 +446,7 @@
 <script>
 function changeStatus(status) {
     if (confirm('{% trans "Statusu dəyişmək istədiyinizdən əminsiniz?" %}')) {
-        fetch('{% url "recruitment:application_detail" application.id %}change-status/', {
+        fetch('{% url "recruitment:application_change_status" application.id %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -463,7 +468,7 @@ function changeStatus(status) {
 function rejectApplication() {
     const reason = prompt('{% trans "Rədd səbəbini qeyd edin" %}:');
     if (reason) {
-        fetch('{% url "recruitment:application_detail" application.id %}reject/', {
+        fetch('{% url "recruitment:application_reject" application.id %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -490,7 +495,7 @@ document.getElementById('scheduleInterviewForm').addEventListener('submit', func
     e.preventDefault();
     const formData = new FormData(this);
 
-    fetch('{% url "recruitment:application_detail" application.id %}schedule-interview/', {
+    fetch('{% url "recruitment:application_schedule_interview" application.id %}', {
         method: 'POST',
         body: formData,
         headers: {'X-CSRFToken': '{{ csrf_token }}'}
@@ -514,7 +519,7 @@ document.getElementById('addNoteForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
 
-    fetch('{% url "recruitment:application_detail" application.id %}add-note/', {
+    fetch('{% url "recruitment:application_add_note" application.id %}', {
         method: 'POST',
         body: formData,
         headers: {'X-CSRFToken': '{{ csrf_token }}'}
