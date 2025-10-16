@@ -21,9 +21,15 @@ def trigger_training_assignment(sender, instance, created, **kwargs):
     if created and instance.status in ['active', 'pending_approval']:
         try:
             from apps.training.tasks import assign_training_for_development_goal
+            from django.conf import settings
 
-            # Trigger Celery task asynchronously
-            assign_training_for_development_goal.delay(instance.id)
+            # Check if Celery is in eager mode (development)
+            if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+                # Run synchronously in development
+                assign_training_for_development_goal(instance.id)
+            else:
+                # Trigger Celery task asynchronously in production
+                assign_training_for_development_goal.delay(instance.id)
 
             logger.info(
                 f"Triggered training assignment task for DevelopmentGoal {instance.id} "
@@ -31,8 +37,10 @@ def trigger_training_assignment(sender, instance, created, **kwargs):
             )
 
         except Exception as e:
-            logger.exception(
-                f"Failed to trigger training assignment for goal {instance.id}: {str(e)}"
+            # Log but don't crash if Celery/Redis is unavailable
+            logger.warning(
+                f"Could not trigger training assignment for goal {instance.id}: {str(e)}. "
+                "This is expected in development mode without Redis."
             )
 
 
