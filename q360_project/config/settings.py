@@ -350,141 +350,278 @@ CONTENT_SECURITY_POLICY = {
 # Rate limiting for authentication endpoints
 REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['login'] = '5/min'  # Limit login attempts
 
-# Jazzmin Admin Interface Configuration - Professional & Modern
+# Jazzmin Admin Interface Configuration - Ultra Professional & Modern
 JAZZMIN_SETTINGS = {
-    # Title
-    "site_title": "Q360 Admin",
-    "site_header": "Q360 - 360° Qiymətləndirmə Sistemi",
+    # ========== BRANDING ==========
+    "site_title": "Q360 Admin Panel",
+    "site_header": "Q360 - 360° Performance Management System",
     "site_brand": "Q360",
-    "site_logo": "img/q360-admin-logo.svg",
-    "login_logo": "img/q360-admin-logo.svg",
-    "login_logo_dark": "img/q360-admin-logo.svg",
-    "site_logo_classes": "img-responsive",
-    "site_icon": "img/q360-admin-logo.svg",
-    "welcome_sign": "Xoş gəlmisiniz",
-    "copyright": "Q360 360° Qiymətləndirmə Sistemi",
-    "search_model": ["accounts.User", "evaluations.EvaluationCampaign"],
+    "site_logo": None,  # We'll use CSS gradient text instead
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-fluid",
+    "site_icon": None,  # Using Font Awesome icon via CSS
+    "welcome_sign": "Xoş gəlmisiniz / Welcome",
+    "copyright": "Q360 © 2025 - 360° Performance Management System",
+    "search_model": ["accounts.User", "evaluations.EvaluationCampaign", "departments.Department"],
     "user_avatar": None,
 
-    # Top Menu Links
+    # ========== TOP MENU ==========
     "topmenu_links": [
-        {"name": "Əsas Səhifə", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Sayt", "url": "/", "new_window": True},
-        {"name": "Dəstək", "url": "/admin/support/", "new_window": False},
+        {"name": "🏠 Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "📊 Analytics", "url": "/reports/analytics/", "permissions": ["auth.view_user"]},
+        {"name": "🔒 Security", "url": "/audit/security-dashboard/", "permissions": ["auth.view_user"]},
+        {"name": "🌐 Frontend", "url": "/", "new_window": True},
+        {"name": "📖 Documentation", "url": "/help/", "new_window": True},
     ],
 
-    # User Menu
+    # ========== USER MENU ==========
     "usermenu_links": [
-        {"name": "Dəstək", "url": "/admin/support/", "new_window": False},
+        {"name": "👤 My Profile", "url": "/accounts/profile/", "new_window": False},
+        {"name": "⚙️ Settings", "url": "/accounts/security/", "new_window": False},
+        {"name": "💬 Support", "url": "/admin/support/", "new_window": False},
         {"model": "auth.user"}
     ],
 
-    # Side Menu
+    # ========== SIDEBAR ==========
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
+
+    # App ordering for better UX
     "order_with_respect_to": [
         "accounts",
-        "evaluations",
         "departments",
+        "evaluations",
         "reports",
-        "notifications",
         "development_plans",
-        "audit"
+        "competencies",
+        "training",
+        "recruitment",
+        "compensation",
+        "leave_attendance",
+        "continuous_feedback",
+        "workforce_planning",
+        "notifications",
+        "audit",
+        "search",
+        "support"
     ],
 
-    # Custom Links
+    # ========== CUSTOM LINKS ==========
     "custom_links": {
-        "accounts": [{
-            "name": "İstifadəçi Hesabatı",
-            "url": "/admin/reports/report/users-report/",
-            "icon": "fas fa-chart-line",
-            "permissions": ["accounts.view_user"]
-        }]
+        "accounts": [
+            {
+                "name": "👥 User Management",
+                "url": "/admin/accounts/user/",
+                "icon": "fas fa-users-cog",
+                "permissions": ["accounts.view_user"]
+            },
+            {
+                "name": "🔐 RBAC Matrix",
+                "url": "/accounts/rbac-matrix/",
+                "icon": "fas fa-shield-alt",
+                "permissions": ["accounts.view_user"]
+            }
+        ],
+        "reports": [
+            {
+                "name": "📊 Analytics Dashboard",
+                "url": "/reports/analytics/",
+                "icon": "fas fa-chart-line",
+                "permissions": ["auth.view_user"]
+            },
+            {
+                "name": "📈 KPI Tracking",
+                "url": "/admin/reports/systemkpi/",
+                "icon": "fas fa-tachometer-alt",
+                "permissions": ["auth.view_user"]
+            },
+            {
+                "name": "🎨 Custom Report Builder",
+                "url": "/reports/custom-builder/",
+                "icon": "fas fa-magic",
+                "permissions": ["auth.view_user"]
+            }
+        ],
+        "evaluations": [
+            {
+                "name": "📋 My Assignments",
+                "url": "/evaluations/my-assignments/",
+                "icon": "fas fa-tasks",
+            },
+            {
+                "name": "🎯 Campaign Management",
+                "url": "/admin/evaluations/evaluationcampaign/",
+                "icon": "fas fa-bullseye",
+                "permissions": ["evaluations.view_evaluationcampaign"]
+            }
+        ]
     },
 
-    # Icons - Font Awesome 5
+    # ========== ICONS - Font Awesome 6 ==========
     "icons": {
-        "auth": "fas fa-users-cog",
+        # Auth & Permissions
+        "auth": "fas fa-shield-halved",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
 
+        # Accounts
+        "accounts": "fas fa-address-card",
         "accounts.User": "fas fa-user-circle",
         "accounts.Profile": "fas fa-id-card",
         "accounts.Role": "fas fa-user-tag",
 
+        # Departments
+        "departments": "fas fa-sitemap",
         "departments.Department": "fas fa-building",
         "departments.Position": "fas fa-briefcase",
         "departments.Organization": "fas fa-landmark",
 
-        "evaluations.EvaluationCampaign": "fas fa-clipboard-list",
-        "evaluations.QuestionCategory": "fas fa-folder",
+        # Evaluations
+        "evaluations": "fas fa-clipboard-check",
+        "evaluations.EvaluationCampaign": "fas fa-calendar-check",
+        "evaluations.QuestionCategory": "fas fa-folder-open",
         "evaluations.Question": "fas fa-question-circle",
-        "evaluations.CampaignQuestion": "fas fa-list-ol",
+        "evaluations.CampaignQuestion": "fas fa-list-check",
         "evaluations.EvaluationAssignment": "fas fa-tasks",
-        "evaluations.Response": "fas fa-comment-dots",
+        "evaluations.Response": "fas fa-comments",
         "evaluations.EvaluationResult": "fas fa-chart-bar",
 
+        # Reports
+        "reports": "fas fa-chart-pie",
         "reports.Report": "fas fa-file-chart-line",
-        "reports.RadarChartData": "fas fa-chart-area",
+        "reports.RadarChartData": "fas fa-radar",
+        "reports.SystemKPI": "fas fa-gauge-high",
+        "reports.ReportGenerationLog": "fas fa-file-invoice",
 
-        "notifications.Notification": "fas fa-bell",
+        # Notifications
+        "notifications": "fas fa-bell",
+        "notifications.Notification": "fas fa-bell-on",
         "notifications.EmailTemplate": "fas fa-envelope",
 
+        # Development Plans
+        "development_plans": "fas fa-rocket",
         "development_plans.DevelopmentGoal": "fas fa-bullseye",
-        "development_plans.GoalProgress": "fas fa-tasks",
+        "development_plans.GoalProgress": "fas fa-chart-line",
+        "development_plans.Objective": "fas fa-target",
+        "development_plans.KeyResult": "fas fa-key",
 
+        # Competencies
+        "competencies": "fas fa-star",
+        "competencies.Competency": "fas fa-award",
+        "competencies.UserSkill": "fas fa-user-graduate",
+
+        # Training
+        "training": "fas fa-graduation-cap",
+        "training.Training": "fas fa-chalkboard-teacher",
+        "training.UserTraining": "fas fa-user-check",
+
+        # Recruitment
+        "recruitment": "fas fa-user-plus",
+        "recruitment.JobPosting": "fas fa-briefcase",
+        "recruitment.Application": "fas fa-file-alt",
+        "recruitment.Interview": "fas fa-handshake",
+
+        # Compensation
+        "compensation": "fas fa-money-bill-wave",
+        "compensation.Salary": "fas fa-dollar-sign",
+        "compensation.Bonus": "fas fa-gift",
+
+        # Leave & Attendance
+        "leave_attendance": "fas fa-calendar-days",
+        "leave_attendance.LeaveRequest": "fas fa-plane-departure",
+        "leave_attendance.Attendance": "fas fa-clock",
+
+        # Continuous Feedback
+        "continuous_feedback": "fas fa-comment-dots",
+
+        # Workforce Planning
+        "workforce_planning": "fas fa-users-cog",
+
+        # Audit
+        "audit": "fas fa-shield-alt",
         "audit.AuditLog": "fas fa-history",
-        "audit.SystemMetric": "fas fa-tachometer-alt",
+        "audit.SystemMetric": "fas fa-server",
+
+        # Search
+        "search": "fas fa-magnifying-glass",
+
+        # Support
+        "support": "fas fa-life-ring",
     },
 
-    # Default Icon Parents
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
+    # ========== ICON STYLING ==========
+    "default_icon_parents": "fas fa-chevron-right",
+    "default_icon_children": "fas fa-arrow-right",
 
-    # Related Modal
-    "related_modal_active": False,
+    # ========== MODALS & UI ==========
+    "related_modal_active": True,  # Enable for better UX
 
-    # UI Tweaks
+    # ========== CUSTOM CSS & JS ==========
     "custom_css": "css/admin_custom.css",
-    "custom_js": None,
+    "custom_js": "js/admin_enhancements.js",
     "use_google_fonts_cdn": True,
-    "show_ui_builder": False,
+    "show_ui_builder": False,  # Disable UI builder in production
 
-    # Change form templates
+    # ========== FORM LAYOUTS ==========
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
-        "auth.user": "collapsible",
-        "auth.group": "vertical_tabs"
+        "auth.user": "horizontal_tabs",
+        "auth.group": "vertical_tabs",
+        "accounts.user": "horizontal_tabs",
+        "accounts.profile": "collapsible",
+        "evaluations.evaluationcampaign": "horizontal_tabs",
+        "reports.report": "collapsible",
     },
 
-    # Language Chooser
+    # ========== FILTERS ==========
+    "show_ui_builder": False,
     "language_chooser": True,
+
+    # ========== WELCOME SCREEN ==========
+    "welcome_sign": "Xoş gəlmisiniz!",
+    "copyright": "Q360 Performance Management System © 2025",
+
+    # ========== LOGIN PAGE ==========
+    "login_logo": None,
+    "login_logo_dark": None,
 }
 
 JAZZMIN_UI_TWEAKS = {
+    # ========== TEXT SIZING ==========
     "navbar_small_text": False,
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-    "brand_colour": "navbar-primary",
-    "accent": "accent-teal",
-    "navbar": "navbar-dark",  # keep strong contrast for new gradient branding
-    "no_navbar_border": True,
-    "navbar_fixed": True,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "lux",
-    "dark_mode_theme": "darkly",
+
+    # ========== COLOR SCHEME (Dark Theme) ==========
+    "brand_colour": "navbar-dark",  # Dark navbar for professional look
+    "accent": "accent-primary",  # Primary accent color
+    "navbar": "navbar-dark",  # Dark navbar
+    "no_navbar_border": False,  # Show subtle border
+
+    # ========== LAYOUT ==========
+    "navbar_fixed": True,  # Fixed top navbar
+    "layout_boxed": False,  # Full-width layout
+    "footer_fixed": False,  # Footer scrolls with content
+
+    # ========== SIDEBAR ==========
+    "sidebar_fixed": True,  # Fixed sidebar
+    "sidebar": "sidebar-dark-primary",  # Dark sidebar with primary accent
+    "sidebar_nav_small_text": False,  # Comfortable text size
+    "sidebar_disable_expand": False,  # Allow menu expansion
+    "sidebar_nav_legacy_style": False,  # Modern sidebar style
+    "sidebar_nav_compact_style": False,  # Comfortable spacing
+    "sidebar_nav_child_indent": True,  # Indent child items
+    "sidebar_nav_flat_style": False,  # Hierarchical structure
+
+    # ========== THEME ==========
+    "theme": "darkly",  # Dark theme as base
+    "dark_mode_theme": "darkly",  # Dark mode theme
+
+    # ========== BUTTON STYLING ==========
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",
@@ -492,7 +629,10 @@ JAZZMIN_UI_TWEAKS = {
         "warning": "btn-warning",
         "danger": "btn-danger",
         "success": "btn-success"
-    }
+    },
+
+    # ========== ADDITIONAL CUSTOM TWEAKS ==========
+    "sidebar_nav_accordion": True,  # Accordion-style menu
 }
 
 # Django Channels Configuration (commented out - install channels if needed)
