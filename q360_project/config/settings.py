@@ -278,38 +278,229 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@q360.gov.az')
 
-# Logging Configuration
+# Professional Logging Configuration
+# Multi-level logging with rotation, JSON formatting for production monitoring
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+
+    # ========== FORMATTERS ==========
     'formatters': {
+        # Verbose format for detailed debugging
         'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+            'format': '[{levelname}] {asctime} | {name}:{lineno} | {funcName} | {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # Standard format for general logging
+        'standard': {
+            'format': '[{levelname}] {asctime} | {module} | {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # Simple format for console
+        'simple': {
+            'format': '[{levelname}] {message}',
             'style': '{',
         },
+        # JSON format for production monitoring and log aggregation
+        'json': {
+            'format': '{levelname} {asctime} {name} {funcName} {lineno} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
     },
+
+    # ========== FILTERS ==========
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+
+    # ========== HANDLERS ==========
     'handlers': {
+        # Console handler - for development
+        'console': {
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose' if DEBUG else 'standard',
+            'filters': ['require_debug_true'] if not DEBUG else [],
+        },
+
+        # Main application log - rotating file handler
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'q360.log',
+            'maxBytes': 1024 * 1024 * 15,  # 15 MB
+            'backupCount': 10,  # Keep 10 backup files
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+
+        # Error log - separate file for errors only
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'error.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+
+        # Security log - authentication, permissions, audit
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 15,  # Keep more security logs
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+
+        # Database log - for query optimization
+        'database_file': {
+            'level': 'DEBUG' if DEBUG else 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'database.log',
             'maxBytes': 1024 * 1024 * 10,  # 10 MB
             'backupCount': 5,
             'formatter': 'verbose',
+            'encoding': 'utf-8',
         },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+
+        # Performance log - slow requests and performance metrics
+        'performance_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'performance.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 7,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+
+        # API log - REST API calls and responses
+        'api_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'api.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 7,
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+
+        # Celery log - background tasks
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'celery.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 7,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+
+        # Mail admins on critical errors (production only)
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['require_debug_false'],
             'formatter': 'verbose',
         },
     },
+
+    # ========== ROOT LOGGER ==========
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console', 'file', 'error_file'],
         'level': 'INFO',
     },
+
+    # ========== LOGGERS ==========
     'loggers': {
+        # Django core loggers
         'django': {
+            'handlers': ['console', 'file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        # Django request logger - HTTP requests
+        'django.request': {
+            'handlers': ['file', 'error_file', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+
+        # Django database logger - SQL queries
+        'django.db.backends': {
+            'handlers': ['database_file'] if DEBUG else [],
+            'level': 'DEBUG' if DEBUG else 'WARNING',
+            'propagate': False,
+        },
+
+        # Django security logger
+        'django.security': {
+            'handlers': ['security_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        # Django server logger
+        'django.server': {
             'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        # Custom app loggers
+        'apps.accounts': {
+            'handlers': ['file', 'security_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        'apps.evaluations': {
+            'handlers': ['file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        'apps.audit': {
+            'handlers': ['file', 'security_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        'apps.reports': {
+            'handlers': ['file', 'performance_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        # REST Framework API logger
+        'rest_framework': {
+            'handlers': ['api_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        # Celery task logger
+        'celery': {
+            'handlers': ['celery_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
+        'celery.task': {
+            'handlers': ['celery_file', 'error_file'],
             'level': 'INFO',
             'propagate': False,
         },
