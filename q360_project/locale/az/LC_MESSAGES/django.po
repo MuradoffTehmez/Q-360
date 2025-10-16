@@ -18,69 +18,67 @@ msgstr ""
 
 #: .\apps\accounts\admin.py:25
 msgid "Rol Məlumatları"
-msgstr ""
+msgstr "Role Information"
 
 #: .\apps\accounts\admin.py:28 .\apps\accounts\admin.py:104
 #: .\apps\accounts\models.py:41
 msgid "İcazələr"
-msgstr ""
+msgstr "Permissions"
 
 #: .\apps\accounts\admin.py:31 .\apps\accounts\admin.py:112
 #: .\apps\evaluations\admin.py:43 .\apps\evaluations\admin.py:286
 #: .\apps\evaluations\admin.py:438 .\apps\evaluations\admin.py:512
 msgid "Tarixlər"
-msgstr ""
+msgstr "Dates"
 
 #: .\apps\accounts\admin.py:95 .\apps\accounts\admin.py:291
 msgid "Şəxsi Məlumatlar"
-msgstr ""
+msgstr "Personal Information"
 
 #: .\apps\accounts\admin.py:98
 msgid "Təşkilati Məlumatlar"
-msgstr ""
+msgstr "Organizational Information"
 
 #: .\apps\accounts\admin.py:101 .\apps\accounts\models.py:303
-#, fuzzy
-#| msgid "Profile"
 msgid "Profil"
-msgstr "Profil"
+msgstr "Profile"
 
 #: .\apps\accounts\admin.py:108
 msgid "Statistika"
-msgstr ""
+msgstr "Statistics"
 
 #: .\apps\accounts\admin.py:282 .\apps\accounts\models.py:156
 #: .\apps\accounts\models.py:234 .\apps\competencies\models.py:228
 #: .\apps\training\models.py:212
 msgid "İstifadəçi"
-msgstr ""
+msgstr "User"
 
 #: .\apps\accounts\admin.py:285
 msgid "Peşəkar Məlumatlar"
-msgstr ""
+msgstr "Professional Information"
 
 #: .\apps\accounts\admin.py:288 .\apps\departments\admin.py:26
 #: .\apps\departments\admin.py:74
 msgid "Əlaqə Məlumatları"
-msgstr ""
+msgstr "Contact Information"
 
 #: .\apps\accounts\admin.py:294
 msgid "Sistem Tənzimləmələri"
-msgstr ""
+msgstr "System Settings"
 
 #: .\apps\accounts\admin.py:297 .\apps\departments\admin.py:32
 #: .\apps\departments\admin.py:87 .\apps\departments\admin.py:139
 #: .\apps\reports\models.py:99
 msgid "Metadata"
-msgstr ""
+msgstr "Metadata"
 
 #: .\apps\accounts\models.py:27
 msgid "Rol Adı"
-msgstr ""
+msgstr "Role Name"
 
 #: .\apps\accounts\models.py:31 .\apps\competencies\models.py:91
 msgid "Göstəriləcək Ad"
-msgstr ""
+msgstr "Display Name"
 
 #: .\apps\accounts\models.py:35 .\apps\competencies\models.py:23
 #: .\apps\competencies\models.py:107 .\apps\departments\models.py:33
@@ -89,7 +87,7 @@ msgstr ""
 #: .\apps\evaluations\models.py:204 .\apps\support\models.py:25
 #: .\apps\training\models.py:44
 msgid "Təsvir"
-msgstr ""
+msgstr "Description"
 
 #: .\apps\accounts\models.py:45 .\apps\accounts\models.py:293
 #: .\apps\competencies\models.py:33 .\apps\competencies\models.py:113
@@ -100,7 +98,7 @@ msgstr ""
 #: .\apps\support\models.py:85 .\apps\training\models.py:141
 #: .\apps\training\models.py:298
 msgid "Yaradılma Tarixi"
-msgstr ""
+msgstr "Created Date"
 
 #: .\apps\accounts\models.py:49 .\apps\accounts\models.py:297
 #: .\apps\competencies\models.py:37 .\apps\competencies\models.py:117
@@ -110,1044 +108,1026 @@ msgstr ""
 #: .\apps\support\models.py:53 .\apps\training\models.py:145
 #: .\apps\training\models.py:302
 msgid "Yenilənmə Tarixi"
-msgstr ""
+msgstr "Updated Date"
 
 #: .\apps\accounts\models.py:55 .\apps\accounts\models.py:81
 msgid "Rol"
-msgstr ""
+msgstr "Role"
 
 #: .\apps\accounts\models.py:56
 msgid "Rollar"
-msgstr ""
+msgstr "Roles"
 
 #: .\apps\accounts\models.py:89 .\apps\departments\models.py:183
 #: .\apps\departments\models.py:229
 msgid "Şöbə"
-msgstr ""
+msgstr "Department"
 
 #: .\apps\accounts\models.py:94 .\apps\competencies\models.py:147
 #: .\apps\departments\models.py:306
-#: .\templates\workforce_planning\succession_planning.html:85
 msgid "Vəzifə"
-msgstr ""
+msgstr "Position"
 
 #: .\apps\accounts\models.py:101
 msgid "Ata adı"
-msgstr ""
+msgstr "Father's Name"
 
 #: .\apps\accounts\models.py:106 .\apps\departments\models.py:44
 #: .\apps\departments\models.py:136
 msgid "Telefon"
-msgstr ""
+msgstr "Phone"
 
 #: .\apps\accounts\models.py:113
 msgid "İşçi ID"
-msgstr ""
+msgstr "Employee ID"
 
 #: .\apps\accounts\models.py:121
 msgid "Profil Şəkli"
-msgstr ""
+msgstr "Profile Picture"
 
 #: .\apps\accounts\models.py:125
 msgid "Haqqında"
-msgstr ""
+msgstr "About"
 
 #: .\apps\accounts\models.py:135
 msgid "Rəhbər"
-msgstr ""
+msgstr "Manager"
 
 #: .\apps\accounts\models.py:141 .\apps\competencies\models.py:27
 #: .\apps\departments\models.py:58 .\apps\departments\models.py:161
 #: .\apps\departments\models.py:280 .\apps\evaluations\models.py:212
 #: .\apps\evaluations\models.py:269 .\apps\training\models.py:130
 msgid "Aktiv"
-msgstr ""
+msgstr "Active"
 
 #: .\apps\accounts\models.py:145
 msgid "Qoşulma Tarixi"
-msgstr ""
+msgstr "Join Date"
 
 #: .\apps\accounts\models.py:150
 msgid "Son Giriş"
-msgstr ""
+msgstr "Last Login"
 
 #: .\apps\accounts\models.py:157
 msgid "İstifadəçilər"
-msgstr ""
+msgstr "Users"
 
 #: .\apps\accounts\models.py:241
 msgid "Doğum Tarixi"
-msgstr ""
+msgstr "Birth Date"
 
 #: .\apps\accounts\models.py:246
 msgid "İşə Qəbul Tarixi"
-msgstr ""
+msgstr "Hire Date"
 
 #: .\apps\accounts\models.py:251
 msgid "Təhsil Səviyyəsi"
-msgstr ""
+msgstr "Education Level"
 
 #: .\apps\accounts\models.py:256
 msgid "İxtisas"
-msgstr ""
+msgstr "Specialty"
 
 #: .\apps\accounts\models.py:262
 msgid "İş E-poçtu"
-msgstr ""
+msgstr "Work Email"
 
 #: .\apps\accounts\models.py:267
 msgid "İş Telefonu"
-msgstr ""
+msgstr "Work Phone"
 
 #: .\apps\accounts\models.py:271 .\apps\departments\models.py:39
 msgid "Ünvan"
-msgstr ""
+msgstr "Address"
 
 #: .\apps\accounts\models.py:279
 msgid "Dil Seçimi"
-msgstr ""
+msgstr "Language Preference"
 
 #: .\apps\accounts\models.py:283
 msgid "E-poçt Bildirişləri"
-msgstr ""
+msgstr "Email Notifications"
 
 #: .\apps\accounts\models.py:287
 msgid "SMS Bildirişləri"
-msgstr ""
+msgstr "SMS Notifications"
 
 #: .\apps\accounts\models.py:304
-#, fuzzy
-#| msgid "Profile"
 msgid "Profillər"
-msgstr "Profil"
+msgstr "Profiles"
 
 #: .\apps\audit\models.py:23
 msgid "Model"
-msgstr ""
+msgstr "Model"
 
 #: .\apps\audit\models.py:25
 msgid "Dəyişikliklər"
-msgstr ""
+msgstr "Changes"
 
 #: .\apps\audit\models.py:31
 msgid "Audit Qeydi"
-msgstr ""
+msgstr "Audit Record"
 
 #: .\apps\audit\models.py:32
 msgid "Audit Qeydləri"
-msgstr ""
+msgstr "Audit Records"
 
 #: .\apps\competencies\apps.py:11
 msgid "Kompetensiya İdarəetməsi"
-msgstr ""
+msgstr "Competency Management"
 
 #: .\apps\competencies\models.py:19
 msgid "Kompetensiya Adı"
-msgstr ""
+msgstr "Competency Name"
 
 #: .\apps\competencies\models.py:44 .\apps\competencies\models.py:153
 #: .\apps\competencies\models.py:234
-#: .\templates\workforce_planning\gap_analysis.html:86
 msgid "Kompetensiya"
-msgstr ""
+msgstr "Competency"
 
 #: .\apps\competencies\models.py:45
 msgid "Kompetensiyalar"
-msgstr ""
+msgstr "Competencies"
 
 #: .\apps\competencies\models.py:87
 msgid "Səviyyə Adı"
-msgstr ""
+msgstr "Level Name"
 
 #: .\apps\competencies\models.py:97
 msgid "Minimum Bal"
-msgstr ""
+msgstr "Minimum Score"
 
 #: .\apps\competencies\models.py:103 .\apps\evaluations\models.py:256
 msgid "Maksimum Bal"
-msgstr ""
+msgstr "Maximum Score"
 
 #: .\apps\competencies\models.py:121
 msgid "Bacarıq Səviyyəsi"
-msgstr ""
+msgstr "Skill Level"
 
 #: .\apps\competencies\models.py:122
 msgid "Bacarıq Səviyyələri"
-msgstr ""
+msgstr "Skill Levels"
 
 #: .\apps\competencies\models.py:158
 msgid "Çəki (%)"
-msgstr ""
+msgstr "Weight (%)"
 
 #: .\apps\competencies\models.py:159
 msgid "Bu kompetensiyanın vəzifə üçün əhəmiyyət dərəcəsi (1-100%)"
-msgstr ""
+msgstr "Importance level of this competency for the position (1-100%)"
 
 #: .\apps\competencies\models.py:167
 msgid "Tələb Olunan Səviyyə"
-msgstr ""
+msgstr "Required Level"
 
 #: .\apps\competencies\models.py:171 .\apps\evaluations\models.py:261
 #: .\apps\training\models.py:134
 msgid "Məcburi"
-msgstr ""
+msgstr "Mandatory"
 
 #: .\apps\competencies\models.py:172
 msgid "Bu kompetensiya vəzifə üçün məcburidirmi?"
-msgstr ""
+msgstr "Is this competency mandatory for the position?"
 
 #: .\apps\competencies\models.py:189
 msgid "Vəzifə Kompetensiyası"
-msgstr ""
+msgstr "Position Competency"
 
 #: .\apps\competencies\models.py:190
 msgid "Vəzifə Kompetensiyaları"
-msgstr ""
+msgstr "Position Competencies"
 
 #: .\apps\competencies\models.py:208
 msgid "Çəki 1 ilə 100 arasında olmalıdır."
-msgstr ""
+msgstr "Weight must be between 1 and 100."
 
 #: .\apps\competencies\models.py:240 .\apps\departments\models.py:253
 msgid "Səviyyə"
-msgstr ""
+msgstr "Level"
 
 #: .\apps\competencies\models.py:248
-#: .\templates\workforce_planning\gap_analysis.html:87
 msgid "Cari Bal"
-msgstr ""
+msgstr "Current Score"
 
 #: .\apps\competencies\models.py:249
 msgid "Qiymətləndirmədən əldə edilən son bal"
-msgstr ""
+msgstr "Latest score from evaluation"
 
 #: .\apps\competencies\models.py:255
 msgid "Təsdiqləndi"
-msgstr ""
+msgstr "Confirmed"
 
 #: .\apps\competencies\models.py:261
 msgid "Təsdiq Statusu"
-msgstr ""
+msgstr "Confirmation Status"
 
 #: .\apps\competencies\models.py:269
 msgid "Təsdiqləyən"
-msgstr ""
+msgstr "Confirmed By"
 
 #: .\apps\competencies\models.py:274
 msgid "Təsdiq Tarixi"
-msgstr ""
+msgstr "Confirmation Date"
 
 #: .\apps\competencies\models.py:284
 msgid "Özünüqiymətləndirmə Balı"
-msgstr ""
+msgstr "Self-Assessment Score"
 
 #: .\apps\competencies\models.py:288
 msgid "Qeydlər"
-msgstr ""
+msgstr "Notes"
 
 #: .\apps\competencies\models.py:305
 msgid "İstifadəçi Bacarığı"
-msgstr ""
+msgstr "User Skill"
 
 #: .\apps\competencies\models.py:306
 msgid "İstifadəçi Bacarıqları"
-msgstr ""
+msgstr "User Skills"
 
 #: .\apps\departments\admin.py:23 .\apps\departments\admin.py:71
 #: .\apps\departments\admin.py:127 .\apps\evaluations\admin.py:40
 #: .\apps\evaluations\admin.py:155
 msgid "Əsas Məlumatlar"
-msgstr ""
+msgstr "Basic Information"
 
 #: .\apps\departments\admin.py:29 .\apps\departments\admin.py:80
 #: .\apps\departments\admin.py:136 .\apps\evaluations\admin.py:158
 #: .\apps\evaluations\admin.py:283 .\apps\evaluations\models.py:46
 #: .\apps\evaluations\models.py:372 .\apps\reports\models.py:89
 #: .\apps\support\models.py:30 .\apps\training\models.py:267
-#: .\templates\accounts\user_list.html:62
-#: .\templates\accounts\user_list.html:115
-#: .\templates\competencies\competency_detail.html:55
-#: .\templates\competencies\competency_detail.html:125
-#: .\templates\competencies\competency_list.html:76
-#: .\templates\competencies\competency_list.html:114
-#: .\templates\competencies\my_skills.html:58
-#: .\templates\training\training_detail.html:76
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: .\apps\departments\admin.py:77
 msgid "Rəhbərlik"
-msgstr ""
+msgstr "Leadership"
 
 #: .\apps\departments\admin.py:83
 msgid "Ağac Strukturu"
-msgstr ""
+msgstr "Tree Structure"
 
 #: .\apps\departments\admin.py:130
 msgid "Vəzifə Detalları"
-msgstr ""
+msgstr "Position Details"
 
 #: .\apps\departments\admin.py:133
 msgid "Tələblər"
-msgstr ""
+msgstr "Requirements"
 
 #: .\apps\departments\models.py:19
 msgid "Təşkilat Adı"
-msgstr ""
+msgstr "Organization Name"
 
 #: .\apps\departments\models.py:24
 msgid "Qısa Ad"
-msgstr ""
+msgstr "Short Name"
 
 #: .\apps\departments\models.py:29
 msgid "Təşkilat Kodu"
-msgstr ""
+msgstr "Organization Code"
 
 #: .\apps\departments\models.py:48 .\apps\departments\models.py:140
 #: .\apps\notifications\models.py:128
 msgid "E-poçt"
-msgstr ""
+msgstr "Email"
 
 #: .\apps\departments\models.py:52
 msgid "Veb Sayt"
-msgstr ""
+msgstr "Website"
 
 #: .\apps\departments\models.py:63
 msgid "Təsis Tarixi"
-msgstr ""
+msgstr "Foundation Date"
 
 #: .\apps\departments\models.py:79 .\apps\departments\models.py:107
 #: .\apps\departments\models.py:221
 msgid "Təşkilat"
-msgstr ""
+msgstr "Organization"
 
 #: .\apps\departments\models.py:80
 msgid "Təşkilatlar"
-msgstr ""
+msgstr "Organizations"
 
 #: .\apps\departments\models.py:115
 msgid "Üst Şöbə"
-msgstr ""
+msgstr "Parent Department"
 
 #: .\apps\departments\models.py:121
 msgid "Şöbə Adı"
-msgstr ""
+msgstr "Department Name"
 
 #: .\apps\departments\models.py:125
 msgid "Şöbə Kodu"
-msgstr ""
+msgstr "Department Code"
 
 #: .\apps\departments\models.py:145
 msgid "Yerləşmə"
-msgstr ""
+msgstr "Location"
 
 #: .\apps\departments\models.py:155
 msgid "Şöbə Rəhbəri"
-msgstr ""
+msgstr "Department Head"
 
 #: .\apps\departments\models.py:184
 msgid "Şöbələr"
-msgstr ""
+msgstr "Departments"
 
 #: .\apps\departments\models.py:235
 msgid "Vəzifə Adı"
-msgstr ""
+msgstr "Position Name"
 
 #: .\apps\departments\models.py:239
 msgid "Vəzifə Kodu"
-msgstr ""
+msgstr "Position Code"
 
 #: .\apps\departments\models.py:247
 msgid "Vəzifə Öhdəlikləri"
-msgstr ""
+msgstr "Position Responsibilities"
 
 #: .\apps\departments\models.py:254
 msgid "1=Rəhbərlik, 2=Orta menecment, 3=Əməkdaş"
-msgstr ""
+msgstr "1=Leadership, 2=Middle management, 3=Employee"
 
 #: .\apps\departments\models.py:262
 msgid "Hesabat Verir"
-msgstr ""
+msgstr "Reports To"
 
 #: .\apps\departments\models.py:269
 msgid "Tələb Olunan Təhsil"
-msgstr ""
+msgstr "Required Education"
 
 #: .\apps\departments\models.py:274
 msgid "Tələb Olunan Təcrübə"
-msgstr ""
+msgstr "Required Experience"
 
 #: .\apps\departments\models.py:307
 msgid "Vəzifələr"
-msgstr ""
+msgstr "Positions"
 
 #: .\apps\development_plans\models.py:20
 msgid "Məqsəd"
-msgstr ""
+msgstr "Goal"
 
 #: .\apps\development_plans\models.py:22 .\apps\evaluations\models.py:242
-#: .\templates\workforce_planning\talent_matrix.html:132
 msgid "Kateqoriya"
-msgstr ""
+msgstr "Category"
 
 #: .\apps\development_plans\models.py:24
 msgid "Hədəf Tarixi"
-msgstr ""
+msgstr "Target Date"
 
 #: .\apps\development_plans\models.py:30
 msgid "Təsdiq Qeydi"
-msgstr ""
+msgstr "Approval Note"
 
 #: .\apps\development_plans\models.py:37
 msgid "İnkişaf Məqsədi"
-msgstr ""
+msgstr "Development Goal"
 
 #: .\apps\development_plans\models.py:38
 msgid "İnkişaf Məqsədləri"
-msgstr ""
+msgstr "Development Goals"
 
 #: .\apps\development_plans\models.py:138
 msgid "Qeyd"
-msgstr ""
+msgstr "Note"
 
 #: .\apps\development_plans\models.py:139
 msgid "İrəliləyiş %"
-msgstr ""
+msgstr "Progress %"
 
 #: .\apps\development_plans\models.py:141
 msgid "Layihə"
-msgstr ""
+msgstr "Project"
 
 #: .\apps\development_plans\models.py:146
 msgid "İrəliləyiş Qeydi"
-msgstr ""
+msgstr "Progress Note"
 
 #: .\apps\development_plans\models.py:147
 msgid "İrəliləyiş Qeydləri"
-msgstr ""
+msgstr "Progress Notes"
 
 #: .\apps\evaluations\admin.py:46
 msgid "Hədəflər"
-msgstr ""
+msgstr "Targets"
 
 #: .\apps\evaluations\admin.py:50
 msgid "Yaradıcı və Statistika"
-msgstr ""
+msgstr "Creator and Statistics"
 
 #: .\apps\evaluations\admin.py:197
 msgid "Sual Məlumatları"
-msgstr ""
+msgstr "Question Information"
 
 #: .\apps\evaluations\admin.py:200
 msgid "Qiymətləndirmə"
-msgstr ""
+msgstr "Evaluation"
 
 #: .\apps\evaluations\admin.py:203
 msgid "Parametrlər"
-msgstr ""
+msgstr "Parameters"
 
 #: .\apps\evaluations\admin.py:277 .\apps\evaluations\models.py:302
 #: .\apps\evaluations\models.py:349 .\apps\evaluations\models.py:522
 msgid "Kampaniya"
-msgstr ""
+msgstr "Campaign"
 
 #: .\apps\evaluations\admin.py:280
 msgid "İştirakçılar"
-msgstr ""
+msgstr "Participants"
 
 #: .\apps\evaluations\admin.py:428
 msgid "Tapşırıq və Sual"
-msgstr ""
+msgstr "Task and Question"
 
 #: .\apps\evaluations\admin.py:431 .\apps\evaluations\models.py:497
 msgid "Cavab"
-msgstr ""
+msgstr "Answer"
 
 #: .\apps\evaluations\admin.py:434
 msgid "Sentiment Analizi"
-msgstr ""
+msgstr "Sentiment Analysis"
 
 #: .\apps\evaluations\admin.py:498
 msgid "Kampaniya və İstifadəçi"
-msgstr ""
+msgstr "Campaign and User"
 
 #: .\apps\evaluations\admin.py:501
 msgid "Ümumi Nəticə"
-msgstr ""
+msgstr "Overall Result"
 
 #: .\apps\evaluations\admin.py:504
 msgid "Bal Parçalanması"
-msgstr ""
+msgstr "Score Breakdown"
 
 #: .\apps\evaluations\models.py:26
 msgid "Kampaniya Adı"
-msgstr ""
+msgstr "Campaign Name"
 
 #: .\apps\evaluations\models.py:35 .\apps\training\models.py:249
 msgid "Başlama Tarixi"
-msgstr ""
+msgstr "Start Date"
 
 #: .\apps\evaluations\models.py:38
 msgid "Bitmə Tarixi"
-msgstr ""
+msgstr "End Date"
 
 #: .\apps\evaluations\models.py:50
 msgid "Anonim Qiymətləndirmə"
-msgstr ""
+msgstr "Anonymous Evaluation"
 
 #: .\apps\evaluations\models.py:51
 msgid "Qiymətləndirənin kimliyini gizlət"
-msgstr ""
+msgstr "Hide evaluator's identity"
 
 #: .\apps\evaluations\models.py:55
 msgid "Özünüdəyərləndirməyə İcazə Ver"
-msgstr ""
+msgstr "Allow Self-Evaluation"
 
 #: .\apps\evaluations\models.py:64
 msgid "Özünüdəyərləndirmə Çəkisi (%)"
-msgstr ""
+msgstr "Self-Evaluation Weight (%)"
 
 #: .\apps\evaluations\models.py:65
 msgid "Yekun balda özünüdəyərləndirmənin çəkisi"
-msgstr ""
+msgstr "Weight of self-evaluation in final score"
 
 #: .\apps\evaluations\models.py:72
 msgid "Rəhbər Çəkisi (%)"
-msgstr ""
+msgstr "Manager Weight (%)"
 
 #: .\apps\evaluations\models.py:73
-msgid "Yekun balda rəhbər qiymətləndir​məsinin çəkisi"
-msgstr ""
+msgid "Yekun balda rəhbər qiymətləndirməsinin çəkisi"
+msgstr "Weight of manager evaluation in final score"
 
 #: .\apps\evaluations\models.py:80
 msgid "Həmkar Çəkisi (%)"
-msgstr ""
+msgstr "Peer Weight (%)"
 
 #: .\apps\evaluations\models.py:81
 msgid "Yekun balda həmkar qiymətləndirməsinin çəkisi"
-msgstr ""
+msgstr "Weight of peer evaluation in final score"
 
 #: .\apps\evaluations\models.py:88
 msgid "Tabelik Çəkisi (%)"
-msgstr ""
+msgstr "Subordinate Weight (%)"
 
 #: .\apps\evaluations\models.py:89
 msgid "Yekun balda tabelik qiymətləndirməsinin çəkisi"
-msgstr ""
+msgstr "Weight of subordinate evaluation in final score"
 
 #: .\apps\evaluations\models.py:97
 msgid "Hədəf Şöbələr"
-msgstr ""
+msgstr "Target Departments"
 
 #: .\apps\evaluations\models.py:103
 msgid "Hədəf İstifadəçilər"
-msgstr ""
+msgstr "Target Users"
 
 #: .\apps\evaluations\models.py:112 .\apps\support\models.py:42
 #: .\apps\support\models.py:78
 msgid "Yaradan"
-msgstr ""
+msgstr "Creator"
 
 #: .\apps\evaluations\models.py:128
 msgid "Qiymətləndirmə Kampaniyası"
-msgstr ""
+msgstr "Evaluation Campaign"
 
 #: .\apps\evaluations\models.py:129
 msgid "Qiymətləndirmə Kampaniyaları"
-msgstr ""
+msgstr "Evaluation Campaigns"
 
 #: .\apps\evaluations\models.py:157
-msgid "Ağırlıq çəkilərinin cəmi 100% olmalıdır. "
-msgstr ""
+msgid "Ağırlıq çəkilərinin cəmi 100% olmalıdır."
+msgstr "Sum of weight percentages must be 100%."
 
 #: .\apps\evaluations\models.py:165
 msgid "Bitmə tarixi başlama tarixindən sonra olmalıdır."
-msgstr ""
+msgstr "End date must be after start date."
 
 #: .\apps\evaluations\models.py:200
 msgid "Kateqoriya Adı"
-msgstr ""
+msgstr "Category Name"
 
 #: .\apps\evaluations\models.py:208 .\apps\evaluations\models.py:265
 #: .\apps\evaluations\models.py:312
 msgid "Sıra"
-msgstr ""
+msgstr "Order"
 
 #: .\apps\evaluations\models.py:219
 msgid "Sual Kateqoriyası"
-msgstr ""
+msgstr "Question Category"
 
 #: .\apps\evaluations\models.py:220
 msgid "Sual Kateqoriyaları"
-msgstr ""
+msgstr "Question Categories"
 
 #: .\apps\evaluations\models.py:245
 msgid "Sual Mətni"
-msgstr ""
+msgstr "Question Text"
 
 #: .\apps\evaluations\models.py:251
 msgid "Sual Növü"
-msgstr ""
+msgstr "Question Type"
 
 #: .\apps\evaluations\models.py:257
 msgid "Qiymətləndirmə 1-5 şkalasında aparılır"
-msgstr ""
+msgstr "Evaluation is conducted on a 1-5 scale"
 
 #: .\apps\evaluations\models.py:279 .\apps\evaluations\models.py:308
 #: .\apps\evaluations\models.py:454
 msgid "Sual"
-msgstr ""
+msgstr "Question"
 
 #: .\apps\evaluations\models.py:280
 msgid "Suallar"
-msgstr ""
+msgstr "Questions"
 
 #: .\apps\evaluations\models.py:316
 msgid "Kampaniya Sualı"
-msgstr ""
+msgstr "Campaign Question"
 
 #: .\apps\evaluations\models.py:317
 msgid "Kampaniya Sualları"
-msgstr ""
+msgstr "Campaign Questions"
 
 #: .\apps\evaluations\models.py:355
 msgid "Qiymətləndirən"
-msgstr ""
+msgstr "Evaluator"
 
 #: .\apps\evaluations\models.py:361 .\apps\evaluations\models.py:528
 msgid "Qiymətləndirilən"
-msgstr ""
+msgstr "Evaluated"
 
 #: .\apps\evaluations\models.py:366
 msgid "Əlaqə Növü"
-msgstr ""
+msgstr "Relationship Type"
 
 #: .\apps\evaluations\models.py:379
 msgid "Başlanma Vaxtı"
-msgstr ""
+msgstr "Start Time"
 
 #: .\apps\evaluations\models.py:384
 msgid "Tamamlanma Vaxtı"
-msgstr ""
+msgstr "Completion Time"
 
 #: .\apps\evaluations\models.py:394
 msgid "Qiymətləndirmə Tapşırığı"
-msgstr ""
+msgstr "Evaluation Task"
 
 #: .\apps\evaluations\models.py:395
 msgid "Qiymətləndirmə Tapşırıqları"
-msgstr ""
+msgstr "Evaluation Tasks"
 
 #: .\apps\evaluations\models.py:448
 msgid "Tapşırıq"
-msgstr ""
+msgstr "Task"
 
 #: .\apps\evaluations\models.py:462
 msgid "Bal"
-msgstr ""
+msgstr "Score"
 
 #: .\apps\evaluations\models.py:463
 msgid "1-5 arası qiymətləndirmə balı"
-msgstr ""
+msgstr "Evaluation score between 1-5"
 
 #: .\apps\evaluations\models.py:468
 msgid "Bəli/Xeyr Cavabı"
-msgstr ""
+msgstr "Yes/No Answer"
 
 #: .\apps\evaluations\models.py:472
 msgid "Mətn Cavabı"
-msgstr ""
+msgstr "Text Answer"
 
 #: .\apps\evaluations\models.py:476 .\apps\support\models.py:74
 msgid "Şərh"
-msgstr ""
+msgstr "Comment"
 
 #: .\apps\evaluations\models.py:482
 msgid "Sentiment Skoru"
-msgstr ""
+msgstr "Sentiment Score"
 
 #: .\apps\evaluations\models.py:483
 msgid "VADER sentiment compound skoru (-1.0 - +1.0)"
-msgstr ""
+msgstr "VADER sentiment compound score (-1.0 - +1.0)"
 
 #: .\apps\evaluations\models.py:489
 msgid "Sentiment Kateqoriyası"
-msgstr ""
+msgstr "Sentiment Category"
 
 #: .\apps\evaluations\models.py:498
 msgid "Cavablar"
-msgstr ""
+msgstr "Answers"
 
 #: .\apps\evaluations\models.py:537
 msgid "Ümumi Bal"
-msgstr ""
+msgstr "Overall Score"
 
 #: .\apps\evaluations\models.py:544
 msgid "Özünüdəyərləndirmə Balı"
-msgstr ""
+msgstr "Self-Evaluation Score"
 
 #: .\apps\evaluations\models.py:551
 msgid "Rəhbər Balı"
-msgstr ""
+msgstr "Manager Score"
 
 #: .\apps\evaluations\models.py:558
 msgid "Həmkar Balı"
-msgstr ""
+msgstr "Peer Score"
 
 #: .\apps\evaluations\models.py:565
 msgid "Tabelik Balı"
-msgstr ""
+msgstr "Subordinate Score"
 
 #: .\apps\evaluations\models.py:571
 msgid "Qiymətləndirən Sayı"
-msgstr ""
+msgstr "Evaluator Count"
 
 #: .\apps\evaluations\models.py:577
 msgid "Tamamlanma Faizi"
-msgstr ""
+msgstr "Completion Percentage"
 
 #: .\apps\evaluations\models.py:583
 msgid "Yekunlaşdırılmış"
-msgstr ""
+msgstr "Finalized"
 
 #: .\apps\evaluations\models.py:588
 msgid "Yekunlaşdırma Vaxtı"
-msgstr ""
+msgstr "Finalization Time"
 
 #: .\apps\evaluations\models.py:594
 msgid "Hesablama Vaxtı"
-msgstr ""
+msgstr "Calculation Time"
 
 #: .\apps\evaluations\models.py:599
 msgid "Qiymətləndirmə Nəticəsi"
-msgstr ""
+msgstr "Evaluation Result"
 
 #: .\apps\evaluations\models.py:600
 msgid "Qiymətləndirmə Nəticələri"
-msgstr ""
+msgstr "Evaluation Results"
 
 #: .\apps\notifications\models.py:18 .\apps\reports\models.py:19
 #: .\apps\support\models.py:24
-#: .\templates\continuous_feedback\send_feedback.html:105
 msgid "Başlıq"
-msgstr ""
+msgstr "Title"
 
 #: .\apps\notifications\models.py:19
-#: .\templates\continuous_feedback\send_feedback.html:116
 msgid "Mesaj"
-msgstr ""
+msgstr "Message"
 
 #: .\apps\notifications\models.py:21
 msgid "Oxundu"
-msgstr ""
+msgstr "Read"
 
 #: .\apps\notifications\models.py:22
 msgid "Keçid"
-msgstr ""
+msgstr "Link"
 
 #: .\apps\notifications\models.py:27
 msgid "Bildiriş"
-msgstr ""
+msgstr "Notification"
 
 #: .\apps\notifications\models.py:28
 msgid "Bildirişlər"
-msgstr ""
+msgstr "Notifications"
 
 #: .\apps\notifications\models.py:71
 msgid "Şablon Adı"
-msgstr ""
+msgstr "Template Name"
 
 #: .\apps\notifications\models.py:72 .\apps\notifications\models.py:129
 msgid "Mövzu"
-msgstr ""
+msgstr "Subject"
 
 #: .\apps\notifications\models.py:73
 msgid "HTML Məzmun"
-msgstr ""
+msgstr "HTML Content"
 
 #: .\apps\notifications\models.py:74
 msgid "Mətn Məzmunu"
-msgstr ""
+msgstr "Text Content"
 
 #: .\apps\notifications\models.py:80
 msgid "E-poçt Şablonu"
-msgstr ""
+msgstr "Email Template"
 
 #: .\apps\notifications\models.py:81
 msgid "E-poçt Şablonları"
-msgstr ""
+msgstr "Email Templates"
 
 #: .\apps\notifications\models.py:120
 msgid "Şablon"
-msgstr ""
+msgstr "Template"
 
 #: .\apps\notifications\models.py:126
 msgid "Alıcı"
-msgstr ""
+msgstr "Recipient"
 
 #: .\apps\notifications\models.py:131 .\apps\reports\models.py:104
 msgid "Xəta Mesajı"
-msgstr ""
+msgstr "Error Message"
 
 #: .\apps\notifications\models.py:141
 msgid "E-poçt Loqu"
-msgstr ""
+msgstr "Email Log"
 
 #: .\apps\notifications\models.py:142
 msgid "E-poçt Loqları"
-msgstr ""
+msgstr "Email Logs"
 
 #: .\apps\reports\models.py:24
 msgid "Hesabat Məlumatları"
-msgstr ""
+msgstr "Report Information"
 
 #: .\apps\reports\models.py:28
 msgid "Hesabat"
-msgstr ""
+msgstr "Report"
 
 #: .\apps\reports\models.py:29
 msgid "Hesabatlar"
-msgstr ""
+msgstr "Reports"
 
 #: .\apps\reports\models.py:47
 msgid "Radar Qrafik Məlumatı"
-msgstr ""
+msgstr "Radar Chart Data"
 
 #: .\apps\reports\models.py:48
 msgid "Radar Qrafik Məlumatları"
-msgstr ""
+msgstr "Radar Chart Data"
 
 #: .\apps\reports\models.py:77
 msgid "Hesabat Növü"
-msgstr ""
+msgstr "Report Type"
 
 #: .\apps\reports\models.py:83
 msgid "Tələb edən"
-msgstr ""
+msgstr "Requester"
 
 #: .\apps\reports\models.py:95
 msgid "Hesabat Faylı"
-msgstr ""
+msgstr "Report File"
 
 #: .\apps\reports\models.py:100
 msgid "Task ID, parameterlər və s."
-msgstr ""
+msgstr "Task ID, parameters, etc."
 
 #: .\apps\reports\models.py:113 .\apps\training\models.py:259
 msgid "Tamamlanma Tarixi"
-msgstr ""
+msgstr "Completion Date"
 
 #: .\apps\reports\models.py:117
 msgid "Hesabat Yaratma Loqu"
-msgstr ""
+msgstr "Report Generation Log"
 
 #: .\apps\reports\models.py:118
 msgid "Hesabat Yaratma Loqları"
-msgstr ""
+msgstr "Report Generation Logs"
 
 #: .\apps\support\models.py:36
-#: .\templates\workforce_planning\gap_analysis.html:90
 msgid "Prioritet"
-msgstr ""
+msgstr "Priority"
 
 #: .\apps\support\models.py:50
 msgid "Təyin Edildi"
-msgstr ""
+msgstr "Assigned To"
 
 #: .\apps\support\models.py:54
 msgid "Həll Tarixi"
-msgstr ""
+msgstr "Resolution Date"
 
 #: .\apps\support\models.py:57
 msgid "Dəstək Sorğusu"
-msgstr ""
+msgstr "Support Request"
 
 #: .\apps\support\models.py:58
 msgid "Dəstək Sorğuları"
-msgstr ""
+msgstr "Support Requests"
 
 #: .\apps\support\models.py:72
 msgid "Sorğu"
-msgstr ""
+msgstr "Request"
 
 #: .\apps\support\models.py:82
 msgid "Daxili Qeyd"
-msgstr ""
+msgstr "Internal Note"
 
 #: .\apps\support\models.py:83
 msgid "Yalnız support komandası üçün görünən"
-msgstr ""
+msgstr "Visible only to support team"
 
 #: .\apps\support\models.py:88
 msgid "Sorğu Şərhi"
-msgstr ""
+msgstr "Request Comment"
 
 #: .\apps\support\models.py:89
 msgid "Sorğu Şərhləri"
-msgstr ""
+msgstr "Request Comments"
 
 #: .\apps\training\apps.py:11
 msgid "Təlim və İnkişaf"
-msgstr ""
+msgstr "Training and Development"
 
 #: .\apps\training\models.py:41
 msgid "Təlim Adı"
-msgstr ""
+msgstr "Training Name"
 
 #: .\apps\training\models.py:50
 msgid "Təlim Növü"
-msgstr ""
+msgstr "Training Type"
 
 #: .\apps\training\models.py:56
 msgid "Onlayn"
-msgstr ""
+msgstr "Online"
 
 #: .\apps\training\models.py:62
 msgid "Çatdırılma Metodu"
-msgstr ""
+msgstr "Delivery Method"
 
 #: .\apps\training\models.py:66
-#: .\templates\notifications\bulk_notification.html:104
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: .\apps\training\models.py:67
 msgid "Onlayn təlim linki və ya əlavə məlumat"
-msgstr ""
+msgstr "Online training link or additional information"
 
 #: .\apps\training\models.py:75
 msgid "Çətinlik Səviyyəsi"
-msgstr ""
+msgstr "Difficulty Level"
 
 #: .\apps\training\models.py:82
 msgid "Müddət (saat)"
-msgstr ""
+msgstr "Duration (hours)"
 
 #: .\apps\training\models.py:83
 msgid "Təlimin təxmini müddəti saat olaraq"
-msgstr ""
+msgstr "Estimated duration of training in hours"
 
 #: .\apps\training\models.py:88
 msgid "Dil"
-msgstr ""
+msgstr "Language"
 
 #: .\apps\training\models.py:96
 msgid "Əlaqəli Kompetensiyalar"
-msgstr ""
+msgstr "Related Competencies"
 
 #: .\apps\training\models.py:97
 msgid "Bu təlimin inkişaf etdirdiyi kompetensiyalar"
-msgstr ""
+msgstr "Competencies developed by this training"
 
 #: .\apps\training\models.py:104
 msgid "Təlim Təminatçısı"
-msgstr ""
+msgstr "Training Provider"
 
 #: .\apps\training\models.py:109
 msgid "Təlimatçı/Mütəxəssis"
-msgstr ""
+msgstr "Instructor/Specialist"
 
 #: .\apps\training\models.py:118
 msgid "Qiymət"
-msgstr ""
+msgstr "Price"
 
 #: .\apps\training\models.py:119
 msgid "Təlimin dəyəri (manat)"
-msgstr ""
+msgstr "Training cost (manat)"
 
 #: .\apps\training\models.py:124
 msgid "Maksimum İştirakçı"
-msgstr ""
+msgstr "Maximum Participants"
 
 #: .\apps\training\models.py:135
 msgid "Müəyyən vəzifələr üçün məcburi təlim"
-msgstr ""
+msgstr "Mandatory training for specific positions"
 
 #: .\apps\training\models.py:152 .\apps\training\models.py:218
 msgid "Təlim Resursu"
-msgstr ""
+msgstr "Training Resource"
 
 #: .\apps\training\models.py:153
 msgid "Təlim Resursları"
-msgstr ""
+msgstr "Training Resources"
 
 #: .\apps\training\models.py:226
 msgid "Təyin Edən"
-msgstr ""
+msgstr "Assigned By"
 
 #: .\apps\training\models.py:234
 msgid "Təyin Növü"
-msgstr ""
+msgstr "Assignment Type"
 
 #: .\apps\training\models.py:242
 msgid "Əlaqəli İnkişaf Məqsədi"
-msgstr ""
+msgstr "Related Development Goal"
 
 #: .\apps\training\models.py:254
 msgid "Son Tarix"
-msgstr ""
+msgstr "Deadline"
 
 #: .\apps\training\models.py:271
 msgid "Proqres (%)"
-msgstr ""
+msgstr "Progress (%)"
 
 #: .\apps\training\models.py:272
 msgid "0-100 arası"
-msgstr ""
+msgstr "Between 0-100"
 
 #: .\apps\training\models.py:278
 msgid "Tamamlanma Qeydi"
-msgstr ""
+msgstr "Completion Note"
 
 #: .\apps\training\models.py:282
 msgid "İstifadəçi Rəyi"
-msgstr ""
+msgstr "User Feedback"
 
 #: .\apps\training\models.py:287
 msgid "Reytinq"
-msgstr ""
+msgstr "Rating"
 
 #: .\apps\training\models.py:288
 msgid "1-5 ulduz arası qiymətləndirmə"
-msgstr ""
+msgstr "Rating between 1-5 stars"
 
 #: .\apps\training\models.py:292
 msgid "Sertifikat Linki"
-msgstr ""
+msgstr "Certificate Link"
 
 #: .\apps\training\models.py:309
 msgid "İstifadəçi Təlimi"
-msgstr ""
+msgstr "User Training"
 
 #: .\apps\training\models.py:310
 msgid "İstifadəçi Təlimləri"
-msgstr ""
+msgstr "User Trainings"
 
 # Languages
 #: .\config\settings.py:146 .\i18n_settings.py:10
 msgid "Azərbaycan"
-msgstr "Azərbaycan"
+msgstr "Azerbaijani"
 
 #: .\config\settings.py:147 .\i18n_settings.py:11
 msgid "English"
-msgstr "İngilis"
+msgstr "English"
 
 #: .\templates\accounts\dashboard.html:5 .\templates\base\footer.html:26
 msgid "Dashboard"
-msgstr "İdarə Paneli"
+msgstr "Dashboard"
 
 #: .\templates\accounts\dashboard.html:11
 msgid "Welcome"
-msgstr ""
+msgstr "Welcome"
 
 #: .\templates\accounts\dashboard.html:13
 msgid "Here's what's happening today"
-msgstr ""
+msgstr "Here's what's happening today"
 
 #: .\templates\accounts\dashboard.html:17
 #: .\templates\departments\department_chart.html:107
 msgid "Print"
-msgstr ""
+msgstr "Print"
 
 #: .\templates\accounts\dashboard.html:29
 #: .\templates\competencies\competency_detail.html:208
@@ -1157,7 +1137,7 @@ msgstr ""
 #: .\templates\training\my_trainings.html:102
 #: .\templates\training\training_detail.html:191
 msgid "Pending"
-msgstr ""
+msgstr "Pending"
 
 #: .\templates\accounts\dashboard.html:42
 #: .\templates\training\my_certificates.html:113
@@ -1165,395 +1145,364 @@ msgstr ""
 #: .\templates\training\my_trainings.html:104
 #: .\templates\training\training_detail.html:193
 msgid "Completed"
-msgstr ""
+msgstr "Completed"
 
 #: .\templates\accounts\dashboard.html:55 .\templates\base\sidebar.html:52
 msgid "Campaigns"
-msgstr "Kampaniyalar"
+msgstr "Campaigns"
 
 #: .\templates\accounts\dashboard.html:68
 msgid "Avg Score"
-msgstr ""
+msgstr "Avg Score"
 
 #: .\templates\accounts\dashboard.html:85
 msgid "My Active Tasks"
-msgstr ""
+msgstr "My Active Tasks"
 
 #: .\templates\accounts\dashboard.html:86
 msgid "Top 3 critical functions for your attention"
-msgstr ""
+msgstr "Top 3 critical functions for your attention"
 
 #: .\templates\accounts\dashboard.html:103
-#, fuzzy
-#| msgid "Evaluations"
 msgid "Pending Evaluations"
-msgstr "Qiymətləndirmələr"
+msgstr "Pending Evaluations"
 
 #: .\templates\accounts\dashboard.html:106
 msgid "Awaiting your response"
-msgstr ""
+msgstr "Awaiting your response"
 
 #: .\templates\accounts\dashboard.html:122
 msgid "Upcoming Trainings"
-msgstr ""
+msgstr "Upcoming Trainings"
 
 #: .\templates\accounts\dashboard.html:125
 msgid "Due within 7 days"
-msgstr ""
+msgstr "Due within 7 days"
 
 #: .\templates\accounts\dashboard.html:142
 msgid "Skills Pending Approval"
-msgstr ""
+msgstr "Skills Pending Approval"
 
 #: .\templates\accounts\dashboard.html:145
 msgid "Requires your approval"
-msgstr ""
+msgstr "Requires your approval"
 
 #: .\templates\accounts\dashboard.html:160
 msgid "Active Development Goals"
-msgstr ""
+msgstr "Active Development Goals"
 
 #: .\templates\accounts\dashboard.html:163
 msgid "In progress"
-msgstr ""
+msgstr "In progress"
 
 #: .\templates\accounts\dashboard.html:178 .\templates\base\sidebar.html:45
 msgid "My Assignments"
-msgstr "Mənim Tapşırıqlarım"
+msgstr "My Assignments"
 
 #: .\templates\accounts\dashboard.html:181 .\templates\base\navbar.html:77
 msgid "View All"
-msgstr ""
+msgstr "View All"
 
 #: .\templates\accounts\dashboard.html:190
 msgid "Person"
-msgstr ""
+msgstr "Person"
 
 #: .\templates\accounts\dashboard.html:191
-#, fuzzy
-#| msgid "Campaigns"
 msgid "Campaign"
-msgstr "Kampaniyalar"
+msgstr "Campaign"
 
 #: .\templates\accounts\dashboard.html:192
 #: .\templates\notifications\bulk_notification.html:77
 #: .\templates\training\catalog.html:44
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: .\templates\accounts\dashboard.html:193
 msgid "Action"
-msgstr ""
+msgstr "Action"
 
 #: .\templates\accounts\dashboard.html:215
 msgid "Fill"
-msgstr ""
+msgstr "Fill"
 
 #: .\templates\accounts\dashboard.html:226
-#, fuzzy
-#| msgid "Evaluations"
 msgid "No pending evaluations"
-msgstr "Qiymətləndirmələr"
+msgstr "No pending evaluations"
 
 #: .\templates\accounts\dashboard.html:239
-#, fuzzy
-#| msgid "Questions"
 msgid "Quick Actions"
-msgstr "Suallar"
+msgstr "Quick Actions"
 
 #: .\templates\accounts\dashboard.html:244 .\templates\base\navbar.html:24
 #: .\templates\base\navbar.html:160 .\templates\base\sidebar.html:38
 msgid "Evaluations"
-msgstr "Qiymətləndirmələr"
+msgstr "Evaluations"
 
 #: .\templates\accounts\dashboard.html:248 .\templates\base\navbar.html:37
 #: .\templates\base\navbar.html:170 .\templates\base\sidebar.html:58
 msgid "Reports"
-msgstr "Hesabatlar"
+msgstr "Reports"
 
 #: .\templates\accounts\dashboard.html:252
 msgid "Goals"
-msgstr ""
+msgstr "Goals"
 
 #: .\templates\accounts\dashboard.html:261 .\templates\base\navbar.html:76
 #: .\templates\base\sidebar.html:225
 msgid "Notifications"
-msgstr "Bildirişlər"
+msgstr "Notifications"
 
 #: .\templates\accounts\dashboard.html:278 .\templates\base\navbar.html:83
 msgid "No notifications"
-msgstr "Bildiriş yoxdur"
+msgstr "No notifications"
 
 #: .\templates\accounts\dashboard.html:291
 msgid "Performance Trend"
-msgstr ""
+msgstr "Performance Trend"
 
 #: .\templates\accounts\dashboard.html:301
 msgid "Score Distribution"
-msgstr ""
+msgstr "Score Distribution"
 
 #: .\templates\accounts\setup_wizard.html:5
 msgid "Initial Setup Wizard"
-msgstr ""
+msgstr "Initial Setup Wizard"
 
 #: .\templates\accounts\setup_wizard.html:14
 msgid "First Time Setup"
-msgstr ""
+msgstr "First Time Setup"
 
 #: .\templates\accounts\setup_wizard.html:16
 msgid "Setup Wizard"
-msgstr ""
+msgstr "Setup Wizard"
 
 #: .\templates\accounts\setup_wizard.html:18
 msgid "Let's configure your Q360 system in a few simple steps"
-msgstr ""
+msgstr "Let's configure your Q360 system in a few simple steps"
 
 #: .\templates\accounts\setup_wizard.html:28
 msgid "Setup Progress"
-msgstr ""
+msgstr "Setup Progress"
 
 #: .\templates\accounts\setup_wizard.html:30
 msgid "Step"
-msgstr ""
+msgstr "Step"
 
 #: .\templates\accounts\setup_wizard.html:57
 msgid "Organization Information"
-msgstr ""
+msgstr "Organization Information"
 
 #: .\templates\accounts\setup_wizard.html:59
 msgid "Enter your organization details"
-msgstr ""
+msgstr "Enter your organization details"
 
 #: .\templates\accounts\setup_wizard.html:63
 msgid "Organization Name"
-msgstr ""
+msgstr "Organization Name"
 
 #: .\templates\accounts\setup_wizard.html:64
 msgid "Enter organization name"
-msgstr ""
+msgstr "Enter organization name"
 
 #: .\templates\accounts\setup_wizard.html:67
 msgid "Industry"
-msgstr ""
+msgstr "Industry"
 
 #: .\templates\accounts\setup_wizard.html:69
 msgid "Select industry"
-msgstr ""
+msgstr "Select industry"
 
 #: .\templates\accounts\setup_wizard.html:70
 msgid "Technology"
-msgstr ""
+msgstr "Technology"
 
 #: .\templates\accounts\setup_wizard.html:71
-#, fuzzy
-#| msgid "Cancel"
 msgid "Finance"
-msgstr "Ləğv et"
+msgstr "Finance"
 
 #: .\templates\accounts\setup_wizard.html:72
 msgid "Healthcare"
-msgstr ""
+msgstr "Healthcare"
 
 #: .\templates\accounts\setup_wizard.html:73
-#, fuzzy
-#| msgid "Evaluations"
 msgid "Education"
-msgstr "Qiymətləndirmələr"
+msgstr "Education"
 
 #: .\templates\accounts\setup_wizard.html:74
 msgid "Other"
-msgstr ""
+msgstr "Other"
 
 #: .\templates\accounts\setup_wizard.html:84
-#, fuzzy
-#| msgid "Departments"
 msgid "Department Structure"
-msgstr "Şöbələr"
+msgstr "Department Structure"
 
 #: .\templates\accounts\setup_wizard.html:86
 msgid "Add your main departments"
-msgstr ""
+msgstr "Add your main departments"
 
 #: .\templates\accounts\setup_wizard.html:91
-#, fuzzy
-#| msgid "Departments"
 msgid "Department name"
-msgstr "Şöbələr"
+msgstr "Department name"
 
 #: .\templates\accounts\setup_wizard.html:99
-#, fuzzy
-#| msgid "Departments"
 msgid "Add Department"
-msgstr "Şöbələr"
+msgstr "Add Department"
 
 #: .\templates\accounts\setup_wizard.html:107
 msgid "User Import"
-msgstr ""
+msgstr "User Import"
 
 #: .\templates\accounts\setup_wizard.html:109
 msgid "Import users or add them manually later"
-msgstr ""
+msgstr "Import users or add them manually later"
 
 #: .\templates\accounts\setup_wizard.html:113
 msgid "Upload CSV file or skip for now"
-msgstr ""
+msgstr "Upload CSV file or skip for now"
 
 #: .\templates\accounts\setup_wizard.html:116
 msgid "Choose File"
-msgstr ""
+msgstr "Choose File"
 
 #: .\templates\accounts\setup_wizard.html:125
 #: .\templates\accounts\setup_wizard.html:159
 msgid "Competency Framework"
-msgstr ""
+msgstr "Competency Framework"
 
 #: .\templates\accounts\setup_wizard.html:127
 msgid "Select a competency framework template"
-msgstr ""
+msgstr "Select a competency framework template"
 
 #: .\templates\accounts\setup_wizard.html:131
 msgid "Basic Framework"
-msgstr ""
+msgstr "Basic Framework"
 
 #: .\templates\accounts\setup_wizard.html:132
 msgid "Essential competencies for most organizations"
-msgstr ""
+msgstr "Essential competencies for most organizations"
 
 #: .\templates\accounts\setup_wizard.html:135
 msgid "Advanced Framework"
-msgstr ""
+msgstr "Advanced Framework"
 
 #: .\templates\accounts\setup_wizard.html:136
 msgid "Comprehensive competencies with technical skills"
-msgstr ""
+msgstr "Comprehensive competencies with technical skills"
 
 #: .\templates\accounts\setup_wizard.html:145
 msgid "Review & Confirm"
-msgstr ""
+msgstr "Review & Confirm"
 
 #: .\templates\accounts\setup_wizard.html:147
 msgid "Review your setup before completing"
-msgstr ""
+msgstr "Review your setup before completing"
 
 #: .\templates\accounts\setup_wizard.html:151
 #: .\templates\accounts\setup_wizard.html:192
 msgid "Organization"
-msgstr ""
+msgstr "Organization"
 
 #: .\templates\accounts\setup_wizard.html:152
 #: .\templates\training\my_trainings.html:58
 msgid "Not set"
-msgstr ""
+msgstr "Not set"
 
 #: .\templates\accounts\setup_wizard.html:155
 #: .\templates\accounts\setup_wizard.html:193 .\templates\base\sidebar.html:171
-#: .\templates\search\results.html:80
 msgid "Departments"
-msgstr "Şöbələr"
+msgstr "Departments"
 
 #: .\templates\accounts\setup_wizard.html:156
-#, fuzzy
-#| msgid "Departments"
 msgid "departments"
-msgstr "Şöbələr"
+msgstr "departments"
 
 #: .\templates\accounts\setup_wizard.html:160
 msgid "Not selected"
-msgstr ""
+msgstr "Not selected"
 
 #: .\templates\accounts\setup_wizard.html:168
 msgid "Back"
-msgstr "Geri"
+msgstr "Back"
 
 #: .\templates\accounts\setup_wizard.html:172
 msgid "Skip Setup"
-msgstr ""
+msgstr "Skip Setup"
 
 #: .\templates\accounts\setup_wizard.html:175
 #: .\templates\competencies\competency_list.html:163
 msgid "Next"
-msgstr "Növbəti"
+msgstr "Next"
 
 #: .\templates\accounts\setup_wizard.html:178
 msgid "Complete Setup"
-msgstr ""
+msgstr "Complete Setup"
 
 #: .\templates\accounts\setup_wizard.html:194
 #: .\templates\accounts\user_list.html:5 .\templates\accounts\user_list.html:11
-#: .\templates\search\results.html:65
 msgid "Users"
-msgstr "İstifadəçilər"
+msgstr "Users"
 
 #: .\templates\accounts\setup_wizard.html:195 .\templates\base\sidebar.html:98
 #: .\templates\base\sidebar.html:176
 #: .\templates\competencies\competency_list.html:5
 #: .\templates\competencies\competency_list.html:11
-#: .\templates\search\results.html:70
 msgid "Competencies"
-msgstr ""
+msgstr "Competencies"
 
 #: .\templates\accounts\setup_wizard.html:196
 msgid "Review"
-msgstr ""
+msgstr "Review"
 
 #: .\templates\accounts\setup_wizard.html:246
 msgid "Setup completed successfully!"
-msgstr ""
+msgstr "Setup completed successfully!"
 
 #: .\templates\accounts\setup_wizard.html:255
 msgid "Setup failed. Please try again."
-msgstr ""
+msgstr "Setup failed. Please try again."
 
 #: .\templates\accounts\user_list.html:13
 msgid "Manage system users"
-msgstr ""
+msgstr "Manage system users"
 
 #: .\templates\accounts\user_list.html:18
 msgid "Refresh"
-msgstr ""
+msgstr "Refresh"
 
 #: .\templates\accounts\user_list.html:31
-#, fuzzy
-#| msgid "Users"
 msgid "Total Users"
-msgstr "İstifadəçilər"
+msgstr "Total Users"
 
 #: .\templates\accounts\user_list.html:46
-#, fuzzy
-#| msgid "Users"
 msgid "User List"
-msgstr "İstifadəçilər"
+msgstr "User List"
 
 #: .\templates\accounts\user_list.html:48
 msgid "of"
-msgstr ""
+msgstr "of"
 
 #: .\templates\accounts\user_list.html:58
 #: .\templates\accounts\user_list.html:111
 #: .\templates\audit\security_dashboard.html:91
 #: .\templates\competencies\competency_detail.html:122
-#, fuzzy
-#| msgid "Users"
 msgid "User"
-msgstr "İstifadəçilər"
+msgstr "User"
 
 #: .\templates\accounts\user_list.html:59
 #: .\templates\accounts\user_list.html:112
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: .\templates\accounts\user_list.html:60
 #: .\templates\accounts\user_list.html:113
 #: .\templates\competencies\competency_detail.html:85
-#, fuzzy
-#| msgid "Departments"
 msgid "Department"
-msgstr "Şöbələr"
+msgstr "Department"
 
 #: .\templates\accounts\user_list.html:61
 #: .\templates\accounts\user_list.html:114
 msgid "Role"
-msgstr ""
+msgstr "Role"
 
 #: .\templates\accounts\user_list.html:89
 #: .\templates\accounts\user_list.html:136
@@ -1562,7 +1511,7 @@ msgstr ""
 #: .\templates\competencies\competency_list.html:80
 #: .\templates\competencies\competency_list.html:189
 msgid "Active"
-msgstr ""
+msgstr "Active"
 
 #: .\templates\accounts\user_list.html:89
 #: .\templates\accounts\user_list.html:136
@@ -1570,157 +1519,147 @@ msgstr ""
 #: .\templates\competencies\competency_list.html:81
 #: .\templates\competencies\competency_list.html:189
 msgid "Inactive"
-msgstr ""
+msgstr "Inactive"
 
 #: .\templates\accounts\user_list.html:98
 msgid "No users found"
-msgstr ""
+msgstr "No users found"
 
 #: .\templates\accounts\user_list.html:161
 msgid "Load More"
-msgstr ""
+msgstr "Load More"
 
 #: .\templates\accounts\user_list.html:168
 msgid "All users loaded"
-msgstr ""
+msgstr "All users loaded"
 
 #: .\templates\accounts\user_list.html:257
 msgid "Failed to load users"
-msgstr ""
+msgstr "Failed to load users"
 
 #: .\templates\audit\security_dashboard.html:4
 #: .\templates\audit\security_dashboard.html:8
 #: .\templates\base\sidebar.html:273
-#, fuzzy
-#| msgid "Dashboard"
 msgid "Security Dashboard"
-msgstr "İdarə Paneli"
+msgstr "Security Dashboard"
 
 #: .\templates\audit\security_dashboard.html:15
 msgid "Total Login Failures (7 days)"
-msgstr ""
+msgstr "Total Login Failures (7 days)"
 
 #: .\templates\audit\security_dashboard.html:21
 msgid "Failures by Day"
-msgstr ""
+msgstr "Failures by Day"
 
 #: .\templates\audit\security_dashboard.html:32
 msgid "Top Failed IPs"
-msgstr ""
+msgstr "Top Failed IPs"
 
 #: .\templates\audit\security_dashboard.html:37
 #: .\templates\audit\security_dashboard.html:92
 msgid "IP Address"
-msgstr ""
+msgstr "IP Address"
 
 #: .\templates\audit\security_dashboard.html:38
 #: .\templates\audit\security_dashboard.html:63
 msgid "Failures"
-msgstr ""
+msgstr "Failures"
 
 #: .\templates\audit\security_dashboard.html:48
 #: .\templates\audit\security_dashboard.html:73
 #: .\templates\audit\security_dashboard.html:104
 msgid "No data available"
-msgstr ""
+msgstr "No data available"
 
 #: .\templates\audit\security_dashboard.html:57
 msgid "Top Failed Users"
-msgstr ""
+msgstr "Top Failed Users"
 
 #: .\templates\audit\security_dashboard.html:62
-#, fuzzy
-#| msgid "Users"
 msgid "Username"
-msgstr "İstifadəçilər"
+msgstr "Username"
 
 #: .\templates\audit\security_dashboard.html:85
 msgid "Recent Failures"
-msgstr ""
+msgstr "Recent Failures"
 
 #: .\templates\audit\security_dashboard.html:93
 msgid "Time"
-msgstr ""
+msgstr "Time"
 
 #: .\templates\audit\security_dashboard.html:127
 msgid "Login Failures"
-msgstr ""
+msgstr "Login Failures"
 
 # Navigation
 #: .\templates\base\base.html:10
 msgid "360° Performance Evaluation System"
-msgstr "360° Qiymətləndirmə Sistemi"
+msgstr "360° Performance Evaluation System"
 
 # Navigation
 #: .\templates\base\footer.html:16
-#, fuzzy
-#| msgid "360° Performance Evaluation System"
 msgid "Professional 360° Performance Evaluation System"
-msgstr "360° Qiymətləndirmə Sistemi"
+msgstr "Professional 360° Performance Evaluation System"
 
 #: .\templates\base\footer.html:23
 msgid "Quick Links"
-msgstr ""
+msgstr "Quick Links"
 
 #: .\templates\base\footer.html:27
 msgid "Help"
-msgstr ""
+msgstr "Help"
 
 #: .\templates\base\footer.html:34
 msgid "Resources"
-msgstr ""
+msgstr "Resources"
 
 #: .\templates\base\footer.html:37
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Privacy Policy"
 
 #: .\templates\base\footer.html:38
 msgid "Terms of Service"
-msgstr ""
+msgstr "Terms of Service"
 
 #: .\templates\base\footer.html:45
 msgid "Contact"
-msgstr ""
+msgstr "Contact"
 
 #: .\templates\base\footer.html:53
 msgid "All rights reserved."
-msgstr ""
+msgstr "All rights reserved."
 
 #: .\templates\base\navbar.html:20 .\templates\base\navbar.html:157
 #: .\templates\base\sidebar.html:32
 msgid "Home"
-msgstr "Əsas Səhifə"
+msgstr "Home"
 
 #: .\templates\base\navbar.html:28 .\templates\base\navbar.html:163
 #: .\templates\competencies\competency_list.html:52
 #: .\templates\competencies\my_skills.html:189
 msgid "Skills"
-msgstr ""
+msgstr "Skills"
 
 #: .\templates\base\navbar.html:32 .\templates\base\navbar.html:166
-#: .\templates\search\results.html:75 .\templates\training\catalog.html:147
-#: .\templates\training\training_detail.html:5
-#: .\templates\training\training_detail.html:228
 msgid "Training"
-msgstr ""
+msgstr "Training"
 
 #: .\templates\base\navbar.html:49 .\templates\base\navbar.html:153
 #: .\templates\base\sidebar.html:197
-#: .\templates\continuous_feedback\proactive_suggestions.html:177
 msgid "Send Feedback"
-msgstr ""
+msgstr "Send Feedback"
 
 #: .\templates\base\navbar.html:111 .\templates\base\sidebar.html:287
 msgid "Profile"
-msgstr "Profil"
+msgstr "Profile"
 
 #: .\templates\base\navbar.html:114 .\templates\base\sidebar.html:291
 msgid "Settings"
-msgstr "Tənzimləmələr"
+msgstr "Settings"
 
 #: .\templates\base\navbar.html:117
 msgid "Security"
-msgstr "Təhlükəsizlik"
+msgstr "Security"
 
 #: .\templates\base\navbar.html:122 .\templates\base\sidebar.html:278
 msgid "Admin Panel"
@@ -1728,300 +1667,277 @@ msgstr "Admin Panel"
 
 #: .\templates\base\navbar.html:127
 msgid "Logout"
-msgstr "Çıxış"
+msgstr "Logout"
 
 #: .\templates\base\navbar.html:134
 msgid "Login"
-msgstr "Giriş"
+msgstr "Login"
 
 #: .\templates\base\sidebar.html:64
-#, fuzzy
-#| msgid "Reports"
 msgid "My Reports"
-msgstr "Hesabatlar"
+msgstr "My Reports"
 
 #: .\templates\base\sidebar.html:70
-#, fuzzy
-#| msgid "Reports"
 msgid "Team Reports"
-msgstr "Hesabatlar"
+msgstr "Team Reports"
 
 #: .\templates\base\sidebar.html:76
 msgid "Custom Report Builder"
-msgstr ""
+msgstr "Custom Report Builder"
 
 #: .\templates\base\sidebar.html:82
 msgid "Skills & Training"
-msgstr ""
+msgstr "Skills & Training"
 
 #: .\templates\base\sidebar.html:88 .\templates\competencies\my_skills.html:5
 #: .\templates\competencies\my_skills.html:16
 msgid "My Skills"
-msgstr ""
+msgstr "My Skills"
 
 #: .\templates\base\sidebar.html:93
 msgid "Skill Gap Analysis"
-msgstr ""
+msgstr "Skill Gap Analysis"
 
 #: .\templates\base\sidebar.html:103 .\templates\training\my_trainings.html:5
 #: .\templates\training\my_trainings.html:16
 msgid "My Trainings"
-msgstr ""
+msgstr "My Trainings"
 
 #: .\templates\base\sidebar.html:108
 #: .\templates\training\my_certificates.html:5
 #: .\templates\training\my_certificates.html:16
 msgid "My Certificates"
-msgstr ""
+msgstr "My Certificates"
 
 #: .\templates\base\sidebar.html:113 .\templates\training\catalog.html:11
 #: .\templates\training\catalog.html:22
 msgid "Training Catalog"
-msgstr ""
+msgstr "Training Catalog"
 
 #: .\templates\base\sidebar.html:119
-#, fuzzy
-#| msgid "Departments"
 msgid "Development"
-msgstr "Şöbələr"
+msgstr "Development"
 
 #: .\templates\base\sidebar.html:125
 msgid "My Goals"
-msgstr ""
+msgstr "My Goals"
 
 #: .\templates\base\sidebar.html:130
-#, fuzzy
-#| msgid "Questions"
 msgid "Goal Suggestions"
-msgstr "Suallar"
+msgstr "Goal Suggestions"
 
 #: .\templates\base\sidebar.html:135
 msgid "My Competency Gaps"
-msgstr ""
+msgstr "My Competency Gaps"
 
 #: .\templates\base\sidebar.html:142
 msgid "HR Tools"
-msgstr ""
+msgstr "HR Tools"
 
 #: .\templates\base\sidebar.html:151
 msgid "Talent Matrix"
-msgstr ""
+msgstr "Talent Matrix"
 
 #: .\templates\base\sidebar.html:156
 msgid "Succession Planning"
-msgstr ""
+msgstr "Succession Planning"
 
 #: .\templates\base\sidebar.html:161
 msgid "Gap Analysis"
-msgstr ""
+msgstr "Gap Analysis"
 
 #: .\templates\base\sidebar.html:166
-#, fuzzy
-#| msgid "Management"
 msgid "Users Management"
-msgstr "İdarəetmə"
+msgstr "Users Management"
 
 #: .\templates\base\sidebar.html:181
 msgid "Training Programs"
-msgstr ""
+msgstr "Training Programs"
 
 #: .\templates\base\sidebar.html:191
 msgid "Feedback"
-msgstr ""
+msgstr "Feedback"
 
 #: .\templates\base\sidebar.html:203
 msgid "Received Feedback"
-msgstr ""
+msgstr "Received Feedback"
 
 #: .\templates\base\sidebar.html:209
 msgid "Recognition Feed"
-msgstr ""
+msgstr "Recognition Feed"
 
 #: .\templates\base\sidebar.html:214
 msgid "My Feedback Bank"
-msgstr ""
+msgstr "My Feedback Bank"
 
 #: .\templates\base\sidebar.html:219
 msgid "Proactive Suggestions"
-msgstr ""
+msgstr "Proactive Suggestions"
 
 #: .\templates\base\sidebar.html:232
 msgid "Inbox"
-msgstr ""
+msgstr "Inbox"
 
 #: .\templates\base\sidebar.html:240
 #: .\templates\notifications\bulk_notification.html:5
 #: .\templates\notifications\bulk_notification.html:16
-#, fuzzy
-#| msgid "Notifications"
 msgid "Bulk Notifications"
-msgstr "Bildirişlər"
+msgstr "Bulk Notifications"
 
 #: .\templates\base\sidebar.html:247
 msgid "Templates"
-msgstr ""
+msgstr "Templates"
 
 #: .\templates\base\sidebar.html:255
-#: .\templates\training\training_detail.html:7
 msgid "System"
-msgstr ""
+msgstr "System"
 
 #: .\templates\base\sidebar.html:261
-#, fuzzy
-#| msgid "Questions"
 msgid "Question Library"
-msgstr "Suallar"
+msgstr "Question Library"
 
 #: .\templates\base\sidebar.html:267
 msgid "RBAC Matrix"
-msgstr ""
+msgstr "RBAC Matrix"
 
 #: .\templates\base\sidebar.html:294
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: .\templates\competencies\competency_detail.html:5
 #: .\templates\competencies\competency_detail.html:17
 msgid "Competency Details"
-msgstr ""
+msgstr "Competency Details"
 
 #: .\templates\competencies\competency_detail.html:15
 msgid "Competency Library"
-msgstr ""
+msgstr "Competency Library"
 
 #: .\templates\competencies\competency_detail.html:19
 msgid "Explore requirements, related positions, and proficiency trends."
-msgstr ""
+msgstr "Explore requirements, related positions, and proficiency trends."
 
 #: .\templates\competencies\competency_detail.html:23
 msgid "Back to list"
-msgstr ""
+msgstr "Back to list"
 
 #: .\templates\competencies\competency_detail.html:50
 msgid "Overview"
-msgstr ""
+msgstr "Overview"
 
 #: .\templates\competencies\competency_detail.html:51
 #: .\templates\competencies\my_skills.html:55
 msgid "Competency"
-msgstr ""
+msgstr "Competency"
 
 #: .\templates\competencies\competency_detail.html:59
 msgid "No description provided yet."
-msgstr ""
+msgstr "No description provided yet."
 
 #: .\templates\competencies\competency_detail.html:62
-#, fuzzy
-#| msgid "Create"
 msgid "Created"
-msgstr "Yarat"
+msgstr "Created"
 
 #: .\templates\competencies\competency_detail.html:66
-#, fuzzy
-#| msgid "Update"
 msgid "Last Updated"
-msgstr "Yenilə"
+msgstr "Last Updated"
 
 #: .\templates\competencies\competency_detail.html:76
 #: .\templates\competencies\competency_detail.html:155
 #: .\templates\competencies\competency_list.html:123
-#, fuzzy
-#| msgid "Questions"
 msgid "Positions"
-msgstr "Suallar"
+msgstr "Positions"
 
 #: .\templates\competencies\competency_detail.html:77
 msgid "Roles depending on this competency"
-msgstr ""
+msgstr "Roles depending on this competency"
 
 #: .\templates\competencies\competency_detail.html:84
 msgid "Position"
-msgstr ""
+msgstr "Position"
 
 #: .\templates\competencies\competency_detail.html:86
 msgid "Weight"
-msgstr ""
+msgstr "Weight"
 
 #: .\templates\competencies\competency_detail.html:87
 msgid "Required Level"
-msgstr ""
+msgstr "Required Level"
 
 #: .\templates\competencies\competency_detail.html:93
 msgid "No linked positions yet."
-msgstr ""
+msgstr "No linked positions yet."
 
 #: .\templates\competencies\competency_detail.html:114
 msgid "People"
-msgstr ""
+msgstr "People"
 
 #: .\templates\competencies\competency_detail.html:115
 msgid "Users practicing this competency"
-msgstr ""
+msgstr "Users practicing this competency"
 
 #: .\templates\competencies\competency_detail.html:123
 #: .\templates\competencies\my_skills.html:56
 msgid "Level"
-msgstr ""
+msgstr "Level"
 
 #: .\templates\competencies\competency_detail.html:124
 #: .\templates\competencies\my_skills.html:57
 msgid "Score"
-msgstr ""
+msgstr "Score"
 
 #: .\templates\competencies\competency_detail.html:131
 msgid "No user skills recorded yet."
-msgstr ""
+msgstr "No user skills recorded yet."
 
 #: .\templates\competencies\competency_detail.html:152
 msgid "Snapshot"
-msgstr ""
+msgstr "Snapshot"
 
 #: .\templates\competencies\competency_detail.html:157
 msgid "Roles referencing this competency"
-msgstr ""
+msgstr "Roles referencing this competency"
 
 #: .\templates\competencies\competency_detail.html:160
 #: .\templates\competencies\competency_list.html:127
-#, fuzzy
-#| msgid "Profile"
 msgid "Professionals"
-msgstr "Profil"
+msgstr "Professionals"
 
 #: .\templates\competencies\competency_detail.html:162
 msgid "Active skill holders"
-msgstr ""
+msgstr "Active skill holders"
 
 #: .\templates\competencies\competency_detail.html:165
 msgid "Average Score"
-msgstr ""
+msgstr "Average Score"
 
 #: .\templates\competencies\competency_detail.html:166
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: .\templates\competencies\competency_detail.html:167
 msgid "Across approved assessments"
-msgstr ""
+msgstr "Across approved assessments"
 
 #: .\templates\competencies\competency_detail.html:173
 msgid "Proficiency Distribution"
-msgstr ""
+msgstr "Proficiency Distribution"
 
 #: .\templates\competencies\competency_detail.html:207
 #: .\templates\competencies\my_skills.html:32
 #: .\templates\competencies\my_skills.html:117
 msgid "Approved"
-msgstr ""
+msgstr "Approved"
 
 #: .\templates\competencies\competency_detail.html:209
 #: .\templates\competencies\my_skills.html:119
 msgid "Rejected"
-msgstr ""
+msgstr "Rejected"
 
 #: .\templates\competencies\competency_detail.html:210
 #: .\templates\competencies\my_skills.html:120
 msgid "In Review"
-msgstr ""
+msgstr "In Review"
 
 #: .\templates\competencies\competency_detail.html:212
 #: .\templates\competencies\competency_detail.html:290
@@ -2030,1142 +1946,1110 @@ msgstr ""
 #: .\templates\training\my_trainings.html:106
 #: .\templates\training\training_detail.html:196
 msgid "Unknown"
-msgstr ""
+msgstr "Unknown"
 
 #: .\templates\competencies\competency_list.html:13
 msgid "Manage organizational capabilities and skill expectations"
-msgstr ""
+msgstr "Manage organizational capabilities and skill expectations"
 
 #: .\templates\competencies\competency_list.html:17
 msgid "Create Competency"
-msgstr ""
+msgstr "Create Competency"
 
 #: .\templates\competencies\competency_list.html:42
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #: .\templates\competencies\competency_list.html:44
 msgid "Registered competencies"
-msgstr ""
+msgstr "Registered competencies"
 
 #: .\templates\competencies\competency_list.html:49
 msgid "Currently in use"
-msgstr ""
+msgstr "Currently in use"
 
 #: .\templates\competencies\competency_list.html:54
 msgid "Linked skill definitions"
-msgstr ""
+msgstr "Linked skill definitions"
 
 #: .\templates\competencies\competency_list.html:57
 msgid "Approvals"
-msgstr ""
+msgstr "Approvals"
 
 #: .\templates\competencies\competency_list.html:59
 msgid "Pending skill approvals"
-msgstr ""
+msgstr "Pending skill approvals"
 
 #: .\templates\competencies\competency_list.html:68
-#: .\templates\search\results.html:47 .\templates\training\catalog.html:36
 msgid "Search"
-msgstr "Axtar"
+msgstr "Search"
 
 #: .\templates\competencies\competency_list.html:71
 msgid "Search by name or description..."
-msgstr ""
+msgstr "Search by name or description..."
 
 #: .\templates\competencies\competency_list.html:79
-#: .\templates\search\results.html:60 .\templates\training\catalog.html:47
-#: .\templates\training\catalog.html:57
 msgid "All"
-msgstr "Hamısı"
+msgstr "All"
 
 #: .\templates\competencies\competency_list.html:86
-#: .\templates\training\catalog.html:65
 msgid "Apply"
-msgstr ""
+msgstr "Apply"
 
 #: .\templates\competencies\competency_list.html:89
-#: .\templates\training\catalog.html:68
 msgid "Reset"
-msgstr ""
+msgstr "Reset"
 
 #: .\templates\competencies\competency_list.html:119
 msgid "No description"
-msgstr ""
+msgstr "No description"
 
 #: .\templates\competencies\competency_list.html:134
 msgid "Recently updated"
-msgstr ""
+msgstr "Recently updated"
 
 #: .\templates\competencies\competency_list.html:137
 msgid "Open"
-msgstr ""
+msgstr "Open"
 
 #: .\templates\competencies\competency_list.html:146
 msgid "No competencies found"
-msgstr ""
+msgstr "No competencies found"
 
 #: .\templates\competencies\competency_list.html:147
 msgid "Try adjusting filters or create a new competency."
-msgstr ""
+msgstr "Try adjusting filters or create a new competency."
 
 #: .\templates\competencies\competency_list.html:154
 msgid "results on this page"
-msgstr ""
+msgstr "results on this page"
 
 #: .\templates\competencies\competency_list.html:159
 msgid "Previous"
-msgstr "Əvvəlki"
+msgstr "Previous"
 
 #: .\templates\competencies\my_skills.html:14
 msgid "Personal growth"
-msgstr ""
+msgstr "Personal growth"
 
 #: .\templates\competencies\my_skills.html:18
 msgid "Track competency levels and progress across the organization."
-msgstr ""
+msgstr "Track competency levels and progress across the organization."
 
 #: .\templates\competencies\my_skills.html:27
 msgid "Total Skills"
-msgstr ""
+msgstr "Total Skills"
 
 #: .\templates\competencies\my_skills.html:29
 msgid "Skills you have registered"
-msgstr ""
+msgstr "Skills you have registered"
 
 #: .\templates\competencies\my_skills.html:34
 msgid "Skills validated by reviewers"
-msgstr ""
+msgstr "Skills validated by reviewers"
 
 #: .\templates\competencies\my_skills.html:39
 msgid "Awaiting approval"
-msgstr ""
+msgstr "Awaiting approval"
 
 #: .\templates\competencies\my_skills.html:47
 msgid "Competency portfolio"
-msgstr ""
+msgstr "Competency portfolio"
 
 #: .\templates\competencies\my_skills.html:48
 msgid "Latest skill records"
-msgstr ""
+msgstr "Latest skill records"
 
 #: .\templates\competencies\my_skills.html:67
 msgid "Loading your skills"
-msgstr ""
+msgstr "Loading your skills"
 
 #: .\templates\competencies\my_skills.html:74
 msgid "No skills recorded yet."
-msgstr ""
+msgstr "No skills recorded yet."
 
 #: .\templates\competencies\my_skills.html:93
 msgid "Levels overview"
-msgstr ""
+msgstr "Levels overview"
 
 #: .\templates\continuous_feedback\my_feedback.html:7
 msgid "Göndərdiyim Rəylər"
-msgstr ""
+msgstr "My Sent Feedback"
 
 #: .\templates\continuous_feedback\my_feedback.html:8
 msgid "Həmkarlarıma göndərdiyim rəylər"
-msgstr ""
+msgstr "Feedback I sent to my colleagues"
 
 #: .\templates\continuous_feedback\my_feedback.html:10
 #: .\templates\continuous_feedback\send_feedback.html:25
 msgid "Yeni Rəy"
-msgstr ""
+msgstr "New Feedback"
 
 #: .\templates\continuous_feedback\my_feedback.html:16
 #: .\templates\continuous_feedback\received_feedback.html:13
-#: .\templates\workforce_planning\critical_roles.html:25
 msgid "Ümumi"
-msgstr ""
+msgstr "Total"
 
 #: .\templates\continuous_feedback\my_feedback.html:20
 #: .\templates\continuous_feedback\my_feedback_bank.html:17
 #: .\templates\continuous_feedback\received_feedback.html:17
 msgid "Təşəkkürlər"
-msgstr ""
+msgstr "Thanks"
 
 #: .\templates\continuous_feedback\my_feedback.html:24
 #: .\templates\continuous_feedback\my_feedback_bank.html:21
 #: .\templates\continuous_feedback\received_feedback.html:21
 msgid "Təkliflər"
-msgstr ""
+msgstr "Suggestions"
 
 #: .\templates\continuous_feedback\my_feedback.html:28
 msgid "Oxunmuş"
-msgstr ""
+msgstr "Read"
 
 #: .\templates\continuous_feedback\my_feedback.html:34
 msgid "Rəy Siyahısı"
-msgstr ""
+msgstr "Feedback List"
 
 #: .\templates\continuous_feedback\my_feedback.html:59
 msgid "Hələ rəy göndərməmisiniz"
-msgstr ""
+msgstr "You haven't sent any feedback yet"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:6
 msgid "Mənim Rəy Bankım"
-msgstr ""
+msgstr "My Feedback Bank"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:7
 msgid "Toplanmış rəy statistikası"
-msgstr ""
+msgstr "Collected feedback statistics"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:13
 msgid "Ümumi Rəylər"
-msgstr ""
+msgstr "Total Feedback"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:25
 msgid "Orta Qiymət"
-msgstr ""
+msgstr "Average Rating"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:31
 msgid "Son Rəylər"
-msgstr ""
+msgstr "Recent Feedback"
 
 #: .\templates\continuous_feedback\my_feedback_bank.html:49
 msgid "Rəy yoxdur"
-msgstr ""
+msgstr "No feedback"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:5
 #: .\templates\continuous_feedback\proactive_suggestions.html:16
 msgid "Proactive Feedback Suggestions"
-msgstr ""
+msgstr "Proactive Feedback Suggestions"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:14
 msgid "AI-Powered Recommendations"
-msgstr ""
+msgstr "AI-Powered Recommendations"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:18
 msgid ""
 "Smart suggestions on who to give feedback to, based on your relationships "
 "and feedback history."
-msgstr ""
+msgstr "Smart suggestions on who to give feedback to, based on your relationships and feedback history."
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:30
 msgid "Your Engagement Score"
-msgstr ""
+msgstr "Your Engagement Score"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:51
 msgid "Total Feedback Sent"
-msgstr ""
+msgstr "Total Feedback Sent"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:55
 msgid "This Month"
-msgstr ""
+msgstr "This Month"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:59
 msgid "Recognitions"
-msgstr ""
+msgstr "Recognitions"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:64
 msgid "Last Feedback"
-msgstr ""
+msgstr "Last Feedback"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:78
 #: .\templates\continuous_feedback\proactive_suggestions.html:157
 msgid "High Priority"
-msgstr ""
+msgstr "High Priority"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:89
 #: .\templates\continuous_feedback\proactive_suggestions.html:158
 msgid "Medium Priority"
-msgstr ""
+msgstr "Medium Priority"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:103
 msgid "Milestones"
-msgstr ""
+msgstr "Milestones"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:115
 msgid "feedback"
-msgstr ""
+msgstr "feedback"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:126
 msgid "Who Should You Give Feedback To?"
-msgstr ""
+msgstr "Who Should You Give Feedback To?"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:129
-#, fuzzy
-#| msgid "Questions"
 msgid "suggestions"
-msgstr "Suallar"
+msgstr "suggestions"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:159
 msgid "Low Priority"
-msgstr ""
+msgstr "Low Priority"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:188
 msgid "You're All Caught Up!"
-msgstr ""
+msgstr "You're All Caught Up!"
 
 #: .\templates\continuous_feedback\proactive_suggestions.html:189
 msgid "No pending feedback suggestions at the moment."
-msgstr ""
+msgstr "No pending feedback suggestions at the moment."
 
 #: .\templates\continuous_feedback\received_feedback.html:6
 msgid "Aldığım Rəylər"
-msgstr ""
+msgstr "Feedback I Received"
 
 #: .\templates\continuous_feedback\received_feedback.html:7
 msgid "Həmkarlarımdan aldığım rəylər"
-msgstr ""
+msgstr "Feedback I received from my colleagues"
 
 #: .\templates\continuous_feedback\received_feedback.html:25
 msgid "Bu Ay"
-msgstr ""
+msgstr "This Month"
 
 #: .\templates\continuous_feedback\received_feedback.html:31
 msgid "Alınan Rəylər"
-msgstr ""
+msgstr "Received Feedback"
 
 #: .\templates\continuous_feedback\received_feedback.html:54
 msgid "Hələ rəy almamısınız"
-msgstr ""
+msgstr "You haven't received any feedback yet"
 
 #: .\templates\continuous_feedback\recognition_feed.html:12
 msgid "İctimai Təqdir Feed-i"
-msgstr ""
+msgstr "Public Recognition Feed"
 
 #: .\templates\continuous_feedback\recognition_feed.html:14
 msgid "Təşəkkür mesajları və təqdirlər"
-msgstr ""
+msgstr "Thank you messages and recognitions"
 
 #: .\templates\continuous_feedback\recognition_feed.html:18
 msgid "Rəy Göndər"
-msgstr ""
+msgstr "Send Feedback"
 
 #: .\templates\continuous_feedback\recognition_feed.html:29
 msgid "Xüsusi Seçilmiş"
-msgstr ""
+msgstr "Specially Selected"
 
 #: .\templates\continuous_feedback\recognition_feed.html:64
 msgid "Son Təqdirlər"
-msgstr ""
+msgstr "Recent Recognitions"
 
 #: .\templates\continuous_feedback\recognition_feed.html:127
 msgid "Hələ ictimai təqdir yoxdur"
-msgstr ""
+msgstr "No public recognition yet"
 
 #: .\templates\continuous_feedback\recognition_feed.html:128
 msgid "İlk təqdir siz göndərin!"
-msgstr ""
+msgstr "Be the first to send recognition!"
 
 #: .\templates\continuous_feedback\send_feedback.html:12
 msgid "Tez Rəy Göndər"
-msgstr ""
+msgstr "Quick Feedback"
 
 #: .\templates\continuous_feedback\send_feedback.html:14
 msgid "Həmkarlarınıza Təşəkkür və ya Təklif göndərin"
-msgstr ""
+msgstr "Send Thanks or Suggestions to Your Colleagues"
 
 #: .\templates\continuous_feedback\send_feedback.html:36
 msgid "Kimə göndərilir"
-msgstr ""
+msgstr "To Whom"
 
 #: .\templates\continuous_feedback\send_feedback.html:39
 msgid "İşçi seçin..."
-msgstr ""
+msgstr "Select employee..."
 
 #: .\templates\continuous_feedback\send_feedback.html:50
 msgid "Rəy Tipi"
-msgstr ""
+msgstr "Feedback Type"
 
 #: .\templates\continuous_feedback\send_feedback.html:57
 msgid "Təşəkkür / Recognition"
-msgstr ""
+msgstr "Thanks / Recognition"
 
 #: .\templates\continuous_feedback\send_feedback.html:64
 msgid "Təklif / Improvement"
-msgstr ""
+msgstr "Suggestion / Improvement"
 
 #: .\templates\continuous_feedback\send_feedback.html:74
 msgid "Görünürlük"
-msgstr ""
+msgstr "Visibility"
 
 #: .\templates\continuous_feedback\send_feedback.html:81
 msgid "Şəxsi"
-msgstr ""
+msgstr "Personal"
 
 #: .\templates\continuous_feedback\send_feedback.html:88
 msgid "Komanda"
-msgstr ""
+msgstr "Team"
 
 #: .\templates\continuous_feedback\send_feedback.html:95
 msgid "İctimai"
-msgstr ""
+msgstr "Public"
 
 #: .\templates\continuous_feedback\send_feedback.html:109
 msgid "Məsələn: Əla komanda işi!"
-msgstr ""
+msgstr "For example: Great teamwork!"
 
 #: .\templates\continuous_feedback\send_feedback.html:120
 msgid "Rəyinizi burada yazın..."
-msgstr ""
+msgstr "Write your feedback here..."
 
 #: .\templates\continuous_feedback\send_feedback.html:128
 msgid "Anonim göndər (alan şəxs mənim adımı görməyəcək)"
-msgstr ""
+msgstr "Send anonymously (recipient won't see my name)"
 
 #: .\templates\continuous_feedback\send_feedback.html:136
 msgid "Rəyi Göndər"
-msgstr ""
+msgstr "Send Feedback"
 
 #: .\templates\continuous_feedback\send_feedback.html:140
 msgid "Ləğv et"
-msgstr ""
+msgstr "Cancel"
 
 #: .\templates\departments\department_chart.html:5
 #: .\templates\departments\department_chart.html:96
 msgid "Organization Chart"
-msgstr ""
+msgstr "Organization Chart"
 
 #: .\templates\departments\department_chart.html:98
 msgid "Visual representation of department structure"
-msgstr ""
+msgstr "Visual representation of department structure"
 
 #: .\templates\departments\department_chart.html:103
 msgid "List View"
-msgstr ""
+msgstr "List View"
 
 #: .\templates\departments\department_chart.html:124
-#, fuzzy
-#| msgid "Departments"
 msgid "No departments found"
-msgstr "Şöbələr"
+msgstr "No departments found"
 
 #: .\templates\departments\department_chart.html:125
 msgid "Please add departments to see the organization chart"
-msgstr ""
+msgstr "Please add departments to see the organization chart"
 
 #: .\templates\notifications\bulk_notification.html:14
 msgid "Mass Communication"
-msgstr ""
+msgstr "Mass Communication"
 
 #: .\templates\notifications\bulk_notification.html:18
 msgid ""
 "Send notifications to multiple users at once with advanced filtering options."
-msgstr ""
+msgstr "Send notifications to multiple users at once with advanced filtering options."
 
 #: .\templates\notifications\bulk_notification.html:30
 msgid "Total Active Users"
-msgstr ""
+msgstr "Total Active Users"
 
 #: .\templates\notifications\bulk_notification.html:42
-#, fuzzy
-#| msgid "Departments"
 msgid "Active Departments"
-msgstr "Şöbələr"
+msgstr "Active Departments"
 
 #: .\templates\notifications\bulk_notification.html:57
-#, fuzzy
-#| msgid "Notifications"
 msgid "Create Bulk Notification"
-msgstr "Bildirişlər"
+msgstr "Create Bulk Notification"
 
 #: .\templates\notifications\bulk_notification.html:65
 msgid "Title"
-msgstr ""
+msgstr "Title"
 
 #: .\templates\notifications\bulk_notification.html:72
-#, fuzzy
-#| msgid "Notifications"
 msgid "Notification title"
-msgstr "Bildirişlər"
+msgstr "Notification title"
 
 #: .\templates\notifications\bulk_notification.html:82
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: .\templates\notifications\bulk_notification.html:83
 msgid "Success"
-msgstr ""
+msgstr "Success"
 
 #: .\templates\notifications\bulk_notification.html:84
 msgid "Warning"
-msgstr ""
+msgstr "Warning"
 
 #: .\templates\notifications\bulk_notification.html:85
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: .\templates\notifications\bulk_notification.html:92
 msgid "Message"
-msgstr ""
+msgstr "Message"
 
 #: .\templates\notifications\bulk_notification.html:99
-#, fuzzy
-#| msgid "Notifications"
 msgid "Notification message"
-msgstr "Bildirişlər"
+msgstr "Notification message"
 
 #: .\templates\notifications\bulk_notification.html:104
 msgid "optional"
-msgstr ""
+msgstr "optional"
 
 #: .\templates\notifications\bulk_notification.html:116
 msgid "Delivery Method"
-msgstr ""
+msgstr "Delivery Method"
 
 #: .\templates\notifications\bulk_notification.html:127
 msgid "In-App Only"
-msgstr ""
+msgstr "In-App Only"
 
 #: .\templates\notifications\bulk_notification.html:128
-#, fuzzy
-#| msgid "No notifications"
 msgid "Dashboard notification"
-msgstr "Bildiriş yoxdur"
+msgstr "Dashboard notification"
 
 #: .\templates\notifications\bulk_notification.html:140
 msgid "Email Only"
-msgstr ""
+msgstr "Email Only"
 
 #: .\templates\notifications\bulk_notification.html:141
-#, fuzzy
-#| msgid "No notifications"
 msgid "Email notification"
-msgstr "Bildiriş yoxdur"
+msgstr "Email notification"
 
 #: .\templates\notifications\bulk_notification.html:153
 msgid "Both"
-msgstr ""
+msgstr "Both"
 
 #: .\templates\notifications\bulk_notification.html:154
 msgid "In-app & email"
-msgstr ""
+msgstr "In-app & email"
 
 #: .\templates\notifications\bulk_notification.html:163
 msgid "Recipients"
-msgstr ""
+msgstr "Recipients"
 
 #: .\templates\notifications\bulk_notification.html:173
-#, fuzzy
-#| msgid "Users"
 msgid "All Users"
-msgstr "İstifadəçilər"
+msgstr "All Users"
 
 #: .\templates\notifications\bulk_notification.html:179
-#, fuzzy
-#| msgid "Departments"
 msgid "By Department"
-msgstr "Şöbələr"
+msgstr "By Department"
 
 #: .\templates\notifications\bulk_notification.html:185
 msgid "By Role"
-msgstr ""
+msgstr "By Role"
 
 #: .\templates\notifications\bulk_notification.html:191
 msgid "Specific Users"
-msgstr ""
+msgstr "Specific Users"
 
 #: .\templates\notifications\bulk_notification.html:201
-#, fuzzy
-#| msgid "Departments"
 msgid "Select Department"
-msgstr "Şöbələr"
+msgstr "Select Department"
 
 #: .\templates\notifications\bulk_notification.html:203
-#, fuzzy
-#| msgid "Users"
 msgid "users"
-msgstr "İstifadəçilər"
+msgstr "users"
 
 #: .\templates\notifications\bulk_notification.html:212
 msgid "Select Role"
-msgstr ""
+msgstr "Select Role"
 
 #: .\templates\notifications\bulk_notification.html:242
-#, fuzzy
-#| msgid "Notifications"
 msgid "Send Notifications"
-msgstr "Bildirişlər"
+msgstr "Send Notifications"
 
 #: .\templates\notifications\bulk_notification.html:247
 #, fuzzy
 #| msgid "Previous"
 msgid "Preview"
-msgstr "Əvvəlki"
+msgstr "Preview"
 
 #: .\templates\notifications\bulk_notification.html:264
 #, fuzzy
 #| msgid "Notifications"
 msgid "Notification Preview"
-msgstr "Bildirişlər"
+msgstr "Notification Preview"
 
 #: .\templates\notifications\bulk_notification.html:297
 msgid "Delivery"
-msgstr ""
+msgstr "Delivery"
 
 #: .\templates\notifications\bulk_notification.html:298
 msgid "Filter"
-msgstr "Filtrlə"
+msgstr "Filter"
 
 #: .\templates\notifications\bulk_notification.html:306
 msgid "Close"
-msgstr "Bağla"
+msgstr "Close"
 
 #: .\templates\search\results.html:5 .\templates\search\results.html:16
 #: .\templates\search\results.html:88
 #, fuzzy
 #| msgid "Search"
 msgid "Search Results"
-msgstr "Axtar"
+msgstr "Search Results"
 
 #: .\templates\search\results.html:14
 #, fuzzy
 #| msgid "Search"
 msgid "Global Search"
-msgstr "Axtar"
+msgstr "Global Search"
 
 #: .\templates\search\results.html:20
 #, python-format
 msgid "%(counter)s result found for \"%(query)s\""
 msgid_plural "%(counter)s results found for \"%(query)s\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(counter)s result found for \"%(query)s\""
+msgstr[1] "%(counter)s results found for \"%(query)s\""
 
 #: .\templates\search\results.html:22
 msgid "Enter a search term to find people, competencies, training, and more..."
-msgstr ""
+msgstr "Enter a search term to find people, competencies, training, and more..."
 
 #: .\templates\search\results.html:39
 msgid "Search people, competencies, training, and more..."
-msgstr ""
+msgstr "Search people, competencies, training, and more..."
 
 #: .\templates\search\results.html:91
 msgid "results"
-msgstr ""
+msgstr "results"
 
 #: .\templates\search\results.html:119
 msgid "No results for this filter"
-msgstr ""
+msgstr "No results for this filter"
 
 #: .\templates\search\results.html:120
 msgid "Try selecting a different category."
-msgstr ""
+msgstr "Try selecting a different category."
 
 #: .\templates\search\results.html:126
 msgid "No results found"
-msgstr ""
+msgstr "No results found"
 
 #: .\templates\search\results.html:127
 msgid "Try adjusting your search or check back soon."
-msgstr ""
+msgstr "Try adjusting your search or check back soon."
 
 #: .\templates\training\catalog.html:5
 msgid "No description available."
-msgstr ""
+msgstr "No description available."
 
 #: .\templates\training\catalog.html:6
 #: .\templates\training\training_detail.html:11
 msgid "Flexible"
-msgstr ""
+msgstr "Flexible"
 
 #: .\templates\training\catalog.html:7
 msgid "Not specified"
-msgstr ""
+msgstr "Not specified"
 
 #: .\templates\training\catalog.html:8
 #: .\templates\training\training_detail.html:12
 msgid "Free"
-msgstr ""
+msgstr "Free"
 
 #: .\templates\training\catalog.html:9
 msgid "Internal"
-msgstr ""
+msgstr "Internal"
 
 #: .\templates\training\catalog.html:20
 msgid "Learning hub"
-msgstr ""
+msgstr "Learning hub"
 
 #: .\templates\training\catalog.html:24
 msgid ""
 "Discover courses, certifications, and mentoring experiences tailored for you."
-msgstr ""
+msgstr "Discover courses, certifications, and mentoring experiences tailored for you."
 
 #: .\templates\training\catalog.html:39
 msgid "Search trainings..."
-msgstr ""
+msgstr "Search trainings..."
 
 #: .\templates\training\catalog.html:48 .\templates\training\catalog.html:143
 #: .\templates\training\training_detail.html:224
 msgid "Course"
-msgstr ""
+msgstr "Course"
 
 #: .\templates\training\catalog.html:49 .\templates\training\catalog.html:144
 #: .\templates\training\training_detail.html:225
 #, fuzzy
 #| msgid "Notifications"
 msgid "Certification"
-msgstr "Bildirişlər"
+msgstr "Certification"
 
 #: .\templates\training\catalog.html:50 .\templates\training\catalog.html:145
 #: .\templates\training\training_detail.html:226
 msgid "Mentoring"
-msgstr ""
+msgstr "Mentoring"
 
 #: .\templates\training\catalog.html:54
 #: .\templates\training\training_detail.html:121
 msgid "Difficulty"
-msgstr ""
+msgstr "Difficulty"
 
 #: .\templates\training\catalog.html:58 .\templates\training\catalog.html:151
 #: .\templates\training\training_detail.html:232
 msgid "Beginner"
-msgstr ""
+msgstr "Beginner"
 
 #: .\templates\training\catalog.html:59 .\templates\training\catalog.html:152
 #: .\templates\training\training_detail.html:233
 msgid "Intermediate"
-msgstr ""
+msgstr "Intermediate"
 
 #: .\templates\training\catalog.html:60 .\templates\training\catalog.html:153
 #: .\templates\training\training_detail.html:234
 msgid "Advanced"
-msgstr ""
+msgstr "Advanced"
 
 #: .\templates\training\catalog.html:90
 msgid "No trainings found"
-msgstr ""
+msgstr "No trainings found"
 
 #: .\templates\training\catalog.html:91
 msgid "Try adjusting filters or check back soon."
-msgstr ""
+msgstr "Try adjusting filters or check back soon."
 
 #: .\templates\training\catalog.html:122
 msgid "View"
-msgstr ""
+msgstr "View"
 
 #: .\templates\training\catalog.html:155
 #: .\templates\training\training_detail.html:236
 msgid "All Levels"
-msgstr ""
+msgstr "All Levels"
 
 #: .\templates\training\my_certificates.html:14
 msgid "Achievement Collection"
-msgstr ""
+msgstr "Achievement Collection"
 
 #: .\templates\training\my_certificates.html:18
 msgid "Manage and showcase your training certificates and accomplishments."
-msgstr ""
+msgstr "Manage and showcase your training certificates and accomplishments."
 
 #: .\templates\training\my_certificates.html:31
 msgid "Total Completed"
-msgstr ""
+msgstr "Total Completed"
 
 #: .\templates\training\my_certificates.html:44
 msgid "With Certificates"
-msgstr ""
+msgstr "With Certificates"
 
 #: .\templates\training\my_certificates.html:57
 msgid "Without Certificates"
-msgstr ""
+msgstr "Without Certificates"
 
 #: .\templates\training\my_certificates.html:70
 msgid "Certificate Rate"
-msgstr ""
+msgstr "Certificate Rate"
 
 #: .\templates\training\my_certificates.html:84
 msgid "Trainings with Certificates"
-msgstr ""
+msgstr "Trainings with Certificates"
 
 #: .\templates\training\my_certificates.html:87
 #, fuzzy
 #| msgid "Notifications"
 msgid "certificates"
-msgstr "Bildirişlər"
+msgstr "certificates"
 
 #: .\templates\training\my_certificates.html:133
 msgid "View Certificate"
-msgstr ""
+msgstr "View Certificate"
 
 #: .\templates\training\my_certificates.html:148
 msgid "No certificates added yet"
-msgstr ""
+msgstr "No certificates added yet"
 
 #: .\templates\training\my_certificates.html:157
 msgid "Add Certificate Link"
-msgstr ""
+msgstr "Add Certificate Link"
 
 #: .\templates\training\my_certificates.html:160
 msgid "pending"
-msgstr ""
+msgstr "pending"
 
 #: .\templates\training\my_certificates.html:178
 #: .\templates\training\my_certificates.html:257
 msgid "Add Certificate"
-msgstr ""
+msgstr "Add Certificate"
 
 #: .\templates\training\my_certificates.html:188
 msgid "All completed trainings have certificates!"
-msgstr ""
+msgstr "All completed trainings have certificates!"
 
 #: .\templates\training\my_certificates.html:217
 msgid "Certificate URL"
-msgstr ""
+msgstr "Certificate URL"
 
 # Common Actions
 #: .\templates\training\my_certificates.html:229
 msgid "Save"
-msgstr "Saxla"
+msgstr "Save"
 
 #: .\templates\training\my_certificates.html:234
 msgid "Cancel"
-msgstr "Ləğv et"
+msgstr "Cancel"
 
 #: .\templates\training\my_certificates.html:265
 msgid "Edit Certificate"
-msgstr ""
+msgstr "Edit Certificate"
 
 #: .\templates\training\my_certificates.html:297
 #: .\templates\training\my_certificates.html:301
 msgid "Error saving certificate"
-msgstr ""
+msgstr "Error saving certificate"
 
 #: .\templates\training\my_trainings.html:14
 msgid "Learning journey"
-msgstr ""
+msgstr "Learning journey"
 
 #: .\templates\training\my_trainings.html:18
 msgid "Stay on top of assigned modules and celebrate completed milestones."
-msgstr ""
+msgstr "Stay on top of assigned modules and celebrate completed milestones."
 
 #: .\templates\training\my_trainings.html:42
 msgid "Loading trainings"
-msgstr ""
+msgstr "Loading trainings"
 
 #: .\templates\training\my_trainings.html:48
 msgid "No trainings in this status."
-msgstr ""
+msgstr "No trainings in this status."
 
 #: .\templates\training\my_trainings.html:58
 #: .\templates\training\training_detail.html:84
 msgid "Due"
-msgstr ""
+msgstr "Due"
 
 #: .\templates\training\my_trainings.html:61
 #: .\templates\training\training_detail.html:56
 msgid "Progress"
-msgstr ""
+msgstr "Progress"
 
 #: .\templates\training\my_trainings.html:71
 msgid "Self-paced"
-msgstr ""
+msgstr "Self-paced"
 
 #: .\templates\training\my_trainings.html:74
 #, fuzzy
 #| msgid "Management"
 msgid "Manage"
-msgstr "İdarəetmə"
+msgstr "Manage"
 
 #: .\templates\training\my_trainings.html:90
 #: .\templates\training\my_trainings.html:103
 #: .\templates\training\training_detail.html:192
 msgid "In Progress"
-msgstr ""
+msgstr "In Progress"
 
 #: .\templates\training\training_detail.html:6
 msgid "No personal notes yet."
-msgstr ""
+msgstr "No personal notes yet."
 
 #: .\templates\training\training_detail.html:8
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: .\templates\training\training_detail.html:9
 msgid "Not assigned"
-msgstr ""
+msgstr "Not assigned"
 
 #: .\templates\training\training_detail.html:10
 #: .\templates\training\training_detail.html:140
 msgid "Not provided"
-msgstr ""
+msgstr "Not provided"
 
 #: .\templates\training\training_detail.html:13
 msgid "Obtained"
-msgstr ""
+msgstr "Obtained"
 
 #: .\templates\training\training_detail.html:14
 msgid "No description provided."
-msgstr ""
+msgstr "No description provided."
 
 #: .\templates\training\training_detail.html:15
 msgid "Not yet"
-msgstr ""
+msgstr "Not yet"
 
 #: .\templates\training\training_detail.html:16
 msgid "hours"
-msgstr ""
+msgstr "hours"
 
 #: .\templates\training\training_detail.html:18
 #: .\templates\training\training_detail.html:29
 msgid "Training Details"
-msgstr ""
+msgstr "Training Details"
 
 #: .\templates\training\training_detail.html:27
 msgid "Training overview"
-msgstr ""
+msgstr "Training overview"
 
 #: .\templates\training\training_detail.html:31
 msgid "Review your progress, key resources, and next actions."
-msgstr ""
+msgstr "Review your progress, key resources, and next actions."
 
 #: .\templates\training\training_detail.html:67
 msgid "Completion"
-msgstr ""
+msgstr "Completion"
 
 #: .\templates\training\training_detail.html:80
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: .\templates\training\training_detail.html:90
 msgid "Assigned By"
-msgstr ""
+msgstr "Assigned By"
 
 #: .\templates\training\training_detail.html:94
 msgid "Related Goal"
-msgstr ""
+msgstr "Related Goal"
 
 #: .\templates\training\training_detail.html:99
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: .\templates\training\training_detail.html:108
 msgid "Resource"
-msgstr ""
+msgstr "Resource"
 
 #: .\templates\training\training_detail.html:117
 msgid "Provider"
-msgstr ""
+msgstr "Provider"
 
 #: .\templates\training\training_detail.html:125
 #, fuzzy
 #| msgid "Evaluations"
 msgid "Duration"
-msgstr "Qiymətləndirmələr"
+msgstr "Duration"
 
 #: .\templates\training\training_detail.html:129
 msgid "Cost"
-msgstr ""
+msgstr "Cost"
 
 #: .\templates\training\training_detail.html:134
 msgid "External link"
-msgstr ""
+msgstr "External link"
 
 #: .\templates\training\training_detail.html:145
 msgid "Required competencies"
-msgstr ""
+msgstr "Required competencies"
 
 #: .\templates\training\training_detail.html:158
 msgid "Quick recap"
-msgstr ""
+msgstr "Quick recap"
 
 #: .\templates\training\training_detail.html:162
 msgid "Certificate"
-msgstr ""
+msgstr "Certificate"
 
 #: .\templates\training\training_detail.html:166
 msgid "Trainer"
-msgstr ""
+msgstr "Trainer"
 
 #: .\templates\training\training_detail.html:170
 msgid "Last updated"
-msgstr ""
+msgstr "Last updated"
 
 #: .\templates\training\training_detail.html:194
 #, fuzzy
 #| msgid "Cancel"
 msgid "Cancelled"
-msgstr "Ləğv et"
+msgstr "Cancelled"
 
 #: .\templates\workforce_planning\critical_roles.html:12
 #: .\templates\workforce_planning\succession_planning.html:25
 #: .\templates\workforce_planning\succession_planning.html:76
 msgid "Kritik Rollar"
-msgstr ""
+msgstr "Critical Roles"
 
 #: .\templates\workforce_planning\critical_roles.html:14
 msgid "Təşkilatda Kritik Əhəmiyyətli Vəzifələr"
-msgstr ""
+msgstr "Critical Positions in the Organization"
 
 #: .\templates\workforce_planning\critical_roles.html:37
 msgid "Kritik"
-msgstr ""
+msgstr "Critical"
 
 #: .\templates\workforce_planning\critical_roles.html:49
 msgid "Yüksək"
-msgstr ""
+msgstr "High"
 
 #: .\templates\workforce_planning\critical_roles.html:61
 msgid "Orta"
-msgstr ""
+msgstr "Medium"
 
 #: .\templates\workforce_planning\critical_roles.html:76
 msgid "Kritik Rol Siyahısı"
-msgstr ""
+msgstr "Critical Role List"
 
 #: .\templates\workforce_planning\critical_roles.html:157
 #: .\templates\workforce_planning\succession_planning.html:130
 msgid "Kritik rol müəyyən edilməyib"
-msgstr ""
+msgstr "No critical role defined"
 
 #: .\templates\workforce_planning\gap_analysis.html:12
 msgid "Kompetensiya Boşluqları Analizi"
-msgstr ""
+msgstr "Competency Gap Analysis"
 
 #: .\templates\workforce_planning\gap_analysis.html:14
 msgid "Təşkilat üzrə Boşluq Analizi"
-msgstr ""
+msgstr "Gap Analysis Across Organization"
 
 #: .\templates\workforce_planning\gap_analysis.html:25
 #: .\templates\workforce_planning\my_gaps.html:25
 msgid "Ümumi Boşluqlar"
-msgstr ""
+msgstr "Total Gaps"
 
 #: .\templates\workforce_planning\gap_analysis.html:37
 #: .\templates\workforce_planning\my_gaps.html:37
 msgid "Təcili"
-msgstr ""
+msgstr "Urgent"
 
 #: .\templates\workforce_planning\gap_analysis.html:49
 #: .\templates\workforce_planning\my_gaps.html:49
 msgid "Yüksək Prioritet"
-msgstr ""
+msgstr "High Priority"
 
 #: .\templates\workforce_planning\gap_analysis.html:61
 #: .\templates\workforce_planning\my_gaps.html:61
 msgid "Böyük Boşluqlar"
-msgstr ""
+msgstr "Major Gaps"
 
 #: .\templates\workforce_planning\gap_analysis.html:76
 msgid "Müəyyən Edilmiş Boşluqlar"
-msgstr ""
+msgstr "Identified Gaps"
 
 #: .\templates\workforce_planning\gap_analysis.html:85
 #: .\templates\workforce_planning\talent_matrix.html:129
 msgid "İşçi"
-msgstr ""
+msgstr "Employee"
 
 #: .\templates\workforce_planning\gap_analysis.html:88
 msgid "Hədəf Bal"
-msgstr ""
+msgstr "Target Score"
 
 #: .\templates\workforce_planning\gap_analysis.html:89
 msgid "Boşluq"
-msgstr ""
+msgstr "Gap"
 
 #: .\templates\workforce_planning\gap_analysis.html:134
 msgid "Kompetensiya boşluğu tapılmadı"
-msgstr ""
+msgstr "No competency gap found"
 
 #: .\templates\workforce_planning\my_gaps.html:12
 msgid "Mənim Kompetensiya Boşluqlarım"
-msgstr ""
+msgstr "My Competency Gaps"
 
 #: .\templates\workforce_planning\my_gaps.html:14
 msgid "Şəxsi İnkişaf Planı"
-msgstr ""
+msgstr "Personal Development Plan"
 
 #: .\templates\workforce_planning\my_gaps.html:76
 msgid "Aktiv Boşluqlar"
-msgstr ""
+msgstr "Active Gaps"
 
 #: .\templates\workforce_planning\my_gaps.html:151
 msgid "Təbriklər! Heç bir aktiv boşluğunuz yoxdur."
-msgstr ""
+msgstr "Congratulations! You have no active gaps."
 
 #: .\templates\workforce_planning\my_gaps.html:163
 msgid "Bağlanmış Boşluqlar"
-msgstr ""
+msgstr "Closed Gaps"
 
 #: .\templates\workforce_planning\succession_planning.html:12
 msgid "Varislik Planlaması"
-msgstr ""
+msgstr "Succession Planning"
 
 #: .\templates\workforce_planning\succession_planning.html:14
 msgid "Kritik Rollar və Varislik Namizədləri"
-msgstr ""
+msgstr "Critical Roles and Succession Candidates"
 
 #: .\templates\workforce_planning\succession_planning.html:37
 msgid "Varis Yoxdur"
-msgstr ""
+msgstr "No Successor"
 
 #: .\templates\workforce_planning\succession_planning.html:49
 msgid "Hazır İndi"
-msgstr ""
+msgstr "Ready Now"
 
 #: .\templates\workforce_planning\succession_planning.html:61
 msgid "İnkişaf Tələb"
-msgstr ""
+msgstr "Needs Development"
 
 #: .\templates\workforce_planning\succession_planning.html:86
 msgid "Hal-hazırkı Tutucu"
-msgstr ""
+msgstr "Current Holder"
 
 #: .\templates\workforce_planning\succession_planning.html:87
 msgid "Kritiklik"
-msgstr ""
+msgstr "Criticality"
 
 #: .\templates\workforce_planning\succession_planning.html:88
 msgid "Varislik Hazırlığı"
-msgstr ""
+msgstr "Succession Readiness"
 
 #: .\templates\workforce_planning\succession_planning.html:89
 msgid "Namizədlər"
-msgstr ""
+msgstr "Candidates"
 
 #: .\templates\workforce_planning\succession_planning.html:141
 msgid "Ən Yaxşı Varislik Namizədləri"
-msgstr ""
+msgstr "Best Succession Candidates"
 
 #: .\templates\workforce_planning\succession_planning.html:150
 msgid "Namizəd"
-msgstr ""
+msgstr "Candidate"
 
 #: .\templates\workforce_planning\succession_planning.html:151
 msgid "Hədəf Rol"
-msgstr ""
+msgstr "Target Role"
 
 #: .\templates\workforce_planning\succession_planning.html:152
 msgid "Hazırlıq Səviyyəsi"
-msgstr ""
+msgstr "Readiness Level"
 
 #: .\templates\workforce_planning\succession_planning.html:153
 msgid "Hazırlıq Balı"
-msgstr ""
+msgstr "Readiness Score"
 
 #: .\templates\workforce_planning\succession_planning.html:184
 msgid "Varislik namizədi yoxdur"
-msgstr ""
+msgstr "No succession candidate"
 
 #: .\templates\workforce_planning\talent_matrix.html:12
 msgid "9-Qutu İstedad Matrisi"
-msgstr ""
+msgstr "9-Box Talent Matrix"
 
 #: .\templates\workforce_planning\talent_matrix.html:14
 msgid "Performans və Potensial Analizi"
-msgstr ""
+msgstr "Performance and Potential Analysis"
 
 #: .\templates\workforce_planning\talent_matrix.html:25
 msgid "Ümumi Qiymətləndirilən"
-msgstr ""
+msgstr "Total Evaluated"
 
 #: .\templates\workforce_planning\talent_matrix.html:37
 msgid "Yüksək Performans"
-msgstr ""
+msgstr "High Performance"
 
 #: .\templates\workforce_planning\talent_matrix.html:49
 msgid "Yüksək Potensial"
-msgstr ""
+msgstr "High Potential"
 
 #: .\templates\workforce_planning\talent_matrix.html:61
 msgid "Üstün İstedad"
-msgstr ""
+msgstr "Top Talent"
 
 #: .\templates\workforce_planning\talent_matrix.html:74
 msgid "9-Qutu Matrix"
-msgstr ""
+msgstr "9-Box Matrix"
 
 #: .\templates\workforce_planning\talent_matrix.html:79
 #: .\templates\workforce_planning\talent_matrix.html:83
@@ -3177,28 +3061,27 @@ msgstr ""
 #: .\templates\workforce_planning\talent_matrix.html:107
 #: .\templates\workforce_planning\talent_matrix.html:111
 msgid "Box"
-msgstr ""
+msgstr "Box"
 
 #: .\templates\workforce_planning\talent_matrix.html:120
 msgid "Qiymətləndirilmiş İşçilər"
-msgstr ""
+msgstr "Evaluated Employees"
 
 #: .\templates\workforce_planning\talent_matrix.html:130
 msgid "Performans"
-msgstr ""
+msgstr "Performance"
 
 #: .\templates\workforce_planning\talent_matrix.html:131
 msgid "Potensial"
-msgstr ""
+msgstr "Potential"
 
 #: .\templates\workforce_planning\talent_matrix.html:133
 msgid "Dövr"
-msgstr ""
+msgstr "Period"
 
 #: .\templates\workforce_planning\talent_matrix.html:152
 msgid "Hələ qiymətləndirmə aparılmayıb"
-msgstr ""
-
+msgstr "No evaluation conducted yet"
 #~ msgid "New Campaign"
 #~ msgstr "Yeni Kampaniya"
 
