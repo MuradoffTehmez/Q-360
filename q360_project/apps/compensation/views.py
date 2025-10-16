@@ -169,13 +169,14 @@ def salary_change_form(request, user_id=None):
                         dept_budget.utilized_amount += salary_difference
                         dept_budget.save()
 
-            # Deactivate old salary
+            # Deactivate old salary FIRST (important for OneToOne -> ForeignKey migration)
             if current_salary_obj:
                 current_salary_obj.is_active = False
                 current_salary_obj.end_date = date.today()
                 current_salary_obj.save()
+                # Ensure it's saved before creating new one
 
-            # Create new salary record
+            # Create new salary record AFTER deactivating old one
             new_salary = SalaryInformation.objects.create(
                 user=employee,
                 base_salary=new_amount,

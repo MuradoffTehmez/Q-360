@@ -29,10 +29,10 @@ class SalaryInformation(models.Model):
         ('weekly', 'Həftəlik'),
     ]
 
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='salary_info',
+        related_name='salary_information',
         verbose_name=_('İstifadəçi')
     )
     base_salary = models.DecimalField(
