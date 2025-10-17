@@ -1,0 +1,3 @@
+"""
+Dashboard app initialization module
+"""
