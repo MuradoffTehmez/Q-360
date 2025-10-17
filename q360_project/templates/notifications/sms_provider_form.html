@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni SMS Təchizatçısı" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Yeni SMS Təchizatçısı" %}</h1>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.provider.id_for_label }}" class="form-label">{{ form.provider.label }}</label>
+                                    {{ form.provider }}
+                                    {% if form.provider.errors %}
+                                        <div class="text-danger">{{ form.provider.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Conditional fields based on provider -->
+                                <div id="twilio-fields" class="provider-fields d-none">
+                                    <div class="mb-3">
+                                        <label for="{{ form.account_sid.id_for_label }}" class="form-label">{{ form.account_sid.label }}</label>
+                                        {{ form.account_sid }}
+                                        {% if form.account_sid.errors %}
+                                            <div class="text-danger">{{ form.account_sid.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.auth_token.id_for_label }}" class="form-label">{{ form.auth_token.label }}</label>
+                                        {{ form.auth_token }}
+                                        {% if form.auth_token.errors %}
+                                            <div class="text-danger">{{ form.auth_token.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.from_number.id_for_label }}" class="form-label">{{ form.from_number.label }}</label>
+                                        {{ form.from_number }}
+                                        {% if form.from_number.errors %}
+                                            <div class="text-danger">{{ form.from_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div id="aws-fields" class="provider-fields d-none">
+                                    <div class="mb-3">
+                                        <label for="{{ form.aws_access_key_id.id_for_label }}" class="form-label">{{ form.aws_access_key_id.label }}</label>
+                                        {{ form.aws_access_key_id }}
+                                        {% if form.aws_access_key_id.errors %}
+                                            <div class="text-danger">{{ form.aws_access_key_id.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.aws_secret_access_key.id_for_label }}" class="form-label">{{ form.aws_secret_access_key.label }}</label>
+                                        {{ form.aws_secret_access_key }}
+                                        {% if form.aws_secret_access_key.errors %}
+                                            <div class="text-danger">{{ form.aws_secret_access_key.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.aws_region.id_for_label }}" class="form-label">{{ form.aws_region.label }}</label>
+                                        {{ form.aws_region }}
+                                        {% if form.aws_region.errors %}
+                                            <div class="text-danger">{{ form.aws_region.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div id="clickatell-fields" class="provider-fields d-none">
+                                    <div class="mb-3">
+                                        <label for="{{ form.clickatell_api_key.id_for_label }}" class="form-label">{{ form.clickatell_api_key.label }}</label>
+                                        {{ form.clickatell_api_key }}
+                                        {% if form.clickatell_api_key.errors %}
+                                            <div class="text-danger">{{ form.clickatell_api_key.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div id="custom-fields" class="provider-fields d-none">
+                                    <div class="mb-3">
+                                        <label for="{{ form.custom_url.id_for_label }}" class="form-label">{{ form.custom_url.label }}</label>
+                                        {{ form.custom_url }}
+                                        {% if form.custom_url.errors %}
+                                            <div class="text-danger">{{ form.custom_url.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.custom_token.id_for_label }}" class="form-label">{{ form.custom_token.label }}</label>
+                                        {{ form.custom_token }}
+                                        {% if form.custom_token.errors %}
+                                            <div class="text-danger">{{ form.custom_token.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">{% trans "Yadda Saxla" %}</button>
+                                <a href="{% url 'notifications:sms-providers-list' %}" class="btn btn-secondary">{% trans "İmtina" %}</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Kömək" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% trans "Bu səhifədə SMS göndərmək üçün təchizatçı əlavə edə bilərsiniz." %}
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><strong>Twilio:</strong> {% trans "Populyar cloud kommunikasiya platforması" %}</li>
+                                <li><strong>AWS SNS:</strong> {% trans "Amazon-un messenc növü xidməti" %}</li>
+                                <li><strong>Clickatell:</strong> {% trans "Mobil kommunikasiya həllidir" %}</li>
+                                <li><strong>Fərdi:</strong> {% trans "Özəl təchizatçı API-ları üçün" %}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const providerSelect = document.getElementById('{{ form.provider.id_for_label }}');
+            const providerFields = document.querySelectorAll('.provider-fields');
+            
+            providerSelect.addEventListener('change', function() {
+                // Hide all provider fields
+                providerFields.forEach(field => {
+                    field.classList.add('d-none');
+                });
+                
+                // Show selected provider fields
+                const selectedValue = this.value;
+                if (selectedValue === 'twilio') {
+                    document.getElementById('twilio-fields').classList.remove('d-none');
+                } else if (selectedValue === 'aws_sns') {
+                    document.getElementById('aws-fields').classList.remove('d-none');
+                } else if (selectedValue === 'clickatell') {
+                    document.getElementById('clickatell-fields').classList.remove('d-none');
+                } else if (selectedValue === 'custom') {
+                    document.getElementById('custom-fields').classList.remove('d-none');
+                }
+            });
+            
+            // Trigger change event on load to show appropriate fields
+            providerSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+{% endblock %}
