@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import template_views
+from . import views
 
 router = DefaultRouter()
 
@@ -16,16 +17,29 @@ urlpatterns = [
     path('<int:pk>/delete/', template_views.delete_notification, name='delete-notification'),
     path('delete-all/', template_views.delete_all_notifications, name='delete-all-notifications'),
     path('settings/', template_views.notification_settings, name='settings'),
+    
+    # Enhanced notification settings
+    path('preferences/', views.notification_preferences, name='preferences'),
+    path('settings/dashboard/', views.notification_settings_dashboard, name='settings-dashboard'),
+    path('sms/providers/', views.sms_providers_list, name='sms-providers-list'),
+    path('sms/providers/create/', views.sms_provider_create, name='sms-provider-create'),
+    path('sms/providers/<int:pk>/update/', views.sms_provider_update, name='sms-provider-update'),
+    path('templates/', views.notification_templates_list, name='templates-list'),
+    path('templates/create/', views.notification_template_create, name='template-create'),
+    path('templates/<int:pk>/update/', views.notification_template_update, name='template-update'),
+    path('templates/<int:pk>/delete/', views.notification_template_delete, name='template-delete'),
+    path('test/', views.test_notification, name='test'),
+    path('api/update-preferences/', views.update_notification_preferences, name='update-preferences'),
 
     # Bulk notification (admin/manager only)
     path('bulk/', template_views.bulk_notification, name='bulk-notification'),
 
     # Email template management (admin only)
-    path('templates/', template_views.EmailTemplateListView.as_view(), name='email-templates'),
-    path('templates/create/', template_views.EmailTemplateCreateView.as_view(), name='email-template-create'),
-    path('templates/<int:pk>/', template_views.EmailTemplateDetailView.as_view(), name='email-template-detail'),
-    path('templates/<int:pk>/edit/', template_views.EmailTemplateUpdateView.as_view(), name='email-template-edit'),
-    path('templates/<int:pk>/delete/', template_views.delete_email_template, name='email-template-delete'),
+    path('templates/emails/', template_views.EmailTemplateListView.as_view(), name='email-templates'),
+    path('templates/emails/create/', template_views.EmailTemplateCreateView.as_view(), name='email-template-create'),
+    path('templates/emails/<int:pk>/', template_views.EmailTemplateDetailView.as_view(), name='email-template-detail'),
+    path('templates/emails/<int:pk>/edit/', template_views.EmailTemplateUpdateView.as_view(), name='email-template-edit'),
+    path('templates/emails/<int:pk>/delete/', template_views.delete_email_template, name='email-template-delete'),
 
     # AJAX endpoints
     path('api/unread-count/', template_views.get_unread_count, name='api-unread-count'),
