@@ -59,7 +59,7 @@ def kpi_dashboard(request):
     """
     # Performans göstəriciləri
     active_users = User.objects.filter(is_active=True).count()
-    active_evaluations = EvaluationCampaign.objects.filter(is_active=True).count()
+    active_evaluations = EvaluationCampaign.objects.filter(status='active').count()
     total_departments = Department.objects.count()
     
     # Ən son KPI göstəriciləri
@@ -290,7 +290,7 @@ def generate_analytics_report(request):
         
         if report_type == 'kpi_summary':
             report_data['active_users'] = User.objects.filter(is_active=True).count()
-            report_data['active_evaluations'] = EvaluationCampaign.objects.filter(is_active=True).count()
+            report_data['active_evaluations'] = EvaluationCampaign.objects.filter(status='active').count()
             report_data['avg_performance'] = Response.objects.aggregate(Avg('score'))['score__avg'] or 0
             report_data['total_departments'] = Department.objects.count()
         
