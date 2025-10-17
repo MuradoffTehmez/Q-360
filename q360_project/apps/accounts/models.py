@@ -1,10 +1,97 @@
 """
 Models for accounts app - User management, roles, and permissions.
 """
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import (
+    AbstractUser,
+    Group,
+    Permission,
+    UserManager as DjangoUserManager,
+)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
+
+
+class _CallableRoleCheck:
+    """
+    Wrapper so role helper methods can be used both as callables and booleans.
+    Allows templates to use ``user.is_admin`` while Python code can still call
+    ``user.is_admin()`` without breaking backwards compatibility.
+    """
+
+    __slots__ = ("_instance", "_func")
+
+    def __init__(self, instance, func):
+        self._instance = instance
+        self._func = func
+
+    def __call__(self):
+        return self._func(self._instance)
+
+    def __bool__(self):
+        return bool(self._func(self._instance))
+
+    __nonzero__ = __bool__  # Python 2 compatibility (harmless in Py3)
+
+
+class role_check:
+    """Descriptor decorator that returns _CallableRoleCheck wrappers."""
+
+    def __init__(self, func):
+        self.func = func
+        self.__doc__ = getattr(func, "__doc__", "")
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self.func
+        return _CallableRoleCheck(instance, self.func)
+
+
+class Q360UserManager(DjangoUserManager):
+    """
+    Custom user manager that understands legacy boolean flags like ``is_admin``.
+    Normalises these flags into the canonical ``role`` field to avoid TypeError
+    during user creation in seeds/tests and keeps role permissions in sync.
+    """
+
+    def _extract_role(self, extra_fields):
+        """Translate legacy helpers into the canonical role string."""
+        # Pop legacy flags so Django's AbstractUser manager doesn't raise.
+        is_superadmin = extra_fields.pop("is_superadmin", None)
+        is_admin = extra_fields.pop("is_admin", None)
+        is_manager = extra_fields.pop("is_manager", None)
+
+        role = extra_fields.get("role")
+        if role:
+            return role
+
+        if is_superadmin:
+            return "superadmin"
+        if is_admin:
+            return "admin"
+        if is_manager:
+            return "manager"
+        return "employee"
+
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        role = self._extract_role(extra_fields)
+        extra_fields["role"] = role
+        user = super().create_user(username, email=email, password=password, **extra_fields)
+        self._apply_role_defaults(user)
+        return user
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        # Force superadmin role for canonical behaviour.
+        extra_fields["role"] = "superadmin"
+        user = super().create_superuser(username, email=email, password=password, **extra_fields)
+        self._apply_role_defaults(user)
+        return user
+
+    def _apply_role_defaults(self, user):
+        """Apply default Django auth flags/permissions for the user's role."""
+        from apps.accounts.rbac import RoleManager
+
+        RoleManager.assign_default_permissions(user)
 
 
 class Role(models.Model):
@@ -65,6 +152,8 @@ class User(AbstractUser):
     Custom User model extending Django's AbstractUser.
     Includes role-based access control and organizational hierarchy.
     """
+
+    objects = Q360UserManager()
 
     ROLE_CHOICES = [
         ('superadmin', 'Super Administrator'),
@@ -171,6 +260,7 @@ class User(AbstractUser):
         parts = [self.first_name, self.middle_name, self.last_name]
         return ' '.join(filter(None, parts))
 
+    @role_check
     def is_superadmin(self):
         """
         Check if user is a superadmin.
@@ -179,6 +269,7 @@ class User(AbstractUser):
         from apps.accounts.rbac import RoleManager
         return RoleManager.is_superadmin(self)
 
+    @role_check
     def is_admin(self):
         """
         Check if user is an admin or higher.
@@ -187,6 +278,7 @@ class User(AbstractUser):
         from apps.accounts.rbac import RoleManager
         return RoleManager.is_admin(self)
 
+    @role_check
     def is_manager(self):
         """
         Check if user is a manager or higher.

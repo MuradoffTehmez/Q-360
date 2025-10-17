@@ -123,7 +123,13 @@ def salary_change_form(request, user_id=None):
 
     if request.method == 'POST':
         try:
-            employee_id = request.POST.get('employee_id')
+            employee_id = request.POST.get('employee_id') or user_id
+            if not employee_id:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Employee identifier is required for salary updates.'
+                }, status=400)
+
             employee = get_object_or_404(User, id=employee_id)
 
             # Get current salary
@@ -135,6 +141,12 @@ def salary_change_form(request, user_id=None):
             old_amount = current_salary_obj.base_salary if current_salary_obj else Decimal('0.00')
             new_amount = Decimal(request.POST.get('new_salary'))
             currency = request.POST.get('currency', 'AZN')
+
+            if new_amount <= 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Yeni maaş müsbət olmalıdır.'
+                })
 
             # BUDGET VALIDATION
             if employee.department:

@@ -13,7 +13,6 @@ import json
 from apps.departments.models import Department, Organization
 from apps.accounts.models import User
 from apps.evaluations.models import EvaluationCampaign, Response, EvaluationAssignment
-from apps.compensation.models import Salary
 from apps.recruitment.models import Application
 from apps.leave_attendance.models import LeaveRequest, Attendance
 from apps.dashboard.models import SystemKPI, DashboardWidget, AnalyticsReport, TrendData, ForecastData, RealTimeStat

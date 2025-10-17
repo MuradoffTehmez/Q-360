@@ -39,6 +39,7 @@ urlpatterns = [
     # Main pages
     path('', TemplateView.as_view(template_name='landing.html'), name='home'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('dashboard/', include(('apps.dashboard.urls', 'dashboard'), namespace='dashboard')),
     path('help/', TemplateView.as_view(template_name='base/help.html'), name='help'),
     path('privacy/', TemplateView.as_view(template_name='base/privacy.html'), name='privacy'),
     path('terms/', TemplateView.as_view(template_name='base/terms.html'), name='terms'),

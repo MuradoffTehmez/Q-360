@@ -13,7 +13,7 @@ from .models import SystemKPI, DashboardWidget, AnalyticsReport, TrendData, Fore
 from apps.departments.models import Department, Organization
 from apps.accounts.models import User
 from apps.evaluations.models import EvaluationCampaign, Response
-from apps.compensation.models import Salary
+# Use high-level helpers only; specific salary model imported lazily when needed.
 from apps.recruitment.models import Application
 from apps.leave_attendance.models import LeaveRequest, Attendance
 
