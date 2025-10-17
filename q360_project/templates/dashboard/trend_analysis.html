@@ -1,0 +1,298 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Trend Analysis" %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+<style>
+    .trend-card {
+        border-left: 4px solid #ffc107;
+        transition: all 0.3s ease;
+    }
+    .trend-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 30px;
+    }
+    .trend-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Trend Analysis" %}</h1>
+            
+            <!-- Trend Summary -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="trend-summary">
+                        <h5 class="text-primary">{% trans "Salary Trends" %}</h5>
+                        <p class="mb-0">{% trans "Average salary changes over time with department breakdown" %}</p>
+                        <div class="mt-2">
+                            <h6>{% trans "Current Average" %}: ₼{{ current_avg_salary|floatformat:0 }}</h6>
+                            <h6>{% trans "6-Month Change" %}: 
+                                <span class="{% if salary_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if salary_change >= 0 %}+{% endif %}{{ salary_change|floatformat:1 }}%
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="trend-summary">
+                        <h5 class="text-success">{% trans "Performance Trends" %}</h5>
+                        <p class="mb-0">{% trans "Performance scores and improvement patterns across departments" %}</p>
+                        <div class="mt-2">
+                            <h6>{% trans "Current Average" %}: {{ current_avg_performance|floatformat:2 }}/5</h6>
+                            <h6>{% trans "6-Month Change" %}: 
+                                <span class="{% if performance_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if performance_change >= 0 %}+{% endif %}{{ performance_change|floatformat:1 }}%
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="trend-summary">
+                        <h5 class="text-info">{% trans "Hiring Trends" %}</h5>
+                        <p class="mb-0">{% trans "Recruitment patterns and hiring efficiency metrics" %}</p>
+                        <div class="mt-2">
+                            <h6>{% trans "Current Hiring Rate" %}: {{ current_hiring_rate|floatformat:1 }}</h6>
+                            <h6>{% trans "Active Campaigns" %}: {{ hiring_trends.count }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Salary Trends Chart -->
+            <div class="card trend-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Salary Trends" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salary-trend-chart"></canvas>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Current Average" %}</h6>
+                            <p class="text-center h4 text-success">₼2,450</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "6-Month Change" %}</h6>
+                            <p class="text-center h4 text-info">+5.2%</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Annual Increase" %}</h6>
+                            <p class="text-center h4 text-primary">+8.7%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Trends Chart -->
+            <div class="card trend-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Performance Trends" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="performance-trend-chart"></canvas>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Current Average" %}</h6>
+                            <p class="text-center h4 text-success">4.2/5</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "6-Month Change" %}</h6>
+                            <p class="text-center h4 text-info">+0.3</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Top Performing Dept" %}</h6>
+                            <p class="text-center h4 text-primary">{% trans "IT" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hiring Trends Chart -->
+            <div class="card trend-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Hiring Trends" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="hiring-trend-chart"></canvas>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Current Hires" %}</h6>
+                            <p class="text-center h4 text-success">24</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Time to Hire" %}</h6>
+                            <p class="text-center h4 text-info">18.5 days</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-center">{% trans "Hiring Success Rate" %}</h6>
+                            <p class="text-center h4 text-primary">87%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trend Period Selector -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "Select Period" %}</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100 period-btn active" data-period="12months">{% trans "Last 12 Months" %}</button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100 period-btn" data-period="6months">{% trans "Last 6 Months" %}</button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100 period-btn" data-period="3months">{% trans "Last 3 Months" %}</button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100 period-btn" data-period="1month">{% trans "Last Month" %}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Salary Trend Chart
+        const salaryCtx = document.getElementById('salary-trend-chart').getContext('2d');
+        new Chart(salaryCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: '{% trans "Average Salary (₼)" %}',
+                    data: [2300, 2320, 2350, 2370, 2400, 2420, 2430, 2440, 2445, 2450, 2460, 2470],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Performance Trend Chart
+        const perfCtx = document.getElementById('performance-trend-chart').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: '{% trans "Performance Score" %}',
+                    data: [3.8, 3.9, 4.0, 4.0, 4.1, 4.1, 4.1, 4.2, 4.2, 4.2, 4.3, 4.2],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        max: 5
+                    }
+                }
+            }
+        });
+
+        // Hiring Trend Chart
+        const hiringCtx = document.getElementById('hiring-trend-chart').getContext('2d');
+        new Chart(hiringCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: '{% trans "New Hires" %}',
+                    data: [18, 20, 22, 19, 24, 21, 19, 17, 20, 22, 23, 24],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Period selection functionality
+        const periodButtons = document.querySelectorAll('.period-btn');
+        periodButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                periodButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // In a real app, you would fetch new data based on the selected period
+                // For now, we'll just show an alert
+                alert('{% trans "Period changed to" %} ' + this.textContent);
+            });
+        });
+    });
+</script>
+{% endblock %}
