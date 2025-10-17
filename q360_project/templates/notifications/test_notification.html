@@ -1,0 +1,97 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Test Bildirişi" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Test Bildirişi" %}</h1>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label for="type" class="form-label">{% trans "Bildiriş Növü" %}</label>
+                                    <select name="type" id="type" class="form-select">
+                                        <option value="info">{% trans "Məlumat" %}</option>
+                                        <option value="success">{% trans "Uğur" %}</option>
+                                        <option value="warning">{% trans "Xəbərdarlıq" %}</option>
+                                        <option value="error">{% trans "Xəta" %}</option>
+                                        <option value="assignment">{% trans "Tapşırıq" %}</option>
+                                        <option value="reminder">{% trans "Xatırlatma" %}</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="channel" class="form-label">{% trans "Kanal" %}</label>
+                                    <select name="channel" id="channel" class="form-select">
+                                        <option value="in_app">{% trans "Tətbiqdaxili" %}</option>
+                                        <option value="email">{% trans "E-poçt" %}</option>
+                                        <option value="sms">{% trans "SMS" %}</option>
+                                        <option value="push">{% trans "Push" %}</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">{% trans "Başlıq" %}</label>
+                                    <input type="text" name="title" id="title" class="form-control" value="{% trans "Test Bildirişi" %}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">{% trans "Mesaj" %}</label>
+                                    <textarea name="message" id="message" class="form-control" rows="4">{% trans "Bu bir test bildirişidir. Zəhmət olmasa nəzərə alın." %}</textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">{% trans "Test Bildirişi Göndər" %}</button>
+                                <a href="{% url 'notifications:settings-dashboard' %}" class="btn btn-secondary">{% trans "Geri" %}</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Kömək" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% trans "Bu səhifədə müxtəlif kanallar üzrə test bildirişləri göndərmək olar." %}
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-inbox text-primary"></i> {% trans "Tətbiqdaxili: Tətbiq daxilində bildiriş" %}</li>
+                                <li><i class="fas fa-envelope text-success"></i> {% trans "E-poçt: İstifadəçinin e-poçt ünvanına göndərilir" %}</li>
+                                <li><i class="fas fa-sms text-info"></i> {% trans "SMS: Mobil nömrəyə qısa mesaj göndərilir" %}</li>
+                                <li><i class="fas fa-bell text-warning"></i> {% trans "Push: Brauzer/tətbiqdə real vaxt bildirişi" %}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Son Testlər" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">
+                                {% trans "Son test bildirişi: 5 dəq əvvəl" %}
+                            </p>
+                            <p class="card-text text-muted">
+                                {% trans "Uğurla göndərildi: 0" %}
+                            </p>
+                            <p class="card-text text-muted">
+                                {% trans "Uğursuz cəhdlər: 0" %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
