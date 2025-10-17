@@ -1,0 +1,3 @@
+"""
+Dashboard management commands initialization
+"""
