@@ -1,0 +1,302 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Forecasting Dashboard" %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+<style>
+    .forecast-card {
+        border-left: 4px solid #17a2b8;
+        transition: all 0.3s ease;
+    }
+    .forecast-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .forecast-value {
+        font-size: 1.8em;
+        font-weight: bold;
+    }
+    .confidence-badge {
+        font-size: 0.8em;
+    }
+    .ai-explanation {
+        background-color: #f8f9fa;
+        border-left: 3px solid #17a2b8;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 0 4px 4px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "AI Proqnozlaşdırma Dashboard" %}</h1>
+            
+            <!-- Forecast Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card forecast-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Staffing Proqnozu" %}</h5>
+                            <p class="forecast-value text-primary">27</p>
+                            <p class="card-text text-muted">{% trans "Yeni işə qəbul üçün tələb olunan" %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info confidence-badge">
+                                    {% trans "Etibarlılıq" %}: 87%
+                                </span>
+                                <small class="text-muted">{% trans "2025, Avg" %}</small>
+                            </div>
+                            <div class="ai-explanation mt-2">
+                                <small>{% trans "AI tərəfindən təxmin edilən: Təşkilatın genişlənməsi və layihələrin artması nəzərə alınaraq 2025-ci ilin avqust ayında 27 yeni işçi tələb olunacaq." %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card forecast-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Büdcə Proqnozu" %}</h5>
+                            <p class="forecast-value text-success">₼567,000</p>
+                            <p class="card-text text-muted">{% trans "Aylıq əmək haqqı fonduna tələb" %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info confidence-badge">
+                                    {% trans "Etibarlılıq" %}: 91%
+                                </span>
+                                <small class="text-muted">{% trans "2025, Avg" %}</small>
+                            </div>
+                            <div class="ai-explanation mt-2">
+                                <small>{% trans "AI tərəfindən təxmin edilən: 2025-ci ilin avqust ayında yeni işə qəbul və bonuslar nəzərə alınaraq əmək haqqı fonduna təxminən 567,000 manat tələb olunacaq." %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card forecast-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "İşə Qəbul Proqnozu" %}</h5>
+                            <p class="forecast-value text-warning">12</p>
+                            <p class="card-text text-muted">{% trans "Yeni işçi qəbul olunması gözlənilir" %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info confidence-badge">
+                                    {% trans "Etibarlılıq" %}: 79%
+                                </span>
+                                <small class="text-muted">{% trans "2025, Avg" %}</small>
+                            </div>
+                            <div class="ai-explanation mt-2">
+                                <small>{% trans"AI tərəfindən təxmin edilən: Texniki və menecment bölmələrində 12 yeni işə qəbul 2025-ci ilin avqust ayında gözlənilir." %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Forecast Charts -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card forecast-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{% trans "Staffing Proqnozu (12 Ay)" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="staffing-forecast-chart" width="400" height="200"></canvas>
+                            <div class="mt-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h6>{% trans "Cari" %}</h6>
+                                        <p class="h5">150</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6>{% trans "Proqnoz" %}</h6>
+                                        <p class="h5 text-info">177</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6>{% trans "Fərq" %}</h6>
+                                        <p class="h5 text-success">+27</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card forecast-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{% trans "Büdcə Proqnozu (12 Ay)" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="budget-forecast-chart" width="400" height="200"></canvas>
+                            <div class="mt-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h6>{% trans "Cari" %}</h6>
+                                        <p class="h5">₼450,000</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6>{% trans "Proqnoz" %}</h6>
+                                        <p class="h5 text-info">₼567,000</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6>{% trans "Fərq" %}</h6>
+                                        <p class="h5 text-success">+₼117,000</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Department Forecast -->
+            <div class="card forecast-card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Bölmələr üzrə Proqnoz" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Bölmə" %}</th>
+                                    <th>{% trans "Cari işçi" %}</th>
+                                    <th>{% trans "Proqnoz" %}</th>
+                                    <th>{% trans "Əlavə tələb" %}</th>
+                                    <th>{% trans "Etibarlılıq" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{% trans "İT" %}</td>
+                                    <td>28</td>
+                                    <td>35</td>
+                                    <td class="text-success">+7</td>
+                                    <td><span class="badge bg-success">92%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "İnsan Resursları" %}</td>
+                                    <td>12</td>
+                                    <td>14</td>
+                                    <td class="text-success">+2</td>
+                                    <td><span class="badge bg-success">88%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Maliyyə" %}</td>
+                                    <td>15</td>
+                                    <td>16</td>
+                                    <td class="text-success">+1</td>
+                                    <td><span class="badge bg-success">85%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Marketinq" %}</td>
+                                    <td>8</td>
+                                    <td>10</td>
+                                    <td class="text-success">+2</td>
+                                    <td><span class="badge bg-success">82%</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Staffing Forecast Chart
+        const staffingCtx = document.getElementById('staffing-forecast-chart').getContext('2d');
+        new Chart(staffingCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: '{% trans "Cari əməkdaşlar" %}',
+                    data: [150, 152, 153, 152, 155, 156, 157, 157, 158, 158, 159, 159],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1,
+                    fill: false
+                }, {
+                    label: '{% trans "Proqnozlaşdırılan" %}',
+                    data: [150, 153, 156, 158, 161, 164, 167, 177, 178, 178, 178, 178],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    fill: false,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Budget Forecast Chart
+        const budgetCtx = document.getElementById('budget-forecast-chart').getContext('2d');
+        new Chart(budgetCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: '{% trans "Cari büdcət" %}',
+                    data: [450000, 455000, 460000, 458000, 465000, 468000, 470000, 470000, 472000, 472000, 475000, 475000],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1,
+                    fill: false
+                }, {
+                    label: '{% trans "Proqnozlaşdırılan büdcət" %}',
+                    data: [450000, 458000, 465000, 472000, 478000, 485000, 492000, 567000, 568000, 568000, 568000, 568000],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    fill: false,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '₼' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
