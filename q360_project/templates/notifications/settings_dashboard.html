@@ -1,0 +1,131 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Bildiriş Ayarları" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Bildiriş Ayarları" %}</h1>
+            
+            <div class="row mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="card text-center bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ total_notifications }}</h5>
+                            <p class="card-text">{% trans "Ümumi Bildiriş" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ unread_notifications }}</h5>
+                            <p class="card-text">{% trans "Oxunmamış" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">5</h5>
+                            <p class="card-text">{% trans "Bu Həftə" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">87%</h5>
+                            <p class="card-text">{% trans "Oxunma Faizi" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Tənzimləmələr" %}</h5>
+                            <p class="card-text">{% trans "E-poçt, SMS və push bildirişlərinin tənzimləmələri" %}</p>
+                            <a href="{% url 'notifications:preferences' %}" class="btn btn-primary">{% trans "Tənzimləmələrə Keç" %}</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Şablonlar" %}</h5>
+                            <p class="card-text">{% trans "Bildiriş şablonlarını idarə et" %}</p>
+                            <a href="{% url 'notifications:templates-list' %}" class="btn btn-primary">{% trans "Şablonlara Bax" %}</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Təchizatçılar" %}</h5>
+                            <p class="card-text">{% trans "SMS təchizatçılarını idarə et" %}</p>
+                            <a href="{% url 'notifications:sms-providers-list' %}" class="btn btn-primary">{% trans "Təchizatçılara Bax" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Tez Tez Verilən Sorğular" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                            {% trans "Bildirişləri necə deaktiv edim?" %}
+                                        </button>
+                                    </h2>
+                                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            {% trans "Yuxarıdakı 'Tənzimləmələr' bölməsinə daxil olaraq hər hansı bir bildiriş növünü deaktiv edə bilərsiniz." %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                            {% trans "Təcili bildirişlər həmişə gəlməlidirmi?" %}
+                                        </button>
+                                    </h2>
+                                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            {% trans "Bəli, təcili təhlükəsizlik və hesabla bağlı bildirişlər sistem tərəfindən həmişə göndərilir." %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Test Bildirişi" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{% trans "Dərhal test bildirişi göndərmək üçün aşağıdakı düyməni istifadə edin:" %}</p>
+                            <a href="{% url 'notifications:test' %}" class="btn btn-success">{% trans "Test Bildirişi Göndər" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
