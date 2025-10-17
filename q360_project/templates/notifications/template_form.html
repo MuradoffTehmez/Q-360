@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% if template %}{% trans "Şablonu Redaktə Et" %}{% else %}{% trans "Yeni Şablon" %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                {% if template %}{% trans "Şablonu Redaktə Et" %}{% else %}{% trans "Yeni Bildiriş Şablonu" %}{% endif %}
+            </h1>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                            {{ form.name }}
+                                            {% if form.name.errors %}
+                                                <div class="text-danger">{{ form.name.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{% trans "Bu şablon üçün unikal ad" %}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.trigger.id_for_label }}" class="form-label">{{ form.trigger.label }}</label>
+                                            {{ form.trigger }}
+                                            {% if form.trigger.errors %}
+                                                <div class="text-danger">{{ form.trigger.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{% trans "Bu şablonun hansı hadisədə istifadə ediləcəyi" %}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.subject.id_for_label }}" class="form-label">{{ form.subject.label }}</label>
+                                    {{ form.subject }}
+                                    {% if form.subject.errors %}
+                                        <div class="text-danger">{{ form.subject.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-text">{% trans "E-poçt mövzusu və ya bildiriş başlığı" %}</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.email_content.id_for_label }}" class="form-label">{{ form.email_content.label }}</label>
+                                    {{ form.email_content }}
+                                    {% if form.email_content.errors %}
+                                        <div class="text-danger">{{ form.email_content.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-text">{% trans "E-poçt məzmunu (HTML dəstəklənir)" %}</div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.sms_content.id_for_label }}" class="form-label">{{ form.sms_content.label }}</label>
+                                            {{ form.sms_content }}
+                                            {% if form.sms_content.errors %}
+                                                <div class="text-danger">{{ form.sms_content.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{% trans "SMS məzmunu (maksimum 160 simvol)" %}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.push_content.id_for_label }}" class="form-label">{{ form.push_content.label }}</label>
+                                            {{ form.push_content }}
+                                            {% if form.push_content.errors %}
+                                                <div class="text-danger">{{ form.push_content.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{% trans "Push bildirişi məzmunu" %}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.inapp_content.id_for_label }}" class="form-label">{{ form.inapp_content.label }}</label>
+                                    {{ form.inapp_content }}
+                                    {% if form.inapp_content.errors %}
+                                        <div class="text-danger">{{ form.inapp_content.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-text">{% trans "Tətbiqdaxili bildiriş məzmunu" %}</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Bildiriş Metodları" %}</label>
+                                    <div class="row">
+                                        {% for value, label in form.methods.field.choices %}
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="methods" value="{{ value }}" id="id_methods_{{ value }}" 
+                                                       {% if value in form.methods.value %}checked{% endif %}>
+                                                <label class="form-check-label" for="id_methods_{{ value }}">
+                                                    {{ label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">{% trans "Yadda Saxla" %}</button>
+                                <a href="{% url 'notifications:templates-list' %}" class="btn btn-secondary">{% trans "İmtina" %}</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

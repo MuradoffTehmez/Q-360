@@ -1,0 +1,79 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Bildiriş Şablonları" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Bildiriş Şablonları" %}</h1>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'notifications:template-create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> {% trans "Yeni Şablon" %}
+                </a>
+            </div>
+            
+            {% if templates %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Ad" %}</th>
+                            <th>{% trans "Tətik" %}</th>
+                            <th>{% trans "Aktivdir" %}</th>
+                            <th>{% trans "Yaradılma Tarixi" %}</th>
+                            <th>{% trans "Əməliyyatlar" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for template in templates %}
+                        <tr>
+                            <td>{{ template.name }}</td>
+                            <td>
+                                {% if template.trigger == 'campaign_start' %}{% trans "Qiymətləndirmə Kampaniyası Başlayır" %}
+                                {% elif template.trigger == 'campaign_end' %}{% trans "Qiymətləndirmə Kampaniyası Bitir" %}
+                                {% elif template.trigger == 'evaluation_assigned' %}{% trans "Qiymətləndirmə Tapşırılır" %}
+                                {% elif template.trigger == 'evaluation_completed' %}{% trans "Qiymətləndirmə Tamamlanır" %}
+                                {% elif template.trigger == 'report_ready' %}{% trans "Hesabat Hazırdır" %}
+                                {% elif template.trigger == 'deadline_reminder' %}{% trans "Bitmə Vaxtına Xatırlatma" %}
+                                {% elif template.trigger == 'new_training' %}{% trans "Yeni Təlim Təyin Edilir" %}
+                                {% elif template.trigger == 'training_complete' %}{% trans "Təlim Tamamlanır" %}
+                                {% elif template.trigger == 'salary_change' %}{% trans "Maaş Dəyişikliyi" %}
+                                {% elif template.trigger == 'performance_result' %}{% trans "Performans Nəticələri" %}
+                                {% elif template.trigger == 'system_maintenance' %}{% trans "Sistem Texniki Xidmət" %}
+                                {% elif template.trigger == 'password_change' %}{% trans "Şifrə Dəyişikliyi" %}
+                                {% elif template.trigger == 'account_lock' %}{% trans "Hesab Bloklanır" %}
+                                {% elif template.trigger == 'security_alert' %}{% trans "Təhlükəsizlik Xəbərdarlığı" %}
+                                {% elif template.trigger == 'general_announcement' %}{% trans "Ümumi Elan" %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if template.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if template.is_active %}{% trans "Bəli" %}{% else %}{% trans "Xeyr" %}{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ template.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'notifications:template-update' template.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="fas fa-edit"></i> {% trans "Redaktə" %}
+                                </a>
+                                <a href="{% url 'notifications:template-delete' template.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> {% trans "Sil" %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> {% trans "Hələ heç bir bildiriş şablonu yoxdur." %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
