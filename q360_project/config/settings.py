@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'apps.compensation',
     'apps.leave_attendance',
     'apps.recruitment',
+    'apps.dashboard',
 ]
 
 MIDDLEWARE = [
