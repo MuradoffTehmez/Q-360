@@ -34,515 +34,546 @@
         </div>
 
         <!-- Navigation Links -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            <!-- Dashboard Home -->
-            <a href="{% url 'dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if request.path == '/dashboard/' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-home w-5 mr-3 relative z-10"></i>
-                <span class="relative z-10">{% trans "Home" %}</span>
-            </a>
-
-            <!-- Evaluations Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-clipboard-check w-4 mr-2 text-blue-500"></i>
-                    {% trans "Evaluations" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'evaluations:my-assignments' %}"
-                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-assignments' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="flex items-center relative z-10">
-                    <i class="fas fa-tasks w-5 mr-3"></i>
-                    <span>{% trans "My Assignments" %}</span>
-                </div>
-                <span
-                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full relative z-10"
-                    id="pendingAssignmentsCount">0</span>
-            </a>
-
-            <a href="{% url 'evaluations:campaign-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/campaign' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-calendar-alt w-5 mr-3 relative z-10"></i>
-                <span class="relative z-10">{% trans "Campaigns" %}</span>
-            </a>
-
-            <!-- Analytics Dashboard Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-chart-line w-4 mr-2 text-green-500"></i>
-                    {% trans "Analytics Dashboard" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'dashboard:dashboard_home' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if request.path == '/dashboard/' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-home w-5 mr-3 text-blue-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Dashboard Home" %}</span>
-            </a>
-
-            <a href="{% url 'dashboard:kpi_dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/kpi/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-tachometer-alt w-5 mr-3 text-green-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "KPI Dashboard" %}</span>
-            </a>
-
-            <a href="{% url 'dashboard:trend_analysis' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/trend/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-chart-area w-5 mr-3 text-purple-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Trend Analysis" %}</span>
-            </a>
-
-            <a href="{% url 'dashboard:forecasting_dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/forecast/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-project-diagram w-5 mr-3 text-orange-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Forecasting" %}</span>
-            </a>
-
-            <!-- Skills & Training Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-graduation-cap w-4 mr-2 text-amber-500"></i>
-                    {% trans "Skills & Training" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'competencies:my-skills' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-skills' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-star w-5 mr-3 text-yellow-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Skills" %}</span>
-            </a>
-
-            <a href="{% url 'competencies:gap-analysis' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/gap-analysis' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-chart-bar w-5 mr-3 text-orange-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Skill Gap Analysis" %}</span>
-            </a>
-
-            <a href="{% url 'competencies:competency-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/competency-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-lightbulb w-5 mr-3 text-purple-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Competencies" %}</span>
-            </a>
-
-            <a href="{% url 'training:my-trainings' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-trainings' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-graduation-cap w-5 mr-3 text-green-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Trainings" %}</span>
-            </a>
-
-            <a href="{% url 'training:my-certificates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-certificates' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-certificate w-5 mr-3 text-amber-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Certificates" %}</span>
-            </a>
-
-            <a href="{% url 'training:catalog' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/catalog' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-book w-5 mr-3 text-indigo-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Training Catalog" %}</span>
-            </a>
-
-            <!-- Development Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-bullseye w-4 mr-2 text-red-500"></i>
-                    {% trans "Development" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'development-plans:my-goals' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-goals' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-tasks w-5 mr-3 text-red-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Goals" %}</span>
-            </a>
-
-            <a href="{% url 'development-plans:team-goals' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/team-goals' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-users w-5 mr-3 text-blue-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Team Goals" %}</span>
-            </a>
-
-            <a href="{% url 'development-plans:goal-templates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/goal-templates' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-lightbulb w-5 mr-3 text-yellow-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Goal Templates" %}</span>
-            </a>
-
-            <a href="{% url 'workforce-planning:my-gaps' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-gaps' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-chart-gap w-5 mr-3 text-orange-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Competency Gaps" %}</span>
-            </a>
-
-            <!-- HR Tools Section (Collapsible) -->
-            {% if user.is_admin or user.is_manager %}
-            <div class="pt-6" x-data="{ hrToolsOpen: false }">
-                <button @click="hrToolsOpen = !hrToolsOpen"
-                    class="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:text-gray-900 dark:hover:text-white transition-colors group">
-                    <div class="flex items-center">
-                        <i class="fas fa-tools w-4 mr-2 text-indigo-500"></i>
-                        <span>{% trans "HR Tools" %}</span>
-                    </div>
-                    <i
-                        class="fas fa-chevron-down transition-transform duration-200 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-                        :class="{ 'rotate-180': hrToolsOpen }"></i>
+        <nav class="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-chart-line w-4"></i>
+                        <span>{% trans "Panel və Analitika" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
                 </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_dashboard=request.path == '/dashboard/' %}
+                    <a href="{% url 'dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_dashboard %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-home w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Əsas Panel" %}</span>
+                    </a>
+                    {% endwith %}
 
-                <div x-show="hrToolsOpen" x-cloak
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 -translate-y-1"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-1"
-                    class="space-y-1 mt-2">
-                    <!-- Workforce Planning Submenu -->
-                    <div
-                        class="pl-3 border-l-2 border-indigo-200 dark:border-indigo-800 ml-3 space-y-1">
-                        <a href="{% url 'workforce-planning:talent-matrix' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/talent-matrix' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-th w-4 mr-3 text-indigo-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Talent Matrix" %}</span>
-                        </a>
+                    {% with is_active='/dashboard/kpi/' in request.path %}
+                    <a href="{% url 'dashboard:kpi_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-chart-pie w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "KPI Lövhəsi" %}</span>
+                    </a>
+                    {% endwith %}
 
-                        <a
-                            href="{% url 'workforce-planning:succession-planning' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/succession-planning' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-users-cog w-4 mr-3 text-purple-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Succession Planning" %}</span>
-                        </a>
+                    {% with is_active='/dashboard/trend/' in request.path %}
+                    <a href="{% url 'dashboard:trend_analysis' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-wave-square w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Trend Analizi" %}</span>
+                    </a>
+                    {% endwith %}
 
-                        <a href="{% url 'workforce-planning:gap-analysis' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/gap-analysis' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-chart-line w-4 mr-3 text-red-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Gap Analysis" %}</span>
-                        </a>
-
-                        <a href="{% url 'accounts:user-list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/user-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-users w-4 mr-3 text-blue-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Users Management" %}</span>
-                        </a>
-
-                        <a href="{% url 'departments:department-list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/department-list' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-building w-4 mr-3 text-teal-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Departments" %}</span>
-                        </a>
-
-                        <a href="{% url 'competencies:competency-manage' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/competency-manage' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-cogs w-4 mr-3 text-orange-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Competencies" %}</span>
-                        </a>
-
-                        <a href="{% url 'training:training-manage' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/training-manage' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-chalkboard-teacher w-4 mr-3 text-green-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Training Programs" %}</span>
-                        </a>
-
-                        <!-- New HRIS Modules -->
-                        <div class="pt-4 pb-2">
-                            <h4
-                                class="px-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider flex items-center">
-                                <i class="fas fa-database w-3 mr-2 text-cyan-500"></i>
-                                {% trans "HRIS" %}
-                            </h4>
-                        </div>
-
-                        <!-- P-File (Employee Files) -->
-                        <a href="{% url 'pfile:employee_list' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/pfile' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-id-card w-4 mr-3 text-cyan-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "P-File (İşçi Faylları)" %}</span>
-                        </a>
-
-                        <!-- Compensation & Benefits -->
-                        <a href="{% url 'compensation:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/compensation' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-money-bill-wave w-4 mr-3 text-emerald-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Kompensasiya" %}</span>
-                        </a>
-
-                        <!-- Compensation Submenu -->
-                        <div class="pl-6 space-y-1">
-                            <a href="{% url 'compensation:salary_list' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-dollar-sign w-3 mr-2 text-emerald-400"></i>
-                                <span>{% trans "Əmək Haqqı" %}</span>
-                            </a>
-                            {% if user.is_admin or user.is_manager %}
-                            <a href="{% url 'compensation:salary_change' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-edit w-3 mr-2 text-emerald-400"></i>
-                                <span>{% trans "Maaş Dəyişdir" %}</span>
-                            </a>
-                            {% endif %}
-                            <a href="{% url 'compensation:bonus_list' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-gift w-3 mr-2 text-emerald-400"></i>
-                                <span>{% trans "Bonuslar" %}</span>
-                            </a>
-                            <a href="{% url 'compensation:history' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-history w-3 mr-2 text-emerald-400"></i>
-                                <span>{% trans "Tarixçə" %}</span>
-                            </a>
-                        </div>
-
-                        <!-- Leave & Attendance -->
-                        <a href="{% url 'leave_attendance:leave_dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/leave' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-calendar-alt w-4 mr-3 text-violet-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Məzuniyyət və İştirak" %}</span>
-                        </a>
-
-                        <!-- Leave Submenu -->
-                        <div class="pl-6 space-y-1">
-                            <a href="{% url 'leave_attendance:leave_request_create' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-plus-circle w-3 mr-2 text-violet-400"></i>
-                                <span>{% trans "Yeni Sorğu" %}</span>
-                            </a>
-                            <a href="{% url 'leave_attendance:leave_request_list' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-file-alt w-3 mr-2 text-violet-400"></i>
-                                <span>{% trans "Bütün Sorğular" %}</span>
-                            </a>
-                            <a href="{% url 'leave_attendance:attendance_calendar' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-calendar-check w-3 mr-2 text-violet-400"></i>
-                                <span>{% trans "İştirak Təqvimi" %}</span>
-                            </a>
-                            {% if user.is_manager %}
-                            <a href="{% url 'leave_attendance:pending_approvals' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-check-circle w-3 mr-2 text-violet-400"></i>
-                                <span>{% trans "Gözləyən Təsdiqləmələr" %}</span>
-                            </a>
-                            <a href="{% url 'leave_attendance:team_calendar' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-users-cog w-3 mr-2 text-violet-400"></i>
-                                <span>{% trans "Komanda Təqvimi" %}</span>
-                            </a>
-                            {% endif %}
-                        </div>
-
-                        <!-- OKR/KPI -->
-                        <a href="{% url 'okr:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/okr' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-bullseye w-4 mr-3 text-rose-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "OKR/KPI" %}</span>
-                        </a>
-
-                        <!-- OKR Submenu -->
-                        <div class="pl-6 space-y-1">
-                            <a href="{% url 'okr:objective_create' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-plus-circle w-3 mr-2 text-rose-400"></i>
-                                <span>{% trans "Yeni Məqsəd" %}</span>
-                            </a>
-                            <a href="{% url 'okr:objective_list' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-list w-3 mr-2 text-rose-400"></i>
-                                <span>{% trans "Bütün Məqsədlər" %}</span>
-                            </a>
-                            <a href="{% url 'okr:kpi_dashboard' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-chart-line w-3 mr-2 text-rose-400"></i>
-                                <span>{% trans "KPI Dashboard" %}</span>
-                            </a>
-                        </div>
-
-                        <!-- Recruitment (ATS) -->
-                        <a href="{% url 'recruitment:dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/recruitment' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-user-tie w-4 mr-3 text-amber-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "İşə Qəbul (ATS)" %}</span>
-                        </a>
-
-                        <!-- Recruitment Submenu -->
-                        <div class="pl-6 space-y-1">
-                            {% if user.is_admin or user.is_manager %}
-                            <a href="{% url 'recruitment:job_create' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-plus-circle w-3 mr-2 text-amber-400"></i>
-                                <span>{% trans "Yeni Vakansiya" %}</span>
-                            </a>
-                            <a href="{% url 'recruitment:candidate_pipeline' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-columns w-3 mr-2 text-amber-400"></i>
-                                <span>{% trans "Namizəd Pipeline" %}</span>
-                            </a>
-                            {% endif %}
-                            <a href="{% url 'recruitment:job_list' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-briefcase w-3 mr-2 text-amber-400"></i>
-                                <span>{% trans "Bütün Vakansiyalar" %}</span>
-                            </a>
-                            <a href="{% url 'recruitment:interview_calendar' %}"
-                                class="flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                                <i class="fas fa-calendar w-3 mr-2 text-amber-400"></i>
-                                <span>{% trans "Müsahibə Təqvimi" %}</span>
-                            </a>
-                        </div>
-
-                        <!-- Security Dashboard (Admin only) -->
-                        {% if user.is_admin %}
-                        <a href="{% url 'audit:security-dashboard' %}"
-                            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/security' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <i
-                                class="fas fa-shield-alt w-4 mr-3 text-red-500 relative z-10"></i>
-                            <span class="text-sm relative z-10">{% trans "Təhlükəsizlik Dashbordu" %}</span>
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% with is_active='/dashboard/forecast/' in request.path %}
+                    <a href="{% url 'dashboard:forecasting_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-project-diagram w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Proqnozlaşdırma" %}</span>
+                    </a>
+                    {% endwith %}
                 </div>
             </div>
-            {% endif %}
 
-            <!-- Continuous Feedback Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-comment-dots w-4 mr-2 text-blue-500"></i>
-                    {% trans "Feedback" %}
-                </h3>
-            </div>
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-clipboard-check w-4"></i>
+                        <span>{% trans "Qiymətləndirmə və Rəylər" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active='/my-assignments' in request.path %}
+                    <a href="{% url 'evaluations:my-assignments' %}"
+                        class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="flex items-center relative z-10"><i class="fas fa-tasks w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Tapşırıqlarım" %}</span></div>
+                        <span id="pendingAssignmentsCount" class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full relative z-10">0</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'feedback:send-feedback' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/send-feedback' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-paper-plane w-5 mr-3 text-blue-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Send Feedback" %}</span>
-            </a>
+                    {% with is_active='/campaign' in request.path %}
+                    <a href="{% url 'evaluations:campaign-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-calendar-alt w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Kampaniyalar" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'feedback:my-feedback' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-feedback' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-inbox w-5 mr-3 text-green-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Feedback" %}</span>
-            </a>
+                    {% with is_active='/feedback/send' in request.path %}
+                    <a href="{% url 'feedback:send-feedback' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-paper-plane w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Əlaqə Göndər" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <!-- Notifications Section -->
-            <div class="pt-6 pb-2">
-                <h3
-                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-bell w-4 mr-2 text-yellow-500"></i>
-                    {% trans "Notifications" %}
-                </h3>
-            </div>
-
-            <a href="{% url 'notifications:inbox' %}"
-                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/inbox' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="flex items-center relative z-10">
-                    <i class="fas fa-inbox w-5 mr-3 text-yellow-500"></i>
-                    <span>{% trans "Inbox" %}</span>
+                    {% with is_active='/feedback/my' in request.path %}
+                    <a href="{% url 'feedback:my-feedback' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-comments w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Rəylərim" %}</span>
+                    </a>
+                    {% endwith %}
                 </div>
-                <span
-                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full relative z-10"
-                    id="notificationBadge">0</span>
-            </a>
+            </div>
 
-            <a href="{% url 'notifications:settings-dashboard' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/settings/dashboard' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-cog w-5 mr-3 text-gray-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Settings Dashboard" %}</span>
-            </a>
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-lightbulb w-4"></i>
+                        <span>{% trans "Kompetensiya və Təlim" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active='/competencies/my-skills' in request.path %}
+                    <a href="{% url 'competencies:my-skills' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-check w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bacarıqlarım" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:preferences' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/preferences' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-user-cog w-5 mr-3 text-blue-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Preferences" %}</span>
-            </a>
+                    {% with is_active='/competencies/gap' in request.path %}
+                    <a href="{% url 'competencies:gap-analysis' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-balance-scale w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bacarıq Boşluqları" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:sms-providers-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/sms/providers' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-sms w-5 mr-3 text-green-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "SMS Providers" %}</span>
-            </a>
+                    {% with is_active='/competencies/competency-list' in request.path %}
+                    <a href="{% url 'competencies:competency-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-list-ul w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Kompetensiya Siyahısı" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:templates-list' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/templates' in request.path and '/emails' not in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-file-alt w-5 mr-3 text-purple-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Notification Templates" %}</span>
-            </a>
+                    {% with is_active='/competencies/manage' in request.path %}
+                    <a href="{% url 'competencies:competency-manage' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-tools w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Kompetensiya İdarəsi" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:email-templates' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/templates/emails' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-envelope w-5 mr-3 text-indigo-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Email Templates" %}</span>
-            </a>
+                    {% with is_active='/training/my-trainings' in request.path %}
+                    <a href="{% url 'training:my-trainings' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-graduation-cap w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Təlimlərim" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:test' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/test' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-vial w-5 mr-3 text-red-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Test Notifications" %}</span>
-            </a>
+                    {% with is_active='/training/my-certificates' in request.path %}
+                    <a href="{% url 'training:my-certificates' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-certificate w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Sertifikatlarım" %}</span>
+                    </a>
+                    {% endwith %}
 
-            <a href="{% url 'notifications:bulk-notification' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/bulk' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-bullhorn w-5 mr-3 text-orange-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Bulk Notifications" %}</span>
-            </a>
+                    {% with is_active='/training/catalog' in request.path %}
+                    <a href="{% url 'training:catalog' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-book-open w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Təlim Kataloqu" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/training/manage' in request.path %}
+                    <a href="{% url 'training:training-manage' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-chalkboard-teacher w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Təlim İdarəsi" %}</span>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-route w-4"></i>
+                        <span>{% trans "İnkişaf və Strategiya" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active='/development-plans/my-goals' in request.path %}
+                    <a href="{% url 'development-plans:my-goals' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-bullseye w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Hədəflərim" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/development-plans/team-goals' in request.path %}
+                    <a href="{% url 'development-plans:team-goals' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-users-cog w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Komanda Hədəfləri" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/development-plans/goal-templates' in request.path %}
+                    <a href="{% url 'development-plans:goal-templates' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-copy w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Hədəf Şablonları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/workforce-planning/my-gaps' in request.path %}
+                    <a href="{% url 'workforce-planning:my-gaps' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-chart w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Mənim Boşluqlarım" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/workforce-planning/talent-matrix' in request.path %}
+                    <a href="{% url 'workforce-planning:talent-matrix' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-th-large w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "İstedad Matrisi" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/workforce-planning/succession-planning' in request.path %}
+                    <a href="{% url 'workforce-planning:succession-planning' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-sitemap w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Varis Planlaması" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/workforce-planning/gap-analysis' in request.path %}
+                    <a href="{% url 'workforce-planning:gap-analysis' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-random w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Boşluq Analizi" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/okr/dashboard' in request.path %}
+                    <a href="{% url 'okr:dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-bullhorn w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "OKR Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/okr/objective/create' in request.path %}
+                    <a href="{% url 'okr:objective_create' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-plus-circle w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Yeni OKR" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/okr/objective/list' in request.path or '/okr/objective/' in request.path %}
+                    <a href="{% url 'okr:objective_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-stream w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "OKR Siyahısı" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/okr/kpi' in request.path %}
+                    <a href="{% url 'okr:kpi_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-chart-area w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "OKR KPI" %}</span>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-building w-4"></i>
+                        <span>{% trans "HR İdarəetməsi" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active=request.path.startswith('/accounts/users') %}
+                    <a href="{% url 'accounts:user-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-users w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "İstifadəçi Siyahısı" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active=request.path.startswith('/departments/') %}
+                    <a href="{% url 'departments:department-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-network-wired w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Şöbələr" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active=request.path.startswith('/pfile') %}
+                    <a href="{% url 'pfile:employee_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-id-card w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Əməkdaş Faylları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/compensation/' in request.path and 'change' not in request.path %}
+                    <a href="{% url 'compensation:dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-coins w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Əməkhaqqı Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/compensation/salaries/' in request.path and 'change' not in request.path %}
+                    <a href="{% url 'compensation:salary_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-money-check-alt w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Maaş Siyahısı" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/compensation/salaries/change' in request.path %}
+                    <a href="{% url 'compensation:salary_change' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-edit w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Maaş Dəyişiklikləri" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/compensation/bonuses' in request.path %}
+                    <a href="{% url 'compensation:bonus_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-gift w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bonuslar" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/compensation/history' in request.path %}
+                    <a href="{% url 'compensation:history' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-history w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Kompensasiya Tarixi" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/' in request.path and 'request' not in request.path %}
+                    <a href="{% url 'leave_attendance:leave_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-plane-departure w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Məzuniyyət Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/request/create' in request.path %}
+                    <a href="{% url 'leave_attendance:leave_request_create' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-plus-square w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Yeni Məzuniyyət" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/requests' in request.path %}
+                    <a href="{% url 'leave_attendance:leave_request_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-list w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Məzuniyyət Sorğuları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/attendance' in request.path %}
+                    <a href="{% url 'leave_attendance:attendance_calendar' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-calendar-check w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Yoxlama Təqvimi" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/approvals' in request.path %}
+                    <a href="{% url 'leave_attendance:pending_approvals' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-clock w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Gözləyən Təsdiqlər" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/leave/team' in request.path %}
+                    <a href="{% url 'leave_attendance:team_calendar' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-users-line w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Komanda Təqvimi" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/recruitment/' in request.path and '/jobs/' not in request.path and '/applications/' not in request.path %}
+                    <a href="{% url 'recruitment:dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-briefcase w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "İşə Qəbul Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/recruitment/jobs/create' in request.path %}
+                    <a href="{% url 'recruitment:job_create' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-plus w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Vakansiya Yarat" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/recruitment/pipeline' in request.path %}
+                    <a href="{% url 'recruitment:candidate_pipeline' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-columns w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Namizəd Boru Xətti" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/recruitment/jobs' in request.path %}
+                    <a href="{% url 'recruitment:job_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-clipboard-list w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Vakansiyalar" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/recruitment/interviews' in request.path %}
+                    <a href="{% url 'recruitment:interview_calendar' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-calendar-day w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Müsahibə Təqvimi" %}</span>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-bell w-4"></i>
+                        <span>{% trans "Bildirişlər və Ünsiyyət" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active='/notifications/inbox' in request.path %}
+                    <a href="{% url 'notifications:inbox' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-inbox w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bildiriş Qutusu" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/settings/dashboard' in request.path %}
+                    <a href="{% url 'notifications:settings-dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-sliders-h w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bildiriş Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/preferences' in request.path %}
+                    <a href="{% url 'notifications:preferences' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-cog w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bildiriş Seçimləri" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/sms/providers' in request.path %}
+                    <a href="{% url 'notifications:sms-providers-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-sms w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "SMS Təchizatçıları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/templates' in request.path and '/emails' not in request.path %}
+                    <a href="{% url 'notifications:templates-list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-file-alt w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bildiriş Şablonları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/templates/emails' in request.path %}
+                    <a href="{% url 'notifications:email-templates' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-envelope w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Email Şablonları" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/test' in request.path %}
+                    <a href="{% url 'notifications:test' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-vial w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Test Bildirişləri" %}</span>
+                    </a>
+                    {% endwith %}
+
+                    {% with is_active='/notifications/bulk' in request.path %}
+                    <a href="{% url 'notifications:bulk-notification' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-bullhorn w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Kütləvi Bildirişlər" %}</span>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="space-y-1" x-data="{ open: true }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-shield-alt w-4"></i>
+                        <span>{% trans "Təhlükəsizlik və Audit" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+                    {% with is_active='/audit/security' in request.path %}
+                    <a href="{% url 'audit:security-dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if is_active %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-shield-virus w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Təhlükəsizlik Paneli" %}</span>
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
         </nav>
-
         <!-- Profile & Logout Section -->
         <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div class="space-y-2">
