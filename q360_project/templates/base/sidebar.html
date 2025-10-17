@@ -71,36 +71,41 @@
                 <span class="relative z-10">{% trans "Campaigns" %}</span>
             </a>
 
-            <!-- Reports Section -->
+            <!-- Analytics Dashboard Section -->
             <div class="pt-6 pb-2">
                 <h3
                     class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-chart-bar w-4 mr-2 text-green-500"></i>
-                    {% trans "Reports" %}
+                    <i class="fas fa-chart-line w-4 mr-2 text-green-500"></i>
+                    {% trans "Analytics Dashboard" %}
                 </h3>
             </div>
 
-            <a href="{% url 'reports:my-reports' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/my-reports' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+            <a href="{% url 'dashboard:dashboard_home' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if request.path == '/dashboard/' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-chart-line w-5 mr-3 relative z-10"></i>
-                <span class="relative z-10">{% trans "My Reports" %}</span>
+                <i class="fas fa-home w-5 mr-3 text-blue-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Dashboard Home" %}</span>
             </a>
 
-            {% if user.is_manager %}
-            <a href="{% url 'reports:team-reports' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/team-reports' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+            <a href="{% url 'dashboard:kpi_dashboard' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/kpi/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-users w-5 mr-3 relative z-10"></i>
-                <span class="relative z-10">{% trans "Team Reports" %}</span>
+                <i class="fas fa-tachometer-alt w-5 mr-3 text-green-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "KPI Dashboard" %}</span>
             </a>
-            {% endif %}
 
-            <a href="{% url 'reports:custom-builder' %}"
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/custom-builder' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+            <a href="{% url 'dashboard:trend_analysis' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/trend/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i class="fas fa-cogs w-5 mr-3 text-purple-500 relative z-10"></i>
-                <span class="relative z-10">{% trans "Custom Report Builder" %}</span>
+                <i class="fas fa-chart-area w-5 mr-3 text-purple-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Trend Analysis" %}</span>
+            </a>
+
+            <a href="{% url 'dashboard:forecasting' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/dashboard/forecast/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-project-diagram w-5 mr-3 text-orange-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Forecasting" %}</span>
             </a>
 
             <!-- Skills & Training Section -->
@@ -465,6 +470,76 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <i class="fas fa-inbox w-5 mr-3 text-green-500 relative z-10"></i>
                 <span class="relative z-10">{% trans "My Feedback" %}</span>
+            </a>
+
+            <!-- Notifications Section -->
+            <div class="pt-6 pb-2">
+                <h3
+                    class="px-3 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-bell w-4 mr-2 text-yellow-500"></i>
+                    {% trans "Notifications" %}
+                </h3>
+            </div>
+
+            <a href="{% url 'notifications:inbox' %}"
+                class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/inbox' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="flex items-center relative z-10">
+                    <i class="fas fa-inbox w-5 mr-3 text-yellow-500"></i>
+                    <span>{% trans "Inbox" %}</span>
+                </div>
+                <span
+                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full relative z-10"
+                    id="notificationBadge">0</span>
+            </a>
+
+            <a href="{% url 'notifications:settings-dashboard' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/settings/dashboard' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-cog w-5 mr-3 text-gray-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Settings Dashboard" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:preferences' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/preferences' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-user-cog w-5 mr-3 text-blue-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Preferences" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:sms-providers-list' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/sms/providers' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-sms w-5 mr-3 text-green-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "SMS Providers" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:templates-list' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/templates' in request.path and '/emails' not in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-file-alt w-5 mr-3 text-purple-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Notification Templates" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:email-templates' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/templates/emails' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-envelope w-5 mr-3 text-indigo-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Email Templates" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:test' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/test' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-vial w-5 mr-3 text-red-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Test Notifications" %}</span>
+            </a>
+
+            <a href="{% url 'notifications:bulk-notification' %}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50 {% if '/notifications/bulk' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% endif %}">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <i class="fas fa-bullhorn w-5 mr-3 text-orange-500 relative z-10"></i>
+                <span class="relative z-10">{% trans "Bulk Notifications" %}</span>
             </a>
         </nav>
 
