@@ -86,7 +86,7 @@
                                 {% endif %}
                             </p>
                             {% if kpi.target %}
-                                {% with percentage=kpi.value|div:kpi.target|mul:100 %}
+                                {% widthratio kpi.value kpi.target 100 as percentage %}
                                 <div class="progress-container">
                                     <div class="progress" style="height: 10px;">
                                         <div class="progress-bar bg-success" role="progressbar" 
@@ -96,7 +96,6 @@
                                     </div>
                                     <small class="text-muted">{{ percentage|floatformat:0 }}%</small>
                                 </div>
-                                {% endwith %}
                             {% endif %}
                             <small class="text-muted d-block mt-2">
                                 {% trans "Period" %}: {{ kpi.period_start|date:"M d, Y" }} - {{ kpi.period_end|date:"M d, Y" }}
@@ -131,9 +130,10 @@
                                             <td>{{ dept_kpi.user_count }}</td>
                                             <td>
                                                 <div class="progress" style="height: 10px;">
+                                                    {% widthratio dept_kpi.avg_performance 5 100 as dept_percentage %}
                                                     <div class="progress-bar" role="progressbar" 
-                                                         style="width: {{ dept_kpi.avg_performance|div:5|mul:100 }}%" 
-                                                         aria-valuenow="{{ dept_kpi.avg_performance|div:5|mul:100 }}" 
+                                                         style="width: {{ dept_percentage|floatformat:0 }}%" 
+                                                         aria-valuenow="{{ dept_percentage|floatformat:0 }}" 
                                                          aria-valuemin="0" aria-valuemax="100"></div>
                                                 </div>
                                                 <small>{{ dept_kpi.avg_performance }}/5.0</small>
