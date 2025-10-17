@@ -1,0 +1,234 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "KPI Dashboard" %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+<style>
+    .kpi-card {
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .progress-container {
+        margin-top: 10px;
+    }
+    .metric-box {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .metric-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        display: block;
+    }
+    .metric-title {
+        font-size: 1.1em;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Key Performance Indicators" %}</h1>
+            
+            <!-- KPI Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="metric-box">
+                        <span class="metric-value">{{ active_users }}</span>
+                        <span class="metric-title">{% trans "Aktiv İstifadəçilər" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="metric-box">
+                        <span class="metric-value">{{ active_evaluations }}</span>
+                        <span class="metric-title">{% trans "Aktiv Qiymətləndirmələr" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="metric-box">
+                        <span class="metric-value">{{ total_departments }}</span>
+                        <span class="metric-title">{% trans "Bölmələr" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="metric-box">
+                        <span class="metric-value">4.2</span>
+                        <span class="metric-title">{% trans "Ortalama Performans" %}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed KPI Cards -->
+            <div class="row">
+                {% for kpi in latest_kpis %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card kpi-card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ kpi.name }}</h5>
+                            <p class="card-text">
+                                <span class="h4">{{ kpi.value }}{{ kpi.unit }}</span>
+                                {% if kpi.target %}
+                                    <small class="text-muted">/{% trans "Target" %}: {{ kpi.target }}{{ kpi.unit }}</small>
+                                {% endif %}
+                            </p>
+                            {% if kpi.target %}
+                                {% with percentage=kpi.value|div:kpi.target|mul:100 %}
+                                <div class="progress-container">
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: {{ percentage|floatformat:0 }}%" 
+                                             aria-valuenow="{{ percentage|floatformat:0 }}" 
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">{{ percentage|floatformat:0 }}%</small>
+                                </div>
+                                {% endwith %}
+                            {% endif %}
+                            <small class="text-muted d-block mt-2">
+                                {% trans "Period" %}: {{ kpi.period_start|date:"M d, Y" }} - {{ kpi.period_end|date:"M d, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Department KPIs -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{% trans "Bölmələr üzrə KPI" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{% trans "Bölmə" %}</th>
+                                            <th>{% trans "İstifadəçi Sayı" %}</th>
+                                            <th>{% trans "Ortalama Performans" %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dept_kpi in department_kpis %}
+                                        <tr>
+                                            <td>{{ dept_kpi.name }}</td>
+                                            <td>{{ dept_kpi.user_count }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar" role="progressbar" 
+                                                         style="width: {{ dept_kpi.avg_performance|div:5|mul:100 }}%" 
+                                                         aria-valuenow="{{ dept_kpi.avg_performance|div:5|mul:100 }}" 
+                                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <small>{{ dept_kpi.avg_performance }}/5.0</small>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Charts -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{% trans "Performance Trend" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performance-chart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{% trans "User Activity" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="user-activity-chart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Performance Chart
+        const perfCtx = document.getElementById('performance-chart').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: '{% trans "Performance Score" %}',
+                    data: [4.1, 4.0, 4.3, 4.2, 4.4, 4.2],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // User Activity Chart
+        const userCtx = document.getElementById('user-activity-chart').getContext('2d');
+        new Chart(userCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: '{% trans "Active Users" %}',
+                    data: [110, 115, 120, 118, 122, 125],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
