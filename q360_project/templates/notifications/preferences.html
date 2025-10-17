@@ -1,0 +1,187 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Bildiriş Tənzimləmələri" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Bildiriş Tənzimləmələri" %}</h1>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <!-- Email Preferences -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">{% trans "E-poçt Bildirişləri" %}</h5>
+                                    <div class="form-check mb-2">
+                                        {{ form.email_notifications }}
+                                        <label class="form-check-label" for="{{ form.email_notifications.id_for_label }}">
+                                            {{ form.email_notifications.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.email_assignment }}
+                                        <label class="form-check-label" for="{{ form.email_assignment.id_for_label }}">
+                                            {{ form.email_assignment.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.email_reminder }}
+                                        <label class="form-check-label" for="{{ form.email_reminder.id_for_label }}">
+                                            {{ form.email_reminder.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.email_announcement }}
+                                        <label class="form-check-label" for="{{ form.email_announcement.id_for_label }}">
+                                            {{ form.email_announcement.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.email_security }}
+                                        <label class="form-check-label" for="{{ form.email_security.id_for_label }}">
+                                            {{ form.email_security.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- SMS Preferences -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">{% trans "SMS Bildirişləri" %}</h5>
+                                    <div class="form-check mb-2">
+                                        {{ form.sms_notifications }}
+                                        <label class="form-check-label" for="{{ form.sms_notifications.id_for_label }}">
+                                            {{ form.sms_notifications.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.sms_important_only }}
+                                        <label class="form-check-label" for="{{ form.sms_important_only.id_for_label }}">
+                                            {{ form.sms_important_only.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.sms_assignment }}
+                                        <label class="form-check-label" for="{{ form.sms_assignment.id_for_label }}">
+                                            {{ form.sms_assignment.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.sms_reminder }}
+                                        <label class="form-check-label" for="{{ form.sms_reminder.id_for_label }}">
+                                            {{ form.sms_reminder.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.sms_security }}
+                                        <label class="form-check-label" for="{{ form.sms_security.id_for_label }}">
+                                            {{ form.sms_security.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Push Notification Preferences -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">{% trans "Push Bildirişləri" %}</h5>
+                                    <div class="form-check mb-2">
+                                        {{ form.push_notifications }}
+                                        <label class="form-check-label" for="{{ form.push_notifications.id_for_label }}">
+                                            {{ form.push_notifications.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.push_assignment }}
+                                        <label class="form-check-label" for="{{ form.push_assignment.id_for_label }}">
+                                            {{ form.push_assignment.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.push_reminder }}
+                                        <label class="form-check-label" for="{{ form.push_reminder.id_for_label }}">
+                                            {{ form.push_reminder.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2 ms-4">
+                                        {{ form.push_announcement }}
+                                        <label class="form-check-label" for="{{ form.push_announcement.id_for_label }}">
+                                            {{ form.push_announcement.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Schedule Preferences -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">{% trans "Göndəriş Vaxtı Tənzimləmələri" %}</h5>
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <label for="{{ form.weekday_start.id_for_label }}" class="form-label">
+                                                {{ form.weekday_start.label }}
+                                            </label>
+                                            {{ form.weekday_start }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="{{ form.weekday_end.id_for_label }}" class="form-label">
+                                                {{ form.weekday_end.label }}
+                                            </label>
+                                            {{ form.weekday_end }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <label for="{{ form.dnd_start_time.id_for_label }}" class="form-label">
+                                                {{ form.dnd_start_time.label }}
+                                            </label>
+                                            {{ form.dnd_start_time }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="{{ form.dnd_end_time.id_for_label }}" class="form-label">
+                                                {{ form.dnd_end_time.label }}
+                                            </label>
+                                            {{ form.dnd_end_time }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        {{ form.weekend_notifications }}
+                                        <label class="form-check-label" for="{{ form.weekend_notifications.id_for_label }}">
+                                            {{ form.weekend_notifications.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">{% trans "Tənzimləmələri Yenilə" %}</button>
+                                <a href="{% url 'notifications:settings-dashboard' %}" class="btn btn-secondary">{% trans "İmtina" %}</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% trans "Kömək" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% trans "Bu səhifədə şəxsi bildiriş tənzimləmələrinizi nəzarət edə bilərsiniz. Hər bir bölmədə hansı növ bildirişləri almaq istədiyinizi seçə bilərsiniz." %}
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-envelope text-primary"></i> {% trans "E-poçt bildirişləri - vacib hadisələr barədə e-poçt ilə xəbərdarlıqlar" %}</li>
+                                <li><i class="fas fa-sms text-success"></i> {% trans "SMS bildirişləri - təcili hadisələr üçün qısa mesajlar" %}</li>
+                                <li><i class="fas fa-bell text-info"></i> {% trans "Push bildirişləri - brauzer və ya tətbiqdə real vaxt xəbərdarlıqları" %}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
