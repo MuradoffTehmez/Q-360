@@ -29,6 +29,17 @@
         margin-top: 15px;
         border-radius: 0 4px 4px 0;
     }
+    .chart-container {
+        position: relative;
+        width: 100%;
+        min-height: 280px;
+        max-height: 420px;
+    }
+    @media (max-width: 576px) {
+        .chart-container {
+            min-height: 220px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -106,7 +117,9 @@
                             <h5 class="mb-0">{% trans "Staffing Proqnozu (12 Ay)" %}</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="staffing-forecast-chart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="staffing-forecast-chart"></canvas>
+                            </div>
                             <div class="mt-3">
                                 <div class="row text-center">
                                     <div class="col-4">
@@ -133,7 +146,9 @@
                             <h5 class="mb-0">{% trans "Büdcə Proqnozu (12 Ay)" %}</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="budget-forecast-chart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="budget-forecast-chart"></canvas>
+                            </div>
                             <div class="mt-3">
                                 <div class="row text-center">
                                     <div class="col-4">
@@ -214,10 +229,24 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Staffing Forecast Chart
-        const staffingCtx = document.getElementById('staffing-forecast-chart').getContext('2d');
-        new Chart(staffingCtx, {
+    const chartRegistry = {};
+
+    function renderChart(id, configFactory) {
+        const canvas = document.getElementById(id);
+        if (!canvas) {
+            return;
+        }
+
+        if (chartRegistry[id]) {
+            chartRegistry[id].destroy();
+        }
+
+        const ctx = canvas.getContext('2d');
+        chartRegistry[id] = new Chart(ctx, configFactory());
+    }
+
+    function staffingChartConfig() {
+        return {
             type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -226,16 +255,16 @@
                     data: [150, 152, 153, 152, 155, 156, 157, 157, 158, 158, 159, 159],
                     borderColor: 'rgb(54, 162, 235)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    tension: 0.1,
+                    tension: 0.2,
                     fill: false
                 }, {
                     label: '{% trans "Proqnozlaşdırılan" %}',
                     data: [150, 153, 156, 158, 161, 164, 167, 177, 178, 178, 178, 178],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    tension: 0.1,
+                    tension: 0.2,
                     fill: false,
-                    borderDash: [5, 5]
+                    borderDash: [6, 6]
                 }]
             },
             options: {
@@ -243,7 +272,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'top'
                     }
                 },
                 scales: {
@@ -252,11 +281,11 @@
                     }
                 }
             }
-        });
+        };
+    }
 
-        // Budget Forecast Chart
-        const budgetCtx = document.getElementById('budget-forecast-chart').getContext('2d');
-        new Chart(budgetCtx, {
+    function budgetChartConfig() {
+        return {
             type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -265,16 +294,16 @@
                     data: [450000, 455000, 460000, 458000, 465000, 468000, 470000, 470000, 472000, 472000, 475000, 475000],
                     borderColor: 'rgb(54, 162, 235)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    tension: 0.1,
+                    tension: 0.2,
                     fill: false
                 }, {
                     label: '{% trans "Proqnozlaşdırılan büdcət" %}',
                     data: [450000, 458000, 465000, 472000, 478000, 485000, 492000, 567000, 568000, 568000, 568000, 568000],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    tension: 0.1,
+                    tension: 0.2,
                     fill: false,
-                    borderDash: [5, 5]
+                    borderDash: [6, 6]
                 }]
             },
             options: {
@@ -282,7 +311,15 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.y || 0;
+                                return `${context.dataset.label}: ₼${value.toLocaleString()}`;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -290,13 +327,24 @@
                         beginAtZero: false,
                         ticks: {
                             callback: function(value) {
-                                return '₼' + value.toLocaleString();
+                                return '₼' + (value || 0).toLocaleString();
                             }
                         }
                     }
                 }
             }
-        });
-    });
+        };
+    }
+
+    function initialiseForecastCharts() {
+        renderChart('staffing-forecast-chart', staffingChartConfig);
+        renderChart('budget-forecast-chart', budgetChartConfig);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialiseForecastCharts);
+    } else {
+        initialiseForecastCharts();
+    }
 </script>
 {% endblock %}
