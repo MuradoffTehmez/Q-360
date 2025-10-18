@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.db.models import Q, Count, Avg, Sum
+from django.db.models import Q, Count, Avg, Sum, Max
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -37,6 +37,8 @@ class DashboardAPI(View):
             return self.get_forecast_data(request)
         elif endpoint == 'reports':
             return self.get_report_data(request)
+        elif endpoint == 'advanced-analytics':
+            return self.get_advanced_analytics(request)
         else:
             return JsonResponse({'error': 'Endpoint tapılmadı'}, status=404)
     
@@ -156,6 +158,80 @@ class DashboardAPI(View):
             })
         
         return JsonResponse({'forecasts': data})
+    
+    def get_advanced_analytics(self, request):
+        """
+        Genişləndirilmiş analitik məlumatlar
+        """
+        from .utils import get_advanced_trend_analysis
+        
+        data_type = request.GET.get('type', 'performance')
+        department_id = request.GET.get('department_id', None)
+        months = int(request.GET.get('months', 12))
+        
+        # Advanced trend analysis
+        advanced_trend = get_advanced_trend_analysis(
+            data_type=data_type,
+            department_id=department_id,
+            months=months
+        )
+        
+        # Additional analytics
+        from apps.evaluations.models import Response
+        from apps.accounts.models import User
+        from apps.compensation.models import SalaryInformation
+        import numpy as np
+        
+        # Calculate volatility (standard deviation)
+        values = [item['value'] for item in advanced_trend['data']]
+        volatility = float(np.std(values)) if values else 0
+        
+        # Get department-specific analytics if department is specified
+        department_analytics = None
+        if department_id:
+            from apps.departments.models import Department
+            dept = Department.objects.get(id=department_id)
+            dept_users_count = User.objects.filter(department_id=department_id).count()
+            dept_avg_performance = Response.objects.filter(
+                assignment__evaluatee__department_id=department_id
+            ).aggregate(Avg('score'))['score__avg'] or 0
+            
+            department_analytics = {
+                'name': dept.name,
+                'user_count': dept_users_count,
+                'avg_performance': float(dept_avg_performance)
+            }
+        
+        # Get prediction accuracy if actual values available
+        forecast_accuracy = None
+        if data_type in ['salary', 'performance', 'hiring']:
+            forecast_records = ForecastData.objects.filter(
+                forecast_type=data_type
+            ).exclude(actual_value=None)[:10]  # Last 10 with actual values
+            
+            if forecast_records:
+                errors = []
+                for record in forecast_records:
+                    error = abs(float(record.predicted_value) - float(record.actual_value)) / float(record.actual_value) * 100 if float(record.actual_value) != 0 else float(record.predicted_value) * 100
+                    errors.append(error)
+                
+                avg_error = sum(errors) / len(errors) if errors else 0
+                forecast_accuracy = {
+                    'avg_error_rate': avg_error,
+                    'accuracy_rate': max(0, 100 - avg_error),
+                    'sample_size': len(errors)
+                }
+        
+        analytics_data = {
+            'advanced_trend': advanced_trend,
+            'volatility': volatility,
+            'department_analytics': department_analytics,
+            'forecast_accuracy': forecast_accuracy,
+            'data_type': data_type,
+            'months_analyzed': months
+        }
+        
+        return JsonResponse({'analytics': analytics_data})
     
     def get_report_data(self, request):
         """

@@ -419,3 +419,103 @@ def update_forecast_data():
     
     # AI əsaslı proqnozlaşdırma mühərriyini işə salır
     run_ai_forecasting()
+
+
+def get_advanced_trend_analysis(data_type, department_id=None, months=12):
+    """
+    Genişləndirilmiş trend analizi məlumatlarını əldə edir
+    """
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+    import numpy as np
+    
+    # Try to import scipy for advanced statistics
+    try:
+        from scipy import stats
+        scipy_available = True
+    except ImportError:
+        scipy_available = False
+    
+    end_date = date.today()
+    start_date = end_date - relativedelta(months=months)
+    
+    trend_data = TrendData.objects.filter(
+        data_type=data_type,
+        period__range=[start_date, end_date]
+    )
+    
+    if department_id:
+        trend_data = trend_data.filter(department_id=department_id)
+    
+    trend_values = [(item.period, float(item.value)) for item in trend_data.order_by('period')]
+    
+    if len(trend_values) < 2:
+        return {
+            'data': [{'date': item[0].isoformat(), 'value': item[1]} for item in trend_values],
+            'trend_direction': 'neutral',
+            'trend_strength': 0,
+            'forecast_next_month': trend_values[-1][1] if trend_values else 0
+        }
+    
+    # Extract dates and values
+    dates = [item[0] for item in trend_values]
+    values = [item[1] for item in trend_values]
+    
+    if scipy_available:
+        # Calculate trend using linear regression from scipy
+        x = np.arange(len(values))
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, values)
+        
+        # Determine trend direction
+        if slope > 0.1:  # Positive significant trend
+            trend_direction = 'up'
+        elif slope < -0.1:  # Negative significant trend
+            trend_direction = 'down'
+        else:  # No significant trend
+            trend_direction = 'neutral'
+        
+        # Calculate forecast for next month
+        next_month_value = intercept + slope * (len(values))
+        
+        return {
+            'data': [{'date': date.isoformat(), 'value': value} for date, value in trend_values],
+            'trend_direction': trend_direction,
+            'trend_strength': abs(slope),
+            'correlation_coefficient': r_value,
+            'forecast_next_month': next_month_value,
+            'trend_equation': f'y = {slope:.4f}x + {intercept:.4f}',
+            'r_squared': r_value**2
+        }
+    else:
+        # Simplified trend analysis without scipy
+        x = np.arange(len(values))
+        
+        # Simple slope calculation (rise over run)
+        if len(values) > 1:
+            slope = (values[-1] - values[0]) / (len(values) - 1)
+        else:
+            slope = 0
+        
+        # Determine trend direction
+        if slope > 0.1:  # Positive significant trend
+            trend_direction = 'up'
+        elif slope < -0.1:  # Negative significant trend
+            trend_direction = 'down'
+        else:  # No significant trend
+            trend_direction = 'neutral'
+        
+        # Calculate forecast for next month (simple linear extrapolation)
+        if len(values) > 1:
+            next_month_value = values[-1] + slope
+        else:
+            next_month_value = values[0] if values else 0
+        
+        return {
+            'data': [{'date': date.isoformat(), 'value': value} for date, value in trend_values],
+            'trend_direction': trend_direction,
+            'trend_strength': abs(slope),
+            'correlation_coefficient': 0,  # Not calculated without scipy
+            'forecast_next_month': next_month_value,
+            'trend_equation': f'y = {slope:.4f}x + {values[0] if values else 0:.4f}',
+            'r_squared': 0  # Not calculated without scipy
+        }

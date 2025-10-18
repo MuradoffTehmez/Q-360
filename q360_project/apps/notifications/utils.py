@@ -9,7 +9,7 @@ from django.utils import timezone
 from .models import Notification, EmailTemplate, EmailLog
 
 
-def send_notification(recipient, title, message, notification_type='info', link='', send_email=True, send_sms=False, send_push=False, channel='in_app'):
+def send_notification(recipient, title, message, notification_type='info', link='', send_email=True, send_sms=False, send_push=False, channel='in_app', priority='normal'):
     """
     Send a system notification and optionally to email, SMS, or push to a user.
 
@@ -23,14 +23,39 @@ def send_notification(recipient, title, message, notification_type='info', link=
         send_sms: Whether to send SMS notification as well
         send_push: Whether to send push notification as well
         channel: The primary channel for the notification
+        priority: Priority level ('low', 'normal', 'high', 'urgent')
 
     Returns:
         Notification object
     """
     from .models import UserNotificationPreference
+    from django.utils import timezone
+    from datetime import datetime, time
     
     # Get user preferences
     user_prefs, created = UserNotificationPreference.objects.get_or_create(user=recipient)
+    
+    # Check Do Not Disturb settings
+    current_time = timezone.now().time()
+    is_dnd_time = False
+    if user_prefs.dnd_start_time and user_prefs.dnd_end_time:
+        if user_prefs.dnd_start_time <= user_prefs.dnd_end_time:
+            # Same day DND (e.g., 22:00 to 08:00)
+            is_dnd_time = user_prefs.dnd_start_time <= current_time <= user_prefs.dnd_end_time
+        else:
+            # Overnight DND (e.g., 22:00 to 08:00 next day)
+            is_dnd_time = current_time >= user_prefs.dnd_start_time or current_time <= user_prefs.dnd_end_time
+    
+    # Check if it's a weekend and user doesn't want weekend notifications
+    if not user_prefs.weekend_notifications and timezone.now().weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+        is_dnd_time = True
+    
+    # Check if it's outside working hours
+    is_working_hours = False
+    if not (user_prefs.weekday_start <= current_time <= user_prefs.weekday_end):
+        is_working_hours = True
+    if timezone.now().weekday() >= 5:  # Weekend
+        is_working_hours = False
     
     # Check if user wants this type of notification via this channel
     notification_allowed = True
@@ -45,7 +70,10 @@ def send_notification(recipient, title, message, notification_type='info', link=
         elif notification_type == 'security' and not user_prefs.email_security:
             notification_allowed = False
     elif channel == 'sms':
+        # For SMS, also check if it's urgent and user only wants urgent SMS
         notification_allowed = user_prefs.sms_notifications
+        if user_prefs.sms_important_only and priority not in ['high', 'urgent']:
+            notification_allowed = False
         if notification_type == 'assignment' and not user_prefs.sms_assignment:
             notification_allowed = False
         elif notification_type == 'reminder' and not user_prefs.sms_reminder:
@@ -61,6 +89,51 @@ def send_notification(recipient, title, message, notification_type='info', link=
         elif notification_type == 'announcement' and not user_prefs.push_announcement:
             notification_allowed = False
 
+    # If in DND time and notification is not urgent, defer it
+    if is_dnd_time and priority not in ['high', 'urgent']:
+        # Create a scheduled notification for when DND ends
+        from .models import Notification
+        scheduled_time = None
+        if user_prefs.dnd_end_time:
+            now = timezone.now()
+            if current_time < user_prefs.dnd_end_time:
+                # DND ends today
+                scheduled_time = now.replace(
+                    hour=user_prefs.dnd_end_time.hour,
+                    minute=user_prefs.dnd_end_time.minute,
+                    second=0,
+                    microsecond=0
+                )
+            else:
+                # DND ends tomorrow
+                from datetime import timedelta
+                scheduled_time = (now + timedelta(days=1)).replace(
+                    hour=user_prefs.dnd_end_time.hour,
+                    minute=user_prefs.dnd_end_time.minute,
+                    second=0,
+                    microsecond=0
+                )
+        
+        if scheduled_time:
+            notification = Notification.objects.create(
+                user=recipient,
+                title=title,
+                message=message,
+                notification_type=notification_type,
+                link=link,
+                channel=channel,
+                priority=priority,
+                scheduled_time=scheduled_time
+            )
+            return notification
+    elif is_dnd_time and priority in ['high', 'urgent'] and is_working_hours:
+        # For urgent notifications outside working hours, check if user allows them
+        if priority == 'urgent' or user_prefs.push_notifications:
+            # Send as urgent notification bypassing DND
+            pass
+        else:
+            notification_allowed = False
+
     # Create system notification if allowed
     notification = None
     if notification_allowed or channel == 'in_app':
@@ -71,7 +144,8 @@ def send_notification(recipient, title, message, notification_type='info', link=
             message=message,
             notification_type=notification_type,
             link=link,
-            channel=channel
+            channel=channel,
+            priority=priority
         )
 
     # Send email if requested and user allows it
@@ -117,6 +191,102 @@ def send_notification(recipient, title, message, notification_type='info', link=
         except Exception as e:
             print(f"Push notification sending failed: {e}")
 
+    return notification
+
+
+def send_notification_by_smart_routing(recipient, title, message, notification_type='info', link='', priority='normal'):
+    """
+    Smart notification routing based on user preferences and context.
+    
+    This function intelligently selects the best notification channel
+    based on user preferences, priority, and context.
+    
+    Args:
+        recipient: User to receive the notification
+        title: Notification title
+        message: Notification message
+        notification_type: Type of notification
+        link: Optional link
+        priority: Priority level ('low', 'normal', 'high', 'urgent')
+    
+    Returns:
+        Notification object
+    """
+    from .models import UserNotificationPreference
+    from django.utils import timezone
+    
+    user_prefs, created = UserNotificationPreference.objects.get_or_create(user=recipient)
+    
+    # Determine best channels based on priority and preferences
+    channels = []
+    
+    # For urgent notifications, always try all enabled channels
+    if priority in ['high', 'urgent']:
+        if user_prefs.push_notifications:
+            channels.append('push')
+        if user_prefs.email_notifications and recipient.email:
+            channels.append('email')
+        if user_prefs.sms_notifications:
+            phone_number = getattr(recipient, 'phone_number', None) or \
+                          getattr(recipient.profile, 'work_phone', None) if hasattr(recipient, 'profile') else None
+            if phone_number:
+                channels.append('sms')
+        if user_prefs.email_notifications:  # also send in-app for important
+            channels.append('in_app')
+    else:
+        # For normal notifications, use user's preferred primary channel
+        if notification_type == 'assignment':
+            if user_prefs.push_assignment or user_prefs.email_assignment:
+                if user_prefs.push_notifications:
+                    channels.append('push')
+                elif user_prefs.email_notifications and recipient.email:
+                    channels.append('email')
+            else:
+                channels.append('in_app')
+        elif notification_type == 'reminder':
+            if user_prefs.push_reminder or user_prefs.email_reminder:
+                if user_prefs.push_notifications:
+                    channels.append('push')
+                elif user_prefs.email_notifications and recipient.email:
+                    channels.append('email')
+            else:
+                channels.append('in_app')
+        elif notification_type == 'announcement':
+            if user_prefs.push_announcement:
+                channels.append('push')
+            elif user_prefs.email_notifications and recipient.email:
+                channels.append('email')
+            else:
+                channels.append('in_app')
+        else:
+            # Default to user's preference
+            if user_prefs.push_notifications:
+                channels.append('push')
+            elif user_prefs.email_notifications and recipient.email:
+                channels.append('email')
+            else:
+                channels.append('in_app')
+    
+    # Send notification through all selected channels
+    notification = None
+    for channel in channels:
+        send_email = channel == 'email'
+        send_sms = channel == 'sms'
+        send_push = channel == 'push'
+        
+        notification = send_notification(
+            recipient=recipient,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            link=link,
+            send_email=send_email,
+            send_sms=send_sms,
+            send_push=send_push,
+            channel=channel,
+            priority=priority
+        )
+    
     return notification
 
 
@@ -446,6 +616,34 @@ def send_bulk_notification(recipients, title, message, notification_type='info',
         notifications.append(notification)
 
     return notifications
+
+
+def send_bulk_notification_smart(recipients, title, message, notification_type='info', priority='normal'):
+    """
+    Send bulk notifications using smart routing based on each user's preferences.
+
+    Args:
+        recipients: QuerySet or list of User objects
+        title: Notification title
+        message: Notification message
+        notification_type: Type of notification
+        priority: Priority level
+
+    Returns:
+        Count of notifications sent
+    """
+    sent_count = 0
+    for recipient in recipients:
+        send_notification_by_smart_routing(
+            recipient=recipient,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            priority=priority
+        )
+        sent_count += 1
+    
+    return sent_count
 
 
 def mark_as_read(notification_id, user):

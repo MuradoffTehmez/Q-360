@@ -15,6 +15,8 @@ from apps.leave_attendance.models import LeaveRequest, Attendance
 from apps.dashboard.models import ForecastData, TrendData
 
 
+import numpy as np
+
 class AIForecastingEngine:
     """
     AI əsaslı proqnozlaşdırma mühərriki (sadə statistik əsaslı)
@@ -25,13 +27,24 @@ class AIForecastingEngine:
         
     def train_staffing_forecast(self, months_back=24):
         """
-        İşə qəbul proqnozu üçün sadə statistik analiz
+        İşə qəbul proqnozu üçün AI məlumat analizi
         """
+        try:
+            # Try to import sklearn components
+            from sklearn.linear_model import LinearRegression
+            from sklearn.preprocessing import PolynomialFeatures
+            from sklearn.pipeline import Pipeline
+            from sklearn.metrics import mean_absolute_error, r2_score
+            sklearn_available = True
+        except ImportError:
+            sklearn_available = False
+        
         end_date = date.today()
         start_date = end_date - relativedelta(months=months_back)
         
         # Hər ay üzrə işə qəbul sayı
         hiring_data = []
+        dates = []
         current_date = start_date
         while current_date <= end_date:
             next_month = current_date + relativedelta(months=1)
@@ -41,84 +54,174 @@ class AIForecastingEngine:
             ).count()
             
             hiring_data.append(hires_count)
+            dates.append(current_date)
             current_date = next_month
         
-        if len(hiring_data) < 2:
+        if len(hiring_data) < 3:
             # Əgər kifayət qədər məlumat yoxdursa, defolt dəyər
             return 10, 70.0  # 70% etibar dərəcəsi
         
-        # Orta işə qəbul sayı və meyilliliyi hesabla
-        avg_hires = sum(hiring_data) / len(hiring_data)
-        
-        # Ən son 6 ay və əvvəlki 6 ay arasında fərq
-        if len(hiring_data) >= 12:
-            recent_avg = sum(hiring_data[-6:]) / 6
-            earlier_avg = sum(hiring_data[-12:-6]) / 6
-            trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+        if sklearn_available:
+            # AI əsaslı proqnozlaşdırma
+            # Sadə xətti reqressiya modelindən istifadə edirik
+            X = np.array(range(len(hiring_data))).reshape(-1, 1)
+            y = np.array(hiring_data)
+            
+            # Modeli yaradırıq (polynomial regression daha yaxşı nəticə verə bilər)
+            model = Pipeline([
+                ('poly', PolynomialFeatures(degree=2)),
+                ('linear', LinearRegression())
+            ])
+            
+            model.fit(X, y)
+            
+            # Gələcək dəyəri proqnozlaşdırırıq (növbəti ay)
+            next_X = np.array([[len(hiring_data)]])
+            forecast_value = max(0, model.predict(next_X)[0])
+            
+            # Etibar dərəcəsini hesablayırıq
+            y_pred = model.predict(X)
+            mae = mean_absolute_error(y, y_pred)
+            r2 = r2_score(y, y_pred)
+            
+            # Əsas etibar dərəcəsi R² əsasında, düzəlişlərlə
+            base_confidence = max(50, min(95, r2 * 100)) if not np.isnan(r2) else 70
+            
+            # Məlumat həcmi əsasında düzəliş
+            data_size_factor = min(15, (len(hiring_data) / months_back) * 15)
+            confidence = base_confidence + data_size_factor
+            
+            return forecast_value, min(98.0, confidence)
         else:
-            trend_factor = 0
-        
-        # Proqnoz: orta sayı + meyillilik əsasında
-        forecast_value = max(0, avg_hires + trend_factor)
-        
-        # Etibar dərəcəsi (sadə hesablama)
-        confidence = 75.0 + (min(100, len(hiring_data)) / 24) * 20  # Əhatə dəyərinə görə
-        
-        return forecast_value, min(95.0, confidence)
+            # Əgər sklearn yoxdursa, əvvəlki statistik yanaşmadan istifadə edirik
+            # Orta işə qəbul sayı və meyilliliyi hesabla
+            avg_hires = sum(hiring_data) / len(hiring_data)
+            
+            # Ən son 6 ay və əvvəlki 6 ay arasında fərq
+            if len(hiring_data) >= 12:
+                recent_avg = sum(hiring_data[-6:]) / 6
+                earlier_avg = sum(hiring_data[-12:-6]) / 6
+                trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+            else:
+                trend_factor = 0
+            
+            # Proqnoz: orta sayı + meyillilik əsasında
+            forecast_value = max(0, avg_hires + trend_factor)
+            
+            # Etibar dərəcəsi (sadə hesablama)
+            confidence = 75.0 + (min(100, len(hiring_data)) / 24) * 20  # Əhatə dəyərinə görə
+            
+            return forecast_value, min(95.0, confidence)
     
     def train_budget_forecast(self, months_back=24):
         """
-        Büdcə proqnozu üçün sadə statistik analiz
+        Büdcə proqnozu üçün AI əsaslı analiz
         """
+        try:
+            # Try to import sklearn components
+            from sklearn.linear_model import LinearRegression
+            from sklearn.preprocessing import PolynomialFeatures
+            from sklearn.pipeline import Pipeline
+            from sklearn.metrics import mean_absolute_error, r2_score
+            sklearn_available = True
+        except ImportError:
+            sklearn_available = False
+        
         end_date = date.today()
         start_date = end_date - relativedelta(months=months_back)
         
         # Hər ay üzrə əmək haqqı cəmi
         salary_data = []
+        dates = []
         current_date = start_date
         while current_date <= end_date:
             next_month = current_date + relativedelta(months=1)
             
-            # Həmin ayın əmək haqqı məlumatları
+            # Həmin ayın əmək haqqı məlumatları (ən son effektivlik tarixinə əsasən)
+            month_end = next_month - timedelta(days=1)
             total_salary = SalaryInformation.objects.filter(
-                effective_date__range=[current_date, next_month - timedelta(days=1)]
+                effective_date__lte=month_end
             ).aggregate(Sum('base_salary'))['base_salary__sum'] or 0
             
             salary_data.append(float(total_salary))
+            dates.append(current_date)
             current_date = next_month
         
-        if len(salary_data) < 2:
+        if len(salary_data) < 3:
             # Əgər kifayət qədər məlumat yoxdursa, defolt dəyər
             return 500000, 70.0  # 70% etibar dərəcəsi
         
-        # Orta büdcə və meyillilik hesabla
-        avg_salary = sum(salary_data) / len(salary_data)
-        
-        # Ən son 6 ay və əvvəlki 6 ay arasında fərq
-        if len(salary_data) >= 12:
-            recent_avg = sum(salary_data[-6:]) / 6
-            earlier_avg = sum(salary_data[-12:-6]) / 6
-            trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+        if sklearn_available:
+            # AI əsaslı proqnozlaşdırma
+            X = np.array(range(len(salary_data))).reshape(-1, 1)
+            y = np.array(salary_data)
+            
+            # Polynomial regression model
+            model = Pipeline([
+                ('poly', PolynomialFeatures(degree=2)),
+                ('linear', LinearRegression())
+            ])
+            
+            model.fit(X, y)
+            
+            # Gələcək dəyəri proqnozlaşdırırıq
+            next_X = np.array([[len(salary_data)]])
+            forecast_value = max(0, model.predict(next_X)[0])
+            
+            # Etibar dərəcəsini hesablayırıq
+            y_pred = model.predict(X)
+            mae = mean_absolute_error(y, y_pred)
+            r2 = r2_score(y, y_pred)
+            
+            # Əsas etibar dərəcəsi R² əsasında
+            base_confidence = max(50, min(95, r2 * 100)) if not np.isnan(r2) else 70
+            
+            # Məlumat həcmi əsasında düzəliş
+            data_size_factor = min(20, (len(salary_data) / months_back) * 20)
+            confidence = base_confidence + data_size_factor
+            
+            return forecast_value, min(98.0, confidence)
         else:
-            trend_factor = (salary_data[-1] - salary_data[0]) / len(salary_data) if len(salary_data) > 1 else 0
-        
-        # Proqnoz: son dəyər + meyillilik əsasında
-        forecast_value = max(0, salary_data[-1] + trend_factor)
-        
-        # Etibar dərəcəsi
-        confidence = 80.0 + (min(100, len(salary_data)) / 24) * 15  # Əhatə dəyərinə görə
-        
-        return forecast_value, min(95.0, confidence)
+            # Əgər sklearn yoxdursa, əvvəlki statistik yanaşmadan istifadə edirik
+            # Orta büdcə və meyillilik hesabla
+            avg_salary = sum(salary_data) / len(salary_data)
+            
+            # Ən son 6 ay və əvvəlki 6 ay arasında fərq
+            if len(salary_data) >= 12:
+                recent_avg = sum(salary_data[-6:]) / 6
+                earlier_avg = sum(salary_data[-12:-6]) / 6
+                trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+            else:
+                trend_factor = (salary_data[-1] - salary_data[0]) / len(salary_data) if len(salary_data) > 1 else 0
+            
+            # Proqnoz: son dəyər + meyillilik əsasında
+            forecast_value = max(0, salary_data[-1] + trend_factor)
+            
+            # Etibar dərəcəsi
+            confidence = 80.0 + (min(100, len(salary_data)) / 24) * 15  # Əhatə dəyərinə görə
+            
+            return forecast_value, min(95.0, confidence)
     
     def train_performance_forecast(self, months_back=24):
         """
-        Performans proqnozu üçün sadə statistik analiz
+        Performans proqnozu üçün AI əsaslı analiz
         """
+        try:
+            # Try to import sklearn components
+            from sklearn.linear_model import LinearRegression
+            from sklearn.preprocessing import PolynomialFeatures
+            from sklearn.pipeline import Pipeline
+            from sklearn.metrics import mean_absolute_error, r2_score
+            sklearn_available = True
+        except ImportError:
+            sklearn_available = False
+        
         end_date = date.today()
         start_date = end_date - relativedelta(months=months_back)
         
         # Hər ay üzrə ortalama performans
         perf_data = []
+        dates = []
         current_date = start_date
         while current_date <= end_date:
             next_month = current_date + relativedelta(months=1)
@@ -127,34 +230,64 @@ class AIForecastingEngine:
                 created_at__date__range=[current_date, next_month - timedelta(days=1)]
             ).aggregate(Avg('score'))['score__avg'] or 0
             
-            if avg_performance:
-                perf_data.append(avg_performance)
-            else:
-                perf_data.append(0)  # Əgər performans məlumatı yoxdursa 0 əlavə edirik
+            perf_data.append(float(avg_performance) if avg_performance else 0)
+            dates.append(current_date)
             current_date = next_month
         
-        if len(perf_data) < 2:
+        if len(perf_data) < 3:
             # Əgər kifayət qədər məlumat yoxdursa, defolt dəyər
             return 3.5, 70.0  # 70% etibar dərəcəsi
         
-        # Orta performans və meyillilik hesabla
-        avg_performance = sum(perf_data) / len(perf_data)
-        
-        # Ən son 6 ay və əvvəlki 6 ay arasında fərq
-        if len(perf_data) >= 12:
-            recent_avg = sum(perf_data[-6:]) / 6
-            earlier_avg = sum(perf_data[-12:-6]) / 6
-            trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+        if sklearn_available:
+            # AI əsaslı proqnozlaşdırma
+            X = np.array(range(len(perf_data))).reshape(-1, 1)
+            y = np.array(perf_data)
+            
+            # Polynomial regression model
+            model = Pipeline([
+                ('poly', PolynomialFeatures(degree=2)),
+                ('linear', LinearRegression())
+            ])
+            
+            model.fit(X, y)
+            
+            # Gələcək dəyəri proqnozlaşdırırıq
+            next_X = np.array([[len(perf_data)]])
+            forecast_value = max(0, min(5.0, model.predict(next_X)[0]))
+            
+            # Etibar dərəcəsini hesablayırıq
+            y_pred = model.predict(X)
+            mae = mean_absolute_error(y, y_pred)
+            r2 = r2_score(y, y_pred)
+            
+            # Əsas etibar dərəcəsi R² əsasında
+            base_confidence = max(40, min(90, r2 * 100)) if not np.isnan(r2) else 65
+            
+            # Məlumat həcmi əsasında düzəliş
+            data_size_factor = min(25, (len(perf_data) / months_back) * 25)
+            confidence = base_confidence + data_size_factor
+            
+            return forecast_value, min(95.0, confidence)
         else:
-            trend_factor = (perf_data[-1] - perf_data[0]) / len(perf_data) if len(perf_data) > 1 else 0
-        
-        # Proqnoz: son dəyər + meyillilik əsasında
-        forecast_value = max(0, min(5.0, perf_data[-1] + trend_factor))
-        
-        # Etibar dərəcəsi
-        confidence = 75.0 + (min(100, len(perf_data)) / 24) * 20  # Əhatə dəyərinə görə
-        
-        return forecast_value, min(95.0, confidence)
+            # Əgər sklearn yoxdursa, əvvəlki statistik yanaşmadan istifadə edirik
+            # Orta performans və meyillilik hesabla
+            avg_performance = sum(perf_data) / len(perf_data)
+            
+            # Ən son 6 ay və əvvəlki 6 ay arasında fərq
+            if len(perf_data) >= 12:
+                recent_avg = sum(perf_data[-6:]) / 6
+                earlier_avg = sum(perf_data[-12:-6]) / 6
+                trend_factor = (recent_avg - earlier_avg) / 6 if earlier_avg > 0 else 0
+            else:
+                trend_factor = (perf_data[-1] - perf_data[0]) / len(perf_data) if len(perf_data) > 1 else 0
+            
+            # Proqnoz: son dəyər + meyillilik əsasında
+            forecast_value = max(0, min(5.0, perf_data[-1] + trend_factor))
+            
+            # Etibar dərəcəsi
+            confidence = 75.0 + (min(100, len(perf_data)) / 24) * 20  # Əhatə dəyərinə görə
+            
+            return forecast_value, min(95.0, confidence)
     
     def generate_forecasts(self):
         """

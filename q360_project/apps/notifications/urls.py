@@ -28,8 +28,11 @@ urlpatterns = [
     path('templates/create/', views.notification_template_create, name='template-create'),
     path('templates/<int:pk>/update/', views.notification_template_update, name='template-update'),
     path('templates/<int:pk>/delete/', views.notification_template_delete, name='template-delete'),
+    path('templates/<int:pk>/preview/', views.notification_template_preview, name='template-preview'),
     path('test/', views.test_notification, name='test'),
+    path('bulk-send/', views.notification_bulk_send, name='bulk-send'),
     path('api/update-preferences/', views.update_notification_preferences, name='update-preferences'),
+    path('statistics/', views.notification_statistics, name='statistics'),
 
     # Bulk notification (admin/manager only)
     path('bulk/', template_views.bulk_notification, name='bulk-notification'),

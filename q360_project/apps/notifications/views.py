@@ -26,9 +26,26 @@ def notification_preferences(request):
     else:
         form = NotificationPreferenceForm(instance=user_pref)
     
+    # Get notification statistics for the user
+    from .utils import get_unread_count
+    unread_count = get_unread_count(request.user)
+    
+    # Get recent notification types
+    from .models import Notification
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:10]
+    notification_types = Notification.objects.filter(user=request.user).values('notification_type').annotate(count=Count('notification_type'))
+    
+    # Get available SMS providers for the user to select
+    from .models import SMSProvider
+    sms_providers = SMSProvider.objects.filter(is_active=True)
+    
     context = {
         'form': form,
-        'title': _('Bildiriş Tənzimləmələri')
+        'title': _('Bildiriş Tənzimləmələri'),
+        'unread_count': unread_count,
+        'recent_notifications': recent_notifications,
+        'notification_types': notification_types,
+        'sms_providers': sms_providers,
     }
     return render(request, 'notifications/preferences.html', context)
 
@@ -311,6 +328,107 @@ def notification_template_delete(request, pk):
 
 
 @login_required
+def notification_template_preview(request, pk):
+    """
+    Preview a notification template with sample data.
+    """
+    template = get_object_or_404(NotificationTemplate, pk=pk)
+    
+    # Sample data for preview
+    sample_context = {
+        'user_name': request.user.get_full_name() or request.user.username,
+        'organization_name': 'Sample Organization',
+        'notification_date': timezone.now().strftime('%d.%m.%Y'),
+        'additional_info': 'This is a sample notification to demonstrate the template.',
+    }
+    
+    # Replace template variables with sample data
+    subject = template.subject
+    email_content = template.email_content
+    sms_content = template.sms_content
+    push_content = template.push_content
+    inapp_content = template.inapp_content
+    
+    for key, value in sample_context.items():
+        placeholder = '{{ ' + key + ' }}'
+        subject = subject.replace(placeholder, str(value))
+        email_content = email_content.replace(placeholder, str(value))
+        sms_content = sms_content.replace(placeholder, str(value))
+        push_content = push_content.replace(placeholder, str(value))
+        inapp_content = inapp_content.replace(placeholder, str(value))
+    
+    context = {
+        'template': template,
+        'subject': subject,
+        'email_content': email_content,
+        'sms_content': sms_content,
+        'push_content': push_content,
+        'inapp_content': inapp_content,
+        'title': _('Şablonu Nəzərdən Keçir')
+    }
+    return render(request, 'notifications/template_preview.html', context)
+
+
+@login_required
+def notification_statistics(request):
+    """
+    Show notification statistics and analytics.
+    """
+    from django.db.models import Count, Avg
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    # Notification statistics by type
+    stats_by_type = Notification.objects.filter(
+        user=request.user
+    ).values('notification_type').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    # Notification statistics by channel
+    stats_by_channel = Notification.objects.filter(
+        user=request.user
+    ).values('channel').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    # Daily notification count for the last 30 days
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    daily_counts = []
+    for i in range(30):
+        day = thirty_days_ago + timedelta(days=i)
+        count = Notification.objects.filter(
+            user=request.user,
+            created_at__date=day.date()
+        ).count()
+        daily_counts.append({
+            'date': day.strftime('%Y-%m-%d'),
+            'count': count
+        })
+    
+    # Read/unread ratio
+    total_count = Notification.objects.filter(user=request.user).count()
+    read_count = Notification.objects.filter(user=request.user, is_read=True).count()
+    unread_count = total_count - read_count
+    
+    read_ratio = (read_count / total_count * 100) if total_count > 0 else 0
+    unread_ratio = (unread_count / total_count * 100) if total_count > 0 else 0
+    
+    context = {
+        'stats_by_type': stats_by_type,
+        'stats_by_channel': stats_by_channel,
+        'daily_counts': daily_counts,
+        'total_count': total_count,
+        'read_count': read_count,
+        'unread_count': unread_count,
+        'read_ratio': read_ratio,
+        'unread_ratio': unread_ratio,
+        'title': _('Bildiriş Statistikası')
+    }
+    return render(request, 'notifications/statistics.html', context)
+
+
+@login_required
 def test_notification(request):
     """
     Send a test notification to the current user.
@@ -351,3 +469,71 @@ def test_notification(request):
         'title': _('Test Bildirişi')
     }
     return render(request, 'notifications/test_notification.html', context)
+
+
+@login_required
+def notification_bulk_send(request):
+    """
+    Send bulk notifications to multiple users.
+    """
+    if not (request.user.is_admin() or request.user.is_manager()):
+        messages.error(request, _('Bu funksiyanı istifadə etmək üçün kifayət qədər icazəniz yoxdur.'))
+        return redirect('dashboard')
+    
+    from apps.accounts.models import User
+    from apps.departments.models import Department
+    from .utils import send_bulk_notification
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        message = request.POST.get('message')
+        notification_type = request.POST.get('type', 'info')
+        send_email = request.POST.get('send_email') == 'on'
+        send_sms = request.POST.get('send_sms') == 'on'
+        send_push = request.POST.get('send_push') == 'on'
+        
+        # Determine recipients
+        recipient_type = request.POST.get('recipient_type')
+        users_to_notify = User.objects.none()
+        
+        if recipient_type == 'all':
+            users_to_notify = User.objects.filter(is_active=True)
+        elif recipient_type == 'department':
+            dept_id = request.POST.get('department_id')
+            if dept_id:
+                users_to_notify = User.objects.filter(department_id=dept_id, is_active=True)
+        elif recipient_type == 'role':
+            role = request.POST.get('role')
+            if role:
+                users_to_notify = User.objects.filter(role=role, is_active=True)
+        elif recipient_type == 'selected':
+            user_ids = request.POST.getlist('user_ids')
+            users_to_notify = User.objects.filter(id__in=user_ids, is_active=True)
+        
+        # Send bulk notifications
+        sent_notifications = send_bulk_notification(
+            recipients=users_to_notify,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            send_email=send_email,
+            send_sms=send_sms,
+            send_push=send_push
+        )
+        
+        messages.success(request, f'{len(sent_notifications)} bildiriş uğurla göndərildi.')
+        return redirect('notifications:bulk-send')
+    
+    # Prepare context for GET request
+    departments = Department.objects.all()
+    users = User.objects.filter(is_active=True)
+    role_choices = User.ROLE_CHOICES if hasattr(User, 'ROLE_CHOICES') else []
+    
+    context = {
+        'title': _('Kütləvi Bildiriş Göndər'),
+        'departments': departments,
+        'users': users,
+        'role_choices': role_choices,
+    }
+    
+    return render(request, 'notifications/bulk_send.html', context)

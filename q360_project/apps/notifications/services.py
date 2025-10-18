@@ -84,3 +84,33 @@ def broadcast_notification(title, message, notification_type='info', exclude_use
     
     for user_id in active_users:
         send_notification_to_user(user_id, title, message, notification_type)
+
+
+def broadcast_notification_smart(title, message, notification_type='info', priority='normal', exclude_user_ids=None):
+    """
+    Smart broadcast notification to all users using intelligent routing.
+    
+    Args:
+        title: Notification title
+        message: Notification message
+        notification_type: Type of notification
+        priority: Priority level
+        exclude_user_ids: List of user IDs to exclude
+    """
+    from django.db.models import Q
+    
+    query = Q(is_active=True)
+    if exclude_user_ids:
+        query &= ~Q(id__in=exclude_user_ids)
+    
+    active_users = User.objects.filter(query)
+    
+    from .utils import send_notification_by_smart_routing
+    for user in active_users:
+        send_notification_by_smart_routing(
+            recipient=user,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            priority=priority
+        )

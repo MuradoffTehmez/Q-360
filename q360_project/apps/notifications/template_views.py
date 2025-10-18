@@ -353,15 +353,17 @@ def bulk_notification(request):
                 )
                 created_count += 1
 
-            # Send email
+            # Send notification using enhanced utility
             if delivery_method in ['email', 'both']:
                 try:
-                    # Use email service to send
-                    from .services import send_email_notification
-                    send_email_notification(
+                    # Use notification utility to send with smart routing
+                    from .utils import send_notification_by_smart_routing
+                    send_notification_by_smart_routing(
                         recipient=recipient,
-                        subject=title,
-                        message=message
+                        title=title,
+                        message=message,
+                        notification_type='announcement',
+                        priority='normal'
                     )
                     email_sent_count += 1
                 except Exception as e:
