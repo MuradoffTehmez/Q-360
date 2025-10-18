@@ -228,7 +228,8 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 
 # Cache Configuration
 # Using LocMemCache for development (Redis is commented out)
-# For production, install django-redis and uncomment the Redis configuration
+# Redis cache support is optional. Install django-redis and uncomment the block
+# below once the dependency is available.
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -251,7 +252,7 @@ else:
     CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
-# Redis Cache Configuration (commented out - install django-redis if needed)
+# Redis cache configuration example (install django-redis before enabling).
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django_redis.cache.RedisCache',
