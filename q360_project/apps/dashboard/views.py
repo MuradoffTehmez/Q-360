@@ -289,7 +289,7 @@ def forecasting_dashboard(request):
     performance_forecasts = ForecastData.objects.filter(forecast_type='performance').order_by('-forecast_date')[:10]
     
     # Ən son proqnoz dövrü
-    latest_forecast_date = ForecastData.objects.aggregate(latest=models.Max('forecast_date'))['latest']
+    latest_forecast_date = ForecastData.objects.aggregate(latest=Max('forecast_date'))['latest']
     if latest_forecast_date:
         # Sonrakı 12 ay üçün proqnoz məlumatları
         next_12_months = []
