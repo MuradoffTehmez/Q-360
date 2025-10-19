@@ -27,6 +27,7 @@ from apps.departments.views import (
     DepartmentViewSet,
     PositionViewSet,
 )
+from api.real_time_stats import realtime_stats
 
 # Create routers for each app
 competencies_router = DefaultRouter()
@@ -51,6 +52,7 @@ departments_router.register(r'positions', PositionViewSet, basename='position')
 
 # API URL patterns
 urlpatterns = [
+    path('realtime-stats/', realtime_stats, name='realtime-stats'),
     path('competencies/', include(competencies_router.urls)),
     path('training/', include(training_router.urls)),
     path('accounts/', include(accounts_router.urls)),

@@ -1,5 +1,10 @@
 """Enhanced models for notifications app with SMS and Push notification capabilities."""
+from datetime import timedelta
+
+from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from apps.accounts.models import User
 from apps.departments.models import Department, Organization
@@ -258,32 +263,283 @@ class SMSLog(models.Model):
         return f"{self.recipient_phone} - {self.status}"
 
 
+class SMSNotification(models.Model):
+    """Discrete SMS delivery record managed via Celery."""
+
+    STATUS_CHOICES = [
+        ('queued', 'Növbədə'),
+        ('sending', 'Göndərilir'),
+        ('sent', 'Göndərildi'),
+        ('failed', 'Uğursuz'),
+    ]
+
+    notification = models.ForeignKey(
+        Notification,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sms_deliveries',
+        verbose_name=_('Bildiriş'),
+    )
+    provider = models.ForeignKey(
+        SMSProvider,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sms_deliveries',
+        verbose_name=_('SMS Təchizatçısı'),
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sms_notification_entries',
+        verbose_name=_('İstifadəçi'),
+    )
+    recipient_phone = models.CharField(
+        max_length=20,
+        validators=[RegexValidator(r'^\+?\d{7,15}$', _('Telefon nömrəsi +994xxxxxxxxx formatında olmalıdır'))],
+        verbose_name=_('Telefon Nömrəsi'),
+    )
+    message = models.TextField(verbose_name=_('Mesaj'))
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='queued',
+        verbose_name=_('Status'),
+    )
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    scheduled_for = models.DateTimeField(null=True, blank=True, verbose_name=_('Planlaşdırılan Vaxt'))
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Göndərilmə Vaxtı'))
+    error_message = models.TextField(blank=True, verbose_name=_('Xəta Mesajı'))
+    task_id = models.CharField(max_length=128, blank=True, verbose_name=_('Celery Tapşırıq ID-i'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('SMS Bildirişi')
+        verbose_name_plural = _('SMS Bildirişləri')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['recipient_phone']),
+        ]
+
+    def __str__(self):
+        return f"{self.recipient_phone} • {self.message[:40]}"
+
+    @property
+    def is_due(self):
+        return self.scheduled_for is None or self.scheduled_for <= timezone.now()
+
+    def mark_sending(self, task_id=None):
+        self.status = 'sending'
+        if task_id:
+            self.task_id = task_id
+        self.save(update_fields=['status', 'task_id', 'updated_at'])
+
+    def mark_sent(self):
+        self.status = 'sent'
+        self.sent_at = timezone.now()
+        self.error_message = ''
+        self.save(update_fields=['status', 'sent_at', 'error_message', 'updated_at'])
+
+    def mark_failed(self, error_message):
+        self.status = 'failed'
+        self.error_message = error_message
+        self.save(update_fields=['status', 'error_message', 'updated_at'])
+
+
+class PushDevice(models.Model):
+    """Registered device for push notifications."""
+
+    PLATFORM_CHOICES = [
+        ('ios', 'iOS'),
+        ('android', 'Android'),
+        ('web', 'Veb'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='push_devices', verbose_name=_('İstifadəçi'))
+    name = models.CharField(max_length=100, blank=True, verbose_name=_('Cihaz Adı'))
+    device_token = models.CharField(max_length=255, unique=True, verbose_name=_('Cihaz Tokeni'))
+    device_id = models.CharField(max_length=255, blank=True, verbose_name=_('Cihaz ID'))
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, verbose_name=_('Platforma'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Aktivdir'))
+    last_seen_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Son Aktivlik'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Push Cihazı')
+        verbose_name_plural = _('Push Cihazları')
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.user.username} • {self.platform}"
+
+    def mark_seen(self):
+        self.last_seen_at = timezone.now()
+        self.save(update_fields=['last_seen_at', 'updated_at'])
+
+
 class PushNotification(models.Model):
     """
     Push notification model for mobile/web push
     """
     STATUS_CHOICES = [
-        ('pending', 'Gözləyir'),
+        ('queued', 'Növbədə'),
+        ('sending', 'Göndərilir'),
         ('sent', 'Göndərildi'),
         ('failed', 'Uğursuz'),
     ]
 
+    PRIORITY_CHOICES = [
+        ('normal', 'Normal'),
+        ('high', 'Yüksək'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('İstifadəçi'))
+    device = models.ForeignKey(
+        PushDevice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='push_notifications',
+        verbose_name=_('Cihaz'),
+    )
     title = models.CharField(max_length=200, verbose_name=_('Başlıq'))
     message = models.TextField(verbose_name=_('Mesaj'))
     data = models.JSONField(default=dict, blank=True, verbose_name=_('Əlavə Məlumat'))
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name=_('Status'))
+    provider = models.CharField(max_length=100, blank=True, verbose_name=_('Təchizatçı'))
+    topic = models.CharField(max_length=100, blank=True, verbose_name=_('Mövzu/Topic'))
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal', verbose_name=_('Prioritet'))
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='queued', verbose_name=_('Status'))
     error_message = models.TextField(blank=True, verbose_name=_('Xəta Mesajı'))
+    task_id = models.CharField(max_length=128, blank=True, verbose_name=_('Celery Tapşırıq ID-i'))
+    scheduled_for = models.DateTimeField(null=True, blank=True, verbose_name=_('Planlaşdırılan Vaxt'))
     sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Göndərilmə Vaxtı'))
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _('Push Bildirişi')
         verbose_name_plural = _('Push Bildirişləri')
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['user', 'status']),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
+
+    @property
+    def is_due(self):
+        return self.scheduled_for is None or self.scheduled_for <= timezone.now()
+
+    def mark_sending(self, task_id=None):
+        self.status = 'sending'
+        if task_id:
+            self.task_id = task_id
+        self.save(update_fields=['status', 'task_id', 'updated_at'])
+
+    def mark_sent(self):
+        self.status = 'sent'
+        self.sent_at = timezone.now()
+        self.error_message = ''
+        self.save(update_fields=['status', 'sent_at', 'error_message', 'updated_at'])
+
+    def mark_failed(self, error_message):
+        self.status = 'failed'
+        self.error_message = error_message
+        self.save(update_fields=['status', 'error_message', 'updated_at'])
+
+
+
+class NotificationPreference(models.Model):
+    """Fine grained notification preference per channel and category."""
+
+    METHOD_CHOICES = NotificationMethod.METHOD_CHOICES
+    CATEGORY_CHOICES = [
+        ('assignment', _('Tapşırıq')),
+        ('reminder', _('Xatırlatma')),
+        ('announcement', _('Elan')),
+        ('security', _('Təhlükəsizlik')),
+        ('report', _('Hesabat')),
+        ('system', _('Sistem')),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='channel_preferences', verbose_name=_('İstifadəçi'))
+    method = models.CharField(max_length=20, choices=METHOD_CHOICES, verbose_name=_('Metod'))
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name=_('Kateqoriya'))
+    enabled = models.BooleanField(default=True, verbose_name=_('Aktivdir'))
+    quiet_hours_start = models.TimeField(null=True, blank=True, verbose_name=_('Sakitlik Başlama'))
+    quiet_hours_end = models.TimeField(null=True, blank=True, verbose_name=_('Sakitlik Bitmə'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Bildiriş Parametri')
+        verbose_name_plural = _('Bildiriş Parametrləri')
+        unique_together = ('user', 'method', 'category')
+        ordering = ['user', 'method', 'category']
+        indexes = [
+            models.Index(fields=['user', 'method']),
+            models.Index(fields=['method', 'category']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} • {self.get_method_display()} • {self.get_category_display()}"
+
+    @classmethod
+    def ensure_defaults(cls, user):
+        """Ensure preference rows exist for every method/category combination."""
+        methods = [choice[0] for choice in cls.METHOD_CHOICES]
+        categories = [choice[0] for choice in cls.CATEGORY_CHOICES]
+        existing = cls.objects.filter(user=user).values_list('method', 'category')
+        existing_set = {(m, c) for m, c in existing}
+        bulk = []
+        for method in methods:
+            for category in categories:
+                if (method, category) not in existing_set:
+                    bulk.append(
+                        cls(user=user, method=method, category=category, enabled=True)
+                    )
+        if bulk:
+            cls.objects.bulk_create(bulk)
+
+    @classmethod
+    def sync_from_legacy(cls, user_pref):
+        """Sync legacy boolean preferences into channel records."""
+        cls.ensure_defaults(user_pref.user)
+        mapping = [
+            ('email', 'assignment', user_pref.email_notifications and user_pref.email_assignment),
+            ('email', 'reminder', user_pref.email_notifications and user_pref.email_reminder),
+            ('email', 'announcement', user_pref.email_notifications and user_pref.email_announcement),
+            ('email', 'security', user_pref.email_notifications and user_pref.email_security),
+            ('sms', 'assignment', user_pref.sms_notifications and user_pref.sms_assignment),
+            ('sms', 'reminder', user_pref.sms_notifications and user_pref.sms_reminder),
+            ('sms', 'security', user_pref.sms_notifications and user_pref.sms_security),
+            ('sms', 'announcement', user_pref.sms_notifications and not user_pref.sms_important_only),
+            ('push', 'assignment', user_pref.push_notifications and user_pref.push_assignment),
+            ('push', 'reminder', user_pref.push_notifications and user_pref.push_reminder),
+            ('push', 'announcement', user_pref.push_notifications and user_pref.push_announcement),
+        ]
+        for method, category, enabled in mapping:
+            cls.objects.filter(user=user_pref.user, method=method, category=category).update(enabled=enabled)
+
+    def within_quiet_hours(self, check_time=None):
+        """Check if a given time is within configured quiet hours."""
+        if not self.quiet_hours_start or not self.quiet_hours_end:
+            return False
+        check_time = check_time or timezone.localtime().time()
+        if self.quiet_hours_start <= self.quiet_hours_end:
+            return self.quiet_hours_start <= check_time <= self.quiet_hours_end
+        # Overnight quiet hours
+        return check_time >= self.quiet_hours_start or check_time <= self.quiet_hours_end
 
 
 class UserNotificationPreference(models.Model):
@@ -329,10 +585,10 @@ class UserNotificationPreference(models.Model):
         return f"{self.user.username} - Bildiriş Tənzimləmələri"
 
     def save(self, *args, **kwargs):
-        # Create if not exists
-        if not self.pk:
-            super().save(*args, **kwargs)
-            # Link with user's profile if exists
+        creating = self.pk is None
+        super().save(*args, **kwargs)
+
+        if creating:
             try:
                 from apps.accounts.models import Profile
                 profile, created = Profile.objects.get_or_create(user=self.user)
@@ -340,11 +596,16 @@ class UserNotificationPreference(models.Model):
                     profile.email_notifications = self.email_notifications
                     profile.sms_notifications = self.sms_notifications
                     profile.save()
-            except:
+            except Exception:
                 # Profile might not exist, continue without error
                 pass
-        else:
-            super().save(*args, **kwargs)
+
+        try:
+            NotificationPreference.ensure_defaults(self.user)
+            NotificationPreference.sync_from_legacy(self)
+        except Exception:
+            # Preference sync failures should not block save
+            pass
 
 
 class BulkNotification(models.Model):
@@ -458,3 +719,102 @@ class EmailLog(models.Model):
 
     def __str__(self):
         return f"{self.recipient_email} - {self.subject}"
+
+
+class EmailNotification(models.Model):
+    """Discrete email delivery instance."""
+
+    STATUS_CHOICES = [
+        ('queued', 'Növbədə'),
+        ('sending', 'Göndərilir'),
+        ('sent', 'Göndərildi'),
+        ('failed', 'Uğursuz'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('low', 'Aşağı'),
+        ('normal', 'Normal'),
+        ('high', 'Yüksək'),
+    ]
+
+    notification = models.ForeignKey(
+        Notification,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_notifications',
+        verbose_name=_('Bildiriş'),
+    )
+    template = models.ForeignKey(
+        EmailTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_notifications',
+        verbose_name=_('Şablon'),
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_notification_records',
+        verbose_name=_('İstifadəçi'),
+    )
+    recipient_email = models.EmailField(verbose_name=_('E-poçt'))
+    subject = models.CharField(max_length=255, verbose_name=_('Mövzu'))
+    body = models.TextField(verbose_name=_('Məzmun'))
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='queued',
+        verbose_name=_('Status'),
+    )
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='normal',
+        verbose_name=_('Prioritet'),
+    )
+    provider = models.CharField(max_length=100, blank=True, verbose_name=_('Təchizatçı'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    scheduled_for = models.DateTimeField(null=True, blank=True, verbose_name=_('Planlaşdırılan Vaxt'))
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Göndərilmə Vaxtı'))
+    error_message = models.TextField(blank=True, verbose_name=_('Xəta Mesajı'))
+    task_id = models.CharField(max_length=128, blank=True, verbose_name=_('Celery Tapşırıq ID-i'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('E-poçt Bildirişi')
+        verbose_name_plural = _('E-poçt Bildirişləri')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['scheduled_for']),
+            models.Index(fields=['recipient_email']),
+        ]
+
+    def __str__(self):
+        return f"{self.recipient_email} • {self.subject}"
+
+    @property
+    def is_due(self):
+        return self.scheduled_for is None or self.scheduled_for <= timezone.now()
+
+    def mark_sending(self, task_id=None):
+        self.status = 'sending'
+        if task_id:
+            self.task_id = task_id
+        self.save(update_fields=['status', 'task_id', 'updated_at'])
+
+    def mark_sent(self):
+        self.status = 'sent'
+        self.sent_at = timezone.now()
+        self.error_message = ''
+        self.save(update_fields=['status', 'sent_at', 'error_message', 'updated_at'])
+
+    def mark_failed(self, error_message):
+        self.status = 'failed'
+        self.error_message = error_message
+        self.save(update_fields=['status', 'error_message', 'updated_at'])

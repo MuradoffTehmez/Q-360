@@ -1,6 +1,7 @@
 """Models for reports app."""
 from datetime import timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
@@ -484,6 +485,54 @@ class ReportVisualization(models.Model):
         return f"{self.blueprint.title} → {self.title}"
 
 
+class CustomReport(models.Model):
+    """
+    User-defined custom report configuration.
+    """
+
+    name = models.CharField(max_length=200, verbose_name=_('Ad'))
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='custom_reports',
+        verbose_name=_('Müəllif'),
+    )
+    description = models.TextField(blank=True, verbose_name=_('Təsvir'))
+    blueprint = models.ForeignKey(
+        ReportBlueprint,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='custom_reports',
+        verbose_name=_('Əsas Şablon'),
+    )
+    configuration = models.JSONField(default=dict, blank=True, verbose_name=_('Konfiqurasiya'))
+    query_definition = models.JSONField(default=dict, blank=True, verbose_name=_('Sorğu Tərifi'))
+    columns = models.JSONField(default=list, blank=True, verbose_name=_('Sütunlar'))
+    filters = models.JSONField(default=list, blank=True, verbose_name=_('Filtrlər'))
+    visualization = models.JSONField(default=dict, blank=True, verbose_name=_('Vizualizasiyalar'))
+    last_run_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Son İcra Vaxtı'))
+    last_run_summary = models.JSONField(default=dict, blank=True, verbose_name=_('Son İcra Xülasəsi'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Aktivdir'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Fərdi Hesabat')
+        verbose_name_plural = _('Fərdi Hesabatlar')
+        ordering = ['name']
+        indexes = [
+            models.Index(fields=['owner', 'is_active']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def effective_blueprint(self):
+        return self.blueprint
+
+
 class ReportSchedule(models.Model):
     """
     Scheduled exports for custom reports.
@@ -510,6 +559,14 @@ class ReportSchedule(models.Model):
         on_delete=models.CASCADE,
         related_name='schedules',
         verbose_name=_('Hesabat Şablonu')
+    )
+    custom_report = models.ForeignKey(
+        CustomReport,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='schedules',
+        verbose_name=_('Fərdi Hesabat')
     )
     created_by = models.ForeignKey(
         User,
@@ -560,10 +617,15 @@ class ReportSchedule(models.Model):
         blank=True,
         verbose_name=_('Qəbul edənlər')
     )
+    delivery_emails = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_('Birbaşa E-poçt Ünvanları')
+    )
     additional_emails = models.JSONField(
         default=list,
         blank=True,
-        verbose_name=_('Əlavə E-poçtlar')
+        verbose_name=_('Birbaşa E-poçt Ünvanları')
     )
     send_email = models.BooleanField(default=True, verbose_name=_('E-poçt Göndər'))
     include_visualizations = models.BooleanField(
@@ -591,10 +653,22 @@ class ReportSchedule(models.Model):
             models.Index(fields=['frequency']),
         ]
 
+    def clean(self):
+        if not self.blueprint and not self.custom_report:
+            raise ValidationError(_('Şablon və ya fərdi hesabat seçilməlidir.'))
+        if self.blueprint and self.custom_report:
+            raise ValidationError(_('Şablon və fərdi hesabat eyni vaxtda aktiv ola bilməz.'))
+
+    def get_report_source(self):
+        return self.custom_report or self.blueprint
+
     def __str__(self):
-        return f"{self.blueprint.title} ({self.get_frequency_display()})"
+        source = self.get_report_source()
+        source_name = getattr(source, 'title', None) or getattr(source, 'name', None) or _("Hesabat")
+        return f"{source_name} ({self.get_frequency_display()})"
 
     def save(self, *args, **kwargs):
+        self.full_clean()
         if self.next_run is None:
             self.next_run = self.calculate_next_run()
         super().save(*args, **kwargs)
@@ -653,6 +727,15 @@ class ReportSchedule(models.Model):
         self.last_run = run_time or timezone.now()
         self.next_run = self.calculate_next_run(reference=self.last_run)
         self.save(update_fields=['last_status', 'last_run', 'next_run', 'updated_at'])
+
+
+class ScheduledReport(ReportSchedule):
+    """Proxy model to expose ReportSchedule with a friendlier name."""
+
+    class Meta:
+        proxy = True
+        verbose_name = _('Cədvəl Hesabatı')
+        verbose_name_plural = _('Cədvəl Hesabatları')
 
 
 class ReportScheduleLog(models.Model):

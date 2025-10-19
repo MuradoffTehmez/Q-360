@@ -9,10 +9,17 @@ from typing import Dict, List, Optional
 
 from django.apps import apps
 from django.core.files.base import ContentFile
+from django.utils.text import slugify
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from .models import ReportBlueprint, ReportSchedule, ReportScheduleLog, ReportGenerationLog
+from .models import (
+    ReportBlueprint,
+    CustomReport,
+    ReportSchedule,
+    ReportScheduleLog,
+    ReportGenerationLog,
+)
 from .utils import build_dataset_excel, build_dataset_pdf, build_dataset_csv
 
 
@@ -45,24 +52,60 @@ def build_dataset_for_blueprint(blueprint: ReportBlueprint, params: Optional[Dic
     return ReportDataset(title=title, columns=columns, rows=dataset['rows'], metadata=dataset['metadata'])
 
 
-def export_blueprint(blueprint: ReportBlueprint, export_format: str, requested_by, params: Optional[Dict] = None) -> ReportGenerationLog:
+def build_dataset_for_custom_report(custom_report: CustomReport, params: Optional[Dict] = None) -> ReportDataset:
     """
-    Export a blueprint to the desired format and store output in ReportGenerationLog.
+    Build dataset for a custom report.
     """
     params = params or {}
-    dataset = build_dataset_for_blueprint(blueprint, params)
+    if custom_report.blueprint:
+        merged_params = {**custom_report.configuration.get('defaults', {}), **params}
+        dataset = build_dataset_for_blueprint(custom_report.blueprint, merged_params)
+        dataset.title = custom_report.name or dataset.title
+        dataset.metadata.update(custom_report.configuration.get('metadata', {}))
+        dataset.metadata.setdefault('source', 'blueprint')
+        dataset.metadata['custom_report_id'] = custom_report.pk
+        return dataset
+
+    columns = custom_report.columns or custom_report.configuration.get('columns', [])
+    rows = custom_report.configuration.get('rows', [])
+    metadata = {
+        **custom_report.configuration.get('metadata', {}),
+        'filters': params,
+        'custom_report_id': custom_report.pk,
+    }
+    title = custom_report.name or custom_report.configuration.get('title', _('Fərdi Hesabat'))
+    normalized_rows = [ _align_row(columns, row) for row in rows ]
+    return ReportDataset(title=title, columns=columns, rows=normalized_rows, metadata=metadata)
+
+
+def export_report_source(report_source, export_format: str, requested_by, params: Optional[Dict] = None) -> ReportGenerationLog:
+    """
+    Export report source (blueprint or custom report) and create generation log.
+    """
+    params = params or {}
     report_type = export_format.lower()
+
+    if isinstance(report_source, CustomReport):
+        dataset = build_dataset_for_custom_report(report_source, params)
+        metadata = {
+            'custom_report_id': report_source.pk,
+            'generated_at': timezone.now().isoformat(),
+        }
+        slug = slugify(report_source.name)
+    else:
+        dataset = build_dataset_for_blueprint(report_source, params)
+        metadata = {
+            'blueprint_id': report_source.pk,
+            'blueprint_slug': report_source.slug,
+            'generated_at': timezone.now().isoformat(),
+        }
+        slug = report_source.slug
 
     log = ReportGenerationLog.objects.create(
         report_type=report_type,
         requested_by=requested_by,
         status='processing',
-        metadata={
-            'blueprint_id': blueprint.pk,
-            'blueprint_slug': blueprint.slug,
-            'params': params,
-            'generated_at': timezone.now().isoformat(),
-        },
+        metadata=metadata,
     )
 
     try:
@@ -76,7 +119,7 @@ def export_blueprint(blueprint: ReportBlueprint, export_format: str, requested_b
             content = build_dataset_csv(dataset.title, dataset.columns, dataset.rows)
             extension = 'csv'
 
-        filename = f"{blueprint.slug}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.{extension}"
+        filename = f"{slug}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.{extension}"
         log.file.save(filename, ContentFile(content), save=False)
         log.status = 'completed'
         log.completed_at = timezone.now()
@@ -91,6 +134,16 @@ def export_blueprint(blueprint: ReportBlueprint, export_format: str, requested_b
     return log
 
 
+def export_blueprint(blueprint: ReportBlueprint, export_format: str, requested_by, params: Optional[Dict] = None) -> ReportGenerationLog:
+    """Backward-compatible helper for blueprint exports."""
+    return export_report_source(blueprint, export_format, requested_by, params)
+
+
+def export_custom_report(custom_report: CustomReport, export_format: str, requested_by, params: Optional[Dict] = None) -> ReportGenerationLog:
+    """Export a custom report using the shared export helper."""
+    return export_report_source(custom_report, export_format, requested_by, params)
+
+
 def process_due_schedules() -> int:
     """
     Execute scheduled reports whose next_run is due.
@@ -99,11 +152,12 @@ def process_due_schedules() -> int:
     schedules = ReportSchedule.objects.filter(is_active=True, next_run__isnull=False, next_run__lte=now)
     processed = 0
 
-    for schedule in schedules.select_related('blueprint'):
+    for schedule in schedules.select_related('blueprint', 'custom_report'):
         log_entry = ReportScheduleLog.objects.create(schedule=schedule, status='processing')
         try:
-            export_log = export_blueprint(
-                blueprint=schedule.blueprint,
+            source = schedule.get_report_source()
+            export_log = export_report_source(
+                report_source=source,
                 export_format=schedule.export_format,
                 requested_by=schedule.created_by or schedule.recipients.first(),
                 params={**schedule.parameters, 'scheduled_run': True},
