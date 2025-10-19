@@ -28,6 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
+DATA_ENCRYPTION_KEY = os.getenv('DATA_ENCRYPTION_KEY')
 DEBUG = env_bool('DEBUG', True)  # Development mode
 ALLOWED_HOSTS = ['*']  # Allow all hosts in development
 

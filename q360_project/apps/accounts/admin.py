@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import User, Profile, Role
+from .models import User, Profile, Role, UserMFAConfig
 
 
 @admin.register(Role)
@@ -327,3 +327,13 @@ class ProfileAdmin(SimpleHistoryAdmin):
             years
         )
     years_display.short_description = 'İş Təcrübəsi'
+
+
+@admin.register(UserMFAConfig)
+class UserMFAConfigAdmin(admin.ModelAdmin):
+    """Admin interface for managing user 2FA settings."""
+
+    list_display = ['user', 'is_enabled', 'last_verified_at', 'created_at']
+    search_fields = ['user__username', 'user__email']
+    readonly_fields = ['created_at', 'updated_at', 'last_verified_at']
+    autocomplete_fields = ['user']

@@ -1,6 +1,8 @@
 """
 Models for accounts app - User management, roles, and permissions.
 """
+import hashlib
+
 from django.contrib.auth.models import (
     AbstractUser,
     Group,
@@ -8,6 +10,7 @@ from django.contrib.auth.models import (
     UserManager as DjangoUserManager,
 )
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
@@ -312,6 +315,23 @@ class User(AbstractUser):
         from apps.accounts.rbac import PermissionChecker
         return PermissionChecker(self)
 
+    @property
+    def has_mfa_enabled(self) -> bool:
+        config = getattr(self, "mfa_config", None)
+        return bool(config and config.is_enabled)
+
+    def ensure_mfa_config(self):
+        from apps.accounts.models import UserMFAConfig  # Local import to avoid circular reference
+
+        config, _ = UserMFAConfig.objects.get_or_create(user=self)
+        return config
+
+    def mark_mfa_verified(self):
+        config = self.ensure_mfa_config()
+        config.last_verified_at = timezone.now()
+        config.is_enabled = True
+        config.save(update_fields=["last_verified_at", "is_enabled", "updated_at"])
+
 
 class Profile(models.Model):
     """
@@ -554,6 +574,72 @@ class Profile(models.Model):
                 years -= 1
             return years
         return 0
+
+
+class UserMFAConfig(models.Model):
+    """
+    Stores multi-factor authentication secrets and backup codes.
+    """
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='mfa_config',
+        verbose_name=_('İstifadəçi')
+    )
+    secret = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name=_('Gizli açar')
+    )
+    is_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Aktivdir')
+    )
+    backup_codes = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_('Ehtiyat Kodları')
+    )
+    last_verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Son Təsdiq Tarixi')
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Yaradılma Tarixi'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Yenilənmə Tarixi'))
+
+    class Meta:
+        verbose_name = _('2FA Konfiqurasiyası')
+        verbose_name_plural = _('2FA Konfiqurasiyaları')
+
+    def __str__(self):
+        return f"{self.user.username} 2FA"
+
+    def set_backup_codes(self, codes):
+        self.backup_codes = [self._hash_code(code) for code in codes]
+
+    def regenerate_backup_codes(self, count: int = 5):
+        from apps.accounts.mfa import generate_backup_codes
+
+        codes = generate_backup_codes(count=count)
+        self.set_backup_codes(codes)
+        self.save(update_fields=['backup_codes', 'updated_at'])
+        return codes
+
+    def verify_backup_code(self, code: str) -> bool:
+        hashed = self._hash_code(code)
+        if hashed in self.backup_codes:
+            remaining = [c for c in self.backup_codes if c != hashed]
+            self.backup_codes = remaining
+            self.save(update_fields=['backup_codes', 'updated_at'])
+            return True
+        return False
+
+    @staticmethod
+    def _hash_code(code: str) -> str:
+        return hashlib.sha256(code.encode('utf-8')).hexdigest()
+
 
 # Import extended models
 from .models_extended import EmployeeDocument, WorkHistory

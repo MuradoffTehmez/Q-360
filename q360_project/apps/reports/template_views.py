@@ -12,6 +12,7 @@ import json
 
 from apps.evaluations.models import EvaluationResult, EvaluationCampaign, Response, EvaluationAssignment
 from apps.accounts.models import User
+from apps.accounts.permissions import filter_queryset_for_user, get_accessible_users
 from .models import Report, RadarChartData, SystemKPI
 from .utils import generate_pdf_report, generate_excel_report, generate_csv_report, calculate_radar_data
 
@@ -64,12 +65,9 @@ def team_reports(request):
     user = request.user
 
     # Get subordinates
-    if user.is_admin():
-        # Admin sees all
-        team_members = User.objects.filter(is_active=True)
-    else:
-        # Manager sees subordinates
-        team_members = user.get_subordinates()
+    team_members = get_accessible_users(user)
+    if not user.is_admin():
+        team_members = team_members.exclude(pk=user.pk)
 
     # Get campaign from query parameter or latest
     campaign_id = request.GET.get('campaign')
@@ -86,10 +84,14 @@ def team_reports(request):
     # Get results for team members
     results = None
     if latest_campaign:
-        results = EvaluationResult.objects.filter(
-            campaign=latest_campaign,
-            evaluatee__in=team_members
+        result_qs = EvaluationResult.objects.filter(
+            campaign=latest_campaign
         ).select_related('evaluatee').order_by('-overall_score')
+        results = filter_queryset_for_user(
+            user,
+            result_qs,
+            relation_field='evaluatee'
+        )
 
     # Calculate team statistics
     team_stats = {
