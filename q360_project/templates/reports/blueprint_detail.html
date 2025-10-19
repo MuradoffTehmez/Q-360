@@ -1,0 +1,243 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ blueprint.title }} · {% trans "Hesabat Şablonu" %}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Əsas Səhifə" %}</a></li>
+        <li class="breadcrumb-item"><a href="#">{% trans "Şablonlar" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ blueprint.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-start">
+        <div class="col-xl-8">
+            <h1 class="h3 mb-1">{{ blueprint.title }}</h1>
+            <p class="text-muted mb-3">{{ blueprint.description|default:_("Qısa təsvir əlavə olunmayıb.") }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-primary-subtle text-primary">
+                    <i class="fas fa-database me-1"></i>{{ blueprint.get_data_source_display }}
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary">
+                    <i class="fas fa-file-export me-1"></i>{{ blueprint.get_default_export_format_display }}
+                </span>
+                {% if blueprint.is_global %}
+                <span class="badge bg-success">
+                    <i class="fas fa-globe me-1"></i>{% trans "Global" %}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-xl-4 text-xl-end mt-3 mt-xl-0">
+            <a href="#" class="btn btn-outline-primary me-2">
+                <i class="fas fa-file-export me-1"></i>{% trans "Export et" %}
+            </a>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-calendar-plus me-1"></i>{% trans "Planlaşdır" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-1">{% trans "Vizualizasiyalar" %}</h5>
+                    <p class="text-muted small mb-0">
+                        {% trans "Şablonun çıxışına əlavə olunan vizual komponentlər." %}
+                    </p>
+                </div>
+                <div class="card-body">
+                    {% if visualizations %}
+                    <div class="row g-3">
+                        {% for visual in visualizations %}
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">{{ visual.title }}</h6>
+                                    <span class="badge bg-light text-dark">{{ visual.get_chart_type_display }}</span>
+                                </div>
+                                <p class="text-muted small mb-3">{{ visual.configuration.summary|default:_("Vizualizasiyanın xülasəsi göstəriləcək.") }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted border rounded">
+                        <i class="fas fa-chart-pie fa-2x mb-3"></i>
+                        <p class="mb-2">{% trans "Vizualizasiya əlavə olunmayıb." %}</p>
+                        <a href="#" class="btn btn-primary btn-sm">
+                            {% trans "İlk vizualı yaradın" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{% trans "Sahələr və Aqreqasiyalar" %}</h5>
+                            <p class="text-muted small mb-0">
+                                {% trans "Datasetə daxil ediləcək sütunlar və hesablamalar." %}
+                            </p>
+                        </div>
+                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-columns me-1"></i>{% trans "Redaktə et" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans "Sütun" %}</th>
+                                    <th>{% trans "Etiket" %}</th>
+                                    <th>{% trans "Aqreqasiya" %}</th>
+                                    <th>{% trans "Filtr" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for column in column_config %}
+                                <tr>
+                                    <td class="fw-semibold">{{ column.field }}</td>
+                                    <td>{{ column.label|default:column.field }}</td>
+                                    <td>{{ column.aggregate|default:_("Yoxdur") }}</td>
+                                    <td>{{ column.filter|default:_("Yoxdur") }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        {% trans "Sütun konfiqurasiyası hələ əlavə edilməyib." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-2">{% trans "Parametrlər" %}</h5>
+                    <dl class="row small mb-0">
+                        <dt class="col-5 text-muted">{% trans "Mənbə" %}</dt>
+                        <dd class="col-7">{{ blueprint.get_data_source_display }}</dd>
+
+                        <dt class="col-5 text-muted">{% trans "Export default" %}</dt>
+                        <dd class="col-7">{{ blueprint.get_default_export_format_display }}</dd>
+
+                        <dt class="col-5 text-muted">{% trans "Defolt Filtrlər" %}</dt>
+                        <dd class="col-7">
+                            {% for key, value in blueprint.default_filters.items %}
+                            <span class="badge bg-light text-dark mb-1">{{ key }} = {{ value }}</span>
+                            {% empty %}
+                            <span class="text-muted">{% trans "Müəyyən edilməyib" %}</span>
+                            {% endfor %}
+                        </dd>
+
+                        <dt class="col-5 text-muted">{% trans "Yaradıcı" %}</dt>
+                        <dd class="col-7">{{ blueprint.owner.get_full_name|default:blueprint.owner.username }}</dd>
+
+                        <dt class="col-5 text-muted">{% trans "Son yenilənmə" %}</dt>
+                        <dd class="col-7">{{ blueprint.updated_at|date:"d.m.Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">{% trans "Planlaşdırılmış Exportun" %}</h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for schedule in schedules %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ schedule.get_frequency_display }}</h6>
+                                <p class="text-muted small mb-1">
+                                    {{ schedule.export_format|upper }} • {{ schedule.next_run|date:"d.m.Y H:i" }}
+                                </p>
+                                <small class="text-muted">
+                                    {% trans "Son status" %}: {{ schedule.get_last_status_display }}
+                                </small>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary">
+                                    <i class="fas {% if schedule.is_active %}fa-pause{% else %}fa-play{% endif %}"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted small text-center py-4">
+                            {% trans "Planlaşdırılmış export yoxdur." %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="mb-3">{% trans "Dataset Önizləmə" %}</h5>
+                    <div class="table-responsive small">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    {% for header in preview.headers %}
+                                    <th>{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in preview.rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="{{ preview.headers|length }}" class="text-center text-muted">
+                                        {% trans "Önizləmə üçün məlumat tapılmadı." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <small class="text-muted">
+                        {% trans "Önizləmə maksimum 10 sətri əhatə edir." %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

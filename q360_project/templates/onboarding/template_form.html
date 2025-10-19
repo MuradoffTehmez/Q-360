@@ -1,0 +1,109 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if mode == "edit" %}
+    {% trans "Onboarding Şablonu · Redaktə" %}
+{% else %}
+    {% trans "Onboarding Şablonu · Yarat" %}
+{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Əsas Səhifə" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'onboarding:template-library' %}">{% trans "Şablonlar" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+            {% if mode == "edit" %}{% trans "Redaktə" %}{% else %}{% trans "Yeni şablon" %}{% endif %}
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="h3 mb-1">
+                {% if mode == "edit" %}
+                    <i class="fas fa-edit text-primary me-2"></i>{% trans "Şablonu redaktə et" %}
+                {% else %}
+                    <i class="fas fa-plus text-primary me-2"></i>{% trans "Yeni onboarding şablonu" %}
+                {% endif %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% trans "Hazırda vizual form generator üzərində işləyirik. Şablonun əsas parametrlərini aşağıdakı formadan idarə edə bilərsiniz." %}
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <a href="{% url 'onboarding:template-library' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Şablonlara geri dön" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{% trans "Şablon adı" %}</label>
+                        <input type="text" name="name" value="{{ form_data.name }}" class="form-control" placeholder="{% trans 'Məsələn: İlk 90 gün onboarding' %}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{% trans "Slug" %}</label>
+                        <input type="text" name="slug" value="{{ form_data.slug }}" class="form-control" placeholder="slug">
+                        <small class="text-muted">{% trans "Unikal identifikator (avtomatik generasiya olunacaq)." %}</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">{% trans "Təsvir" %}</label>
+                        <textarea name="description" rows="3" class="form-control" placeholder="{% trans 'Şablon haqqında qısa məlumat yazın' %}">{{ form_data.description }}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">{% trans "Review startı (gün)" %}</label>
+                        <input type="number" name="review_cycle_offset_days" value="{{ form_data.review_cycle_offset_days }}" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">{% trans "Maaş icmalı (gün)" %}</label>
+                        <input type="number" name="salary_review_offset_days" value="{{ form_data.salary_review_offset_days }}" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">{% trans "Təlim planı (gün)" %}</label>
+                        <input type="number" name="training_plan_offset_days" value="{{ form_data.training_plan_offset_days }}" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" name="is_default" id="id_is_default" {% if form_data.is_default %}checked{% endif %}>
+                            <label class="form-check-label" for="id_is_default">
+                                {% trans "Defolt şablon kimi işarələ" %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4 mb-4">
+                    <div class="d-flex">
+                        <i class="fas fa-info-circle me-3"></i>
+                        <div>
+                            <strong>{% trans "Tapşırıq əlavə etmək üçün" %}</strong>
+                            <p class="text-muted small mb-0">
+                                {% trans "Hal-hazırda tapşırıqları admin panelindən əlavə edə bilərsiniz. UI modulu üzərində çalışırıq." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    {% if mode == "edit" %}
+                        <i class="fas fa-save me-1"></i>{% trans "Yadda saxla" %}
+                    {% else %}
+                        <i class="fas fa-check me-1"></i>{% trans "Şablonu yarat" %}
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

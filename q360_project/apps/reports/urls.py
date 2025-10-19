@@ -13,6 +13,9 @@ urlpatterns = [
     path('detailed/<int:result_pk>/', template_views.detailed_report, name='detailed-report'),
     path('comparison/', template_views.comparison_report, name='comparison-report'),
     path('analytics/', template_views.analytics_dashboard, name='analytics-dashboard'),
+    path('blueprints/', template_views.blueprint_list, name='blueprint-list'),
+    path('blueprints/<slug:slug>/', template_views.blueprint_detail, name='blueprint-detail'),
+    path('schedules/', template_views.schedule_center, name='schedule-center'),
     path('custom-builder/', template_views.custom_report_builder, name='custom-builder'),
 
     # Export

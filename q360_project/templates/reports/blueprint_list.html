@@ -1,0 +1,130 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Hesabat Şablonları" %}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Əsas Səhifə" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports:analytics-dashboard' %}">{% trans "Hesabatlar" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans "Şablonlar" %}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col-lg-8">
+            <h1 class="h3 mb-1">{% trans "Hesabat Şablonları Kitabxanası" %}</h1>
+            <p class="text-muted mb-0">
+                {% trans "Məlumat mənbələrini, vizualizasiyaları və export parametrlərini mərkəzləşdirin." %}
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <a href="{% url 'reports:custom-builder' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> {% trans "Yeni şablon" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="mb-3">{% trans "Filtrlər" %}</h5>
+                    <form method="get" class="vstack gap-3">
+                        <div>
+                            <label class="form-label text-muted fw-semibold">{% trans "Məlumat Mənbəyi" %}</label>
+                            <select class="form-select" name="source">
+                                <option value="">{% trans "Hamısı" %}</option>
+                                {% for source in sources %}
+                                <option value="{{ source.0 }}" {% if request.GET.source == source.0 %}selected{% endif %}>
+                                    {{ source.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label text-muted fw-semibold">{% trans "Export Formatı" %}</label>
+                            <select class="form-select" name="export">
+                                <option value="">{% trans "Hamısı" %}</option>
+                                {% for fmt in export_formats %}
+                                <option value="{{ fmt.0 }}" {% if request.GET.export == fmt.0 %}selected{% endif %}>
+                                    {{ fmt.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-global" name="global" {% if request.GET.global %}checked{% endif %}>
+                            <label class="form-check-label" for="filter-global">
+                                {% trans "Hamı üçün açıq" %}
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-filter me-1"></i>{% trans "Filtrlə" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-9">
+            <div class="row g-3">
+                {% for blueprint in blueprints %}
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">{{ blueprint.title }}</h5>
+                                    <small class="text-muted">
+                                        <i class="fas fa-database me-1 text-primary"></i>{{ blueprint.get_data_source_display }}
+                                    </small>
+                                </div>
+                                {% if blueprint.is_global %}
+                                <span class="badge bg-success"><i class="fas fa-globe"></i> {% trans "Global" %}</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted small flex-grow-1">{{ blueprint.description|default:_("Qısa təsvir yoxdur.") }}</p>
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-columns me-1"></i>{{ blueprint.columns|length }} {% trans "sütun" %}
+                                    </span>
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        {{ blueprint.visualizations.count }} {% trans "vizual" %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'reports:blueprint-detail' blueprint.slug %}" class="btn btn-outline-primary btn-sm">
+                                    {% trans "İdarə et" %}
+                                </a>
+                                <span class="badge bg-light text-muted">{% trans "Export və planlama tezliklə" %}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light border-0">
+                            <small class="text-muted">
+                                {% trans "Son yenilənmə" %}: {{ blueprint.updated_at|date:"d.m.Y H:i" }} • {{ blueprint.owner.get_full_name|default:blueprint.owner.username }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5 text-muted border rounded">
+                        <i class="fas fa-folder-open fa-2x mb-3"></i>
+                        <p class="mb-2">{% trans "Şablon yoxdur." %}</p>
+                        <a href="{% url 'reports:custom-builder' %}" class="btn btn-primary btn-sm">
+                            {% trans "İlk şablonu yaradın" %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

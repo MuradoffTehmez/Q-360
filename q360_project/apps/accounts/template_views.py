@@ -1,6 +1,9 @@
 """
 Template-based views for accounts app.
 """
+from datetime import timedelta
+
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -8,12 +11,18 @@ from django.contrib import messages
 from django.views.generic import TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 
+from django.utils.translation import gettext_lazy as _
 from .forms import UserLoginForm, UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .models import User, Profile, Role
 from .rbac import RoleManager
+from apps.accounts.permissions import get_accessible_users
+from apps.audit.models import AuditLog
 from apps.evaluations.models import EvaluationAssignment, EvaluationCampaign
 from apps.notifications.models import Notification
+from apps.security import CRYPTOGRAPHY_AVAILABLE
 
 
 def login_view(request):
@@ -367,8 +376,52 @@ def security_settings(request):
     else:
         form = PasswordChangeForm(request.user)
 
+    mfa_config = request.user.ensure_mfa_config()
+    backup_codes = ["••••••••" for _ in (mfa_config.backup_codes or [])]
+    user_agent = request.META.get("HTTP_USER_AGENT", "")
+    sessions = [
+        {
+            "id": request.session.session_key or "current",
+            "device": user_agent or _("Naməlum cihaz"),
+            "location": "-",
+            "ip_address": request.META.get("REMOTE_ADDR", "-"),
+            "last_activity": timezone.now(),
+            "is_current": True,
+            "is_mobile": "Mobile" in user_agent,
+        }
+    ]
+
+    login_history = list(
+        AuditLog.objects.filter(
+            user=request.user,
+            action__in=['login', 'login_failure'],
+        ).order_by('-created_at')[:10]
+    )
+    for entry in login_history:
+        entry.timestamp = entry.created_at
+        entry.device = entry.user_agent or _("Naməlum cihaz")
+        entry.location = entry.context.get("location") if entry.context else "-"
+        entry.success = entry.action != 'login_failure'
+
+    audit_alerts = AuditLog.objects.filter(
+        user=request.user,
+        action__in=['permission_denied', 'login_failure'],
+        created_at__gte=timezone.now() - timedelta(hours=24),
+    ).count()
+
     context = {
-        'form': form
+        'form': form,
+        'mfa_config': mfa_config,
+        'backup_codes': backup_codes,
+        'mfa_qr_svg': None,
+        'mfa_secret': mfa_config.secret,
+        'encryption_available': CRYPTOGRAPHY_AVAILABLE,
+        'encryption_key_loaded': bool(getattr(settings, "DATA_ENCRYPTION_KEY", "")),
+        'active_sessions': len(sessions),
+        'sessions': sessions,
+        'login_history': login_history,
+        'audit_alerts': audit_alerts,
+        'accessible_users': list(get_accessible_users(request.user)),
     }
 
     return render(request, 'accounts/security.html', context)

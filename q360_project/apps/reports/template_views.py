@@ -1,6 +1,7 @@
 """
 Template views for reports app.
 Professional report generation and visualization.
+from datetime import timedelta
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -13,9 +14,18 @@ import json
 from apps.evaluations.models import EvaluationResult, EvaluationCampaign, Response, EvaluationAssignment
 from apps.accounts.models import User
 from apps.accounts.permissions import filter_queryset_for_user, get_accessible_users
-from .models import Report, RadarChartData, SystemKPI
+from .models import (
+    Report,
+    RadarChartData,
+    ReportBlueprint,
+    ReportSchedule,
+    ReportScheduleLog,
+    ReportVisualization,
+    SystemKPI,
+)
 from .utils import generate_pdf_report, generate_excel_report, generate_csv_report, calculate_radar_data
 
+from .services import build_dataset_for_blueprint
 
 @login_required
 def my_reports(request):
@@ -126,6 +136,105 @@ def team_reports(request):
     }
 
     return render(request, 'reports/team_reports.html', context)
+
+
+@login_required
+def blueprint_list(request):
+    """Blueprint listing for custom report definitions."""
+    blueprints = ReportBlueprint.objects.filter(is_active=True).prefetch_related(
+        'visualizations',
+        'schedules',
+        'owner',
+    ).order_by('title')
+
+    source = request.GET.get('source')
+    export = request.GET.get('export')
+    if source:
+        blueprints = blueprints.filter(data_source=source)
+    if export:
+        blueprints = blueprints.filter(default_export_format=export)
+    if request.GET.get('global'):
+        blueprints = blueprints.filter(is_global=True)
+
+    context = {
+        'blueprints': blueprints,
+        'sources': ReportBlueprint.DATA_SOURCE_CHOICES,
+        'export_formats': ReportBlueprint.EXPORT_FORMAT_CHOICES,
+    }
+    return render(request, 'reports/blueprint_list.html', context)
+
+
+@login_required
+def blueprint_detail(request, slug):
+    """Detailed view for a single blueprint."""
+    blueprint = get_object_or_404(
+        ReportBlueprint.objects.prefetch_related('visualizations', 'schedules__recipients'),
+        slug=slug,
+    )
+    dataset = build_dataset_for_blueprint(blueprint)
+    preview = {
+        'headers': dataset.columns,
+        'rows': dataset.rows[:5],
+    }
+    schedules = list(
+        blueprint.schedules.select_related('created_by').prefetch_related('recipients').order_by('next_run')
+    )
+    status_badges = {
+        'completed': 'success',
+        'failed': 'danger',
+        'processing': 'info',
+        'pending': 'secondary',
+    }
+    for schedule in schedules:
+        schedule.last_status_badge = status_badges.get(schedule.last_status, 'secondary')
+
+    context = {
+        'blueprint': blueprint,
+        'visualizations': blueprint.visualizations.all().order_by('order'),
+        'column_config': blueprint.columns or [],
+        'schedules': schedules,
+        'preview': preview,
+        'dataset_metadata': dataset.metadata,
+    }
+    return render(request, 'reports/blueprint_detail.html', context)
+
+
+@login_required
+def schedule_center(request):
+    """Overview for scheduled report exports."""
+    schedules = ReportSchedule.objects.select_related('blueprint').prefetch_related('recipients').order_by('-next_run')
+    status_badges = {
+        'completed': 'success',
+        'failed': 'danger',
+        'processing': 'info',
+        'pending': 'secondary',
+    }
+    for schedule in schedules:
+        schedule.last_status_badge = status_badges.get(schedule.last_status, 'secondary')
+
+    now = timezone.now()
+    stats = {
+        'active': schedules.filter(is_active=True).count(),
+        'paused': schedules.filter(is_active=False).count(),
+        'failed': schedules.filter(last_status='failed').count(),
+        'next_run': schedules.filter(is_active=True, next_run__isnull=False).order_by('next_run').values_list('next_run', flat=True).first(),
+        'sent_last_7_days': ReportScheduleLog.objects.filter(
+            status='completed',
+            triggered_at__gte=now - timedelta(days=7)
+        ).count(),
+    }
+
+    recent_logs = list(
+        ReportScheduleLog.objects.select_related('schedule', 'schedule__blueprint', 'export_log')
+        .order_by('-triggered_at')[:6]
+    )
+
+    context = {
+        'schedules': schedules,
+        'stats': stats,
+        'recent_logs': recent_logs,
+    }
+    return render(request, 'reports/schedule_center.html', context)
 
 
 @login_required

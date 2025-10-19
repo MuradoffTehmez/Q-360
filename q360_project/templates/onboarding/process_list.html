@@ -1,0 +1,150 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Onboarding Prosesləri" %}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Əsas Səhifə" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'onboarding:dashboard' %}">{% trans "Onboarding" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans "Proseslər" %}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col-lg-8">
+            <h1 class="h3 mb-1">{% trans "Onboarding Prosesləri" %}</h1>
+            <p class="text-muted mb-0">
+                {% trans "Filtrlərdən istifadə edərək yeni işçi onboarding axınlarını izləyin." %}
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <a href="{% url 'onboarding:process-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> {% trans "Yeni proses" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end mb-4">
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Status" %}</label>
+                    <select class="form-select" name="status">
+                        <option value="">{% trans "Hamısı" %}</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Şöbə" %}</label>
+                    <select class="form-select" name="department">
+                        <option value="">{% trans "Hamısı" %}</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.pk }}" {% if request.GET.department == dept.pk|stringformat:'s' %}selected{% endif %}>
+                            {{ dept.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Şablon" %}</label>
+                    <select class="form-select" name="template">
+                        <option value="">{% trans "Hamısı" %}</option>
+                        {% for tmpl in templates %}
+                        <option value="{{ tmpl.pk }}" {% if request.GET.template == tmpl.pk|stringformat:'s' %}selected{% endif %}>
+                            {{ tmpl.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-filter me-1"></i>{% trans "Filtrlə" %}
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "İşçi" %}</th>
+                            <th>{% trans "Şöbə" %}</th>
+                            <th>{% trans "Şablon" %}</th>
+                            <th>{% trans "Başlama tarixi" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Tamamlama" %}</th>
+                            <th class="text-end">{% trans "Əməliyyat" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for process in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ process.employee.get_full_name|default:process.employee.username }}</div>
+                                <small class="text-muted">{{ process.employee.position|default:_("Vəzifə yoxdur") }}</small>
+                            </td>
+                            <td>{{ process.department.name|default:"-" }}</td>
+                            <td>{{ process.template.name|default:"-" }}</td>
+                            <td>{{ process.start_date|date:"d.m.Y" }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark">{{ process.get_status_display }}</span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-success" style="width: {{ process.completion_rate|default:0 }}%;"></div>
+                                </div>
+                                <small class="text-muted">{{ process.completed_tasks }} / {{ process.total_tasks }}</small>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'onboarding:process-detail' process.pk %}" class="btn btn-outline-primary btn-sm">
+                                    {% trans "Aç" %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                {% trans "Nəticə tapılmadı." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-3">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.template %}&template={{ request.GET.template }}{% endif %}">
+                            {% trans "Əvvəlki" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.template %}&template={{ request.GET.template }}{% endif %}">
+                            {% trans "Növbəti" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -62,6 +62,7 @@ urlpatterns = [
     path('training/', include(('apps.training.urls', 'training'), namespace='training')),
     path('audit/', include(('apps.audit.urls', 'audit'), namespace='audit')),
     path('search/', include(('apps.search.urls', 'search'), namespace='search')),
+    path('onboarding/', include(('apps.onboarding.urls', 'onboarding'), namespace='onboarding')),
     path('workforce-planning/', include(('apps.workforce_planning.urls', 'workforce_planning'), namespace='workforce-planning')),
     path('feedback/', include(('apps.continuous_feedback.urls', 'continuous_feedback'), namespace='feedback')),
 
