@@ -273,3 +273,96 @@ def generate_csv_report(results_queryset, include_fields=None):
     output.close()
 
     return csv_content.encode('utf-8-sig')  # BOM for Excel compatibility
+
+
+def build_dataset_excel(title, columns, rows, metadata=None):
+    """Generate a generic Excel workbook from dataset."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Alignment, Font, PatternFill
+    except ImportError as exc:
+        raise RuntimeError('Excel export requires openpyxl') from exc
+
+    metadata = metadata or {}
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = title[:31] if title else "Report"
+
+    header_fill = PatternFill(start_color="0d6efd", end_color="0d6efd", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+
+    for col_index, column in enumerate(columns, start=1):
+        cell = ws.cell(row=1, column=col_index, value=column)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    for row_index, row in enumerate(rows, start=2):
+        for col_index, value in enumerate(row, start=1):
+            ws.cell(row=row_index, column=col_index).value = value
+
+    for column_cells in ws.columns:
+        max_length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
+        ws.column_dimensions[column_cells[0].column_letter].width = max(max_length + 2, 12)
+
+    if metadata:
+        meta_sheet = wb.create_sheet("Metadata")
+        meta_sheet["A1"].value = "Açar"
+        meta_sheet["B1"].value = "Dəyər"
+        for index, (key, value) in enumerate(metadata.items(), start=2):
+            meta_sheet.cell(row=index, column=1, value=str(key))
+            meta_sheet.cell(row=index, column=2, value=str(value))
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    return buffer.getvalue()
+
+
+def build_dataset_pdf(title, columns, rows, metadata=None):
+    """Generate a PDF table from dataset."""
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    except ImportError as exc:
+        raise RuntimeError('PDF export requires reportlab') from exc
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))
+    styles = getSampleStyleSheet()
+
+    story = [Paragraph(title or "Hesabat", styles['Title']), Spacer(1, 18)]
+
+    data = [columns] + rows
+    table = Table(data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+    ]))
+    story.append(table)
+
+    if metadata:
+        story.append(Spacer(1, 12))
+        story.append(Paragraph("Məlumat xülasəsi", styles['Heading2']))
+        for key, value in metadata.items():
+            story.append(Paragraph(f"<b>{key}:</b> {value}", styles['BodyText']))
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+def build_dataset_csv(title, columns, rows):
+    """Generate CSV bytes from dataset."""
+    import csv
+    import io
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(columns)
+    writer.writerows(rows)
+    return output.getvalue().encode('utf-8-sig')

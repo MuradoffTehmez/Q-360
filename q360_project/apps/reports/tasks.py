@@ -166,6 +166,21 @@ def generate_excel_report_async(self, campaign_id, user_id):
 
 
 @shared_task
+def run_scheduled_report_exports():
+    """
+    Execute due scheduled report exports.
+    """
+    from apps.reports.services import process_due_schedules
+
+    processed = process_due_schedules()
+    return {
+        'status': 'success',
+        'processed': processed,
+        'message': f'{processed} planlaşdırılmış hesabat icra olundu'
+    }
+
+
+@shared_task
 def cleanup_old_report_logs():
     """
     Cleanup old report generation logs and files.

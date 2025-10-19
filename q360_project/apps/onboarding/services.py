@@ -214,13 +214,14 @@ def _handle_performance_review_task(task: OnboardingTask) -> TaskExecutionResult
     ).first()
 
     if not campaign:
+        creator = process.created_by or process.employee
         campaign = EvaluationCampaign.objects.create(
             title=title,
             description="Yeni işçi üçün onboarding dövrünün sonunda avtomatik qiymətləndirmə kampaniyası.",
             start_date=campaign_start,
             end_date=campaign_end,
             status="draft",
-            created_by=process.created_by,
+            created_by=creator,
         )
         campaign.target_users.add(process.employee)
 

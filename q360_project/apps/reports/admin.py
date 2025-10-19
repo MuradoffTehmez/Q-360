@@ -3,7 +3,16 @@ from django.urls import path
 from django.shortcuts import render
 from django.utils.html import format_html
 from django.db.models import Count, Avg
-from .models import Report, RadarChartData, ReportGenerationLog, SystemKPI
+from .models import (
+    Report,
+    RadarChartData,
+    ReportGenerationLog,
+    ReportBlueprint,
+    ReportVisualization,
+    ReportSchedule,
+    ReportScheduleLog,
+    SystemKPI,
+)
 from apps.accounts.models import User
 
 
@@ -194,3 +203,47 @@ class SystemKPIAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Prevent deletion of KPI records."""
         return request.user.is_superuser
+
+
+class ReportVisualizationInline(admin.TabularInline):
+    model = ReportVisualization
+    extra = 0
+    fields = ('title', 'chart_type', 'order', 'is_primary')
+    readonly_fields = ()
+    ordering = ('order',)
+
+
+class ReportScheduleInline(admin.TabularInline):
+    model = ReportSchedule
+    extra = 0
+    fields = ('frequency', 'interval', 'run_time', 'next_run', 'export_format', 'is_active')
+    readonly_fields = ('next_run',)
+    show_change_link = True
+
+
+@admin.register(ReportBlueprint)
+class ReportBlueprintAdmin(admin.ModelAdmin):
+    list_display = ('title', 'data_source', 'default_export_format', 'is_active', 'updated_at')
+    list_filter = ('data_source', 'is_active', 'default_export_format')
+    search_fields = ('title', 'slug', 'description')
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [ReportVisualizationInline, ReportScheduleInline]
+
+
+@admin.register(ReportSchedule)
+class ReportScheduleAdmin(admin.ModelAdmin):
+    list_display = ('blueprint', 'frequency', 'interval', 'export_format', 'next_run', 'last_status', 'is_active')
+    list_filter = ('frequency', 'export_format', 'is_active', 'last_status')
+    search_fields = ('blueprint__title',)
+    autocomplete_fields = ('blueprint', 'created_by', 'recipients')
+    readonly_fields = ('last_run', 'next_run', 'created_at', 'updated_at')
+    filter_horizontal = ('recipients',)
+
+
+@admin.register(ReportScheduleLog)
+class ReportScheduleLogAdmin(admin.ModelAdmin):
+    list_display = ('schedule', 'status', 'triggered_at', 'completed_at')
+    list_filter = ('status', 'triggered_at')
+    search_fields = ('schedule__blueprint__title',)
+    readonly_fields = ('triggered_at', 'completed_at')
