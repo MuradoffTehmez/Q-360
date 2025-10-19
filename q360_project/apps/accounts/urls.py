@@ -18,6 +18,11 @@ urlpatterns = [
     path('profile/edit/', template_views.ProfileUpdateView.as_view(), name='profile-edit'),
     path('settings/', template_views.ProfileUpdateView.as_view(), name='settings'),
     path('security/', template_views.security_settings, name='security'),
+    path('mfa-verify/', template_views.mfa_verify, name='mfa-verify'),
+    path('mfa-initiate/', template_views.mfa_initiate, name='mfa-initiate'),
+    path('mfa-disable/', template_views.mfa_disable, name='mfa-disable'),
+    path('mfa-backup-regenerate/', template_views.mfa_backup_regenerate, name='mfa-backup-regenerate'),
+    path('sessions-terminate-all/', template_views.sessions_terminate_all, name='sessions-terminate-all'),
 
     # User management
     path('users/', template_views.user_list_view, name='user-list'),

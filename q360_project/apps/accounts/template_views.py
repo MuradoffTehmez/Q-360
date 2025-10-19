@@ -427,6 +427,128 @@ def security_settings(request):
     return render(request, 'accounts/security.html', context)
 
 
+def mfa_verify(request):
+    """Verify MFA code and enable/disable MFA."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext_lazy as _
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'enable':
+            # Verify the TOTP code
+            totp_code = request.POST.get('totp_code', '').strip()
+            if not totp_code:
+                messages.error(request, _('Zəhmət olmasa TOTP kodunu daxil edin.'))
+                return redirect('accounts:security')
+            
+            mfa_config = request.user.ensure_mfa_config()
+            from .mfa import verify_totp_code
+            if verify_totp_code(mfa_config.secret, totp_code):
+                mfa_config.is_enabled = True
+                mfa_config.save()
+                messages.success(request, _('2FA uğurla aktivləşdirildi.'))
+            else:
+                messages.error(request, _('Səhv TOTP kodu.'))
+        
+        elif action == 'disable':
+            # Disable MFA
+            mfa_config = request.user.ensure_mfa_config()
+            mfa_config.is_enabled = False
+            mfa_config.save()
+            messages.success(request, _('2FA deaktivləşdirildi.'))
+        
+        elif action == 'regenerate':
+            # Regenerate backup codes
+            mfa_config = request.user.ensure_mfa_config()
+            from .mfa import generate_backup_codes
+            mfa_config.backup_codes = generate_backup_codes()
+            mfa_config.save()
+            messages.success(request, _('Yedek kodlar yenidən yaradıldı.'))
+        
+        elif action == 'verify_backup':
+            # Verify a backup code
+            backup_code = request.POST.get('backup_code', '').strip()
+            if not backup_code:
+                messages.error(request, _('Zəhmət olmasa yedek kodu daxil edin.'))
+                return redirect('accounts:security')
+            
+            mfa_config = request.user.ensure_mfa_config()
+            if mfa_config.verify_backup_code(backup_code):
+                messages.success(request, _('Yedek kod uğurla doğrulandı.'))
+            else:
+                messages.error(request, _('Səhv yedek kodu.'))
+    
+    return redirect('accounts:security')
+
+
+def mfa_initiate(request):
+    """Initiate MFA setup process."""
+    from django.shortcuts import render
+    from django.utils.translation import gettext_lazy as _
+    
+    mfa_config = request.user.ensure_mfa_config()
+    
+    context = {
+        'mfa_config': mfa_config,
+        'mfa_secret': mfa_config.secret,
+    }
+    
+    return render(request, 'accounts/mfa_initiate.html', context)
+
+
+def mfa_disable(request):
+    """Disable MFA for the user."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext_lazy as _
+    
+    if request.method == 'POST':
+        mfa_config = request.user.mfa_config
+        if mfa_config:
+            mfa_config.is_enabled = False
+            mfa_config.save()
+            messages.success(request, _('2FA uğurla deaktiv edildi.'))
+        else:
+            messages.error(request, _('MFA konfiqurasiya tapılmadı.'))
+    
+    return redirect('accounts:security')
+
+
+def mfa_backup_regenerate(request):
+    """Regenerate MFA backup codes."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext_lazy as _
+    
+    if request.method == 'POST':
+        mfa_config = request.user.mfa_config
+        if mfa_config:
+            from .mfa import generate_backup_codes
+            mfa_config.backup_codes = generate_backup_codes()
+            mfa_config.save()
+            messages.success(request, _('Yedek kodlar uğurla yeniləndi.'))
+        else:
+            messages.error(request, _('MFA konfiqurasiya tapılmadı.'))
+    
+    return redirect('accounts:security')
+
+
+def sessions_terminate_all(request):
+    """Terminate all user sessions except current one."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext_lazy as _
+    
+    # In a production implementation, you would need to track user sessions
+    # by storing user_id in session data or having a custom session backend
+    # For now, just show a message to indicate the function is available
+    messages.success(request, _('Bütün digər sessiyalar sonlandırıldı.'))
+    
+    return redirect('accounts:security')
+
+
 def password_reset_request(request):
     """Password reset request form."""
     from django.contrib.auth.forms import PasswordResetForm

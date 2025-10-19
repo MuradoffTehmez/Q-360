@@ -114,7 +114,7 @@ class OnboardingDashboardView(LoginRequiredMixin, TemplateView):
                     {
                         "employee_name": task.process.employee.get_full_name()
                         or task.process.employee.username,
-                        "title": resource.get("title"),
+                        "title": resource.get("title") if isinstance(resource, dict) else str(resource),
                         "due_date": task.due_date,
                     }
                     for task in training_tasks

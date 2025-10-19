@@ -1,0 +1,92 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "2FA Quraşdırma" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{% trans "2FA Quraşdırma" %}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans "2FA (iki faktorlu autentifikasiya) aktiv etmək üçün aşağıdakı addımları yerinə yetirin:" %}
+                    </div>
+
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item">
+                            <strong>{% trans "Authenticator tətbiqi quraşdırın" %}</strong>
+                            <p class="mb-0 text-muted">{% trans "Telefonunuza Google Authenticator, Microsoft Authenticator və ya Authy kimi tətbiq quraşdırın." %}</p>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>{% trans "QR kodu skan edin və ya manual əlavə edin" %}</strong>
+                            <div class="mt-2">
+                                <p class="mb-1">{% trans "Aşağıdakı QR kodu tətbiqdəki kamera ilə skan edə bilərsiniz:" %}</p>
+                                <div class="text-center mb-3">
+                                    <!-- Placeholder for QR code -->
+                                    <div class="border rounded p-3 bg-light">
+                                        <p class="mb-2">{% trans "QR Kod (Tətbiq tərəfindən yaradılacaq)" %}</p>
+                                        <div class="qr-placeholder" style="width: 200px; height: 200px; background-color: #f8f9fa; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-qrcode fa-3x text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mb-1">{% trans "Əgər QR kodu skan edə bilmirsinizsə, aşağıdakı açarı əl ilə əlavə edin:" %}</p>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="{{ mfa_secret }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this, '{{ mfa_secret }}')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>{% trans "Təsdiqləyici kodu daxil edin" %}</strong>
+                            <p class="mb-2">{% trans "Tətbiqdən gələn 6 rəqəmli kodu aşağıdakı forma ilə təsdiqləyin:" %}</p>
+                            <form method="post" action="{% url 'accounts:mfa-verify' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="enable">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                    <input type="text" name="totp_code" class="form-control" inputmode="numeric" maxlength="6" placeholder="{% trans '000000' %}" required>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check me-1"></i>{% trans "2FA Təsdiqlə" %}
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
+                    </ol>
+
+                    <div class="mt-4">
+                        <a href="{% url 'accounts:security' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>{% trans "Geri" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(element, text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Change button text temporarily
+        const originalText = element.innerHTML;
+        element.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+            element.innerHTML = originalText;
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+</script>
+{% endblock %}
