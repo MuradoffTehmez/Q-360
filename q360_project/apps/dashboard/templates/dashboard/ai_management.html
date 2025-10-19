@@ -1,0 +1,393 @@
+<!-- apps/dashboard/templates/dashboard/ai_management.html -->
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}AI Model İdarəetmə Paneli{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">AI Model İdarəetmə Paneli</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Cari Model Versiyası
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ current_model.version }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-brain fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Model Dəqiqliyi
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ current_model.accuracy|floatformat:2 }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Son Təlim Tarixi
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ current_model.last_trained|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Modelin Performans Göstəriciləri</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="modelPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Model Məlumatları</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-brain fa-5x text-gray-300 mb-4"></i>
+                    </div>
+                    <p><strong>Model Növü:</strong> {{ current_model.model_type }}</p>
+                    <p><strong>Alqoritm:</strong> {{ current_model.algorithm }}</p>
+                    <p><strong>Təlim Məlumatı Həcmi:</strong> {{ current_model.training_data_size }}</p>
+                    <p><strong>İstifadə Olunan Xüsusiyyətlər:</strong> {{ current_model.feature_count }}</p>
+                    <p><strong>Son Yenilənmə:</strong> {{ current_model.updated_at|date:"M d, Y H:i" }}</p>
+                    <div class="mt-3">
+                        <a href="{% url 'dashboard:train_model' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-sync-alt"></i> Modeli Yenidən Təlim Et
+                        </a>
+                        <a href="{% url 'dashboard:export_model' %}" class="btn btn-info btn-block">
+                            <i class="fas fa-download"></i> Modeli İxrac Et
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Model Konfiqurasiyası</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="modelConfigForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="forecast_horizon">Proqnozlaşdırma Ufuuqi (ay)</label>
+                                    <input type="number" class="form-control" id="forecast_horizon" name="forecast_horizon" 
+                                           value="{{ current_model.forecast_horizon|default:6 }}" min="1" max="24">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="confidence_level">Etibar Dərəcəsi (%)</label>
+                                    <input type="number" class="form-control" id="confidence_level" name="confidence_level" 
+                                           value="{{ current_model.confidence_level|default:80 }}" min="50" max="100">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="data_lookback">Məlumat Arxivi (ay)</label>
+                                    <input type="number" class="form-control" id="data_lookback" name="data_lookback" 
+                                           value="{{ current_model.data_lookback|default:12 }}" min="3" max="24">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="model_features">Aktiv Xüsusiyyətlər</label>
+                                    <select multiple class="form-control" id="model_features" name="model_features">
+                                        {% for feature in available_features %}
+                                        <option value="{{ feature }}" {% if feature in current_model.enabled_features %}selected{% endif %}>
+                                            {{ feature }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="algorithm_type">Alqoritm Növü</label>
+                                    <select class="form-control" id="algorithm_type" name="algorithm_type">
+                                        <option value="linear" {% if current_model.algorithm == 'linear' %}selected{% endif %}>
+                                            Xətti Reqressiya
+                                        </option>
+                                        <option value="polynomial" {% if current_model.algorithm == 'polynomial' %}selected{% endif %}>
+                                            Polinomial Reqressiya
+                                        </option>
+                                        <option value="random_forest" {% if current_model.algorithm == 'random_forest' %}selected{% endif %}>
+                                            Təsadüfi Meşə
+                                        </option>
+                                        <option value="neural_network" {% if current_model.algorithm == 'neural_network' %}selected{% endif %}>
+                                            Neyron Şəbəkə
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="enable_realtime" name="enable_realtime" 
+                                               {% if current_model.enable_realtime %}checked{% endif %}>
+                                        <label class="custom-control-label" for="enable_realtime">
+                                            Real Vaxt Yenilənmələrini Aktivləşdir
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Konfiqurasiyanı Saxla
+                        </button>
+                        <button type="button" class="btn btn-warning" id="resetConfig">
+                            <i class="fas fa-undo"></i> Defoltlara Qayıt
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Son Təlim Tarixçəsi</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tarix</th>
+                                    <th>Dəqiqlik</th>
+                                    <th>Status</th>
+                                    <th>Təfərrüatlar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for train in training_history %}
+                                <tr>
+                                    <td>{{ train.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ train.accuracy|floatformat:2 }}%</td>
+                                    <td>
+                                        {% if train.status == 'completed' %}
+                                            <span class="badge badge-success">Tamamlandı</span>
+                                        {% elif train.status == 'failed' %}
+                                            <span class="badge badge-danger">Uğursuz</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">{{ train.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info view-training-details" data-training="{{ train|escape }}">
+                                            Bax
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Model Statistikası</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="small font-weight-bold">
+                        Məlumat Emalı <span class="float-right">{{ processing_stats.completion_rate }}%</span>
+                    </h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ processing_stats.completion_rate }}%" 
+                             aria-valuenow="{{ processing_stats.completion_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <h4 class="small font-weight-bold">
+                        Proqnozlaşdırma Dəqiqliyi <span class="float-right">{{ current_model.accuracy|floatformat:2 }}%</span>
+                    </h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ current_model.accuracy }}" 
+                             aria-valuenow="{{ current_model.accuracy }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <h4 class="small font-weight-bold">
+                        Model Etibarlılığı <span class="float-right">{{ reliability_score }}%</span>
+                    </h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ reliability_score }}%" 
+                             aria-valuenow="{{ reliability_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Model Performans Qrafiki
+const performanceCtx = document.getElementById('modelPerformanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'line',
+    data: {
+        labels: {{ performance_labels|safe }},
+        datasets: [{
+            label: 'Dəqiqlik',
+            data: {{ accuracy_data|safe }},
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: 'Dəqiqlilik',
+            data: {{ precision_data|safe }},
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            tension: 0.1
+        }, {
+            label: 'Həssaslıq',
+            data: {{ recall_data|safe }},
+            borderColor: 'rgb(255, 205, 86)',
+            backgroundColor: 'rgba(255, 205, 86, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Form təqdimatı
+document.getElementById('modelConfigForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Yükləmə vəziyyətini göstər
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saxlanılır...';
+    submitBtn.disabled = true;
+    
+    // Formu göndər
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert('Konfiqurasiya uğurla saxlandı!');
+        } else {
+            alert('Konfiqurasiyanı saxlama xətası: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Xəta:', error);
+        alert('Konfiqurasiyanı saxlama zamanı xəta baş verdi.');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Konfiqurasiyanı sıfırla
+document.getElementById('resetConfig').addEventListener('click', function() {
+    if(confirm('Defolt parametrlərə qayıtmaq istədiyinizə əminsiniz?')) {
+        // Formu defolt dəyərlərə sıfırla
+        document.getElementById('forecast_horizon').value = 6;
+        document.getElementById('confidence_level').value = 80;
+        document.getElementById('data_lookback').value = 12;
+        document.getElementById('algorithm_type').value = 'linear';
+        document.getElementById('enable_realtime').checked = false;
+    }
+});
+
+// Təlim təfərrüatlarını bax
+document.querySelectorAll('.view-training-details').forEach(button => {
+    button.addEventListener('click', function() {
+        const training = JSON.parse(this.getAttribute('data-training').replace(/&quot;/g, '"'));
+        
+        let details = `
+            <h5>Təlim Təfərrüatları</h5>
+            <p><strong>Tarix:</strong> \${new Date(training.created_at).toLocaleString()}</p>
+            <p><strong>Alqoritm:</strong> \${training.algorithm}</p>
+            <p><strong>Dəqiqlik:</strong> \${training.accuracy}%</p>
+            <p><strong>Təlim Məlumatı Həcmi:</strong> \${training.training_data_size}</p>
+            <p><strong>Xüsusiyyətlər:</strong> \${training.features}</p>
+            <p><strong>Status:</strong> \${training.status}</p>
+        `;
+        
+        alert(details);
+    });
+});
+</script>
+{% endblock %}

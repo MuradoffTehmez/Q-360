@@ -46,6 +46,7 @@ urlpatterns = [
 
     # AJAX endpoints
     path('api/unread-count/', template_views.get_unread_count, name='api-unread-count'),
+    path('delivery-logs/', views.delivery_logs, name='delivery_logs'),
     path('api/recent/', template_views.get_recent_notifications, name='api-recent'),
     path('api/notifications/', template_views.get_recent_notifications, name='api-notifications-list'),
 

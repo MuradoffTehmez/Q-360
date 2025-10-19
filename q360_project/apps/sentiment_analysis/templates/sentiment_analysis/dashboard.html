@@ -1,0 +1,231 @@
+<!-- apps/sentiment_analysis/templates/sentiment_analysis/dashboard.html -->
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Sentiment Analysis Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Sentiment Analysis Dashboard" %}</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {% trans "Total Feedback" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_feedback }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {% trans "Positive Sentiment" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ positive_percentage }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                {% trans "Negative Sentiment" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ negative_percentage }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-thumbs-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                {% trans "Alerts" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alert_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">{% trans "Sentiment Trends" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="sentimentTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% trans "Sentiment Distribution" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="sentimentPieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-success"></i> {% trans "Positive" %}
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-secondary"></i> {% trans "Neutral" %}
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-danger"></i> {% trans "Negative" %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">{% trans "Negative Feedback Analysis" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="negativeFeedbackTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "User" %}</th>
+                                    <th>{% trans "Department" %}</th>
+                                    <th>{% trans "Sentiment Score" %}</th>
+                                    <th>{% trans "Feedback" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for feedback in negative_feedback %}
+                                <tr>
+                                    <td>{{ feedback.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ feedback.user.get_full_name|default:feedback.user.username }}</td>
+                                    <td>{{ feedback.user.department.name|default:"-" }}</td>
+                                    <td class="text-danger">{{ feedback.sentiment_score|floatformat:2 }}</td>
+                                    <td>{{ feedback.feedback_text|truncatechars:100 }}</td>
+                                    <td>
+                                        <a href="{% url 'sentiment_analysis:feedback_detail' feedback.id %}" class="btn btn-sm btn-primary">{% trans "View" %}</a>
+                                        <a href="{% url 'sentiment_analysis:feedback_resolve' feedback.id %}" class="btn btn-sm btn-success">{% trans "Resolve" %}</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Sentiment Trend Chart
+const sentimentTrendCtx = document.getElementById('sentimentTrendChart').getContext('2d');
+const sentimentTrendChart = new Chart(sentimentTrendCtx, {
+    type: 'line',
+    data: {
+        labels: {{ trend_dates|safe }},
+        datasets: [{
+            label: '{% trans "Positive" %}',
+            data: {{ positive_trends|safe }},
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: '{% trans "Negative" %}',
+            data: {{ negative_trends|safe }},
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.1
+        }, {
+            label: '{% trans "Neutral" %}',
+            data: {{ neutral_trends|safe }},
+            borderColor: 'rgb(201, 203, 207)',
+            backgroundColor: 'rgba(201, 203, 207, 0.2)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Sentiment Pie Chart
+const pieCtx = document.getElementById('sentimentPieChart').getContext('2d');
+const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+        labels: ['{% trans "Positive" %}', '{% trans "Neutral" %}', '{% trans "Negative" %}'],
+        datasets: [{
+            data: [{{ positive_count }}, {{ neutral_count }}, {{ negative_count }}],
+            backgroundColor: [
+                'rgb(75, 192, 192)',
+                'rgb(201, 203, 207)',
+                'rgb(255, 99, 132)'
+            ],
+            hoverOffset: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+{% endblock %}

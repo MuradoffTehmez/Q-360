@@ -71,6 +71,7 @@ urlpatterns = [
     path('leave/', include('apps.leave_attendance.urls', namespace='leave_attendance')),
     path('okr/', include('apps.development_plans.urls_okr', namespace='okr')),
     path('recruitment/', include('apps.recruitment.urls', namespace='recruitment')),
+    path('sentiment-analysis/', include(('apps.sentiment_analysis.urls', 'sentiment_analysis'), namespace='sentiment_analysis')),
 
     # API endpoints (all under /api/ prefix)
     path('api/notifications/', get_recent_notifications, name='api-notifications'),

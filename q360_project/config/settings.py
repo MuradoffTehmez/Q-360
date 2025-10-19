@@ -10,12 +10,25 @@ from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 
+
+def env_bool(name: str, default: bool = False) -> bool:
+    """
+    Convert environment variable values to booleans.
+
+    Recognises typical truthy strings so non-standard casing (e.g. "TRUE")
+    continues to work when toggling deployment flags.
+    """
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'true', '1', 'yes', 'on'}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Development mode
+DEBUG = env_bool('DEBUG', True)  # Development mode
 ALLOWED_HOSTS = ['*']  # Allow all hosts in development
 
 # Application definition
@@ -516,20 +529,30 @@ LOGGING = {
 }
 
 # Security Settings for Production
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    
-    # Additional security settings
-    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-    SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+SECURE_DEFAULTS_ENABLED = not DEBUG
+
+SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', SECURE_DEFAULTS_ENABLED)
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', SECURE_DEFAULTS_ENABLED)
+CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', SECURE_DEFAULTS_ENABLED)
+SECURE_BROWSER_XSS_FILTER = env_bool('SECURE_BROWSER_XSS_FILTER', SECURE_DEFAULTS_ENABLED)
+SECURE_CONTENT_TYPE_NOSNIFF = env_bool('SECURE_CONTENT_TYPE_NOSNIFF', SECURE_DEFAULTS_ENABLED)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = os.getenv('SECURE_CROSS_ORIGIN_OPENER_POLICY', 'same-origin')
+SECURE_REFERRER_POLICY = os.getenv(
+    'SECURE_REFERRER_POLICY',
+    'strict-origin-when-cross-origin' if SECURE_DEFAULTS_ENABLED else 'same-origin'
+)
+X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY' if SECURE_DEFAULTS_ENABLED else 'SAMEORIGIN')
+
+if SECURE_SSL_REDIRECT:
+    # Honour the X-Forwarded-Proto header when running behind a trusted proxy
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', True)
+    SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', True)
+else:
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
+    SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', False)
 
 # Content Security Policy settings (Updated for django-csp 4.0+)
 CONTENT_SECURITY_POLICY = {

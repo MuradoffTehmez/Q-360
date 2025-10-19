@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils.translation import gettext_lazy as _
-from .models import UserNotificationPreference, NotificationMethod, NotificationTemplate, SMSProvider
+from django.db.models import Count
+from .models import UserNotificationPreference, NotificationMethod, NotificationTemplate, SMSProvider, Notification, EmailLog, SMSLog, PushNotification
 from .forms import NotificationPreferenceForm, SMSProviderForm, NotificationTemplateForm
 from apps.accounts.models import User
 
@@ -367,6 +368,106 @@ def notification_template_preview(request, pk):
         'title': _('Şablonu Nəzərdən Keçir')
     }
     return render(request, 'notifications/template_preview.html', context)
+
+
+@login_required
+def delivery_logs(request):
+    """
+    Notification delivery logs dashboard
+    """
+    from django.db.models import Count
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Get date filter parameters
+    date_filter = request.GET.get('date_filter', '7')  # Default to last 7 days
+    days = int(date_filter)
+    start_date = timezone.now().date() - timedelta(days=days)
+    
+    # Total notifications
+    total_notifications = Notification.objects.filter(created_at__date__gte=start_date).count()
+    
+    # Delivered notifications
+    delivered_count = Notification.objects.filter(
+        created_at__date__gte=start_date,
+        channel__in=['email', 'sms', 'push'],
+        is_read=True
+    ).count()
+    
+    # Failed notifications (based on email, sms, push logs)
+    from .models import EmailLog, SMSLog
+    failed_count = (
+        EmailLog.objects.filter(
+            created_at__date__gte=start_date,
+            status='failed'
+        ).count()
+        + SMSLog.objects.filter(
+            created_at__date__gte=start_date,
+            status='failed'
+        ).count()
+    )
+    
+    # Calculate delivery rate
+    delivery_rate = round((delivered_count / total_notifications * 100) if total_notifications > 0 else 0, 2)
+    
+    # Notifications by channel
+    delivery_stats = Notification.objects.filter(
+        created_at__date__gte=start_date
+    ).values('channel').annotate(count=Count('id'))
+    
+    # Prepare channel data for chart
+    channels = []
+    delivered_counts = []
+    failed_counts = []
+    
+    for stat in delivery_stats:
+        channel = stat['channel']
+        channels.append(channel.title())
+        # Count delivered for this channel
+        delivered = Notification.objects.filter(
+            created_at__date__gte=start_date,
+            channel=channel,
+            is_read=True
+        ).count()
+        delivered_counts.append(delivered)
+        
+        # Count failed for this channel (from logs)
+        if channel == 'email':
+            failed = EmailLog.objects.filter(
+                created_at__date__gte=start_date,
+                status='failed'
+            ).count()
+        elif channel == 'sms':
+            failed = SMSLog.objects.filter(
+                created_at__date__gte=start_date,
+                status='failed'
+            ).count()
+        elif channel == 'push':
+            failed = PushNotification.objects.filter(
+                created_at__date__gte=start_date,
+                status='failed'
+            ).count()
+        else:
+            failed = 0
+        failed_counts.append(failed)
+    
+    # Get recent delivery logs
+    delivery_logs = Notification.objects.filter(
+        created_at__date__gte=start_date
+    ).order_by('-created_at')[:50]  # Last 50 notifications
+    
+    context = {
+        'total_notifications': total_notifications,
+        'delivered_count': delivered_count,
+        'failed_count': failed_count,
+        'delivery_rate': delivery_rate,
+        'channels': channels,
+        'delivered_counts': delivered_counts,
+        'failed_counts': failed_counts,
+        'delivery_logs': delivery_logs,
+    }
+    
+    return render(request, 'notifications/delivery_logs.html', context)
 
 
 @login_required

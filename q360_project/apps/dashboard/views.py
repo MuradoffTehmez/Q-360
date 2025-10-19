@@ -527,3 +527,125 @@ def generate_analytics_report(request):
         })
     
     return JsonResponse({'status': 'error', 'message': _('Yalnız POST sorğuları qəbul olunur')})
+
+
+@login_required
+def ai_management(request):
+    """
+    AI Model İdarəetmə Paneli
+    """
+    # Cari model məlumatları (mock data - real implementation would fetch from actual model)
+    current_model = {
+        'version': '1.2.3',
+        'accuracy': 87.5,
+        'last_trained': timezone.now() - timedelta(days=15),
+        'model_type': 'Regression',
+        'algorithm': 'random_forest',
+        'training_data_size': '15,000 records',
+        'feature_count': 24,
+        'updated_at': timezone.now(),
+        'forecast_horizon': 6,
+        'confidence_level': 85,
+        'data_lookback': 12,
+        'enabled_features': ['employee_performance', 'salary_trends', 'market_data'],
+        'enable_realtime': True
+    }
+    
+    # Mövcud xüsusiyyətlər siyahısı
+    available_features = [
+        'employee_performance',
+        'salary_trends',
+        'market_data',
+        'economic_indicators',
+        'department_metrics',
+        'recruitment_rates',
+        'turnover_statistics',
+        'training_completion',
+        'engagement_scores',
+        'productivity_metrics'
+    ]
+    
+    # Təlim tarixçəsi (mock data)
+    training_history = [
+        {
+            'created_at': timezone.now() - timedelta(days=15),
+            'accuracy': 87.5,
+            'status': 'completed',
+            'algorithm': 'Random Forest'
+        },
+        {
+            'created_at': timezone.now() - timedelta(days=45),
+            'accuracy': 82.3,
+            'status': 'completed',
+            'algorithm': 'Linear Regression'
+        },
+        {
+            'created_at': timezone.now() - timedelta(days=75),
+            'accuracy': 79.8,
+            'status': 'completed',
+            'algorithm': 'Neural Network'
+        }
+    ]
+    
+    # Performans məlumatları (chart üçün)
+    performance_labels = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyun']
+    accuracy_data = [82, 84, 85, 86, 87, 87.5]
+    precision_data = [80, 82, 83, 84, 85, 86]
+    recall_data = [78, 80, 81, 82, 83, 84]
+    
+    # Emal statistikası
+    processing_stats = {
+        'completion_rate': 92
+    }
+    
+    # Etibarlılıq qiyməti
+    reliability_score = 88
+    
+    context = {
+        'current_model': current_model,
+        'available_features': available_features,
+        'training_history': training_history,
+        'performance_labels': json.dumps(performance_labels),
+        'accuracy_data': accuracy_data,
+        'precision_data': precision_data,
+        'recall_data': recall_data,
+        'processing_stats': processing_stats,
+        'reliability_score': reliability_score,
+        'title': _('AI Model İdarəetmə Paneli')
+    }
+    
+    return render(request, 'dashboard/ai_management.html', context)
+
+
+@login_required
+def train_model(request):
+    """
+    Modeli yenidən təlim et
+    """
+    if request.method == 'POST':
+        # Burada modeli təlim etmə məntiqi olacaq
+        # Mock implementation for now
+        return JsonResponse({
+            'success': True,
+            'message': _('Model uğurla təlim edildi'),
+            'model_version': '1.2.4'
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'message': _('Yalnız POST sorğuları qəbul olunur')
+    })
+
+
+@login_required
+def export_model(request):
+    """
+    Modeli ixrac et
+    """
+    # Burada modeli ixrac etmə məntiqi olacaq
+    # Mock implementation for now
+    return JsonResponse({
+        'success': True,
+        'message': _('Model uğurla ixrac edildi'),
+        'download_url': '/downloads/model_1.2.3.pkl'
+    })

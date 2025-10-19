@@ -1,0 +1,282 @@
+<!-- apps/notifications/templates/notifications/delivery_logs.html -->
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}Bildiriş Göndəriş Logları{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">Bildiriş Göndəriş Logları</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ümumi Göndərilənlər
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_notifications }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-paper-plane fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Çatdırılan
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ delivered_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Uğursuz
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ failed_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Çatdırılma Faizi
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ delivery_rate }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Çatdırılma Statistikaları Kanal üzrə</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="deliveryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Son Göndəriş Logları</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Filterlər:</div>
+                            <a class="dropdown-item" href="#" data-filter="email">Email</a>
+                            <a class="dropdown-item" href="#" data-filter="sms">SMS</a>
+                            <a class="dropdown-item" href="#" data-filter="push">Push</a>
+                            <a class="dropdown-item" href="#" data-filter="failed">Yalnız Uğursuzlar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="deliveryLogsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tarix</th>
+                                    <th>Kanal</th>
+                                    <th>Alıcı</th>
+                                    <th>Başlıq</th>
+                                    <th>Status</th>
+                                    <th>Çatdırılma Vaxtı</th>
+                                    <th>Əməliyyatlar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in delivery_logs %}
+                                <tr class="{% if log.status == 'failed' %}table-danger{% elif log.status == 'delivered' %}table-success{% endif %}">
+                                    <td>{{ log.created_at|date:"M d, Y H:i:s" }}</td>
+                                    <td>
+                                        {% if log.channel == 'email' %}
+                                            <i class="fas fa-envelope text-primary"></i> Email
+                                        {% elif log.channel == 'sms' %}
+                                            <i class="fas fa-sms text-success"></i> SMS
+                                        {% elif log.channel == 'push' %}
+                                            <i class="fas fa-bell text-info"></i> Push
+                                        {% else %}
+                                            <i class="fas fa-bell text-secondary"></i> {{ log.channel|title }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if log.recipient %}
+                                            {{ log.recipient.get_full_name|default:log.recipient.username }}
+                                        {% else %}
+                                            {{ log.recipient_email|default:log.recipient_phone|default:"-" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.title|truncatechars:50|default:"-" }}</td>
+                                    <td>
+                                        {% if log.status == 'pending' %}
+                                            <span class="badge badge-secondary">Gözləyir</span>
+                                        {% elif log.status == 'sent' %}
+                                            <span class="badge badge-info">Göndərildi</span>
+                                        {% elif log.status == 'delivered' %}
+                                            <span class="badge badge-success">Çatdırıldı</span>
+                                        {% elif log.status == 'failed' %}
+                                            <span class="badge badge-danger">Uğursuz</span>
+                                        {% elif log.status == 'undelivered' %}
+                                            <span class="badge badge-warning">Çatdırılmadı</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ log.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.sent_at|date:"M d, Y H:i:s"|default:"-" }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info view-details" data-log="{{ log|escape }}">
+                                            Təfərrüatlara Bax
+                                        </button>
+                                        {% if log.status == 'failed' %}
+                                            <button class="btn btn-sm btn-warning retry-notification" data-log-id="{{ log.id }}">
+                                                Yenidən Cəhd Et
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Çatdırılma Qrafiki
+const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
+const deliveryChart = new Chart(deliveryCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ channels|safe }},
+        datasets: [{
+            label: 'Çatdırılan',
+            data: {{ delivered_counts|safe }},
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }, {
+            label: 'Uğursuz',
+            data: {{ failed_counts|safe }},
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Təfərrüatlar düyməsi funksiyası
+document.querySelectorAll('.view-details').forEach(button => {
+    button.addEventListener('click', function() {
+        const logData = JSON.parse(this.getAttribute('data-log').replace(/&quot;/g, '"'));
+        
+        // Modal məzmunu yarat
+        let content = `
+            <div class="row">
+                <div class="col-6">
+                    <h6>Bildiriş Təfərrüatları</h6>
+                    <p><strong>Kanal:</strong> \${logData.channel}</p>
+                    <p><strong>Status:</strong> \${logData.status}</p>
+                    <p><strong>Yaradılma Vaxtı:</strong> \${new Date(logData.created_at).toLocaleString()}</p>
+                    <p><strong>Göndərilmə Vaxtı:</strong> \${logData.sent_at ? new Date(logData.sent_at).toLocaleString() : '-'} </p>
+                    <p><strong>Çatdırılma Vaxtı:</strong> \${logData.delivered_at ? new Date(logData.delivered_at).toLocaleString() : '-'} </p>
+                </div>
+                <div class="col-6">
+                    <h6>Alıcı Təfərrüatları</h6>
+                    <p><strong>İstifadəçi:</strong> \${logData.recipient ? logData.recipient.get_full_name || logData.recipient.username : 'Yoxdur'}</p>
+                    <p><strong>Email:</strong> \${logData.recipient_email || 'Yoxdur'}</p>
+                    <p><strong>Telefon:</strong> \${logData.recipient_phone || 'Yoxdur'}</p>
+                    {% if logData.error_message %}
+                    <p><strong>Xəta:</strong> <span class="text-danger">\${logData.error_message}</span></p>
+                    {% endif %}
+                </div>
+            </div>
+        `;
+        
+        // Modal göstər və ya məzmunu bir div-də göstər
+        alert(content); // Bu, düzgün modal ilə əvəz oluna bilər
+    });
+});
+
+// Filter funksiyası
+document.querySelectorAll('.dropdown-item[data-filter]').forEach(item => {
+    item.addEventListener('click', function() {
+        const filter = this.getAttribute('data-filter');
+        // Filter logikası burada əlavə olunur
+        console.log('Filterlənir:', filter);
+    });
+});
+
+// Bildiriş Yenidən Cəhd Et funksiyası
+document.querySelectorAll('.retry-notification').forEach(button => {
+    button.addEventListener('click', function() {
+        const logId = this.getAttribute('data-log-id');
+        if (confirm('Bu bildirişi yenidən göndərmək istədiyinizə əminsiniz?')) {
+            // Yenidən göndərmə logikası burada əlavə olunur
+            console.log('Bildiriş yenidən göndərilir ID ilə:', logId);
+        }
+    });
+});
+</script>
+{% endblock %}

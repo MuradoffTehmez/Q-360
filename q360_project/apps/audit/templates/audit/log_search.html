@@ -1,0 +1,238 @@
+<!-- apps/audit/templates/audit/log_search.html -->
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}Audit Log Axtarışı{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">Audit Log Axtarışı</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Axtarış Filterləri</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="searchForm">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="user">İstifadəçi</label>
+                                    <input type="text" class="form-control" id="user" name="user" value="{{ request.GET.user }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="action">Əməliyyat Növü</label>
+                                    <select class="form-control" id="action" name="action">
+                                        <option value="">Bütün Əməliyyatlar</option>
+                                        {% for action in action_types %}
+                                        <option value="{{ action }}" {% if request.GET.action == action %}selected{% endif %}>{{ action }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="start_date">Başlama Tarixi</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="end_date">Bitmə Tarixi</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="resource">Resurs</label>
+                                    <input type="text" class="form-control" id="resource" name="resource" value="{{ request.GET.resource }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="ip_address">IP Ünvanı</label>
+                                    <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ request.GET.ip_address }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Logları Axtar</button>
+                                <a href="{% url 'audit:log_search' %}" class="btn btn-secondary">Filterləri Təmizlə</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Audit Logları</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Əməliyyatlar:</div>
+                            <a class="dropdown-item" href="#" id="exportLogs">CSV kimi ixrac et</a>
+                            <a class="dropdown-item" href="#" id="exportPdf">PDF kimi ixrac et</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="auditLogsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tarix</th>
+                                    <th>İstifadəçi</th>
+                                    <th>Əməliyyat</th>
+                                    <th>Resurs</th>
+                                    <th>IP Ünvanı</th>
+                                    <th>Status</th>
+                                    <th>Təfərrüatlar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{{ log.created_at|date:"M d, Y H:i:s" }}</td>
+                                    <td>{{ log.user.get_full_name|default:log.user.username }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ log.get_action_class }}">{{ log.action }}</span>
+                                    </td>
+                                    <td>{{ log.resource|truncatechars:50|default:"-" }}</td>
+                                    <td>{{ log.ip_address }}</td>
+                                    <td>
+                                        {% if log.is_successful %}
+                                            <span class="badge badge-success">Müvəffəqiyyətli</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Uğursuz</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#logDetailsModal" data-log="{{ log|escape }}">
+                                            Təfərrüatlara Bax
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Səhifə naviqasiyası">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">İlk</a></li>
+                                    <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Əvvəlki</a></li>
+                                {% endif %}
+                                
+                                <li class="page-item disabled"><span class="page-link">Səhifə {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Növbəti</a></li>
+                                    <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Son</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Təfərrüatları Modalı -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1" role="dialog" aria-labelledby="logDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logDetailsModalLabel">Log Təfərrüatları</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Bağla">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="logContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Bağla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Log təfərrüatları modalı
+$('#logDetailsModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var logData = button.data('log');
+    
+    // Parse və log datanı göstər
+    var log = JSON.parse(logData.replace(/&quot;/g, '"'));
+    
+    var content = `
+        <div class="row">
+            <div class="col-6">
+                <p><strong>Tarix:</strong> \${new Date(log.created_at).toLocaleString()}</p>
+                <p><strong>İstifadəçi:</strong> \${log.user || '-'}</p>
+                <p><strong>Əməliyyat:</strong> \${log.action}</p>
+                <p><strong>Resurs:</strong> \${log.resource || '-'}</p>
+                <p><strong>IP Ünvanı:</strong> \${log.ip_address}</p>
+            </div>
+            <div class="col-6">
+                <p><strong>İstifadəçi Agenti:</strong> \${log.user_agent || '-'}</p>
+                <p><strong>Status:</strong> 
+                    \${log.is_successful ? '<span class="badge badge-success">Müvəffəqiyyətli</span>' : '<span class="badge badge-danger">Uğursuz</span>'}
+                </p>
+                <p><strong>Açıqlama:</strong> \${log.description || '-'}</p>
+                <p><strong>Əlavə Məlumat:</strong></p>
+                <pre>\${JSON.stringify(log.additional_data, null, 2)}</pre>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('logContent').innerHTML = content;
+});
+
+// İxrac funksiyası
+document.getElementById('exportLogs').addEventListener('click', function() {
+    // CSV kimi ixrac etmə funksiyası
+    var csv = 'Tarix,İstifadəçi,Əməliyyat,Resurs,IP Ünvanı,Status\n';
+    document.querySelectorAll('#auditLogsTable tbody tr').forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        csv += cells[0].textContent + ',' + 
+               cells[1].textContent + ',' + 
+               cells[2].textContent + ',' + 
+               cells[3].textContent.replace(',', ';') + ',' + 
+               cells[4].textContent + ',' + 
+               cells[5].textContent + '\n';
+    });
+    
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var url = window.URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'audit_logs.csv';
+    a.click();
+});
+</script>
+{% endblock %}

@@ -22,4 +22,9 @@ urlpatterns = [
     path('api/data/<str:endpoint>/', api_views.dashboard_api_endpoint, name='dashboard_api'),
     path('api/widget-config/', api_views.dashboard_widget_config, name='widget_config'),
     path('api/department-analytics/', api_views.department_analytics, name='department_analytics'),
+    
+    # AI model idarəetmə səhifələri
+    path('ai-management/', views.ai_management, name='ai_management'),
+    path('train-model/', views.train_model, name='train_model'),
+    path('export-model/', views.export_model, name='export_model'),
 ]

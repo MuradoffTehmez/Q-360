@@ -1,13 +1,15 @@
 """
 Views for audit app.
 """
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Count
-from django.utils import timezone
-from datetime import timedelta
 
 from .models import AuditLog
 
@@ -188,3 +190,59 @@ class AuditLogListView(APIView):
             'total': len(logs_data),
             'logs': logs_data
         })
+
+
+@login_required
+def log_search(request):
+    """
+    Audit log axtarışı səhifəsi
+    """
+    # Get date filter parameters
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    user_filter = request.GET.get('user')
+    action_filter = request.GET.get('action')
+    resource_filter = request.GET.get('resource')
+    ip_filter = request.GET.get('ip_address')
+    
+    # Base queryset
+    logs = AuditLog.objects.all()
+    
+    # Apply filters
+    if start_date:
+        logs = logs.filter(created_at__date__gte=start_date)
+    
+    if end_date:
+        logs = logs.filter(created_at__date__lte=end_date)
+    
+    if user_filter:
+        logs = logs.filter(user__username__icontains=user_filter)
+    
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    
+    if resource_filter:
+        logs = logs.filter(resource__icontains=resource_filter)
+    
+    if ip_filter:
+        logs = logs.filter(ip_address__icontains=ip_filter)
+    
+    # Order by latest first
+    logs = logs.order_by('-created_at')
+    
+    # Get distinct action types for filters
+    action_types = AuditLog.objects.values_list('action', flat=True).distinct()
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(logs, 25)  # Show 25 logs per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'logs': page_obj,
+        'action_types': action_types,
+        'page_obj': page_obj,
+    }
+    
+    return render(request, 'audit/log_search.html', context)
