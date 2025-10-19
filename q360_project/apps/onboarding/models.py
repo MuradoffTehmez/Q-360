@@ -228,6 +228,13 @@ class OnboardingTask(models.Model):
         ("skipped", _("Atlandı")),
     ]
 
+    TASK_TYPE_CHOICES = [
+        ("general", _("Ümumi Tapşırıq")),
+        ("performance_review", _("Performans Qiymətləndirmə Başlat")),
+        ("salary_recommendation", _("Maaş Artımı Tövsiyəsi")),
+        ("training_plan", _("Təlim Planı Yarat")),
+    ]
+
     process = models.ForeignKey(
         OnboardingProcess,
         on_delete=models.CASCADE,
@@ -244,7 +251,7 @@ class OnboardingTask(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name=_("Başlıq"))
     description = models.TextField(blank=True, verbose_name=_("Təsvir"))
-    task_type = models.CharField(max_length=40, default="general", verbose_name=_("Tapşırıq Tipi"))
+    task_type = models.CharField(max_length=40, choices=TASK_TYPE_CHOICES, default="general", verbose_name=_("Tapşırıq Tipi"))
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -289,6 +296,15 @@ class OnboardingTask(models.Model):
         if metadata:
             self.metadata = {**self.metadata, **metadata}
         self.save(update_fields=["status", "completed_at", "completed_by", "metadata", "updated_at"])
+
+    def get_task_type_display(self):
+        """
+        Return the human-readable display name for the task type.
+        """
+        for task_type, display_name in self.TASK_TYPE_CHOICES:
+            if task_type == self.task_type:
+                return display_name
+        return self.task_type  # fallback to the raw value if not found
 
 
 class MarketSalaryBenchmark(models.Model):

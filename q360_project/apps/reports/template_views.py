@@ -1,8 +1,8 @@
 """
 Template views for reports app.
 Professional report generation and visualization.
-from datetime import timedelta
 """
+from datetime import timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -437,7 +437,7 @@ def analytics_dashboard(request):
         messages.error(request, 'Bu səhifəyə giriş icazəniz yoxdur.')
         return redirect('dashboard')
 
-    from datetime import date, timedelta
+    from datetime import date
     from apps.departments.models import Department
     from apps.training.models import TrainingResource
     from apps.audit.models import AuditLog
