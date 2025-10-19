@@ -172,6 +172,16 @@ class StrategicObjective(models.Model):
         self.progress_percentage = Decimal(str(weighted_progress / total_weight))
         self.save(update_fields=['progress_percentage', 'updated_at'])
 
+    @property
+    def days_remaining(self):
+        """Calculate remaining days until end date."""
+        from django.utils import timezone
+        from datetime import timedelta
+        today = timezone.now().date()
+        if self.end_date and self.end_date >= today:
+            return (self.end_date - today).days
+        return 0
+
     def cascade_to_departments(self):
         """Create department-level objectives from organization-level objective."""
         if self.level != 'organization':
@@ -193,6 +203,20 @@ class StrategicObjective(models.Model):
                 end_date=self.end_date,
                 created_by=self.created_by
             )
+
+    @property
+    def completed_key_results_count(self):
+        """Count completed key results (where current value equals or exceeds target value)."""
+        completed_krs = 0
+        for kr in self.key_results.filter(is_active=True):
+            if kr.target_value and kr.current_value >= kr.target_value:
+                completed_krs += 1
+        return completed_krs
+
+    @property
+    def completed_milestones_count(self):
+        """Count completed milestones."""
+        return self.milestones.filter(is_completed=True).count()
 
 
 class KeyResult(models.Model):
@@ -297,6 +321,11 @@ class KeyResult(models.Model):
         super().save(*args, **kwargs)
         # Update parent objective progress
         self.objective.update_progress()
+
+    @property
+    def last_updated(self):
+        """Return the last updated timestamp."""
+        return self.updated_at
 
 
 class KPI(models.Model):

@@ -69,7 +69,8 @@ def objective_detail(request, pk):
             'key_results',
             'child_objectives',
             'milestones',
-            'progress_updates'
+            'progress_updates',
+            'milestones__created_by'
         ),
         pk=pk
     )
@@ -84,6 +85,34 @@ def objective_detail(request, pk):
         'updates': updates,
     }
     return render(request, 'development_plans/okr/objective_detail.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def objective_activate(request, pk):
+    """Activate objective."""
+    objective = get_object_or_404(StrategicObjective, pk=pk)
+    
+    try:
+        objective.status = 'active'
+        objective.save(update_fields=['status', 'updated_at'])
+        return JsonResponse({'success': True, 'message': 'Məqsəd aktivləşdirildi'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def objective_complete(request, pk):
+    """Complete objective."""
+    objective = get_object_or_404(StrategicObjective, pk=pk)
+    
+    try:
+        objective.status = 'completed'
+        objective.save(update_fields=['status', 'updated_at'])
+        return JsonResponse({'success': True, 'message': 'Məqsəd tamamlandı'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 
 @login_required

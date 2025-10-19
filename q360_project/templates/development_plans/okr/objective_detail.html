@@ -125,9 +125,9 @@
             <a href="{% url 'okr:objective_list' %}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left mr-1"></i>{% trans "Geri" %}
             </a>
-            <button class="btn btn-primary" onclick="editObjective()">
+            <a href="{% url 'okr:objective_edit' objective.id %}" class="btn btn-primary">
                 <i class="fas fa-edit mr-1"></i>{% trans "Redaktə Et" %}
-            </button>
+            </a>
             <button class="btn btn-success" data-toggle="modal" data-target="#addKRModal">
                 <i class="fas fa-plus mr-1"></i>{% trans "Açar Nəticə Əlavə Et" %}
             </button>
@@ -326,7 +326,7 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Tamamlanmış KR" %}</small>
-                        <small><strong>{{ objective.key_results.filter|length }}</strong></small>
+                        <small><strong>{{ objective.completed_key_results_count }}</strong></small>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -338,7 +338,7 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
                         <small>{% trans "Tamamlanmış Mərhələlər" %}</small>
-                        <small><strong>{% for m in milestones %}{% if m.is_completed %}1{% endif %}{% endfor %}</strong></small>
+                        <small><strong>{{ objective.completed_milestones_count }}</strong></small>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -530,7 +530,7 @@ function editObjective() {
 
 function activateObjective() {
     if (confirm('{% trans "Məqsədi aktivləşdirmək istədiyinizdən əminsiniz?" %}')) {
-        fetch('{{ objective.id }}/activate/', {
+        fetch('{% url "okr:objective_activate" objective.id %}', {
             method: 'POST',
             headers: {'X-CSRFToken': '{{ csrf_token }}'}
         })
@@ -547,7 +547,7 @@ function activateObjective() {
 
 function completeObjective() {
     if (confirm('{% trans "Məqsədi tamamlamaq istədiyinizdən əminsiniz?" %}')) {
-        fetch('{{ objective.id }}/complete/', {
+        fetch('{% url "okr:objective_complete" objective.id %}', {
             method: 'POST',
             headers: {'X-CSRFToken': '{{ csrf_token }}'}
         })
