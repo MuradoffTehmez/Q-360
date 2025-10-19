@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'apps.leave_attendance',
     'apps.recruitment',
     'apps.dashboard',
+    'apps.onboarding',
 ]
 
 MIDDLEWARE = [
