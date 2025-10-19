@@ -44,25 +44,26 @@
                 </div>
                 <div class="card-body">
                     <ul class="nav nav-pills mb-3" id="taskFilter" role="tablist">
-                        {% for name, label in task_tabs %}
+                        {% for tab in task_tabs %}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link {% if forloop.first %}active{% endif %}"
-                                    id="tab-{{ name }}"
+                                    id="tab-{{ tab.code }}"
                                     data-bs-toggle="pill"
-                                    data-bs-target="#pane-{{ name }}"
+                                    data-bs-target="#pane-{{ tab.code }}"
                                     type="button"
                                     role="tab">
-                                {{ label }}
-                                <span class="badge bg-light text-dark ms-1">{{ task_counts[name] }}</span>
+                                {{ tab.label }}
+                                <span class="badge bg-light text-dark ms-1">{{ tab.count }}</span>
                             </button>
                         </li>
                         {% endfor %}
                     </ul>
                     <div class="tab-content" id="taskFilterContent">
-                        {% for name, label in task_tabs %}
-                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pane-{{ name }}" role="tabpanel">
+                        {% for tab in task_tabs %}
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pane-{{ tab.code }}" role="tabpanel">
                             <div class="list-group list-group-flush">
-                                {% for task in tasks_by_status[name] %}
+                                {% if tab.tasks %}
+                                {% for task in tab.tasks %}
                                 <div class="list-group-item d-flex align-items-start">
                                     <div class="flex-shrink-0 me-3">
                                         <span class="avatar rounded bg-primary text-white">
@@ -88,7 +89,7 @@
                                             {% if task.status != "completed" %}
                                                 <a href="{% url 'onboarding:task-complete' task.pk %}" class="btn btn-sm btn-success">
                                                     {% trans "Tamamlandı" %}
-                                                </a>
+                                            </a>
                                             {% endif %}
                                         </div>
                                         {% if task.metadata.resource_recommendations %}
@@ -107,11 +108,12 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                {% empty %}
+                                {% endfor %}
+                                {% else %}
                                 <div class="text-center py-4 text-muted">
                                     {% trans "Bu kateqoriyada tapşırıq yoxdur." %}
                                 </div>
-                                {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}

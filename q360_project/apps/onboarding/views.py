@@ -9,12 +9,14 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
@@ -187,19 +189,26 @@ class OnboardingProcessDetailView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         tasks = list(self.process.tasks.all())
-        task_tabs = [
+        status_definitions = [
             ("pending", _("Gözləyən")),
             ("in_progress", _("İcrada")),
             ("completed", _("Tamamlanmış")),
             ("blocked", _("Bloklanmış")),
         ]
         tasks_by_status = defaultdict(list)
-        task_counts = {}
 
         for task in tasks:
             tasks_by_status[task.status].append(task)
-        for status, _ in task_tabs:
-            task_counts[status] = len(tasks_by_status.get(status, []))
+
+        task_tabs = [
+            {
+                "code": code,
+                "label": label,
+                "tasks": tasks_by_status.get(code, []),
+                "count": len(tasks_by_status.get(code, [])),
+            }
+            for code, label in status_definitions
+        ]
 
         automation_events = []
         for task in tasks:
@@ -224,9 +233,9 @@ class OnboardingProcessDetailView(LoginRequiredMixin, TemplateView):
         context.update(
             {
                 "process": self.process,
-                "tasks_by_status": tasks_by_status,
+
                 "task_tabs": task_tabs,
-                "task_counts": task_counts,
+
                 "automation_events": automation_events,
                 "recent_notes": [],
             }
@@ -272,12 +281,13 @@ class OnboardingTemplateFormView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        template = None
-        if kwargs.get("slug"):
-            template = get_object_or_404(OnboardingTemplate, slug=kwargs["slug"])
+        template = kwargs.get("template_obj")
+        slug = kwargs.get("slug") or self.kwargs.get("slug")
+        if template is None and slug:
+            template = get_object_or_404(OnboardingTemplate, slug=slug)
 
         context["mode"] = "edit" if template else "create"
-        context["form_data"] = {
+        default_data = {
             "name": getattr(template, "name", ""),
             "slug": getattr(template, "slug", ""),
             "description": getattr(template, "description", ""),
@@ -286,7 +296,87 @@ class OnboardingTemplateFormView(LoginRequiredMixin, TemplateView):
             "training_plan_offset_days": getattr(template, "training_plan_offset_days", 14),
             "is_default": getattr(template, "is_default", False),
         }
+        context["form_data"] = kwargs.get("form_data", default_data)
         return context
+
+    def post(self, request, *args, **kwargs):
+        template = None
+        slug = kwargs.get("slug")
+        if slug:
+            template = get_object_or_404(OnboardingTemplate, slug=slug)
+
+        post = request.POST
+        name = post.get("name", "").strip()
+        description = post.get("description", "").strip()
+        review_offset = self._parse_positive_int(post.get("review_cycle_offset_days"), 90)
+        salary_offset = self._parse_positive_int(post.get("salary_review_offset_days"), 60)
+        training_offset = self._parse_positive_int(post.get("training_plan_offset_days"), 14)
+        is_default = bool(post.get("is_default"))
+        slug_value = post.get("slug", "").strip() or slugify(name)
+
+        form_data = {
+            "name": name,
+            "slug": slug_value,
+            "description": description,
+            "review_cycle_offset_days": review_offset,
+            "salary_review_offset_days": salary_offset,
+            "training_plan_offset_days": training_offset,
+            "is_default": is_default,
+        }
+
+        if not name:
+            messages.error(request, _("Şablon adı mütləqdir."))
+            return self.render_to_response(
+                self.get_context_data(form_data=form_data, template_obj=template, slug=slug)
+            )
+
+        slug_value = slug_value or slugify(name)
+        if template:
+            if slug_value != template.slug and OnboardingTemplate.objects.filter(slug=slug_value).exists():
+                messages.error(request, _("Bu slug artıq istifadə olunub."))
+                return self.render_to_response(
+                    self.get_context_data(form_data=form_data, template_obj=template, slug=slug)
+                )
+        else:
+            if OnboardingTemplate.objects.filter(slug=slug_value).exists():
+                slug_value = f"{slug_value}-{int(timezone.now().timestamp())}"
+
+        if template is None:
+            template = OnboardingTemplate()
+
+        template.name = name
+        template.slug = slug_value
+        template.description = description
+        template.review_cycle_offset_days = review_offset
+        template.salary_review_offset_days = salary_offset
+        template.training_plan_offset_days = training_offset
+        template.is_default = is_default
+
+        try:
+            template.full_clean()
+            template.save()
+        except ValidationError as exc:
+            error_messages = []
+            for errors in exc.message_dict.values():
+                error_messages.extend(errors)
+            messages.error(request, " ".join(error_messages))
+            return self.render_to_response(
+                self.get_context_data(form_data=form_data, template_obj=template, slug=slug)
+            )
+
+        messages.success(
+            request,
+            _("Şablon uğurla yadda saxlanıldı.") if slug else _("Şablon yaradıldı."),
+        )
+        return redirect("onboarding:template-detail", slug=template.slug)
+
+    @staticmethod
+    def _parse_positive_int(value, default):
+        try:
+            value_int = int(value)
+            return value_int if value_int >= 0 else default
+        except (TypeError, ValueError):
+            return default
 
 
 class TemplateDuplicateView(LoginRequiredMixin, View):

@@ -44,9 +44,8 @@ def verify_totp_code(secret: str, code: str, *, interval: int = 30, digits: int 
     """
     Validate an incoming TOTP code.
     """
-    try:
-        code = str(int(code))
-    except (ValueError, TypeError):
+    code = str(code or "").strip()
+    if not code.isdigit():
         return False
 
     timestamp = time.time()
