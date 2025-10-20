@@ -12,6 +12,7 @@ from django.core.files.base import ContentFile
 from django.utils.text import slugify
 from django.db.models import Avg, Count
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
     ReportBlueprint,
