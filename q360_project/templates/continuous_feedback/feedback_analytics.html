@@ -1,0 +1,342 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Rəy Analitikası{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+    .analytics-card {
+        transition: transform 0.2s;
+    }
+    .analytics-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+    }
+    .trend-up {
+        color: #27ae60;
+    }
+    .trend-down {
+        color: #e74c3c;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="fas fa-chart-line"></i> Real-vaxt Rəy Analitikası
+            </h2>
+            <div class="btn-group mb-3" role="group">
+                <button type="button" class="btn btn-outline-primary active" data-period="7">Son 7 gün</button>
+                <button type="button" class="btn btn-outline-primary" data-period="30">Son 30 gün</button>
+                <button type="button" class="btn btn-outline-primary" data-period="90">Son 90 gün</button>
+                <button type="button" class="btn btn-outline-primary" data-period="365">İllik</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card analytics-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-comments fa-2x text-primary mb-2"></i>
+                    <div class="stat-value" id="totalFeedback">{{ analytics.total_feedback }}</div>
+                    <div class="stat-label">Ümumi Rəy</div>
+                    <small class="trend-up">
+                        <i class="fas fa-arrow-up"></i> {{ analytics.feedback_growth }}% artım
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card analytics-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-gauge-high fa-2x text-success mb-2"></i>
+                    <div class="stat-value" id="avgSentiment">{{ analytics.avg_sentiment_score|floatformat:1 }}</div>
+                    <div class="stat-label">Orta Sentiment</div>
+                    <small class="text-muted">1-5 şkalası</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card analytics-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-circle-notch fa-2x text-warning mb-2"></i>
+                    <div class="stat-value" id="completeness">{{ analytics.completeness|floatformat:0 }}%</div>
+                    <div class="stat-label">360° Tamamlanma</div>
+                    <small class="text-muted">Bütün mənbələr</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card analytics-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-rocket fa-2x text-info mb-2"></i>
+                    <div class="stat-value" id="velocity">{{ analytics.velocity|floatformat:1 }}</div>
+                    <div class="stat-label">Rəy Sürəti</div>
+                    <small class="text-muted">Gündəlik orta</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-area"></i> Rəy Trendləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="feedbackTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users"></i> Mənbə Paylanması
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="sourceDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-smile"></i> Sentiment Analizi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star"></i> Ən Çox Qeyd Edilən Bacarıqlar
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="competenciesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Əsas Fikirlər və Tövsiyələr
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for insight in analytics.insights %}
+                        <div class="col-md-6 mb-3">
+                            <div class="alert alert-{{ insight.type }} mb-0">
+                                <h6>
+                                    <i class="fas fa-{{ insight.icon }}"></i> {{ insight.title }}
+                                </h6>
+                                <p class="mb-0">{{ insight.message }}</p>
+                                {% if insight.action %}
+                                <hr>
+                                <small><strong>Tövsiyə:</strong> {{ insight.action }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Chart.js configurations
+const chartColors = {
+    primary: 'rgb(54, 162, 235)',
+    success: 'rgb(75, 192, 192)',
+    warning: 'rgb(255, 205, 86)',
+    danger: 'rgb(255, 99, 132)',
+    info: 'rgb(153, 102, 255)',
+    secondary: 'rgb(201, 203, 207)'
+};
+
+// Feedback Trends Chart
+const trendsCtx = document.getElementById('feedbackTrendsChart').getContext('2d');
+const trendsChart = new Chart(trendsCtx, {
+    type: 'line',
+    data: {
+        labels: {{ analytics.trend_labels|safe }},
+        datasets: [{
+            label: 'Rəy Sayı',
+            data: {{ analytics.trend_data|safe }},
+            borderColor: chartColors.primary,
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Source Distribution Chart
+const sourceCtx = document.getElementById('sourceDistributionChart').getContext('2d');
+const sourceChart = new Chart(sourceCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ analytics.source_labels|safe }},
+        datasets: [{
+            data: {{ analytics.source_data|safe }},
+            backgroundColor: [
+                chartColors.primary,
+                chartColors.success,
+                chartColors.warning,
+                chartColors.danger,
+                chartColors.info,
+                chartColors.secondary
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Sentiment Chart
+const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+const sentimentChart = new Chart(sentimentCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Pozitiv', 'Neytral', 'Neqativ'],
+        datasets: [{
+            label: 'Sentiment Paylanması',
+            data: {{ analytics.sentiment_data|safe }},
+            backgroundColor: [
+                chartColors.success,
+                chartColors.warning,
+                chartColors.danger
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Competencies Chart
+const compCtx = document.getElementById('competenciesChart').getContext('2d');
+const compChart = new Chart(compCtx, {
+    type: 'horizontalBar',
+    data: {
+        labels: {{ analytics.top_competencies_labels|safe }},
+        datasets: [{
+            label: 'Qeyd Sayı',
+            data: {{ analytics.top_competencies_data|safe }},
+            backgroundColor: chartColors.info
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Period filter
+document.querySelectorAll('[data-period]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const period = this.getAttribute('data-period');
+        // Reload page with new period
+        window.location.href = `?period=${period}`;
+    });
+});
+</script>
+{% endblock %}

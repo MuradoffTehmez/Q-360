@@ -1,0 +1,404 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Bacarıq Matrisi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .skill-matrix-table {
+        font-size: 0.85rem;
+    }
+    .skill-matrix-table th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .skill-matrix-table .employee-col {
+        position: sticky;
+        left: 0;
+        background: white;
+        z-index: 5;
+        font-weight: 600;
+    }
+    .skill-cell {
+        text-align: center;
+        padding: 8px 4px !important;
+        min-width: 60px;
+    }
+    .skill-level-0 { background: #ffffff; color: #6c757d; }
+    .skill-level-1 { background: #ffe5e5; color: #721c24; }
+    .skill-level-2 { background: #fff3cd; color: #856404; }
+    .skill-level-3 { background: #d1ecf1; color: #0c5460; }
+    .skill-level-4 { background: #d4edda; color: #155724; }
+    .skill-level-5 { background: #28a745; color: white; font-weight: bold; }
+
+    .skill-legend {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .skill-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .skill-legend-box {
+        width: 30px;
+        height: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+    }
+    .gap-indicator {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 3px;
+    }
+    .gap-high { background: #dc3545; color: white; }
+    .gap-medium { background: #ffc107; color: #000; }
+    .gap-low { background: #28a745; color: white; }
+    .gap-none { background: #6c757d; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-th"></i> Bacarıq Matrisi
+            </h2>
+            <p class="text-muted">
+                Komanda və ya departamentin bacarıq səviyyələri və boşluqlar
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <div class="btn-group mb-2">
+                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#filterModal">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <button type="button" class="btn btn-outline-success" onclick="exportMatrix()">
+                    <i class="fas fa-file-excel"></i> Excel Export
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="window.print()">
+                    <i class="fas fa-print"></i> Çap et
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>{{ matrix.metadata.user_count }}</h3>
+                    <p class="mb-0 text-muted">İşçi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>{{ matrix.metadata.competency_count }}</h3>
+                    <p class="mb-0 text-muted">Bacarıq</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>{{ matrix.statistics.average_proficiency|floatformat:1 }}</h3>
+                    <p class="mb-0 text-muted">Orta Səviyyə</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>{{ matrix.statistics.coverage_percentage|floatformat:0 }}%</h3>
+                    <p class="mb-0 text-muted">Qiymətləndirmə Əhatəsi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="skill-legend">
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-0"></div>
+                    <span>0 - Qiymətləndirilməyib</span>
+                </div>
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-1"></div>
+                    <span>1 - Başlanğıc</span>
+                </div>
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-2"></div>
+                    <span>2 - İnkişafda</span>
+                </div>
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-3"></div>
+                    <span>3 - Səriştəli</span>
+                </div>
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-4"></div>
+                    <span>4 - Peşəkar</span>
+                </div>
+                <div class="skill-legend-item">
+                    <div class="skill-legend-box skill-level-5"></div>
+                    <span>5 - Ekspert</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Matrix -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-table"></i> Bacarıq Matrisi - {{ matrix.metadata.department }}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                <table class="table table-bordered table-hover skill-matrix-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="employee-col">İşçi / Vəzifə</th>
+                            {% for competency in matrix.competencies %}
+                            <th class="text-center" style="min-width: 120px;">
+                                <div class="d-flex flex-column align-items-center">
+                                    <strong>{{ competency.name }}</strong>
+                                    <small class="text-muted">{{ competency.category }}</small>
+                                    <small class="badge badge-secondary">{{ competency.type }}</small>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_row in matrix.matrix_data %}
+                        <tr>
+                            <td class="employee-col">
+                                <div>
+                                    <strong>{{ user_row.user_name }}</strong>
+                                </div>
+                            </td>
+                            {% for skill in user_row.skills %}
+                            <td class="skill-cell skill-level-{{ skill.level }}">
+                                <div class="d-flex flex-column align-items-center">
+                                    <strong>{{ skill.level }}</strong>
+                                    {% if skill.status != 'not_assessed' %}
+                                    <span class="gap-indicator gap-{{ skill.status|slice:':4' }}">
+                                        {% if skill.status == 'proficient' %}✓
+                                        {% elif skill.status == 'developing' %}→
+                                        {% elif skill.status == 'needs_development' %}⚠
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+
+                        <!-- Average Row -->
+                        <tr class="table-info font-weight-bold">
+                            <td class="employee-col">ORTA</td>
+                            {% for competency in matrix.competencies %}
+                            <td class="skill-cell">
+                                {% with matrix.statistics.competency_coverage|get_item:competency.id as coverage %}
+                                {{ coverage|default:"0" }}
+                                {% endwith %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Gaps Analysis -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Kritik Bacarıq Boşluqları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for gap in critical_gaps %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ gap.competency_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ gap.affected_count }} işçi təsirlənib</small>
+                            </div>
+                            <span class="badge badge-danger">{{ gap.avg_gap|floatformat:1 }} boşluq</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">
+                            Kritik boşluq tapılmadı
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star"></i> Güclü Sahələr
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for strength in team_strengths %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ strength.competency_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ strength.expert_count }} ekspert</small>
+                            </div>
+                            <span class="badge badge-success">{{ strength.avg_level|floatformat:1 }} səviyyə</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">
+                            Məlumat yoxdur
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Tövsiyə Olunan Təlim Tədbirləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for recommendation in training_recommendations %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>{{ recommendation.competency }}</h6>
+                                    <p class="text-muted mb-2">
+                                        Boşluq: {{ recommendation.gap_count }} işçi
+                                    </p>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Tövsiyə olunan təlimlər:</small>
+                                    </div>
+                                    <ul class="mb-0">
+                                        {% for training in recommendation.trainings %}
+                                        <li>
+                                            <a href="{% url 'training:resource_detail' training.id %}">
+                                                {{ training.title }}
+                                            </a>
+                                            <small class="text-muted">({{ training.duration_hours }}h)</small>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center text-muted py-4">
+                            Tövsiyə yoxdur
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Matris Filterləri</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Departament</label>
+                        <select name="department" class="form-control">
+                            <option value="">Hamısı</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bacarıq Kateqoriyası</label>
+                        <select name="category" class="form-control">
+                            <option value="">Hamısı</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Minimum Səviyyə</label>
+                        <select name="min_level" class="form-control">
+                            <option value="">Hamısı</option>
+                            <option value="1">1 - Başlanğıc</option>
+                            <option value="2">2 - İnkişafda</option>
+                            <option value="3">3 - Səriştəli</option>
+                            <option value="4">4 - Peşəkar</option>
+                            <option value="5">5 - Ekspert</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="showGapsOnly"
+                               name="show_gaps_only" value="1">
+                        <label class="custom-control-label" for="showGapsOnly">
+                            Yalnız boşluqları göstər
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-primary">Tətbiq et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportMatrix() {
+    window.location.href = '{% url "training:skill_matrix_export" %}?format=excel';
+}
+
+// Template filter for dict access
+Vue.filter('get_item', function(dict, key) {
+    return dict[key];
+});
+</script>
+{% endblock %}

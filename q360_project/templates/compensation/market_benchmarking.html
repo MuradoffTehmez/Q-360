@@ -1,0 +1,504 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Bazar Müqayisəsi{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+    .benchmark-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .benchmark-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .benchmark-card.competitive {
+        border-left-color: #28a745;
+    }
+    .benchmark-card.below-market {
+        border-left-color: #dc3545;
+    }
+    .benchmark-card.above-market {
+        border-left-color: #007bff;
+    }
+    .salary-indicator {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .percentile-marker {
+        position: relative;
+        height: 40px;
+        background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+    .percentile-pointer {
+        position: absolute;
+        top: -10px;
+        transform: translateX(-50%);
+    }
+    .percentile-pointer::before {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 15px solid #343a40;
+    }
+    .percentile-label {
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #343a40;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-chart-line"></i> Bazar Maaş Müqayisəsi
+            </h2>
+            <p class="text-muted">
+                Vəzifələrin bazar dəyəri və rəqabətlilik analizi
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#importDataModal">
+                <i class="fas fa-upload"></i> Bazar Məlumatı İdxal Et
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i> Çap
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ stats.competitive_positions }}</h3>
+                    <p class="mb-0 text-muted">Rəqabətli Vəzifə</p>
+                    <small class="text-muted">{{ stats.competitive_percentage|floatformat:0 }}%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ stats.below_market_positions }}</h3>
+                    <p class="mb-0 text-muted">Bazar Altında</p>
+                    <small class="text-muted">{{ stats.below_market_percentage|floatformat:0 }}%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ stats.above_market_positions }}</h3>
+                    <p class="mb-0 text-muted">Bazar Üstündə</p>
+                    <small class="text-muted">{{ stats.above_market_percentage|floatformat:0 }}%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ stats.avg_market_ratio|floatformat:2 }}</h3>
+                    <p class="mb-0 text-muted">Orta Bazar Nisbəti</p>
+                    <small class="text-muted">Maaş / Median</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-3">
+                    <label class="mr-2">Departament:</label>
+                    <select name="department" class="form-control">
+                        <option value="">Hamısı</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group mr-3">
+                    <label class="mr-2">Məlumat Mənbəyi:</label>
+                    <select name="data_source" class="form-control">
+                        <option value="">Hamısı</option>
+                        <option value="payscale">PayScale</option>
+                        <option value="glassdoor">Glassdoor</option>
+                        <option value="linkedin">LinkedIn Salary</option>
+                        <option value="custom_survey">Öz Tədqiqatımız</option>
+                    </select>
+                </div>
+
+                <div class="form-group mr-3">
+                    <label class="mr-2">Status:</label>
+                    <select name="status" class="form-control">
+                        <option value="">Hamısı</option>
+                        <option value="competitive">Rəqabətli</option>
+                        <option value="below">Bazar Altında</option>
+                        <option value="above">Bazar Üstündə</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-filter"></i> Filterlə
+                </button>
+                <a href="{% url 'compensation:market_benchmarking' %}" class="btn btn-outline-secondary">
+                    Sıfırla
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Position Benchmarks -->
+    <div class="row">
+        {% for benchmark in benchmarks %}
+        <div class="col-md-6 mb-3">
+            <div class="card benchmark-card {{ benchmark.competitiveness_status }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">{{ benchmark.position.title }}</h5>
+                            <p class="text-muted mb-0">
+                                {{ benchmark.location }} - {{ benchmark.industry }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-database"></i> {{ benchmark.get_data_source_display }}
+                                <span class="ml-2"><i class="fas fa-calendar"></i> {{ benchmark.as_of_date|date:"M Y" }}</span>
+                            </small>
+                        </div>
+                        <div class="text-right">
+                            <span class="badge badge-{{ benchmark.competitiveness_badge }}">
+                                {{ benchmark.competitiveness_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Salary Comparison -->
+                    <div class="row mb-3">
+                        <div class="col-4 text-center border-right">
+                            <small class="text-muted">Hal-hazırki Maaş</small>
+                            <div class="salary-indicator text-primary">
+                                {{ benchmark.current_avg_salary|floatformat:0 }}₼
+                            </div>
+                        </div>
+                        <div class="col-4 text-center border-right">
+                            <small class="text-muted">Bazar Median</small>
+                            <div class="salary-indicator">
+                                {{ benchmark.median_salary|floatformat:0 }}₼
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <small class="text-muted">Fərq</small>
+                            <div class="salary-indicator text-{{ benchmark.difference_class }}">
+                                {{ benchmark.difference_sign }}{{ benchmark.difference_amount|floatformat:0 }}₼
+                            </div>
+                            <small class="text-muted">({{ benchmark.difference_percentage|floatformat:1 }}%)</small>
+                        </div>
+                    </div>
+
+                    <!-- Percentile Marker -->
+                    <div class="percentile-marker">
+                        <div class="percentile-pointer" style="left: {{ benchmark.current_percentile }}%">
+                            <div class="percentile-label">{{ benchmark.current_percentile|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+
+                    <!-- Market Range -->
+                    <div class="row text-sm mb-3">
+                        <div class="col-4">
+                            <small class="text-muted">25th Percentile</small>
+                            <div><strong>{{ benchmark.percentile_25|floatformat:0 }}₼</strong></div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <small class="text-muted">50th (Median)</small>
+                            <div><strong>{{ benchmark.median_salary|floatformat:0 }}₼</strong></div>
+                        </div>
+                        <div class="col-4 text-right">
+                            <small class="text-muted">75th Percentile</small>
+                            <div><strong>{{ benchmark.percentile_75|floatformat:0 }}₼</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Employees -->
+                    <div class="mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-users"></i>
+                            {{ benchmark.employee_count }} işçi bu vəzifədə
+                        </small>
+                    </div>
+
+                    <!-- Recommendations -->
+                    {% if benchmark.recommendation %}
+                    <div class="alert alert-{{ benchmark.recommendation_class }} mb-0 mt-2">
+                        <small>
+                            <strong><i class="fas fa-lightbulb"></i> Tövsiyə:</strong>
+                            {{ benchmark.recommendation }}
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                onclick="viewDetailedAnalysis({{ benchmark.id }})">
+                            <i class="fas fa-chart-bar"></i> Ətraflı Analiz
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="updateBenchmark({{ benchmark.id }})">
+                            <i class="fas fa-sync"></i> Məlumatı Yenilə
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Bazar müqayisə məlumatı yoxdur</p>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#importDataModal">
+                <i class="fas fa-upload"></i> Məlumat İdxal Et
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Trend Charts -->
+    {% if benchmarks %}
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Vəzifə üzrə Bazar Müqayisəsi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="positionComparisonChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i> Rəqabətlilik Paylanması
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="competitivenessChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Import Data Modal -->
+<div class="modal fade" id="importDataModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bazar Məlumatı İdxal Et</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Vəzifə</label>
+                        <select name="position" class="form-control" required>
+                            <option value="">Seçin...</option>
+                            {% for position in all_positions %}
+                            <option value="{{ position.id }}">{{ position.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Məlumat Mənbəyi</label>
+                                <select name="data_source" class="form-control" required>
+                                    <option value="payscale">PayScale</option>
+                                    <option value="glassdoor">Glassdoor</option>
+                                    <option value="linkedin">LinkedIn Salary</option>
+                                    <option value="custom_survey">Öz Tədqiqatımız</option>
+                                    <option value="other">Digər</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Məlumat Tarixi</label>
+                                <input type="date" name="as_of_date" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Yer</label>
+                                <input type="text" name="location" class="form-control"
+                                       placeholder="Məs: Bakı, Azərbaycan" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Sənaye</label>
+                                <input type="text" name="industry" class="form-control"
+                                       placeholder="Məs: İT, Maliyyə" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>25th Percentile (₼)</label>
+                                <input type="number" name="percentile_25" class="form-control"
+                                       step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Median (₼)</label>
+                                <input type="number" name="median_salary" class="form-control"
+                                       step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>75th Percentile (₼)</label>
+                                <input type="number" name="percentile_75" class="form-control"
+                                       step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nümunə Ölçüsü</label>
+                        <input type="number" name="sample_size" class="form-control"
+                               placeholder="Tədqiqata neçə işçi daxil edilib?">
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <small>
+                            Bu məlumat sisteminizd əki işçilərin hal-hazırkı maaşları ilə müqayisə ediləcək
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> İdxal Et
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Position Comparison Chart
+const positionCtx = document.getElementById('positionComparisonChart')?.getContext('2d');
+if (positionCtx) {
+    new Chart(positionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [
+                {
+                    label: 'Hal-hazırki Maaş',
+                    data: {{ current_salaries|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                },
+                {
+                    label: 'Bazar Median',
+                    data: {{ market_medians|safe }},
+                    backgroundColor: 'rgba(255, 206, 86, 0.8)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Competitiveness Chart
+const compCtx = document.getElementById('competitivenessChart')?.getContext('2d');
+if (compCtx) {
+    new Chart(compCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Rəqabətli', 'Bazar Altında', 'Bazar Üstündə'],
+            datasets: [{
+                data: [
+                    {{ stats.competitive_positions }},
+                    {{ stats.below_market_positions }},
+                    {{ stats.above_market_positions }}
+                ],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(0, 123, 255, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function viewDetailedAnalysis(benchmarkId) {
+    window.location.href = `/compensation/benchmark/${benchmarkId}/detail/`;
+}
+
+function updateBenchmark(benchmarkId) {
+    if (confirm('Bu vəzifə üçün bazar məlumatı yenilənsin?')) {
+        fetch(`/api/compensation/benchmark/${benchmarkId}/update/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Məlumat yeniləndi');
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

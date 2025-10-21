@@ -1,0 +1,350 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Video Müsahibə Planla{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-video"></i> Video Müsahibə Planla
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="videoInterviewForm">
+                        {% csrf_token %}
+
+                        <!-- Candidate Selection -->
+                        <div class="form-group">
+                            <label for="application">Namizəd</label>
+                            <select name="application" id="application" class="form-control" required>
+                                <option value="">Seçin...</option>
+                                {% for app in applications %}
+                                <option value="{{ app.id }}"
+                                        data-candidate="{{ app.candidate.get_full_name }}"
+                                        data-position="{{ app.position.title }}"
+                                        data-email="{{ app.candidate.email }}">
+                                    {{ app.candidate.get_full_name }} - {{ app.position.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Interview Type -->
+                        <div class="form-group">
+                            <label for="interview_type">Müsahibə Növü</label>
+                            <select name="interview_type" id="interview_type" class="form-control" required>
+                                <option value="">Seçin...</option>
+                                <option value="screening">İlkin Sınaq</option>
+                                <option value="technical">Texniki Müsahibə</option>
+                                <option value="hr">HR Müsahibəsi</option>
+                                <option value="final">Final Müsahibə</option>
+                                <option value="panel">Panel Müsahibə</option>
+                            </select>
+                        </div>
+
+                        <!-- Video Platform -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Video Platforma Seçin</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="platform_zoom" name="platform"
+                                                   value="zoom" class="custom-control-input" checked>
+                                            <label class="custom-control-label" for="platform_zoom">
+                                                <i class="fas fa-video text-primary"></i>
+                                                <strong>Zoom</strong>
+                                                <br>
+                                                <small class="text-muted">Meeting ID & Link yaradılacaq</small>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="platform_teams" name="platform"
+                                                   value="teams" class="custom-control-input">
+                                            <label class="custom-control-label" for="platform_teams">
+                                                <i class="fab fa-microsoft text-info"></i>
+                                                <strong>Microsoft Teams</strong>
+                                                <br>
+                                                <small class="text-muted">Teams meeting yaradılacaq</small>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="platform_meet" name="platform"
+                                                   value="google_meet" class="custom-control-input">
+                                            <label class="custom-control-label" for="platform_meet">
+                                                <i class="fab fa-google text-danger"></i>
+                                                <strong>Google Meet</strong>
+                                                <br>
+                                                <small class="text-muted">Meet link yaradılacaq</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="interview_date">Tarix</label>
+                                    <input type="date" name="interview_date" id="interview_date"
+                                           class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="interview_time">Saat</label>
+                                    <input type="time" name="interview_time" id="interview_time"
+                                           class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="form-group">
+                            <label for="duration">Müddət (dəqiqə)</label>
+                            <select name="duration" id="duration" class="form-control" required>
+                                <option value="30">30 dəqiqə</option>
+                                <option value="45">45 dəqiqə</option>
+                                <option value="60" selected>1 saat</option>
+                                <option value="90">1.5 saat</option>
+                                <option value="120">2 saat</option>
+                            </select>
+                        </div>
+
+                        <!-- Interviewers -->
+                        <div class="form-group">
+                            <label for="interviewers">Müsahibəçilər</label>
+                            <select name="interviewers" id="interviewers" class="form-control" multiple size="5" required>
+                                {% for user in interviewers %}
+                                <option value="{{ user.id }}">
+                                    {{ user.get_full_name }} - {{ user.position_title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Ctrl/Cmd basaraq bir neçə seçə bilərsiniz</small>
+                        </div>
+
+                        <!-- Interview Details -->
+                        <div class="form-group">
+                            <label for="meeting_topic">Müsahibə Mövzusu</label>
+                            <input type="text" name="meeting_topic" id="meeting_topic"
+                                   class="form-control" placeholder="Məs: Senior Developer Müsahibəsi">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="agenda">Gündəlik / Qeydlər</label>
+                            <textarea name="agenda" id="agenda" class="form-control" rows="4"
+                                      placeholder="Müsahibə gündəliyi və ya əlavə qeydlər..."></textarea>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Əlavə Parametrlər</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="record_meeting"
+                                           name="record_meeting" value="1">
+                                    <label class="custom-control-label" for="record_meeting">
+                                        Müsahibəni qeyd et (əgər platforma dəstəkləyirsə)
+                                    </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="send_calendar_invite"
+                                           name="send_calendar_invite" value="1" checked>
+                                    <label class="custom-control-label" for="send_calendar_invite">
+                                        Təqvim dəvətiyyəsi göndər (.ics fayl)
+                                    </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="send_reminder"
+                                           name="send_reminder" value="1" checked>
+                                    <label class="custom-control-label" for="send_reminder">
+                                        Müsahibədən 1 saat əvvəl xatırlatma göndər
+                                    </label>
+                                </div>
+
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="waiting_room"
+                                           name="waiting_room" value="1">
+                                    <label class="custom-control-label" for="waiting_room">
+                                        Gözləmə otağını aktiv et (Zoom)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Template Preview -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-envelope"></i> Email Önizləməsi
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="emailPreview" class="border rounded p-3 bg-white">
+                                    <p><strong>Konu:</strong> Video Müsahibə Dəvəti - <span id="previewPosition">Vəzifə</span></p>
+                                    <p><strong>Kimə:</strong> <span id="previewCandidate">Namizəd</span></p>
+                                    <hr>
+                                    <p>Hörmətli <span id="previewCandidateName">Namizəd</span>,</p>
+                                    <p>
+                                        <strong><span id="previewPositionName">Vəzifə</span></strong> vəzifəsi üçün
+                                        müraciətinizə görə təşəkkür edirik.
+                                    </p>
+                                    <p>
+                                        Sizi video müsahibəyə dəvət etməkdən məmnunuq:
+                                    </p>
+                                    <ul>
+                                        <li><strong>Tarix:</strong> <span id="previewDate">-</span></li>
+                                        <li><strong>Saat:</strong> <span id="previewTime">-</span></li>
+                                        <li><strong>Müddət:</strong> <span id="previewDuration">-</span> dəqiqə</li>
+                                        <li><strong>Platforma:</strong> <span id="previewPlatform">-</span></li>
+                                    </ul>
+                                    <p>
+                                        Meeting linki və təlimatlar ayrıca email ilə göndəriləcək.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Geri
+                            </button>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary mr-2"
+                                        id="saveDraftBtn">
+                                    <i class="fas fa-save"></i> Qaralama Olaraq Saxla
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Planlaşdır və Göndər
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('interview_date').setAttribute('min', today);
+
+    // Update preview
+    function updatePreview() {
+        const application = document.getElementById('application');
+        const selectedOption = application.options[application.selectedIndex];
+
+        if (selectedOption.value) {
+            document.getElementById('previewCandidate').textContent = selectedOption.getAttribute('data-email');
+            document.getElementById('previewCandidateName').textContent = selectedOption.getAttribute('data-candidate');
+            document.getElementById('previewPosition').textContent = selectedOption.getAttribute('data-position');
+            document.getElementById('previewPositionName').textContent = selectedOption.getAttribute('data-position');
+        }
+
+        const date = document.getElementById('interview_date').value;
+        if (date) {
+            const dateObj = new Date(date);
+            document.getElementById('previewDate').textContent = dateObj.toLocaleDateString('az-AZ', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        const time = document.getElementById('interview_time').value;
+        if (time) {
+            document.getElementById('previewTime').textContent = time;
+        }
+
+        const duration = document.getElementById('duration').value;
+        if (duration) {
+            document.getElementById('previewDuration').textContent = duration;
+        }
+
+        const platform = document.querySelector('input[name="platform"]:checked');
+        if (platform) {
+            let platformName = '';
+            if (platform.value === 'zoom') platformName = 'Zoom';
+            else if (platform.value === 'teams') platformName = 'Microsoft Teams';
+            else if (platform.value === 'google_meet') platformName = 'Google Meet';
+            document.getElementById('previewPlatform').textContent = platformName;
+        }
+    }
+
+    document.getElementById('application').addEventListener('change', updatePreview);
+    document.getElementById('interview_date').addEventListener('change', updatePreview);
+    document.getElementById('interview_time').addEventListener('change', updatePreview);
+    document.getElementById('duration').addEventListener('change', updatePreview);
+    document.querySelectorAll('input[name="platform"]').forEach(radio => {
+        radio.addEventListener('change', updatePreview);
+    });
+
+    // Auto-fill meeting topic
+    document.getElementById('application').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            const interviewType = document.getElementById('interview_type').value;
+            const position = selectedOption.getAttribute('data-position');
+
+            if (interviewType && position) {
+                let typeName = '';
+                if (interviewType === 'screening') typeName = 'İlkin Sınaq';
+                else if (interviewType === 'technical') typeName = 'Texniki Müsahibə';
+                else if (interviewType === 'hr') typeName = 'HR Müsahibəsi';
+                else if (interviewType === 'final') typeName = 'Final Müsahibə';
+                else if (interviewType === 'panel') typeName = 'Panel Müsahibə';
+
+                document.getElementById('meeting_topic').value = `${typeName} - ${position}`;
+            }
+        }
+    });
+
+    document.getElementById('interview_type').addEventListener('change', function() {
+        document.getElementById('application').dispatchEvent(new Event('change'));
+    });
+
+    // Save draft
+    document.getElementById('saveDraftBtn').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('videoInterviewForm'));
+        formData.append('save_draft', '1');
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Qaralama saxlanıldı');
+            } else {
+                alert('Xəta: ' + data.error);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

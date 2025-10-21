@@ -1,0 +1,391 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Məqsəd Kaskadlaşması{% endblock %}
+
+{% block extra_css %}
+<style>
+    .goal-tree {
+        padding-left: 0;
+        list-style: none;
+    }
+    .goal-tree ul {
+        padding-left: 30px;
+        list-style: none;
+    }
+    .goal-item {
+        margin: 10px 0;
+        padding: 15px;
+        border-left: 4px solid;
+        background: #f8f9fa;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .goal-item:hover {
+        background: #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .goal-item.level-organizational {
+        border-left-color: #e74c3c;
+        background: #fff5f5;
+    }
+    .goal-item.level-departmental {
+        border-left-color: #3498db;
+        background: #f0f8ff;
+    }
+    .goal-item.level-team {
+        border-left-color: #2ecc71;
+        background: #f0fff4;
+    }
+    .goal-item.level-individual {
+        border-left-color: #f39c12;
+        background: #fffbf0;
+    }
+    .goal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .goal-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+    .goal-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .progress-bar-container {
+        margin-top: 10px;
+    }
+    .alignment-chain {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        padding: 10px;
+        background: #fff;
+        border-radius: 4px;
+    }
+    .alignment-item {
+        padding: 5px 10px;
+        margin: 5px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+    }
+    .alignment-arrow {
+        margin: 0 5px;
+        color: #95a5a6;
+    }
+    .cascade-btn {
+        margin-top: 10px;
+    }
+    .weight-badge {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-sitemap"></i> Məqsəd Kaskadlaşması
+            </h2>
+            <p class="text-muted">
+                Təşkilati məqsədləri departament, komanda və fərdi səviyyələrə ötürün
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createGoalModal">
+                <i class="fas fa-plus"></i> Yeni Məqsəd
+            </button>
+            <button type="button" class="btn btn-info" id="expandAll">
+                <i class="fas fa-expand-alt"></i> Hamısını Aç
+            </button>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-around flex-wrap">
+                        <div class="d-flex align-items-center m-2">
+                            <div style="width: 20px; height: 20px; background: #e74c3c; border-radius: 3px;"></div>
+                            <span class="ml-2">Təşkilati</span>
+                        </div>
+                        <div class="d-flex align-items-center m-2">
+                            <div style="width: 20px; height: 20px; background: #3498db; border-radius: 3px;"></div>
+                            <span class="ml-2">Departament</span>
+                        </div>
+                        <div class="d-flex align-items-center m-2">
+                            <div style="width: 20px; height: 20px; background: #2ecc71; border-radius: 3px;"></div>
+                            <span class="ml-2">Komanda</span>
+                        </div>
+                        <div class="d-flex align-items-center m-2">
+                            <div style="width: 20px; height: 20px; background: #f39c12; border-radius: 3px;"></div>
+                            <span class="ml-2">Fərdi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Hierarchy Tree -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tree"></i> Məqsəd İyerarxiyası
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="goal-tree" id="goalTree">
+                        {% for goal in organizational_goals %}
+                            {% include 'development_plans/_goal_tree_node.html' with goal=goal level=0 %}
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Hələ təşkilati məqsəd əlavə edilməyib</p>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createGoalModal">
+                                İlk Məqsədi Yarat
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Detail Modal -->
+    <div class="modal fade" id="goalDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Məqsəd Detalları</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="goalDetailContent">
+                    <!-- Loaded via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Bağla</button>
+                    <button type="button" class="btn btn-success" id="cascadeGoalBtn">
+                        <i class="fas fa-level-down-alt"></i> Məqsədi Kaskadlaşdır
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cascade Modal -->
+    <div class="modal fade" id="cascadeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Məqsədi Kaskadlaşdır</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <form method="post" id="cascadeForm">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <input type="hidden" name="parent_goal_id" id="parentGoalId">
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Parent məqsəd:</strong> <span id="parentGoalTitle"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kaskadlaşma səviyyəsi</label>
+                            <select name="cascade_level" id="cascadeLevel" class="form-control" required>
+                                <option value="">Seçin...</option>
+                                <option value="departmental">Departament səviyyəsinə</option>
+                                <option value="team">Komanda səviyyəsinə</option>
+                                <option value="individual">Fərdi səviyyəyə</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="teamMembersGroup" style="display: none;">
+                            <label>Komanda üzvləri / Departament işçiləri</label>
+                            <select name="team_members" id="teamMembers" class="form-control" multiple size="10">
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.get_full_name }} - {{ user.position_title }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Ctrl/Cmd basaraq bir neçə seçə bilərsiniz</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hər üzv üçün çəki (%) <span id="remainingWeight" class="badge badge-info">100%</span></label>
+                            <input type="number" name="weight_per_member" id="weightPerMember"
+                                   class="form-control" min="1" max="100" value="100">
+                            <small class="text-muted">Avtomatik bərabər paylanma və ya manual dəyişdirin</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Alignment faizi</label>
+                            <input type="number" name="alignment_percentage" class="form-control"
+                                   value="100" min="0" max="100" required>
+                            <small class="text-muted">Bu alt məqsədin parent məqsədə alignment dərəcəsi</small>
+                        </div>
+
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="autoUpdateProgress"
+                                   name="auto_update_progress" checked>
+                            <label class="custom-control-label" for="autoUpdateProgress">
+                                Alt məqsədlərdən avtomatik progress yeniləməsi
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Ləğv et</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Kaskadlaşdır
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle goal children
+    document.querySelectorAll('.toggle-children').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const goalId = this.getAttribute('data-goal-id');
+            const children = document.getElementById(`children-${goalId}`);
+            if (children) {
+                children.style.display = children.style.display === 'none' ? 'block' : 'none';
+                this.querySelector('i').classList.toggle('fa-chevron-down');
+                this.querySelector('i').classList.toggle('fa-chevron-up');
+            }
+        });
+    });
+
+    // Expand all
+    document.getElementById('expandAll').addEventListener('click', function() {
+        document.querySelectorAll('.goal-children').forEach(children => {
+            children.style.display = 'block';
+        });
+        document.querySelectorAll('.toggle-children i').forEach(icon => {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        });
+    });
+
+    // Goal detail
+    document.querySelectorAll('.goal-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.toggle-children') && !e.target.closest('.btn')) {
+                const goalId = this.getAttribute('data-goal-id');
+                loadGoalDetail(goalId);
+            }
+        });
+    });
+
+    // Cascade level change
+    document.getElementById('cascadeLevel').addEventListener('change', function() {
+        const teamGroup = document.getElementById('teamMembersGroup');
+        if (this.value === 'individual' || this.value === 'team') {
+            teamGroup.style.display = 'block';
+        } else {
+            teamGroup.style.display = 'none';
+        }
+    });
+
+    // Team members selection - auto calculate weight
+    document.getElementById('teamMembers').addEventListener('change', function() {
+        const selectedCount = this.selectedOptions.length;
+        if (selectedCount > 0) {
+            const weightPerMember = Math.floor(100 / selectedCount);
+            document.getElementById('weightPerMember').value = weightPerMember;
+            updateRemainingWeight();
+        }
+    });
+
+    document.getElementById('weightPerMember').addEventListener('input', updateRemainingWeight);
+
+    function updateRemainingWeight() {
+        const selectedCount = document.getElementById('teamMembers').selectedOptions.length;
+        const weight = parseInt(document.getElementById('weightPerMember').value) || 0;
+        const total = weight * selectedCount;
+        const remaining = 100 - total;
+
+        const badge = document.getElementById('remainingWeight');
+        badge.textContent = `${remaining}% qalır`;
+        badge.className = 'badge ' + (remaining >= 0 ? 'badge-info' : 'badge-danger');
+    }
+
+    function loadGoalDetail(goalId) {
+        fetch(`/api/goals/${goalId}/detail/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('goalDetailContent').innerHTML = renderGoalDetail(data);
+                $('#goalDetailModal').modal('show');
+
+                // Set cascade button
+                document.getElementById('cascadeGoalBtn').onclick = function() {
+                    $('#goalDetailModal').modal('hide');
+                    setTimeout(() => {
+                        document.getElementById('parentGoalId').value = goalId;
+                        document.getElementById('parentGoalTitle').textContent = data.title;
+                        $('#cascadeModal').modal('show');
+                    }, 300);
+                };
+            });
+    }
+
+    function renderGoalDetail(goal) {
+        return `
+            <h4>${goal.title}</h4>
+            <div class="mb-3">
+                <span class="badge badge-primary">${goal.goal_level_display}</span>
+                <span class="badge badge-info">Progress: ${goal.progress_percentage}%</span>
+            </div>
+            <p>${goal.description || 'Təsvir yoxdur'}</p>
+
+            ${goal.alignment_chain ? `
+                <div class="alignment-chain">
+                    <strong>Alignment zənciri:</strong>
+                    ${goal.alignment_chain.map(g => `
+                        <span class="alignment-item badge badge-secondary">${g.title}</span>
+                        <i class="fas fa-arrow-right alignment-arrow"></i>
+                    `).join('')}
+                    <span class="alignment-item badge badge-primary">${goal.title}</span>
+                </div>
+            ` : ''}
+
+            ${goal.children && goal.children.length > 0 ? `
+                <hr>
+                <h6>Alt məqsədlər (${goal.children.length}):</h6>
+                <ul class="list-group">
+                    ${goal.children.map(child => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${child.title}
+                            <span class="badge badge-info">${child.progress_percentage}%</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            ` : ''}
+        `;
+    }
+});
+</script>
+{% endblock %}

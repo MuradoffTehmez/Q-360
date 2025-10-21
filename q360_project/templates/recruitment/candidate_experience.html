@@ -1,0 +1,367 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Namizəd Təcrübəsi Rəyləri{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+    .nps-score {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    .nps-promoter { color: #28a745; }
+    .nps-passive { color: #ffc107; }
+    .nps-detractor { color: #dc3545; }
+    .rating-stars {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    .feedback-card {
+        transition: transform 0.2s;
+    }
+    .feedback-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-smile-beam"></i> Namizəd Təcrübəsi
+            </h2>
+            <p class="text-muted">
+                İşə qəbul prosesində namizəd məmnuniyyəti və rəyləri
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary active" data-period="30">30 gün</button>
+                <button type="button" class="btn btn-outline-primary" data-period="90">90 gün</button>
+                <button type="button" class="btn btn-outline-primary" data-period="365">İllik</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="nps-score nps-{{ stats.nps_category }}">{{ stats.nps_score }}</div>
+                    <h6 class="text-muted mb-0">NPS Score</h6>
+                    <small class="text-muted">{{ stats.nps_category_display }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.avg_satisfaction|floatformat:1 }}/5</h3>
+                    <div class="rating-stars mb-2">
+                        {% for i in "12345" %}
+                        <i class="fas fa-star{% if forloop.counter > stats.avg_satisfaction %}-half-alt{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <h6 class="text-muted mb-0">Orta Məmnuniyyət</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.response_rate|floatformat:0 }}%</h3>
+                    <h6 class="text-muted mb-0">Cavab Nisbəti</h6>
+                    <small class="text-muted">{{ stats.total_responses }} / {{ stats.total_sent }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.avg_process_rating|floatformat:1 }}/5</h3>
+                    <h6 class="text-muted mb-0">Proses Reytinqi</h6>
+                    <small class="text-muted">İşə qəbul prosesi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Touchpoint Reytinqləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="touchpointChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i> NPS Paylanması
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="npsChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Touchpoint Breakdown -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks"></i> Touchpoint Analizi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Touchpoint</th>
+                                    <th>Ümumi Rəy</th>
+                                    <th>Məmnuniyyət</th>
+                                    <th>Kommunikasiya</th>
+                                    <th>Prosesə Uyğunluq</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for touchpoint in touchpoint_stats %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ touchpoint.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ touchpoint.count }} rəy</span>
+                                    </td>
+                                    <td>
+                                        <div class="rating-stars">
+                                            {% for i in "12345" %}
+                                            <i class="fas fa-star{% if forloop.counter > touchpoint.avg_satisfaction %}{% if forloop.counter <= touchpoint.avg_satisfaction|add:'0.5' %}-half-alt{% else %} text-muted{% endif %}{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ touchpoint.avg_satisfaction|floatformat:1 }}</small>
+                                    </td>
+                                    <td>{{ touchpoint.avg_communication|floatformat:1 }}/5</td>
+                                    <td>{{ touchpoint.avg_process_adherence|floatformat:1 }}/5</td>
+                                    <td>
+                                        {% if touchpoint.trend > 0 %}
+                                        <span class="text-success">
+                                            <i class="fas fa-arrow-up"></i> +{{ touchpoint.trend|floatformat:1 }}%
+                                        </span>
+                                        {% elif touchpoint.trend < 0 %}
+                                        <span class="text-danger">
+                                            <i class="fas fa-arrow-down"></i> {{ touchpoint.trend|floatformat:1 }}%
+                                        </span>
+                                        {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-minus"></i> 0%
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Feedback -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Son Rəylər
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary active" data-filter="all">Hamısı</button>
+                        <button type="button" class="btn btn-outline-success" data-filter="positive">Pozitiv</button>
+                        <button type="button" class="btn btn-outline-warning" data-filter="neutral">Neytral</button>
+                        <button type="button" class="btn btn-outline-danger" data-filter="negative">Neqativ</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for feedback in recent_feedback %}
+                        <div class="col-md-6 mb-3" data-sentiment="{{ feedback.sentiment }}">
+                            <div class="card feedback-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div>
+                                            <strong>{{ feedback.candidate_name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ feedback.position }}</small>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="rating-stars mb-1">
+                                                {% for i in "12345" %}
+                                                <i class="fas fa-star{% if forloop.counter > feedback.overall_satisfaction %} text-muted{% endif %}"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <small class="text-muted">{{ feedback.submitted_date|date:"d M Y" }}</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <span class="badge badge-secondary">{{ feedback.get_touchpoint_display }}</span>
+                                        <span class="badge badge-{{ feedback.nps_category }}">
+                                            NPS: {{ feedback.nps_score }}
+                                        </span>
+                                    </div>
+
+                                    {% if feedback.comments %}
+                                    <p class="mb-2">
+                                        <em>"{{ feedback.comments|truncatewords:30 }}"</em>
+                                    </p>
+                                    {% endif %}
+
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Kommunikasiya:</small>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-info" style="width: {{ feedback.communication_rating|mul:20 }}%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Proses:</small>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-success" style="width: {{ feedback.process_adherence_rating|mul:20 }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if feedback.improvement_suggestions %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-lightbulb"></i>
+                                            {{ feedback.improvement_suggestions|truncatewords:20 }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Hələ rəy yoxdur</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Touchpoint Ratings Chart
+const touchpointCtx = document.getElementById('touchpointChart').getContext('2d');
+new Chart(touchpointCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ touchpoint_labels|safe }},
+        datasets: [
+            {
+                label: 'Məmnuniyyət',
+                data: {{ touchpoint_satisfaction_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.8)'
+            },
+            {
+                label: 'Kommunikasiya',
+                data: {{ touchpoint_communication_data|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.8)'
+            },
+            {
+                label: 'Proses',
+                data: {{ touchpoint_process_data|safe }},
+                backgroundColor: 'rgba(153, 102, 255, 0.8)'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5
+            }
+        }
+    }
+});
+
+// NPS Distribution Chart
+const npsCtx = document.getElementById('npsChart').getContext('2d');
+new Chart(npsCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Promoters (9-10)', 'Passives (7-8)', 'Detractors (0-6)'],
+        datasets: [{
+            data: {{ nps_distribution|safe }},
+            backgroundColor: [
+                'rgba(40, 167, 69, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(220, 53, 69, 0.8)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Feedback Filter
+document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const filter = this.getAttribute('data-filter');
+        document.querySelectorAll('[data-sentiment]').forEach(card => {
+            if (filter === 'all' || card.getAttribute('data-sentiment') === filter) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Period Filter
+document.querySelectorAll('[data-period]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const period = this.getAttribute('data-period');
+        window.location.href = `?period=${period}`;
+    });
+});
+</script>
+{% endblock %}

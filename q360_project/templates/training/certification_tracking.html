@@ -1,0 +1,523 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}Sertifikat İzlənməsi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cert-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .cert-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .cert-card.status-active {
+        border-left-color: #28a745;
+    }
+    .cert-card.status-expired {
+        border-left-color: #dc3545;
+    }
+    .cert-card.status-pending_renewal {
+        border-left-color: #ffc107;
+    }
+    .cert-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #007bff;
+        border: 2px solid white;
+    }
+    .ce-hours-progress {
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+    .ce-hours-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        transition: width 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-certificate"></i> Sertifikat İzlənməsi
+            </h2>
+            <p class="text-muted">
+                Peşəkar sertifikatlar və yeniləmə qeydləri
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertModal">
+                <i class="fas fa-plus"></i> Sertifikat Əlavə Et
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-certificate fa-2x text-success mb-2"></i>
+                    <h3>{{ stats.active_count }}</h3>
+                    <p class="mb-0 text-muted">Aktiv Sertifikat</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h3>{{ stats.pending_renewal_count }}</h3>
+                    <p class="mb-0 text-muted">Yeniləmə Gözləyir</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                    <h3>{{ stats.expired_count }}</h3>
+                    <p class="mb-0 text-muted">Müddəti Bitib</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-graduation-cap fa-2x text-info mb-2"></i>
+                    <h3>{{ stats.total_ce_hours }}</h3>
+                    <p class="mb-0 text-muted">CE Saatları (İllik)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="certTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="my-certs-tab" data-toggle="tab" href="#my-certs">
+                <i class="fas fa-user"></i> Mənim Sertifikatlarım
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="team-certs-tab" data-toggle="tab" href="#team-certs">
+                <i class="fas fa-users"></i> Komanda Sertifikatları
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="renewals-tab" data-toggle="tab" href="#renewals">
+                <i class="fas fa-bell"></i> Yeniləmə Xatırlatmaları
+                <span class="badge badge-warning">{{ stats.pending_renewal_count }}</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- My Certifications Tab -->
+        <div class="tab-pane fade show active" id="my-certs">
+            <div class="row">
+                {% for cert in my_certifications %}
+                <div class="col-md-6 mb-3">
+                    <div class="card cert-card status-{{ cert.status }}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-auto">
+                                    {% if cert.issuing_organization_logo %}
+                                    <img src="{{ cert.issuing_organization_logo.url }}" class="cert-logo" alt="{{ cert.issuing_organization }}">
+                                    {% else %}
+                                    <div class="cert-logo bg-light d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-certificate fa-2x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <h5 class="mb-1">{{ cert.name }}</h5>
+                                    <p class="text-muted mb-2">{{ cert.issuing_organization }}</p>
+
+                                    <div class="mb-2">
+                                        <span class="badge badge-{{ cert.get_status_badge_color }}">
+                                            {{ cert.get_status_display }}
+                                        </span>
+                                        {% if cert.credential_id %}
+                                        <span class="badge badge-secondary">
+                                            ID: {{ cert.credential_id }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="row text-sm">
+                                        <div class="col-6">
+                                            <small class="text-muted">Alınma tarixi:</small>
+                                            <div>{{ cert.issue_date|date:"d M Y" }}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Son tarix:</small>
+                                            <div>
+                                                {% if cert.expiration_date %}
+                                                {{ cert.expiration_date|date:"d M Y" }}
+                                                {% if cert.days_until_expiration < 60 %}
+                                                <span class="badge badge-danger">
+                                                    {{ cert.days_until_expiration }} gün qalıb
+                                                </span>
+                                                {% endif %}
+                                                {% else %}
+                                                Müddətsiz
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if cert.requires_continuing_education %}
+                                    <div class="mt-3">
+                                        <small class="text-muted">Davam edən təhsil (CE):</small>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <div class="ce-hours-progress flex-grow-1 mr-2">
+                                                <div class="ce-hours-bar" style="width: {{ cert.ce_completion_percentage }}%"></div>
+                                            </div>
+                                            <small>{{ cert.ce_hours_completed }}/{{ cert.ce_hours_required }} saat</small>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mt-2">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary"
+                                                    onclick="viewCertDetail({{ cert.id }})">
+                                                <i class="fas fa-eye"></i> Detallı
+                                            </button>
+                                            {% if cert.verification_url %}
+                                            <a href="{{ cert.verification_url }}" target="_blank"
+                                               class="btn btn-outline-info">
+                                                <i class="fas fa-check-circle"></i> Yoxla
+                                            </a>
+                                            {% endif %}
+                                            {% if cert.requires_continuing_education %}
+                                            <button type="button" class="btn btn-outline-success"
+                                                    onclick="addCEHours({{ cert.id }})">
+                                                <i class="fas fa-plus"></i> CE Əlavə Et
+                                            </button>
+                                            {% endif %}
+                                            {% if cert.status == 'pending_renewal' or cert.status == 'expired' %}
+                                            <button type="button" class="btn btn-outline-warning"
+                                                    onclick="renewCertification({{ cert.id }})">
+                                                <i class="fas fa-sync"></i> Yenilə
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Sertifikat qeydləri yoxdur</p>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertModal">
+                        <i class="fas fa-plus"></i> İlk Sertifikatı Əlavə Et
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Team Certifications Tab -->
+        <div class="tab-pane fade" id="team-certs">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>İşçi</th>
+                                    <th>Sertifikat</th>
+                                    <th>Təşkilat</th>
+                                    <th>Status</th>
+                                    <th>Son Tarix</th>
+                                    <th>CE Tələb</th>
+                                    <th>Əməliyyatlar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cert in team_certifications %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ cert.user.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ cert.user.position_title }}</small>
+                                    </td>
+                                    <td>{{ cert.name }}</td>
+                                    <td>{{ cert.issuing_organization }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ cert.get_status_badge_color }}">
+                                            {{ cert.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if cert.expiration_date %}
+                                        {{ cert.expiration_date|date:"d M Y" }}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if cert.requires_continuing_education %}
+                                        <span class="badge badge-info">
+                                            {{ cert.ce_hours_completed }}/{{ cert.ce_hours_required }}
+                                        </span>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                onclick="viewCertDetail({{ cert.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Məlumat yoxdur</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Renewal Reminders Tab -->
+        <div class="tab-pane fade" id="renewals">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell"></i> Yeniləmə Xatırlatmaları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for reminder in renewal_reminders %}
+                    <div class="alert alert-{{ reminder.urgency_class }} d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ reminder.certification.name }}</h6>
+                            <p class="mb-1">
+                                <strong>{{ reminder.certification.user.get_full_name }}</strong>
+                                - {{ reminder.certification.issuing_organization }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt"></i>
+                                Son tarix: {{ reminder.certification.expiration_date|date:"d M Y" }}
+                                ({{ reminder.days_remaining }} gün qalıb)
+                            </small>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-warning"
+                                    onclick="renewCertification({{ reminder.certification.id }})">
+                                <i class="fas fa-sync"></i> Yenilə
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <p class="text-muted">Yeniləmə tələb edən sertifikat yoxdur</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CE Log Timeline (for selected certification) -->
+    {% if selected_cert_ce_log %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Davam Edən Təhsil Tarixçəsi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for log in selected_cert_ce_log %}
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ log.activity_description }}</strong>
+                                    <p class="mb-1 text-muted">
+                                        {{ log.activity_type_display }}
+                                        {% if log.provider %}
+                                        - {{ log.provider }}
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> {{ log.completion_date|date:"d M Y" }}
+                                    </small>
+                                </div>
+                                <div class="text-right">
+                                    <span class="badge badge-primary">{{ log.hours }} saat</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Certification Modal -->
+<div class="modal fade" id="addCertModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Sertifikat Əlavə Et</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Sertifikat Adı *</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Təşkilat *</label>
+                                <input type="text" name="issuing_organization" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Credential ID</label>
+                                <input type="text" name="credential_id" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Alınma Tarixi *</label>
+                                <input type="date" name="issue_date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Son Tarix</label>
+                                <input type="date" name="expiration_date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Yeniləmə tezliyi</label>
+                        <select name="renewal_frequency" class="form-control">
+                            <option value="none">Yeniləmə tələb olunmur</option>
+                            <option value="annual">İllik</option>
+                            <option value="biennial">2 illik</option>
+                            <option value="triennial">3 illik</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="requiresCE"
+                               name="requires_continuing_education" value="1">
+                        <label class="custom-control-label" for="requiresCE">
+                            Davam edən təhsil (CE) tələb olunur
+                        </label>
+                    </div>
+
+                    <div id="ceHoursGroup" style="display: none;">
+                        <div class="form-group">
+                            <label>Tələb olunan CE saatları</label>
+                            <input type="number" name="ce_hours_required" class="form-control" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Yoxlama URL</label>
+                        <input type="url" name="verification_url" class="form-control"
+                               placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sertifikat fayl (PDF, JPG, PNG)</label>
+                        <input type="file" name="certificate_file" class="form-control-file"
+                               accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ləğv et</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Saxla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('requiresCE').addEventListener('change', function() {
+    document.getElementById('ceHoursGroup').style.display = this.checked ? 'block' : 'none';
+});
+
+function viewCertDetail(certId) {
+    window.location.href = `/training/certifications/${certId}/`;
+}
+
+function addCEHours(certId) {
+    window.location.href = `/training/certifications/${certId}/add-ce/`;
+}
+
+function renewCertification(certId) {
+    window.location.href = `/training/certifications/${certId}/renew/`;
+}
+</script>
+{% endblock %}

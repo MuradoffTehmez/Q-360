@@ -1,0 +1,484 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}AI CV Sınağı{% endblock %}
+
+{% block extra_css %}
+<style>
+    .application-card {
+        border-left: 4px solid;
+        transition: all 0.3s;
+    }
+    .application-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .application-card.score-high {
+        border-left-color: #28a745;
+    }
+    .application-card.score-medium {
+        border-left-color: #ffc107;
+    }
+    .application-card.score-low {
+        border-left-color: #dc3545;
+    }
+    .skill-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 3px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+    }
+    .skill-tag.matched {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .skill-tag.not-matched {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+    .score-circle.high {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    .score-circle.medium {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+    .score-circle.low {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    .screening-progress {
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .screening-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+        transition: width 0.5s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-3">
+                <i class="fas fa-robot"></i> AI-Powered CV Sınağı
+            </h2>
+            <p class="text-muted">
+                Avtomatik CV təhlili və namizəd qiymətləndirməsi
+            </p>
+        </div>
+        <div class="col-md-4 text-right">
+            <button type="button" class="btn btn-primary" id="runBatchScreening">
+                <i class="fas fa-play"></i> Batch Sınaq Başlat
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="screeningSettings">
+                <i class="fas fa-cog"></i> Parametrlər
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                    <h3>{{ stats.total_applications }}</h3>
+                    <p class="mb-0 text-muted">Ümumi Müraciət</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h3>{{ stats.screened_count }}</h3>
+                    <p class="mb-0 text-muted">Sınaqdan Keçib</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                    <h3>{{ stats.high_score_count }}</h3>
+                    <p class="mb-0 text-muted">Yüksək Bal (>70)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                    <h3>{{ stats.pending_count }}</h3>
+                    <p class="mb-0 text-muted">Gözləyir</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" id="filterForm" class="form-inline">
+                        <div class="form-group mr-3">
+                            <label class="mr-2">Vəzifə:</label>
+                            <select name="position" class="form-control">
+                                <option value="">Hamısı</option>
+                                {% for position in positions %}
+                                <option value="{{ position.id }}" {% if request.GET.position == position.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ position.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group mr-3">
+                            <label class="mr-2">Status:</label>
+                            <select name="screening_status" class="form-control">
+                                <option value="">Hamısı</option>
+                                <option value="pending" {% if request.GET.screening_status == 'pending' %}selected{% endif %}>Gözləyir</option>
+                                <option value="screened" {% if request.GET.screening_status == 'screened' %}selected{% endif %}>Sınaqdan Keçib</option>
+                                <option value="shortlisted" {% if request.GET.screening_status == 'shortlisted' %}selected{% endif %}>Qısa siyahıda</option>
+                                <option value="rejected" {% if request.GET.screening_status == 'rejected' %}selected{% endif %}>Rədd edilib</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mr-3">
+                            <label class="mr-2">Minimum Bal:</label>
+                            <input type="number" name="min_score" class="form-control" style="width: 80px;"
+                                   value="{{ request.GET.min_score|default:'' }}" min="0" max="100">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mr-2">
+                            <i class="fas fa-filter"></i> Filterlə
+                        </button>
+                        <a href="{% url 'recruitment:ai_screening' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Sıfırla
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div class="row">
+        <div class="col-12">
+            {% for application in applications %}
+            <div class="card application-card score-{{ application.score_category }} mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Candidate Info -->
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-start">
+                                <div class="mr-3">
+                                    <div class="score-circle {{ application.score_category }}">
+                                        {{ application.ai_screening_score|floatformat:0 }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">
+                                        <a href="{% url 'recruitment:application_detail' application.id %}">
+                                            {{ application.candidate.get_full_name }}
+                                        </a>
+                                    </h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-briefcase"></i> {{ application.position.title }}
+                                        <span class="ml-3"><i class="fas fa-calendar"></i> {{ application.applied_date|date:"d M Y" }}</span>
+                                    </p>
+
+                                    {% if application.ai_screening_results %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">Bal Breakdown:</small>
+                                        <div class="d-flex flex-wrap mt-1">
+                                            <div class="mr-3">
+                                                <small>Bacarıqlar:</small>
+                                                <span class="badge badge-primary">{{ application.ai_screening_results.skills_score|floatformat:0 }}/50</span>
+                                            </div>
+                                            <div class="mr-3">
+                                                <small>Təcrübə:</small>
+                                                <span class="badge badge-info">{{ application.ai_screening_results.experience_score|floatformat:0 }}/30</span>
+                                            </div>
+                                            <div class="mr-3">
+                                                <small>Təhsil:</small>
+                                                <span class="badge badge-success">{{ application.ai_screening_results.education_score|floatformat:0 }}/20</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Matched Skills -->
+                                    {% if application.ai_screening_results.matched_skills %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">Uyğun Bacarıqlar:</small>
+                                        <div class="mt-1">
+                                            {% for skill in application.ai_screening_results.matched_skills %}
+                                            <span class="skill-tag matched">{{ skill }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Missing Skills -->
+                                    {% if application.ai_screening_results.missing_skills %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">Çatışmayan Bacarıqlar:</small>
+                                        <div class="mt-1">
+                                            {% for skill in application.ai_screening_results.missing_skills %}
+                                            <span class="skill-tag not-matched">{{ skill }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- AI Insights -->
+                                    {% if application.ai_screening_results.insights %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">AI Tövsiyəsi:</small>
+                                        <p class="mb-0 text-info">
+                                            <i class="fas fa-lightbulb"></i>
+                                            {{ application.ai_screening_results.insights }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    {% else %}
+                                    <div class="alert alert-warning mb-0">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        AI sınağı hələ həyata keçirilməyib
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-md-5 text-right">
+                            <div class="mb-3">
+                                <span class="badge badge-{{ application.get_status_badge_color }}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </div>
+
+                            <div class="btn-group-vertical btn-group-sm mb-2">
+                                {% if not application.ai_screening_results %}
+                                <button type="button" class="btn btn-primary"
+                                        onclick="runScreening({{ application.id }})">
+                                    <i class="fas fa-play"></i> Sınaq Başlat
+                                </button>
+                                {% endif %}
+
+                                <button type="button" class="btn btn-outline-success"
+                                        onclick="shortlist({{ application.id }})">
+                                    <i class="fas fa-check"></i> Qısa Siyahıya Al
+                                </button>
+
+                                <a href="{% url 'recruitment:application_detail' application.id %}"
+                                   class="btn btn-outline-info">
+                                    <i class="fas fa-eye"></i> Detallı Bax
+                                </a>
+
+                                <button type="button" class="btn btn-outline-danger"
+                                        onclick="reject({{ application.id }})">
+                                    <i class="fas fa-times"></i> Rədd Et
+                                </button>
+                            </div>
+
+                            <!-- CV Download -->
+                            {% if application.cv_file %}
+                            <div class="mt-2">
+                                <a href="{{ application.cv_file.url }}" target="_blank"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-file-pdf"></i> CV Yüklə
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Müraciət tapılmadı</p>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Əvvəlki</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Növbəti</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Batch Screening Modal -->
+<div class="modal fade" id="batchScreeningModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Batch AI Sınaq</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Seçilmiş müraciətlər üçün AI sınaq başladılacaq:</p>
+                <div id="batchProgressContainer" style="display: none;">
+                    <div class="screening-progress mb-2">
+                        <div class="screening-progress-bar" id="batchProgressBar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-center mb-0">
+                        <span id="batchProgressText">0</span> / <span id="batchTotalText">0</span>
+                    </p>
+                </div>
+                <div id="batchResults"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Bağla</button>
+                <button type="button" class="btn btn-primary" id="startBatchBtn">
+                    <i class="fas fa-play"></i> Başlat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function runScreening(applicationId) {
+    if (confirm('Bu müraciət üçün AI sınaq başladılsın?')) {
+        fetch(`/api/recruitment/screening/run/${applicationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Sınaq uğurla başladıldı!');
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.error);
+            }
+        });
+    }
+}
+
+function shortlist(applicationId) {
+    if (confirm('Bu namizəd qısa siyahıya əlavə edilsin?')) {
+        fetch(`/api/recruitment/applications/${applicationId}/shortlist/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Namizəd qısa siyahıya əlavə edildi');
+                location.reload();
+            }
+        });
+    }
+}
+
+function reject(applicationId) {
+    const reason = prompt('Rədd səbəbi:');
+    if (reason) {
+        fetch(`/api/recruitment/applications/${applicationId}/reject/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Müraciət rədd edildi');
+                location.reload();
+            }
+        });
+    }
+}
+
+document.getElementById('runBatchScreening').addEventListener('click', function() {
+    $('#batchScreeningModal').modal('show');
+});
+
+document.getElementById('startBatchBtn').addEventListener('click', function() {
+    const progressContainer = document.getElementById('batchProgressContainer');
+    progressContainer.style.display = 'block';
+
+    fetch('/api/recruitment/screening/batch/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            position: '{{ request.GET.position }}',
+            status: 'pending'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('batchTotalText').textContent = data.total;
+            document.getElementById('batchProgressText').textContent = data.processed;
+            document.getElementById('batchProgressBar').style.width = '100%';
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+    });
+});
+</script>
+{% endblock %}

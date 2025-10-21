@@ -1,0 +1,217 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}360-Dərəcə Rəy Sorğusu{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-users-cog"></i> 360-Dərəcə Rəy Sorğusu
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="feedback360Form">
+                        {% csrf_token %}
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="recipient">Rəy Alanlar</label>
+                                    <select name="recipient" id="recipient" class="form-control" required>
+                                        <option value="">Seçin...</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.get_full_name }} - {{ user.position_title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="campaign">Kampaniya</label>
+                                    <select name="campaign" id="campaign" class="form-control">
+                                        <option value="">Kampaniya seçin (İstəyə bağlı)</option>
+                                        {% for campaign in campaigns %}
+                                        <option value="{{ campaign.id }}">{{ campaign.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Rəy Mənbələri Seçin</h5>
+                                <small class="text-muted">360-dərəcə rəy üçün müxtəlif mənbələrdən rəy toplayın</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_self" name="sources" value="self">
+                                            <label class="custom-control-label" for="source_self">
+                                                <i class="fas fa-user text-info"></i> Özünüdəyərləndirmə
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Öz performansını qiymətləndir</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_manager" name="sources" value="manager">
+                                            <label class="custom-control-label" for="source_manager">
+                                                <i class="fas fa-user-tie text-primary"></i> Menecer
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Birbaşa rəhbərdən rəy</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_peer" name="sources" value="peer">
+                                            <label class="custom-control-label" for="source_peer">
+                                                <i class="fas fa-users text-success"></i> Həmkarlar
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Eyni səviyyədə işləyənlərdən</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_direct_report" name="sources" value="direct_report">
+                                            <label class="custom-control-label" for="source_direct_report">
+                                                <i class="fas fa-level-down-alt text-warning"></i> Tabelilər
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Birbaşa hesabat verənlərdən</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_cross_functional" name="sources" value="cross_functional">
+                                            <label class="custom-control-label" for="source_cross_functional">
+                                                <i class="fas fa-project-diagram text-purple"></i> Kross-funksional
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Digər departamentlərdən</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input source-checkbox"
+                                                   id="source_customer" name="sources" value="customer">
+                                            <label class="custom-control-label" for="source_customer">
+                                                <i class="fas fa-handshake text-danger"></i> Müştərilər
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ml-4">Daxili/xarici müştərilərdən</small>
+                                    </div>
+                                </div>
+
+                                <div id="sourceDetails" class="mt-4" style="display: none;">
+                                    <hr>
+                                    <h6 class="mb-3">Hər mənbə üçün rəy verənləri seçin:</h6>
+                                    <div id="sourceSelectors"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="anonymous" value="1">
+                                Anonim rəy (Həmkar, tabeli və kross-funksional rəylər üçün)
+                            </label>
+                            <small class="d-block text-muted">Anonim rəy daha açıq və səmimi cavablar əldə etməyə kömək edir</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deadline">Son tarix</label>
+                            <input type="date" name="deadline" id="deadline" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Mesaj (İstəyə bağlı)</label>
+                            <textarea name="message" id="message" class="form-control" rows="3"
+                                      placeholder="Rəy verənlər üçün əlavə məlumat və ya təlimat..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Geri
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Rəy Sorğusu Göndər
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sourceCheckboxes = document.querySelectorAll('.source-checkbox');
+    const sourceDetails = document.getElementById('sourceDetails');
+    const sourceSelectors = document.getElementById('sourceSelectors');
+
+    sourceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSourceSelectors);
+    });
+
+    function updateSourceSelectors() {
+        const checkedSources = Array.from(sourceCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        if (checkedSources.length > 0) {
+            sourceDetails.style.display = 'block';
+            sourceSelectors.innerHTML = '';
+
+            checkedSources.forEach(source => {
+                if (source !== 'self') {
+                    const div = document.createElement('div');
+                    div.className = 'mb-3';
+                    div.innerHTML = `
+                        <label class="font-weight-bold">${getSourceLabel(source)}</label>
+                        <select name="source_users_${source}" class="form-control" multiple required>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Ctrl/Cmd basaraq bir neçə seçə bilərsiniz</small>
+                    `;
+                    sourceSelectors.appendChild(div);
+                }
+            });
+        } else {
+            sourceDetails.style.display = 'none';
+        }
+    }
+
+    function getSourceLabel(source) {
+        const labels = {
+            'manager': 'Menecer seçin:',
+            'peer': 'Həmkarları seçin:',
+            'direct_report': 'Tabeliləri seçin:',
+            'cross_functional': 'Kross-funksional əməkdaşları seçin:',
+            'customer': 'Müştəriləri seçin:'
+        };
+        return labels[source] || source;
+    }
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('deadline').setAttribute('min', today);
+});
+</script>
+{% endblock %}
