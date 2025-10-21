@@ -489,3 +489,140 @@ def goal_approve_toggle(request, pk):
         'approved_at': goal.approved_at.isoformat() if goal.approved_at else None,
         'status': goal.status
     })
+
+
+@login_required
+def goal_cascade(request):
+    """
+    Goal Cascading View - Shows organizational goal hierarchy.
+    Displays goals cascading from organizational level down to individual level.
+    """
+    from django.db.models import Q, Count, Avg
+
+    user = request.user
+
+    # Get all active goals
+    all_goals = DevelopmentGoal.objects.filter(
+        status='active'
+    ).select_related('user', 'parent_goal')
+
+    # Check if the model has goal_level field
+    # If not, we'll categorize based on user roles
+    has_goal_level = hasattr(DevelopmentGoal, 'goal_level')
+
+    if has_goal_level:
+        # Organize goals by level
+        organizational_goals = all_goals.filter(goal_level='organizational').order_by('title')
+        departmental_goals = all_goals.filter(goal_level='departmental').order_by('title')
+        team_goals = all_goals.filter(goal_level='team').order_by('title')
+        individual_goals = all_goals.filter(goal_level='individual').order_by('user__first_name')
+    else:
+        # Categorize based on user roles and goal structure
+        # Organizational: Admin-created goals without parent
+        organizational_goals = all_goals.filter(
+            created_by__is_superuser=True,
+            parent_goal__isnull=True
+        ).order_by('title')
+
+        # Departmental: Manager-created goals linked to organizational goals
+        departmental_goals = all_goals.filter(
+            parent_goal__in=organizational_goals
+        ).order_by('title')
+
+        # Team: Manager goals or goals with departmental parents
+        team_goals = all_goals.filter(
+            parent_goal__in=departmental_goals
+        ).order_by('title')
+
+        # Individual: All other active goals
+        individual_goals = all_goals.exclude(
+            id__in=[g.id for g in organizational_goals] +
+                   [g.id for g in departmental_goals] +
+                   [g.id for g in team_goals]
+        ).order_by('user__first_name')
+
+    # Build hierarchical structure
+    goal_hierarchy = []
+
+    for org_goal in organizational_goals:
+        org_node = {
+            'goal': org_goal,
+            'level': 'organizational',
+            'children': []
+        }
+
+        # Find departmental goals linked to this org goal
+        dept_goals = departmental_goals.filter(parent_goal=org_goal) if has_goal_level else departmental_goals.filter(parent_goal=org_goal)
+
+        for dept_goal in dept_goals:
+            dept_node = {
+                'goal': dept_goal,
+                'level': 'departmental',
+                'children': []
+            }
+
+            # Find team goals linked to this dept goal
+            t_goals = team_goals.filter(parent_goal=dept_goal) if has_goal_level else team_goals.filter(parent_goal=dept_goal)
+
+            for team_goal in t_goals:
+                team_node = {
+                    'goal': team_goal,
+                    'level': 'team',
+                    'children': []
+                }
+
+                # Find individual goals linked to this team goal
+                ind_goals = individual_goals.filter(parent_goal=team_goal)
+
+                for ind_goal in ind_goals:
+                    team_node['children'].append({
+                        'goal': ind_goal,
+                        'level': 'individual',
+                        'children': []
+                    })
+
+                dept_node['children'].append(team_node)
+
+            org_node['children'].append(dept_node)
+
+        goal_hierarchy.append(org_node)
+
+    # Calculate statistics
+    stats = {
+        'total_goals': all_goals.count(),
+        'organizational': organizational_goals.count(),
+        'departmental': departmental_goals.count(),
+        'team': team_goals.count(),
+        'individual': individual_goals.count(),
+        'my_goals': all_goals.filter(user=user).count(),
+    }
+
+    # Filter options
+    show_my_goals_only = request.GET.get('my_only') == 'true'
+
+    if show_my_goals_only:
+        # Filter to show only user's goals and their parent hierarchy
+        user_goals = all_goals.filter(user=user)
+
+        # Get all parent goals recursively
+        parent_ids = set()
+        for goal in user_goals:
+            current = goal
+            while current.parent_goal:
+                parent_ids.add(current.parent_goal.id)
+                current = current.parent_goal
+
+        # Filter individual goals
+        individual_goals = individual_goals.filter(user=user)
+
+    context = {
+        'goal_hierarchy': goal_hierarchy,
+        'stats': stats,
+        'show_my_goals_only': show_my_goals_only,
+        'organizational_goals': organizational_goals,
+        'departmental_goals': departmental_goals,
+        'team_goals': team_goals,
+        'individual_goals': individual_goals,
+    }
+
+    return render(request, 'development_plans/goal_cascade.html', context)

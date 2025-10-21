@@ -361,3 +361,259 @@ def update_application_status(request, application_id):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+@login_required
+def ai_screening(request):
+    """
+    AI-Powered CV Screening view.
+    Shows applications with AI screening scores and filters.
+    """
+    from django.db.models import Avg
+
+    # Get all recent applications
+    applications = Application.objects.select_related(
+        'job_posting'
+    ).order_by('-applied_at')
+
+    # Filter by job if specified
+    job_id = request.GET.get('job')
+    if job_id:
+        applications = applications.filter(job_posting_id=job_id)
+
+    # Filter by score range if model has ai_screening_score field
+    has_ai_score = hasattr(Application, 'ai_screening_score')
+
+    if has_ai_score:
+        min_score = request.GET.get('min_score')
+        if min_score:
+            applications = applications.filter(ai_screening_score__gte=float(min_score))
+
+        # Order by AI score
+        applications = applications.order_by('-ai_screening_score', '-applied_at')
+    else:
+        # Just order by date if no AI score field
+        applications = applications.order_by('-applied_at')
+
+    # Get active jobs for filter dropdown
+    jobs = JobPosting.objects.filter(status='open').order_by('-posted_date')
+
+    # Calculate statistics
+    total_applications = applications.count()
+
+    if has_ai_score:
+        avg_score = applications.aggregate(Avg('ai_screening_score'))['ai_screening_score__avg'] or 0
+        high_match = applications.filter(ai_screening_score__gte=80).count()
+        medium_match = applications.filter(ai_screening_score__gte=60, ai_screening_score__lt=80).count()
+        low_match = applications.filter(ai_screening_score__lt=60).count()
+    else:
+        avg_score = 0
+        high_match = 0
+        medium_match = 0
+        low_match = total_applications
+
+    context = {
+        'applications': applications[:100],  # Limit for performance
+        'jobs': jobs,
+        'selected_job_id': job_id,
+        'stats': {
+            'total': total_applications,
+            'avg_score': round(avg_score, 1),
+            'high_match': high_match,
+            'medium_match': medium_match,
+            'low_match': low_match,
+        },
+        'has_ai_score': has_ai_score,
+    }
+
+    return render(request, 'recruitment/ai_screening.html', context)
+
+
+@login_required
+def video_interview_schedule(request):
+    """
+    Video Interview Scheduling view.
+    Schedule video interviews with platform integration (Zoom, Teams, Google Meet).
+    """
+    from django.utils import timezone
+    from datetime import timedelta
+
+    # Get upcoming video interviews
+    upcoming_interviews = Interview.objects.filter(
+        scheduled_date__gte=timezone.now(),
+        status='scheduled'
+    ).select_related(
+        'application',
+        'application__job_posting'
+    ).prefetch_related('interviewers').order_by('scheduled_date')
+
+    # Get applications ready for interview
+    interview_ready_applications = Application.objects.filter(
+        status__in=['screening', 'interview']
+    ).select_related('job_posting').order_by('-applied_at')[:20]
+
+    # Get interviewers (managers and HR staff)
+    from apps.accounts.models import User
+    interviewers = User.objects.filter(
+        Q(is_superuser=True) | Q(groups__name__in=['HR', 'Managers'])
+    ).distinct().order_by('first_name')
+
+    # Check if Interview model has video_platform field
+    has_video_platform = hasattr(Interview, 'video_platform')
+
+    # Statistics
+    today = timezone.now().date()
+    this_week_start = today - timedelta(days=today.weekday())
+    this_week_end = this_week_start + timedelta(days=6)
+
+    stats = {
+        'total_scheduled': upcoming_interviews.count(),
+        'today': upcoming_interviews.filter(scheduled_date__date=today).count(),
+        'this_week': upcoming_interviews.filter(
+            scheduled_date__date__gte=this_week_start,
+            scheduled_date__date__lte=this_week_end
+        ).count(),
+    }
+
+    if has_video_platform:
+        stats['zoom'] = upcoming_interviews.filter(video_platform='zoom').count()
+        stats['teams'] = upcoming_interviews.filter(video_platform='teams').count()
+        stats['meet'] = upcoming_interviews.filter(video_platform='meet').count()
+
+    context = {
+        'upcoming_interviews': upcoming_interviews[:20],
+        'applications': interview_ready_applications,
+        'interviewers': interviewers,
+        'stats': stats,
+        'has_video_platform': has_video_platform,
+    }
+
+    return render(request, 'recruitment/video_interview_schedule.html', context)
+
+
+@login_required
+def candidate_experience(request):
+    """
+    Candidate Experience Tracking view.
+    NPS tracking and candidate journey analytics.
+    """
+    from django.db.models import Avg, Count
+    from django.utils import timezone
+    from datetime import timedelta
+    import json
+
+    # Check if Application model has candidate experience fields
+    has_nps_score = hasattr(Application, 'nps_score')
+    has_touchpoint_ratings = hasattr(Application, 'touchpoint_ratings')
+
+    # Get all applications
+    all_applications = Application.objects.select_related('job_posting')
+
+    # Last 90 days
+    ninety_days_ago = timezone.now() - timedelta(days=90)
+    recent_applications = all_applications.filter(applied_at__gte=ninety_days_ago)
+
+    # Calculate NPS
+    if has_nps_score:
+        # NPS Score: % Promoters (9-10) - % Detractors (0-6)
+        applications_with_nps = recent_applications.exclude(nps_score__isnull=True)
+        total_responses = applications_with_nps.count()
+
+        promoters = applications_with_nps.filter(nps_score__gte=9).count()
+        passives = applications_with_nps.filter(nps_score__range=[7, 8]).count()
+        detractors = applications_with_nps.filter(nps_score__lte=6).count()
+
+        if total_responses > 0:
+            nps = ((promoters - detractors) / total_responses) * 100
+        else:
+            nps = 0
+
+        avg_nps = round(nps, 1)
+    else:
+        promoters = 0
+        passives = 0
+        detractors = 0
+        avg_nps = 0
+        total_responses = 0
+
+    # Touchpoint ratings
+    touchpoint_data = {
+        'application_process': 0,
+        'communication': 0,
+        'interview_experience': 0,
+        'feedback_timeliness': 0,
+        'overall_experience': 0,
+    }
+
+    if has_touchpoint_ratings:
+        # Calculate average for each touchpoint
+        # (This would need JSON field support or separate ratings table)
+        pass
+
+    # Group by status for journey analysis
+    status_breakdown = recent_applications.values('status').annotate(
+        count=Count('id')
+    ).order_by('-count')
+
+    # Trend data (last 6 months)
+    months = []
+    nps_trend = []
+
+    for i in range(5, -1, -1):
+        month_start = timezone.now() - timedelta(days=30*i)
+        month_end = timezone.now() - timedelta(days=30*(i-1)) if i > 0 else timezone.now()
+
+        if has_nps_score:
+            month_apps = all_applications.filter(
+                applied_at__gte=month_start,
+                applied_at__lt=month_end
+            ).exclude(nps_score__isnull=True)
+
+            month_total = month_apps.count()
+            if month_total > 0:
+                month_promoters = month_apps.filter(nps_score__gte=9).count()
+                month_detractors = month_apps.filter(nps_score__lte=6).count()
+                month_nps = ((month_promoters - month_detractors) / month_total) * 100
+            else:
+                month_nps = 0
+        else:
+            month_nps = 0
+
+        months.append(month_start.strftime('%b'))
+        nps_trend.append(round(month_nps, 1))
+
+    # Recent feedback comments
+    recent_feedback = []
+    if has_nps_score:
+        # Get applications with feedback
+        feedback_apps = recent_applications.exclude(
+            nps_score__isnull=True
+        ).order_by('-applied_at')[:10]
+
+        for app in feedback_apps:
+            recent_feedback.append({
+                'candidate': app.candidate_name,
+                'job': app.job_posting.title,
+                'nps_score': app.nps_score,
+                'date': app.applied_at,
+                'feedback': getattr(app, 'feedback_comments', ''),
+            })
+
+    context = {
+        'stats': {
+            'avg_nps': avg_nps,
+            'total_responses': total_responses,
+            'promoters': promoters,
+            'passives': passives,
+            'detractors': detractors,
+            'response_rate': round((total_responses / recent_applications.count() * 100), 1) if recent_applications.count() > 0 else 0,
+        },
+        'touchpoint_data': touchpoint_data,
+        'status_breakdown': list(status_breakdown),
+        'months': json.dumps(months),
+        'nps_trend': json.dumps(nps_trend),
+        'recent_feedback': recent_feedback,
+        'has_nps_score': has_nps_score,
+    }
+
+    return render(request, 'recruitment/candidate_experience.html', context)

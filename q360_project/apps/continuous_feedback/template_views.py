@@ -345,3 +345,181 @@ def proactive_feedback_suggestions(request):
     }
 
     return render(request, 'continuous_feedback/proactive_suggestions.html', context)
+
+
+@login_required
+def feedback_360_request(request):
+    """
+    360-Degree Feedback Request view.
+    Allows requesting feedback from multiple sources (self, manager, peers, etc.)
+    """
+    from apps.evaluations.models import EvaluationCycle
+
+    # Get active evaluation cycles
+    active_cycles = EvaluationCycle.objects.filter(
+        is_active=True,
+        start_date__lte=timezone.now(),
+        end_date__gte=timezone.now()
+    ).order_by('-start_date')
+
+    # Get potential reviewers by relationship type
+    user = request.user
+
+    # Manager
+    manager = user.supervisor if hasattr(user, 'supervisor') else None
+
+    # Peers (same department, excluding self and manager)
+    exclude_ids = [user.id]
+    if manager:
+        exclude_ids.append(manager.id)
+
+    peers = User.objects.filter(
+        is_active=True,
+        department=user.department
+    ).exclude(id__in=exclude_ids) if user.department else []
+
+    # Direct reports
+    direct_reports = user.get_subordinates() if hasattr(user, 'get_subordinates') and user.is_manager() else []
+
+    # Cross-functional (other departments)
+    cross_functional = User.objects.filter(
+        is_active=True
+    ).exclude(
+        Q(department=user.department) | Q(id=user.id)
+    ) if user.department else []
+
+    # All users for customer/external selection
+    all_users = User.objects.filter(is_active=True).exclude(id=user.id).order_by('first_name', 'last_name')
+
+    context = {
+        'active_cycles': active_cycles,
+        'manager': manager,
+        'peers': peers[:20],  # Limit for performance
+        'direct_reports': direct_reports,
+        'cross_functional': cross_functional[:20],
+        'all_users': all_users,
+    }
+
+    return render(request, 'continuous_feedback/360_feedback_request.html', context)
+
+
+@login_required
+def feedback_analytics(request):
+    """
+    Feedback Analytics Dashboard view.
+    Real-time analytics and insights on received feedback.
+    """
+    from django.db.models import Count, Avg
+    from datetime import timedelta
+    import json
+
+    user = request.user
+
+    # Get all feedback received by user
+    all_feedback = QuickFeedback.objects.filter(recipient=user)
+
+    # Calculate KPIs
+    total_feedback = all_feedback.count()
+
+    # Last 30 days
+    last_30_days = timezone.now() - timedelta(days=30)
+    recent_feedback = all_feedback.filter(created_at__gte=last_30_days)
+    recent_count = recent_feedback.count()
+
+    # Recognition vs improvement ratio
+    recognitions = all_feedback.filter(feedback_type='recognition').count()
+    improvements = all_feedback.filter(feedback_type='improvement').count()
+
+    # Trend data (last 6 months)
+    months = []
+    trend_data = []
+    for i in range(5, -1, -1):
+        month_start = timezone.now() - timedelta(days=30*i)
+        month_end = timezone.now() - timedelta(days=30*(i-1)) if i > 0 else timezone.now()
+        count = all_feedback.filter(created_at__gte=month_start, created_at__lt=month_end).count()
+        months.append(month_start.strftime('%b'))
+        trend_data.append(count)
+
+    # Source distribution
+    source_labels = []
+    source_data = []
+
+    # Group by sender's relationship to user
+    feedback_by_source = all_feedback.values('sender__id').annotate(count=Count('id'))
+
+    # Categorize sources
+    from_manager = 0
+    from_peers = 0
+    from_reports = 0
+    from_others = 0
+
+    for fb in feedback_by_source:
+        sender_id = fb['sender__id']
+        count = fb['count']
+
+        if sender_id == (user.supervisor.id if hasattr(user, 'supervisor') and user.supervisor else None):
+            from_manager += count
+        elif sender_id in [r.id for r in (user.get_subordinates() if hasattr(user, 'get_subordinates') and user.is_manager() else [])]:
+            from_reports += count
+        elif User.objects.get(id=sender_id).department == user.department:
+            from_peers += count
+        else:
+            from_others += count
+
+    source_labels = ['Rəhbər', 'Həmkarlar', 'Tabelilər', 'Digər']
+    source_data = [from_manager, from_peers, from_reports, from_others]
+
+    # Top competencies (if feedback has tags/competencies)
+    # For now, use feedback types
+    competency_labels = ['Liderlik', 'Kommunikasiya', 'Texniki', 'Təşkilatçılıq', 'Yaradıcılıq']
+    competency_data = [
+        all_feedback.filter(message__icontains='lider').count(),
+        all_feedback.filter(message__icontains='kommunikasiya').count(),
+        all_feedback.filter(message__icontains='texniki').count(),
+        all_feedback.filter(message__icontains='təşkilat').count(),
+        all_feedback.filter(message__icontains='yaradıcı').count(),
+    ]
+
+    # Insights
+    insights = []
+
+    if recent_count > 0:
+        insights.append({
+            'type': 'positive',
+            'message': f'Son 30 gündə {recent_count} rəy aldınız'
+        })
+
+    if recognitions > improvements:
+        insights.append({
+            'type': 'success',
+            'message': 'Qəbul etdiyiniz rəylərin əksəriyyəti təqdirlərdir'
+        })
+    else:
+        insights.append({
+            'type': 'info',
+            'message': 'İnkişaf sahələrində faydalı rəylər alırsınız'
+        })
+
+    if from_manager > 0:
+        insights.append({
+            'type': 'info',
+            'message': f'Rəhbərinizdən {from_manager} rəy aldınız'
+        })
+
+    context = {
+        'analytics': {
+            'total_feedback': total_feedback,
+            'recent_count': recent_count,
+            'recognitions': recognitions,
+            'improvements': improvements,
+            'trend_labels': json.dumps(months),
+            'trend_data': json.dumps(trend_data),
+            'source_labels': json.dumps(source_labels),
+            'source_data': json.dumps(source_data),
+            'competency_labels': json.dumps(competency_labels),
+            'competency_data': json.dumps(competency_data),
+        },
+        'insights': insights,
+    }
+
+    return render(request, 'continuous_feedback/feedback_analytics.html', context)
