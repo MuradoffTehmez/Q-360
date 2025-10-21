@@ -14,4 +14,8 @@ urlpatterns = [
     path('my-certificates/', template_views.my_certificates, name='my-certificates'),
     path('manage/', template_views.training_manage, name='training-manage'),
     path('<int:pk>/', template_views.training_detail, name='training-detail'),
+
+    # Skill Matrix & Certifications
+    path('skill-matrix/', template_views.skill_matrix, name='skill-matrix'),
+    path('certifications/', template_views.certification_tracking, name='certifications'),
 ]

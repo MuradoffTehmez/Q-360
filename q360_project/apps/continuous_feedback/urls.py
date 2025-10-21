@@ -35,6 +35,10 @@ urlpatterns = [
     # Proactive Feedback Suggestions
     path('proactive-suggestions/', template_views.proactive_feedback_suggestions, name='proactive-suggestions'),
 
+    # 360-Degree Feedback
+    path('360-feedback-request/', template_views.feedback_360_request, name='360-feedback-request'),
+    path('analytics/', template_views.feedback_analytics, name='analytics'),
+
     # API URLs
     path('', include(router.urls)),
 ]

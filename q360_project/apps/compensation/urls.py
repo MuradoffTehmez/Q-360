@@ -14,4 +14,8 @@ urlpatterns = [
     path('bonuses/', views.bonus_list, name='bonus_list'),
     path('bonuses/create/', views.bonus_create, name='bonus_create'),
     path('history/', views.compensation_history, name='history'),
+
+    # Market Benchmarking & Total Rewards
+    path('market-benchmarking/', views.market_benchmarking, name='market-benchmarking'),
+    path('total-rewards/', views.total_rewards_statement, name='total-rewards'),
 ]

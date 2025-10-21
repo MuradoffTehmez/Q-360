@@ -21,6 +21,9 @@ urlpatterns = [
     path('team-goals/', template_views.team_goals, name='team-goals'),
     path('templates/', template_views.goal_templates, name='goal-templates'),
 
+    # Goal Cascade
+    path('goal-cascade/', template_views.goal_cascade, name='goal-cascade'),
+
     # API
     path('api/', include(router.urls)),
 ]
