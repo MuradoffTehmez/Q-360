@@ -10,17 +10,32 @@ class QuickFeedback(models.Model):
     """
     Quick feedback that users can send to each other anytime.
     Supports both recognition (thanks) and improvement suggestions.
+    Enhanced with multi-source 360-degree feedback capabilities.
     """
     FEEDBACK_TYPE_CHOICES = [
         ('recognition', 'Təşəkkür / Recognition'),
         ('improvement', 'Təklif / Improvement'),
         ('general', 'Ümumi'),
+        ('behavioral', 'Davranış'),
+        ('skill', 'Bacarıq'),
+        ('leadership', 'Liderlik'),
     ]
 
     VISIBILITY_CHOICES = [
         ('private', 'Şəxsi'),
         ('public', 'İctimai'),
         ('team', 'Komanda'),
+    ]
+
+    # 360-degree feedback source types
+    SOURCE_RELATIONSHIP_CHOICES = [
+        ('self', 'Özünüdəyərləndirmə'),
+        ('manager', 'Menecer'),
+        ('peer', 'Həmkar'),
+        ('direct_report', 'Tabeli'),
+        ('cross_functional', 'Kross-funksional'),
+        ('customer', 'Müştəri'),
+        ('external', 'Xarici'),
     ]
 
     sender = models.ForeignKey(
@@ -46,6 +61,30 @@ class QuickFeedback(models.Model):
         choices=VISIBILITY_CHOICES,
         default='private',
         verbose_name='Görünürlük'
+    )
+
+    # 360-degree feedback enhancement
+    source_relationship = models.CharField(
+        max_length=20,
+        choices=SOURCE_RELATIONSHIP_CHOICES,
+        default='peer',
+        verbose_name='Mənbə Əlaqəsi',
+        help_text='360-dərəcə feedback üçün göndərənin alıcı ilə əlaqəsi'
+    )
+
+    # Multi-source feedback collection
+    is_part_of_360 = models.BooleanField(
+        default=False,
+        verbose_name='360° Feedback Parçası',
+        help_text='Bu feedback 360-dərəcə qiymətləndirmənin bir hissəsidir'
+    )
+    feedback_campaign = models.ForeignKey(
+        'evaluations.EvaluationCampaign',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='continuous_feedbacks',
+        verbose_name='Qiymətləndirmə Kampaniyası'
     )
 
     title = models.CharField(max_length=200, verbose_name='Başlıq')
@@ -84,6 +123,14 @@ class QuickFeedback(models.Model):
         help_text='Alan şəxs göndərəni görməyəcək'
     )
 
+    # Anonymous feedback processing
+    anonymous_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name='Anonim Hash',
+        help_text='Anonim feedbackin təkrarlanmasını yoxlamaq üçün hash'
+    )
+
     # Response and acknowledgment
     is_read = models.BooleanField(default=False, verbose_name='Oxundu')
     read_at = models.DateTimeField(null=True, blank=True, verbose_name='Oxunma Vaxtı')
@@ -112,6 +159,37 @@ class QuickFeedback(models.Model):
     def __str__(self):
         sender_name = "Anonim" if self.is_anonymous else self.sender.get_full_name()
         return f"{sender_name} → {self.recipient.get_full_name()}: {self.title}"
+
+    def save(self, *args, **kwargs):
+        """Override save to handle anonymous feedback hashing."""
+        if self.is_anonymous and not self.anonymous_hash:
+            import hashlib
+            from django.utils import timezone
+            # Create hash from sender, recipient, timestamp
+            hash_string = f"{self.sender_id}:{self.recipient_id}:{timezone.now().isoformat()}"
+            self.anonymous_hash = hashlib.sha256(hash_string.encode()).hexdigest()
+        super().save(*args, **kwargs)
+
+    def get_sender_display(self):
+        """Get sender name respecting anonymity settings."""
+        if self.is_anonymous:
+            return "Anonim"
+        return self.sender.get_full_name()
+
+    def get_feedback_sources_summary(self):
+        """Get summary of 360-degree feedback sources for recipient."""
+        if not self.is_part_of_360:
+            return None
+
+        from django.db.models import Count
+        sources = QuickFeedback.objects.filter(
+            recipient=self.recipient,
+            is_part_of_360=True,
+            feedback_campaign=self.feedback_campaign
+        ).values('source_relationship').annotate(
+            count=Count('id')
+        )
+        return dict(sources.values_list('source_relationship', 'count'))
 
 
 class FeedbackBank(models.Model):

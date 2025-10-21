@@ -741,3 +741,302 @@ class OnboardingTask(models.Model):
 
     def __str__(self):
         return f"{self.application.full_name} - {self.title}"
+
+
+class CandidateExperience(models.Model):
+    """
+    Tracks candidate experience throughout the recruitment process.
+    Collects feedback at each touchpoint for process improvement.
+    """
+
+    TOUCHPOINT_CHOICES = [
+        ('application', 'Müraciət'),
+        ('screening', 'İlkin Sınaq'),
+        ('interview', 'Müsahibə'),
+        ('assessment', 'Qiymətləndirmə'),
+        ('offer', 'Təklif'),
+        ('onboarding', 'İşə Başlama'),
+        ('rejection', 'Rədd'),
+    ]
+
+    SATISFACTION_CHOICES = [
+        (1, 'Çox Narazı'),
+        (2, 'Narazı'),
+        (3, 'Neytral'),
+        (4, 'Razı'),
+        (5, 'Çox Razı'),
+    ]
+
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='experience_feedback',
+        verbose_name=_('Müraciət')
+    )
+    touchpoint = models.CharField(
+        max_length=20,
+        choices=TOUCHPOINT_CHOICES,
+        verbose_name=_('Təmas Nöqtəsi')
+    )
+    feedback_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Rəy Tarixi')
+    )
+
+    # Satisfaction ratings
+    overall_satisfaction = models.IntegerField(
+        choices=SATISFACTION_CHOICES,
+        verbose_name=_('Ümumi Məmnuniyyət')
+    )
+    communication_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=SATISFACTION_CHOICES,
+        verbose_name=_('Kommunikasiya Qiyməti')
+    )
+    process_clarity_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=SATISFACTION_CHOICES,
+        verbose_name=_('Proses Aydınlığı')
+    )
+    timeliness_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=SATISFACTION_CHOICES,
+        verbose_name=_('Vaxtında Olma')
+    )
+    professionalism_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=SATISFACTION_CHOICES,
+        verbose_name=_('Peşəkarlıq')
+    )
+
+    # Qualitative feedback
+    positive_aspects = models.TextField(
+        blank=True,
+        verbose_name=_('Pozitiv Aspektlər')
+    )
+    improvement_areas = models.TextField(
+        blank=True,
+        verbose_name=_('Təkmilləşdirmə Sahələri')
+    )
+    additional_comments = models.TextField(
+        blank=True,
+        verbose_name=_('Əlavə Şərhlər')
+    )
+
+    # Recommend to others
+    would_recommend = models.BooleanField(
+        null=True,
+        blank=True,
+        verbose_name=_('Başqalarına Tövsiyə Edər')
+    )
+    nps_score = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        verbose_name=_('NPS Balı'),
+        help_text=_('0-10: Bu şirkətdə işləməyi dostlarınıza nə dərəcədə tövsiyə edərsiniz?')
+    )
+
+    # Survey metadata
+    survey_completed = models.BooleanField(
+        default=False,
+        verbose_name=_('Sorğu Tamamlandı')
+    )
+    survey_sent_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Sorğu Göndərilmə Tarixi')
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _('Namizəd Təcrübəsi')
+        verbose_name_plural = _('Namizəd Təcrübələri')
+        ordering = ['-feedback_date']
+        indexes = [
+            models.Index(fields=['application', 'touchpoint']),
+            models.Index(fields=['touchpoint', 'overall_satisfaction']),
+        ]
+
+    def __str__(self):
+        return f"{self.application.full_name} - {self.get_touchpoint_display()} ({self.overall_satisfaction}/5)"
+
+    def calculate_average_rating(self):
+        """Calculate average rating across all dimensions."""
+        ratings = [
+            self.overall_satisfaction,
+            self.communication_rating,
+            self.process_clarity_rating,
+            self.timeliness_rating,
+            self.professionalism_rating
+        ]
+        valid_ratings = [r for r in ratings if r is not None]
+
+        if valid_ratings:
+            return sum(valid_ratings) / len(valid_ratings)
+        return 0
+
+
+class Referral(models.Model):
+    """
+    Employee referral tracking and management.
+    Automates referral program with rewards and analytics.
+    """
+
+    STATUS_CHOICES = [
+        ('submitted', 'Təqdim Edildi'),
+        ('under_review', 'Baxışdadır'),
+        ('interview_scheduled', 'Müsahibə Planlaşdırılıb'),
+        ('hired', 'İşə Qəbul Edildi'),
+        ('not_selected', 'Seçilmədi'),
+        ('withdrawn', 'Geri Çəkildi'),
+    ]
+
+    REWARD_STATUS_CHOICES = [
+        ('pending', 'Gözləyir'),
+        ('eligible', 'Uyğundur'),
+        ('approved', 'Təsdiqləndi'),
+        ('paid', 'Ödənildi'),
+        ('not_eligible', 'Uyğun Deyil'),
+    ]
+
+    referrer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='referrals_made',
+        verbose_name=_('Tövsiyə Edən')
+    )
+    job_posting = models.ForeignKey(
+        JobPosting,
+        on_delete=models.CASCADE,
+        related_name='referrals',
+        verbose_name=_('Vakansiya')
+    )
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='referral_info',
+        verbose_name=_('Müraciət')
+    )
+
+    # Referral details
+    relationship = models.CharField(
+        max_length=100,
+        verbose_name=_('Əlaqə'),
+        help_text=_('Namizədlə əlaqə (məs: Keçmiş həmkar, Universitet dostu)')
+    )
+    referral_notes = models.TextField(
+        blank=True,
+        verbose_name=_('Tövsiyə Qeydləri')
+    )
+
+    # Status tracking
+    status = models.CharField(
+        max_length=25,
+        choices=STATUS_CHOICES,
+        default='submitted',
+        verbose_name=_('Status')
+    )
+
+    # Reward management
+    reward_status = models.CharField(
+        max_length=20,
+        choices=REWARD_STATUS_CHOICES,
+        default='pending',
+        verbose_name=_('Mükafat Statusu')
+    )
+    reward_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_('Mükafat Məbləği')
+    )
+    reward_currency = models.CharField(
+        max_length=3,
+        default='AZN',
+        verbose_name=_('Valyuta')
+    )
+    reward_paid_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('Mükafat Ödəniş Tarixi')
+    )
+
+    # Timestamps
+    submitted_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Təqdim Tarixi')
+    )
+    hired_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('İşə Qəbul Tarixi')
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _('Tövsiyə')
+        verbose_name_plural = _('Tövsiyələr')
+        ordering = ['-submitted_date']
+        indexes = [
+            models.Index(fields=['referrer', 'status']),
+            models.Index(fields=['job_posting', 'status']),
+            models.Index(fields=['reward_status']),
+        ]
+
+    def __str__(self):
+        return f"{self.referrer.get_full_name()} → {self.application.full_name}"
+
+    def update_status_from_application(self):
+        """Update referral status based on application status."""
+        status_mapping = {
+            'screening': 'under_review',
+            'interview': 'interview_scheduled',
+            'hired': 'hired',
+            'rejected': 'not_selected',
+            'withdrawn': 'withdrawn'
+        }
+
+        new_status = status_mapping.get(self.application.status)
+        if new_status:
+            self.status = new_status
+
+            # Update reward eligibility
+            if new_status == 'hired':
+                self.reward_status = 'eligible'
+                self.hired_date = self.application.updated_at.date()
+
+                # Set default reward amount if configured
+                # This could come from a ReferralRewardConfig model
+                if not self.reward_amount:
+                    self.reward_amount = Decimal('500.00')  # Default amount
+
+            self.save()
+
+    def approve_reward(self, approver):
+        """Approve referral reward."""
+        if self.reward_status == 'eligible':
+            self.reward_status = 'approved'
+            self.save()
+
+    def mark_reward_paid(self, payment_date=None):
+        """Mark reward as paid."""
+        from django.utils import timezone
+
+        if self.reward_status == 'approved':
+            self.reward_status = 'paid'
+            self.reward_paid_date = payment_date or timezone.now().date()
+            self.save()
