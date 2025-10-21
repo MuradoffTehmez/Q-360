@@ -3,29 +3,341 @@ Template views for reports app.
 Professional report generation and visualization.
 """
 from datetime import timedelta
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
-from django.db.models import Avg, Count, Q, Max, Min
-from django.utils import timezone
 import json
 
-from apps.evaluations.models import EvaluationResult, EvaluationCampaign, Response, EvaluationAssignment
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, Count, Max, Min, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.utils.dateparse import parse_date
+from django.utils.translation import gettext as _
+
 from apps.accounts.models import User
 from apps.accounts.permissions import filter_queryset_for_user, get_accessible_users
+from apps.evaluations.models import EvaluationAssignment, EvaluationCampaign, EvaluationResult, Response
 from .models import (
     Report,
-    RadarChartData,
     ReportBlueprint,
     ReportSchedule,
     ReportScheduleLog,
     ReportVisualization,
+    RadarChartData,
     SystemKPI,
 )
-from .utils import generate_pdf_report, generate_excel_report, generate_csv_report, calculate_radar_data
-
 from .services import build_dataset_for_blueprint
+from .utils import (
+    build_dataset_csv,
+    build_dataset_excel,
+    build_dataset_pdf,
+    calculate_radar_data,
+    generate_csv_report,
+    generate_excel_report,
+    generate_pdf_report,
+)
+
+
+# ---------------------------------------------------------------------------
+# Custom report builder configuration and helpers
+# ---------------------------------------------------------------------------
+
+
+def _value_employee_id(result):
+    evaluatee = getattr(result, 'evaluatee', None)
+    if not evaluatee:
+        return '-'
+    return evaluatee.employee_id or evaluatee.username
+
+
+def _value_full_name(result):
+    evaluatee = getattr(result, 'evaluatee', None)
+    return evaluatee.get_full_name() if evaluatee else '-'
+
+
+def _value_email(result):
+    evaluatee = getattr(result, 'evaluatee', None)
+    return evaluatee.email if evaluatee else '-'
+
+
+def _value_department(result):
+    evaluatee = getattr(result, 'evaluatee', None)
+    if evaluatee and evaluatee.department:
+        return str(evaluatee.department)
+    return '-'
+
+
+def _value_position(result):
+    evaluatee = getattr(result, 'evaluatee', None)
+    if not evaluatee:
+        return '-'
+    position = getattr(evaluatee, 'position', None)
+    return getattr(position, 'title', None) or position or '-'
+
+
+def _value_campaign(result):
+    campaign = getattr(result, 'campaign', None)
+    return campaign.title if campaign else '-'
+
+
+def _value_scores(result, field):
+    value = getattr(result, field, None)
+    return round(float(value), 2) if value is not None else 0
+
+
+def _value_total_evaluators(result):
+    return getattr(result, 'total_evaluators', 0) or 0
+
+
+def _value_calculated_at(result):
+    calculated = getattr(result, 'calculated_at', None)
+    if not calculated:
+        return '-'
+    localized = timezone.localtime(calculated)
+    return localized.strftime('%d.%m.%Y %H:%M')
+
+
+COLUMN_CONFIG = {
+    'employee_id': {'label': _('İşçi ID'), 'type': 'text', 'value': _value_employee_id},
+    'full_name': {'label': _('İstifadəçi'), 'type': 'text', 'value': _value_full_name},
+    'email': {'label': _('E-poçt'), 'type': 'text', 'value': _value_email},
+    'department': {'label': _('Şöbə'), 'type': 'text', 'value': _value_department},
+    'position': {'label': _('Vəzifə'), 'type': 'text', 'value': _value_position},
+    'campaign': {'label': _('Kampaniya'), 'type': 'text', 'value': _value_campaign},
+    'overall_score': {
+        'label': _('Ümumi Bal'),
+        'type': 'number',
+        'value': lambda result: _value_scores(result, 'overall_score'),
+    },
+    'self_score': {
+        'label': _('Özüm'),
+        'type': 'number',
+        'value': lambda result: _value_scores(result, 'self_score'),
+    },
+    'supervisor_score': {
+        'label': _('Rəhbər'),
+        'type': 'number',
+        'value': lambda result: _value_scores(result, 'supervisor_score'),
+    },
+    'peer_score': {
+        'label': _('Həmkar'),
+        'type': 'number',
+        'value': lambda result: _value_scores(result, 'peer_score'),
+    },
+    'subordinate_score': {
+        'label': _('Tabelik'),
+        'type': 'number',
+        'value': lambda result: _value_scores(result, 'subordinate_score'),
+    },
+    'total_evaluators': {
+        'label': _('Qiymətləndirənlər'),
+        'type': 'number',
+        'value': _value_total_evaluators,
+    },
+    'calculated_at': {'label': _('Hesablanma Tarixi'), 'type': 'date', 'value': _value_calculated_at},
+}
+
+DEFAULT_SELECTED_COLUMNS = [
+    'full_name',
+    'position',
+    'department',
+    'overall_score',
+    'supervisor_score',
+    'peer_score',
+    'total_evaluators',
+    'calculated_at',
+]
+
+FILTER_CONFIG = {
+    'department': {
+        'label': _('Şöbə'),
+        'lookup': 'evaluatee__department__name',
+        'type': 'text',
+        'operators': ['equals', 'contains'],
+    },
+    'position': {
+        'label': _('Vəzifə'),
+        'lookup': 'evaluatee__position__title',
+        'fallback_lookup': 'evaluatee__position',
+        'type': 'text',
+        'operators': ['equals', 'contains'],
+    },
+    'role': {
+        'label': _('Rol'),
+        'lookup': 'evaluatee__role',
+        'type': 'text',
+        'operators': ['equals'],
+    },
+    'overall_score': {
+        'label': _('Ümumi Bal'),
+        'lookup': 'overall_score',
+        'type': 'number',
+        'operators': ['equals', 'gte', 'lte', 'gt', 'lt'],
+    },
+    'supervisor_score': {
+        'label': _('Rəhbər Balı'),
+        'lookup': 'supervisor_score',
+        'type': 'number',
+        'operators': ['equals', 'gte', 'lte', 'gt', 'lt'],
+    },
+    'peer_score': {
+        'label': _('Həmkar Balı'),
+        'lookup': 'peer_score',
+        'type': 'number',
+        'operators': ['equals', 'gte', 'lte', 'gt', 'lt'],
+    },
+    'self_score': {
+        'label': _('Özüm Balı'),
+        'lookup': 'self_score',
+        'type': 'number',
+        'operators': ['equals', 'gte', 'lte', 'gt', 'lt'],
+    },
+    'total_evaluators': {
+        'label': _('Qiymətləndirən Sayı'),
+        'lookup': 'total_evaluators',
+        'type': 'number',
+        'operators': ['equals', 'gte', 'lte', 'gt', 'lt'],
+    },
+    'calculated_at': {
+        'label': _('Hesablanma Tarixi'),
+        'lookup': 'calculated_at',
+        'type': 'date',
+        'operators': ['equals', 'gte', 'lte'],
+    },
+}
+
+OPERATOR_LOOKUP_SUFFIX = {
+    'equals': '',
+    'contains': '__icontains',
+    'gte': '__gte',
+    'lte': '__lte',
+    'gt': '__gt',
+    'lt': '__lt',
+}
+
+OPERATOR_LABELS = {
+    'equals': _('bərabərdir'),
+    'contains': _('içərir'),
+    'gte': _('≥'),
+    'lte': _('≤'),
+    'gt': _('>'),
+    'lt': _('<'),
+}
+
+
+def _parse_selected_columns(raw_value):
+    if not raw_value:
+        return list(DEFAULT_SELECTED_COLUMNS)
+    try:
+        parsed = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return list(DEFAULT_SELECTED_COLUMNS)
+    if not isinstance(parsed, list):
+        return list(DEFAULT_SELECTED_COLUMNS)
+    filtered = [col for col in parsed if col in COLUMN_CONFIG]
+    return filtered or list(DEFAULT_SELECTED_COLUMNS)
+
+
+def _parse_filter_rules(raw_value):
+    if not raw_value:
+        return []
+    try:
+        rules = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(rules, list):
+        return []
+    normalized = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        field = rule.get('field')
+        operator = rule.get('operator')
+        value = rule.get('value')
+        if field not in FILTER_CONFIG or operator not in OPERATOR_LOOKUP_SUFFIX:
+            continue
+        if value in (None, ''):
+            continue
+        normalized.append({'field': field, 'operator': operator, 'value': value})
+    return normalized
+
+
+def _apply_dynamic_filters(queryset, filter_rules):
+    for rule in filter_rules:
+        config = FILTER_CONFIG.get(rule['field'])
+        if not config:
+            continue
+
+        lookup = config['lookup']
+        operator = rule['operator']
+        suffix = OPERATOR_LOOKUP_SUFFIX.get(operator, '')
+        lookup_path = f"{lookup}{suffix}"
+
+        alt_lookup_path = None
+        if 'fallback_lookup' in config:
+            alt_lookup_path = f"{config['fallback_lookup']}{suffix}"
+
+        raw_value = rule['value']
+        value = raw_value
+
+        try:
+            if config['type'] == 'number':
+                value = float(raw_value)
+            elif config['type'] == 'date':
+                parsed_date = parse_date(str(raw_value))
+                if not parsed_date:
+                    continue
+                if operator == 'equals':
+                    lookup_path = f"{lookup}__date"
+                    value = parsed_date
+                else:
+                    lookup_path = f"{lookup}__date{suffix}"
+                    value = parsed_date
+            else:
+                value = str(raw_value).strip()
+        except (ValueError, TypeError):
+            continue
+
+        if alt_lookup_path:
+            queryset = queryset.filter(Q(**{lookup_path: value}) | Q(**{alt_lookup_path: value}))
+        else:
+            queryset = queryset.filter(**{lookup_path: value})
+
+    return queryset
+
+
+def _build_table_dataset(results, selected_columns):
+    headers = []
+    column_meta = []
+    for column_key in selected_columns:
+        config = COLUMN_CONFIG[column_key]
+        headers.append(str(config['label']))
+        column_meta.append({'id': column_key, 'label': str(config['label']), 'type': config['type']})
+
+    rows = []
+    for result in results:
+        row = []
+        for column_key in selected_columns:
+            config = COLUMN_CONFIG[column_key]
+            value = config['value'](result)
+            if config['type'] == 'number':
+                value = round(float(value), 2) if value not in ('-', None) else 0
+            row.append(value)
+        rows.append(row)
+
+    return headers, rows, column_meta
+
+
+def _serialize_filters_for_metadata(filter_rules):
+    items = []
+    for rule in filter_rules:
+        config = FILTER_CONFIG.get(rule['field'])
+        if not config:
+            continue
+        operator_label = OPERATOR_LABELS.get(rule['operator'], rule['operator'])
+        items.append(f"{config['label']}: {operator_label} {rule['value']}")
+    return items
+
 
 @login_required
 def my_reports(request):
@@ -640,22 +952,26 @@ def custom_report_builder(request):
     - Chart növü
     """
     if request.method == 'POST':
-        # Process custom report generation
+        # Base selections
         campaign_id = request.POST.get('campaign')
         department_id = request.POST.get('department')
         user_ids = request.POST.getlist('users')
 
-        # Metrics to include
+        selected_columns = _parse_selected_columns(request.POST.get('selected_columns'))
+        filter_rules = _parse_filter_rules(request.POST.get('filters'))
+
         include_overall = request.POST.get('include_overall') == 'on'
         include_category = request.POST.get('include_category') == 'on'
         include_relationship = request.POST.get('include_relationship') == 'on'
         include_trends = request.POST.get('include_trends') == 'on'
 
-        # Chart types
-        chart_types = request.POST.getlist('chart_types')
+        chart_types = request.POST.getlist('chart_types') or ['bar']
 
-        # Build query
-        results_query = EvaluationResult.objects.select_related('evaluatee', 'campaign')
+        results_query = EvaluationResult.objects.select_related(
+            'evaluatee',
+            'evaluatee__department',
+            'campaign',
+        )
 
         if campaign_id:
             results_query = results_query.filter(campaign_id=campaign_id)
@@ -666,84 +982,250 @@ def custom_report_builder(request):
         if user_ids:
             results_query = results_query.filter(evaluatee_id__in=user_ids)
 
+        results_query = _apply_dynamic_filters(results_query, filter_rules)
         results = results_query.all()
 
-        # Prepare data structures
+        headers, table_rows, column_meta = _build_table_dataset(results, selected_columns)
+        table_rows_render = []
+        for row in table_rows:
+            cells = []
+            for index, meta in enumerate(column_meta):
+                value = row[index] if index < len(row) else ''
+                cells.append({'value': value, 'type': meta['type']})
+            table_rows_render.append(cells)
+
         report_data = {
             'results': results,
             'summary': {},
-            'charts': {}
+            'charts': {},
+            'table_headers': column_meta,
+            'table_rows': table_rows,
+            'table_rows_render': table_rows_render,
+            'selected_columns': selected_columns,
+            'filters': filter_rules,
         }
 
         # Overall statistics
         if include_overall:
+            aggregates = results.aggregate(
+                avg_score=Avg('overall_score'),
+                max_score=Max('overall_score'),
+                min_score=Min('overall_score'),
+            )
             report_data['summary']['overall'] = {
                 'total_evaluations': results.count(),
-                'avg_score': results.aggregate(Avg('overall_score'))['overall_score__avg'],
-                'max_score': results.aggregate(max_score=Max('overall_score'))['max_score'],
-                'min_score': results.aggregate(min_score=Min('overall_score'))['min_score'],
+                'avg_score': aggregates['avg_score'],
+                'max_score': aggregates['max_score'],
+                'min_score': aggregates['min_score'],
             }
 
         # Category analysis
-        if include_category:
+        if include_category and campaign_id:
             from apps.evaluations.models import QuestionCategory
+
+            evaluatee_ids = list(results.values_list('evaluatee_id', flat=True))
             categories = QuestionCategory.objects.filter(is_active=True)
             category_data = {'labels': [], 'data': []}
 
             for category in categories:
-                # Get all responses for this category
-                avg_score = Response.objects.filter(
+                responses = Response.objects.filter(
                     assignment__campaign_id=campaign_id,
                     question__category=category,
-                    score__isnull=False
-                ).aggregate(Avg('score'))['score__avg']
+                    score__isnull=False,
+                )
+                if evaluatee_ids:
+                    responses = responses.filter(assignment__evaluatee_id__in=evaluatee_ids)
 
-                if avg_score:
+                avg_score = responses.aggregate(Avg('score'))['score__avg']
+                if avg_score is not None:
                     category_data['labels'].append(category.name)
-                    category_data['data'].append(round(avg_score, 2))
+                    category_data['data'].append(round(float(avg_score), 2))
 
-            report_data['charts']['category'] = category_data
+            if category_data['labels']:
+                report_data['charts']['category'] = category_data
 
         # Relationship type analysis
-        if include_relationship:
+        if include_relationship and campaign_id:
+            evaluatee_ids = list(results.values_list('evaluatee_id', flat=True))
             relationship_data = {'labels': [], 'data': []}
-            relationships = ['self', 'supervisor', 'peer', 'subordinate']
+            relationships = [('self', _('Özüm')), ('supervisor', _('Rəhbər')), ('peer', _('Həmkar')), ('subordinate', _('Tabelik'))]
 
-            for rel in relationships:
-                if campaign_id:
-                    avg_score = Response.objects.filter(
-                        assignment__campaign_id=campaign_id,
-                        assignment__relationship=rel,
-                        score__isnull=False
-                    ).aggregate(Avg('score'))['score__avg']
+            for rel_key, rel_label in relationships:
+                responses = Response.objects.filter(
+                    assignment__campaign_id=campaign_id,
+                    assignment__relationship=rel_key,
+                    score__isnull=False,
+                )
+                if evaluatee_ids:
+                    responses = responses.filter(assignment__evaluatee_id__in=evaluatee_ids)
 
-                    if avg_score:
-                        relationship_data['labels'].append(rel.capitalize())
-                        relationship_data['data'].append(round(avg_score, 2))
+                avg_score = responses.aggregate(Avg('score'))['score__avg']
+                if avg_score is not None:
+                    relationship_data['labels'].append(rel_label)
+                    relationship_data['data'].append(round(float(avg_score), 2))
 
-            report_data['charts']['relationship'] = relationship_data
+            if relationship_data['labels']:
+                report_data['charts']['relationship'] = relationship_data
 
         # Trend analysis
         if include_trends:
+            trend_qs = results.order_by('campaign__start_date')
             trend_data = {'labels': [], 'data': []}
-            # Get last 6 evaluations for selected users
-            for result in results.order_by('campaign__start_date')[:6]:
-                trend_data['labels'].append(result.campaign.title[:15])
-                trend_data['data'].append(float(result.overall_score or 0))
+            for result in trend_qs[:12]:
+                label = result.campaign.title[:20] if result.campaign else _('Naməlum kampaniya')
+                trend_data['labels'].append(label)
+                trend_data['data'].append(round(float(result.overall_score or 0), 2))
+            if trend_data['labels']:
+                report_data['charts']['trend'] = trend_data
 
-            report_data['charts']['trend'] = trend_data
-
-        # Convert to JSON for charts
         report_json = {
             'summary': report_data['summary'],
-            'charts': {k: json.dumps(v) for k, v in report_data['charts'].items()}
+            'charts': {key: json.dumps(value) for key, value in report_data['charts'].items()},
         }
+
+        # Plotly payload preparation
+        plotly_charts = {}
+        if 'category' in report_data['charts']:
+            data = report_data['charts']['category']
+            preferred_type = 'bar'
+            if 'radar' in chart_types:
+                preferred_type = 'radar'
+            elif 'line' in chart_types:
+                preferred_type = 'line'
+
+            if preferred_type == 'radar':
+                plotly_charts['category'] = {
+                    'data': [
+                        {
+                            'type': 'scatterpolar',
+                            'theta': data['labels'],
+                            'r': data['data'],
+                            'fill': 'toself',
+                            'name': str(_('Kateqoriya Analizi')),
+                        }
+                    ],
+                    'layout': {
+                        'title': str(_('Kateqoriya Analizi')),
+                        'polar': {'radialaxis': {'visible': True, 'range': [0, 5]}},
+                        'margin': {'t': 40, 'b': 30, 'l': 40, 'r': 40},
+                    },
+                }
+            else:
+                chart_mode = 'lines+markers' if preferred_type == 'line' else None
+                trace = {
+                    'x': data['labels'],
+                    'y': data['data'],
+                    'name': str(_('Kateqoriya Analizi')),
+                }
+                if preferred_type == 'line':
+                    trace['mode'] = chart_mode
+                    trace['type'] = 'scatter'
+                else:
+                    trace['type'] = 'bar'
+                plotly_charts['category'] = {
+                    'data': [trace],
+                    'layout': {
+                        'title': str(_('Kateqoriya Analizi')),
+                        'yaxis': {'range': [0, 5]},
+                        'margin': {'t': 40, 'b': 80},
+                    },
+                }
+
+        if 'relationship' in report_data['charts']:
+            data = report_data['charts']['relationship']
+            preferred_type = 'bar'
+            if 'pie' in chart_types:
+                preferred_type = 'pie'
+            elif 'radar' in chart_types:
+                preferred_type = 'radar'
+
+            if preferred_type == 'pie':
+                plotly_charts['relationship'] = {
+                    'data': [
+                        {
+                            'type': 'pie',
+                            'labels': data['labels'],
+                            'values': data['data'],
+                            'hole': 0.35,
+                        }
+                    ],
+                    'layout': {'title': str(_('Əlaqə növü analizi'))},
+                }
+            elif preferred_type == 'radar':
+                plotly_charts['relationship'] = {
+                    'data': [
+                        {
+                            'type': 'scatterpolar',
+                            'theta': data['labels'],
+                            'r': data['data'],
+                            'fill': 'toself',
+                            'name': str(_('Əlaqə növü')),
+                        }
+                    ],
+                    'layout': {
+                        'title': str(_('Əlaqə növü analizi')),
+                        'polar': {'radialaxis': {'visible': True, 'range': [0, 5]}},
+                    },
+                }
+            else:
+                plotly_charts['relationship'] = {
+                    'data': [
+                        {
+                            'type': 'bar',
+                            'x': data['labels'],
+                            'y': data['data'],
+                            'marker': {'color': '#667eea'},
+                        }
+                    ],
+                    'layout': {
+                        'title': str(_('Əlaqə növü analizi')),
+                        'yaxis': {'range': [0, 5]},
+                        'margin': {'t': 40, 'b': 80},
+                    },
+                }
+
+        if 'trend' in report_data['charts']:
+            data = report_data['charts']['trend']
+            preferred_type = 'line' if 'line' in chart_types else 'bar'
+            if preferred_type == 'line':
+                trace = {
+                    'type': 'scatter',
+                    'mode': 'lines+markers',
+                    'x': data['labels'],
+                    'y': data['data'],
+                    'line': {'color': '#38bdf8'},
+                }
+            else:
+                trace = {
+                    'type': 'bar',
+                    'x': data['labels'],
+                    'y': data['data'],
+                    'marker': {'color': '#38bdf8'},
+                }
+            plotly_charts['trend'] = {
+                'data': [trace],
+                'layout': {
+                    'title': str(_('Performans trendi')),
+                    'yaxis': {'range': [0, 5]},
+                    'margin': {'t': 40, 'b': 80},
+                },
+            }
+
+        plotly_charts_json = json.dumps(plotly_charts)
+
+        filters_summary = _serialize_filters_for_metadata(filter_rules)
 
         context = {
             'report_data': report_data,
             'report_json': report_json,
             'chart_types': chart_types,
             'campaign_id': campaign_id,
+            'table_headers': column_meta,
+            'table_rows': table_rows,
+            'table_rows_render': table_rows_render,
+            'selected_columns': selected_columns,
+            'filters_summary': filters_summary,
+            'plotly_charts_json': plotly_charts_json,
         }
 
         return render(request, 'reports/custom_report_view.html', context)
@@ -757,7 +1239,6 @@ def custom_report_builder(request):
 
     departments = Department.objects.filter(is_active=True)
 
-    # Get users based on permission
     if request.user.is_admin():
         users = User.objects.filter(is_active=True)
     elif request.user.is_manager():
@@ -765,10 +1246,28 @@ def custom_report_builder(request):
     else:
         users = [request.user]
 
+    available_columns = [
+        {'id': key, 'label': str(config['label']), 'type': config['type']}
+        for key, config in COLUMN_CONFIG.items()
+    ]
+
+    filter_definitions = [
+        {
+            'id': key,
+            'label': str(config['label']),
+            'type': config['type'],
+            'operators': config['operators'],
+        }
+        for key, config in FILTER_CONFIG.items()
+    ]
+
     context = {
         'campaigns': campaigns,
         'departments': departments,
         'users': users,
+        'available_columns_json': json.dumps(available_columns),
+        'default_columns_json': json.dumps(DEFAULT_SELECTED_COLUMNS),
+        'filter_definitions_json': json.dumps(filter_definitions),
     }
 
     return render(request, 'reports/custom_report_builder.html', context)
@@ -780,13 +1279,19 @@ def export_custom_report(request):
     if request.method != 'POST':
         return redirect('reports:custom-builder')
 
-    export_format = request.POST.get('export_format', 'excel')
+    export_format = request.POST.get('export_format', 'excel').lower()
     campaign_id = request.POST.get('campaign')
     department_id = request.POST.get('department')
     user_ids = request.POST.getlist('users')
 
-    # Build query (same as custom_report_builder)
-    results_query = EvaluationResult.objects.select_related('evaluatee', 'campaign', 'evaluatee__department')
+    selected_columns = _parse_selected_columns(request.POST.get('selected_columns'))
+    filter_rules = _parse_filter_rules(request.POST.get('filters'))
+
+    results_query = EvaluationResult.objects.select_related(
+        'evaluatee',
+        'evaluatee__department',
+        'campaign',
+    )
 
     if campaign_id:
         results_query = results_query.filter(campaign_id=campaign_id)
@@ -797,99 +1302,47 @@ def export_custom_report(request):
     if user_ids:
         results_query = results_query.filter(evaluatee_id__in=user_ids)
 
+    results_query = _apply_dynamic_filters(results_query, filter_rules)
     results = results_query.all()
 
     if not results.exists():
-        messages.error(request, 'Seçilmiş meyarlara uyğun heç bir nəticə tapılmadı.')
+        messages.error(request, _('Seçilmiş meyarlara uyğun heç bir nəticə tapılmadı.'))
         return redirect('reports:custom-builder')
 
-    # Generate export based on format
-    if export_format == 'pdf':
-        # For PDF, we'll export first result as sample
-        # In production, you might want to create a combined PDF
-        if results.first():
-            pdf_content = generate_pdf_report(results.first())
-            response = HttpResponse(pdf_content, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.pdf"'
-            return response
+    headers, rows, column_meta = _build_table_dataset(results, selected_columns)
 
-    elif export_format == 'excel':
-        # Generate Excel with all results
-        import openpyxl
-        from openpyxl.styles import Font, Alignment, PatternFill
-        from io import BytesIO
+    campaign_title = results.first().campaign.title if results and results.first().campaign else _('Fərdi hesabat')
+    title = f"{campaign_title} - {_('Xüsusi Hesabat')}"
 
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Custom Report"
+    metadata = {
+        'kampaniya': campaign_title,
+        'seçilmiş_sütunlar': [meta['label'] for meta in column_meta],
+        'filtrlər': _serialize_filters_for_metadata(filter_rules) or [_('Filtr tətbiq edilməyib')],
+        'hesabat_sətirləri': len(rows),
+        'yaradılma_tarixi': timezone.localtime(timezone.now()).strftime('%d.%m.%Y %H:%M'),
+    }
 
-        # Header style
-        header_fill = PatternFill(start_color="667eea", end_color="667eea", fill_type="solid")
-        header_font = Font(color="FFFFFF", bold=True, size=12)
+    timestamp = timezone.localtime(timezone.now()).strftime('%Y%m%d_%H%M%S')
 
-        # Headers
-        headers = [
-            'İşçi ID', 'Ad Soyad', 'Şöbə', 'Vəzifə', 'Kampaniya',
-            'Ümumi Bal', 'Özüm', 'Rəhbər', 'Həmkar', 'Tabelik', 'Tarix'
-        ]
+    try:
+        if export_format == 'pdf':
+            content = build_dataset_pdf(title, headers, rows, metadata)
+            response = HttpResponse(content, content_type='application/pdf')
+            filename = f'custom_report_{timestamp}.pdf'
+        elif export_format == 'csv':
+            content = build_dataset_csv(title, headers, rows)
+            response = HttpResponse(content, content_type='text/csv; charset=utf-8-sig')
+            filename = f'custom_report_{timestamp}.csv'
+        else:
+            content = build_dataset_excel(title, headers, rows, metadata)
+            response = HttpResponse(
+                content,
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            )
+            filename = f'custom_report_{timestamp}.xlsx'
+    except RuntimeError as exc:
+        messages.error(request, str(exc))
+        return redirect('reports:custom-builder')
 
-        for col, header in enumerate(headers, start=1):
-            cell = ws.cell(row=1, column=col)
-            cell.value = header
-            cell.fill = header_fill
-            cell.font = header_font
-            cell.alignment = Alignment(horizontal='center')
-
-        # Data
-        for row, result in enumerate(results, start=2):
-            ws.cell(row=row, column=1).value = result.evaluatee.employee_id or result.evaluatee.username
-            ws.cell(row=row, column=2).value = result.evaluatee.get_full_name()
-            ws.cell(row=row, column=3).value = str(result.evaluatee.department) if result.evaluatee.department else '-'
-            ws.cell(row=row, column=4).value = result.evaluatee.position or '-'
-            ws.cell(row=row, column=5).value = result.campaign.title
-            ws.cell(row=row, column=6).value = float(result.overall_score) if result.overall_score else 0
-            ws.cell(row=row, column=7).value = float(result.self_score) if result.self_score else 0
-            ws.cell(row=row, column=8).value = float(result.supervisor_score) if result.supervisor_score else 0
-            ws.cell(row=row, column=9).value = float(result.peer_score) if result.peer_score else 0
-            ws.cell(row=row, column=10).value = float(result.subordinate_score) if result.subordinate_score else 0
-            ws.cell(row=row, column=11).value = result.calculated_at.strftime('%d.%m.%Y') if result.calculated_at else '-'
-
-        # Auto-size columns
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(cell.value)
-                except:
-                    pass
-            adjusted_width = (max_length + 2)
-            ws.column_dimensions[column_letter].width = adjusted_width
-
-        buffer = BytesIO()
-        wb.save(buffer)
-        excel_content = buffer.getvalue()
-        buffer.close()
-
-        response = HttpResponse(
-            excel_content,
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.xlsx"'
-        return response
-
-    elif export_format == 'csv':
-        # Generate CSV
-        csv_content = generate_csv_report(results, include_fields=[
-            'employee_id', 'full_name', 'department', 'position', 'campaign',
-            'overall_score', 'self_score', 'supervisor_score', 'peer_score',
-            'subordinate_score', 'calculated_at'
-        ])
-
-        response = HttpResponse(csv_content, content_type='text/csv; charset=utf-8-sig')
-        response['Content-Disposition'] = f'attachment; filename="custom_report_{campaign_id}.csv"'
-        return response
-
-    messages.error(request, 'Etibarsız ixrac formatı.')
-    return redirect('reports:custom-builder')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

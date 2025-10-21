@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}Xüsusi Hesabat Qurucusu - Q360{% endblock %}
 
@@ -8,228 +8,356 @@
     .form-section {
         background: #f8f9fa;
         padding: 1.5rem;
-        border-radius: 8px;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
     }
+
     .form-section h5 {
-        color: #495057;
-        border-bottom: 2px solid #dee2e6;
+        color: #475569;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.15);
         padding-bottom: 0.5rem;
         margin-bottom: 1rem;
-    }
-    .checkbox-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    .custom-checkbox {
         display: flex;
         align-items: center;
-        padding: 0.5rem;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        transition: all 0.2s;
+        gap: 0.6rem;
+        font-weight: 700;
     }
-    .custom-checkbox:hover {
-        background: #e9ecef;
-        border-color: #0d6efd;
+
+    .column-board {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
     }
-    .custom-checkbox input:checked + label {
-        color: #0d6efd;
+
+    .column-list {
+        background: #ffffff;
+        border: 2px dashed rgba(99, 102, 241, 0.2);
+        border-radius: 12px;
+        min-height: 220px;
+        padding: 1rem;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .column-list.drag-over {
+        border-color: #4f46e5;
+        background: rgba(99, 102, 241, 0.08);
+    }
+
+    .column-item {
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        border-radius: 10px;
+        padding: 0.65rem 0.9rem;
+        margin-bottom: 0.65rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        cursor: move;
         font-weight: 600;
+        color: #3730a3;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.12);
+    }
+
+    .column-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .column-item .badge {
+        background: rgba(79, 70, 229, 0.2);
+        color: #312e81;
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .filter-row {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.08);
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-row .form-select,
+    .filter-row .form-control {
+        min-width: 160px;
+        flex: 1 1 200px;
+    }
+
+    .filter-row .form-control[type="date"] {
+        min-width: 180px;
+    }
+
+    .filter-row .remove-btn {
+        color: #ef4444;
+        font-size: 1.1rem;
+    }
+
+    .filter-empty {
+        border: 2px dashed rgba(15, 23, 42, 0.15);
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        color: #64748b;
+        font-style: italic;
+    }
+
+    .summary-list {
+        max-height: 160px;
+        overflow-y: auto;
+        padding-left: 0.2rem;
+    }
+
+    .summary-pill {
+        background: rgba(99, 102, 241, 0.08);
+        color: #312e81;
+        padding: 0.3rem 0.65rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        margin: 0.2rem;
+    }
+
+    .btn-floating {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-floating::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        opacity: 0;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3), transparent 70%);
+        transition: opacity 0.2s ease;
+    }
+
+    .btn-floating:hover::after {
+        opacity: 1;
+    }
+
+    .badge-ghost {
+        background: rgba(100, 116, 139, 0.18);
+        color: #475569;
+    }
+
+    .sticky-summary {
+        position: sticky;
+        top: 1rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-    <!-- Header -->
     <div class="mb-4">
-        <h1 class="h3 mb-1">
+        <h1 class="h3 mb-1 text-slate-700">
             <i class="fas fa-cogs text-primary"></i> Xüsusi Hesabat Qurucusu
         </h1>
-        <p class="text-muted">Öz ehtiyaclarınıza uyğun hesabat yaradın</p>
+        <p class="text-muted mb-0">Öz komandanız üçün lazımi hesabatı dinamik şəkildə tərtib edin</p>
     </div>
 
-    <!-- Report Builder Form -->
     <form method="post" id="reportBuilderForm">
         {% csrf_token %}
+        <input type="hidden" name="selected_columns" id="selectedColumnsInput">
+        <input type="hidden" name="filters" id="filtersInput">
 
         <div class="row">
             <div class="col-lg-8">
-                <!-- Data Selection -->
                 <div class="form-section">
-                    <h5><i class="fas fa-database me-2"></i>Məlumat Seçimi</h5>
-
-                    <div class="mb-3">
-                        <label for="campaign" class="form-label">Kampaniya</label>
-                        <select name="campaign" id="campaign" class="form-select" required>
-                            <option value="">Kampaniya seçin...</option>
-                            {% for campaign in campaigns %}
-                            <option value="{{ campaign.pk }}">
-                                {{ campaign.title }} ({{ campaign.start_date|date:"d.m.Y" }} - {{ campaign.end_date|date:"d.m.Y" }})
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    {% if user.is_admin %}
-                    <div class="mb-3">
-                        <label for="department" class="form-label">Şöbə (İstəyə bağlı)</label>
-                        <select name="department" id="department" class="form-select">
-                            <option value="">Bütün şöbələr</option>
-                            {% for dept in departments %}
-                            <option value="{{ dept.pk }}">{{ dept.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% endif %}
-
-                    <div class="mb-3">
-                        <label for="users" class="form-label">İstifadəçilər (İstəyə bağlı, boş buraxsanız hamısı seçilir)</label>
-                        <select name="users" id="users" class="form-select" multiple size="5">
-                            {% for user_obj in users %}
-                            <option value="{{ user_obj.pk }}">
-                                {{ user_obj.get_full_name }} - {{ user_obj.position.title|default:"Vəzifə yoxdur" }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> Çoxlu seçmək üçün Ctrl/Cmd + klik istifadə edin
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Metrics Selection -->
-                <div class="form-section">
-                    <h5><i class="fas fa-chart-bar me-2"></i>Göstəriləcək Metriklər</h5>
-
-                    <div class="checkbox-group">
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="include_overall" id="include_overall" class="form-check-input me-2" checked>
-                            <label for="include_overall" class="form-check-label mb-0">
-                                <i class="fas fa-star text-warning"></i> Ümumi Statistika
-                            </label>
+                    <h5><i class="fas fa-database text-primary"></i> Məlumat Seçimi</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="campaign" class="form-label fw-semibold text-slate-600">Kampaniya</label>
+                            <select name="campaign" id="campaign" class="form-select" required>
+                                <option value="">{{ _("Kampaniya seçin...") }}</option>
+                                {% for campaign in campaigns %}
+                                <option value="{{ campaign.pk }}">
+                                    {{ campaign.title }} ({{ campaign.start_date|date:"d.m.Y" }} - {{ campaign.end_date|date:"d.m.Y" }})
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="include_category" id="include_category" class="form-check-input me-2" checked>
-                            <label for="include_category" class="form-check-label mb-0">
-                                <i class="fas fa-layer-group text-info"></i> Kateqoriya Analizi
-                            </label>
+                        {% if user.is_admin %}
+                        <div class="col-md-6">
+                            <label for="department" class="form-label fw-semibold text-slate-600">Şöbə</label>
+                            <select name="department" id="department" class="form-select">
+                                <option value="">{{ _("Bütün şöbələr") }}</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.pk }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="include_relationship" id="include_relationship" class="form-check-input me-2" checked>
-                            <label for="include_relationship" class="form-check-label mb-0">
-                                <i class="fas fa-users text-primary"></i> Əlaqə Növü Analizi
-                            </label>
-                        </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="include_trends" id="include_trends" class="form-check-input me-2">
-                            <label for="include_trends" class="form-check-label mb-0">
-                                <i class="fas fa-chart-line text-success"></i> Trend Analizi
-                            </label>
+                        {% endif %}
+                        <div class="col-12">
+                            <label for="users" class="form-label fw-semibold text-slate-600">İstifadəçilər</label>
+                            <select name="users" id="users" class="form-select" multiple size="6">
+                                {% for user_obj in users %}
+                                <option value="{{ user_obj.pk }}">
+                                    {{ user_obj.get_full_name }} - {{ user_obj.position.title|default:user_obj.position|default:"Vəzifə yoxdur" }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Çoxlu seçim üçün Ctrl/Cmd + klik edin.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Chart Types -->
                 <div class="form-section">
-                    <h5><i class="fas fa-chart-pie me-2"></i>Qrafik Növləri</h5>
-
-                    <div class="checkbox-group">
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="chart_types" value="bar" id="chart_bar" class="form-check-input me-2" checked>
-                            <label for="chart_bar" class="form-check-label mb-0">
-                                <i class="fas fa-chart-bar"></i> Bar Chart
-                            </label>
+                    <h5><i class="fas fa-chart-bar text-primary"></i> Göstəriləcək Metriklər</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="include_overall" name="include_overall" checked>
+                                <label class="form-check-label fw-semibold" for="include_overall">
+                                    <i class="fas fa-star text-warning me-1"></i>Ümumi Statistika
+                                </label>
+                            </div>
                         </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="chart_types" value="line" id="chart_line" class="form-check-input me-2">
-                            <label for="chart_line" class="form-check-label mb-0">
-                                <i class="fas fa-chart-line"></i> Line Chart
-                            </label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="include_category" name="include_category" checked>
+                                <label class="form-check-label fw-semibold" for="include_category">
+                                    <i class="fas fa-layer-group text-info me-1"></i>Kateqoriya Analizi
+                                </label>
+                            </div>
                         </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="chart_types" value="radar" id="chart_radar" class="form-check-input me-2">
-                            <label for="chart_radar" class="form-check-label mb-0">
-                                <i class="fas fa-chart-area"></i> Radar Chart
-                            </label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="include_relationship" name="include_relationship" checked>
+                                <label class="form-check-label fw-semibold" for="include_relationship">
+                                    <i class="fas fa-users text-primary me-1"></i>Əlaqə Növü Analizi
+                                </label>
+                            </div>
                         </div>
-
-                        <div class="custom-checkbox">
-                            <input type="checkbox" name="chart_types" value="pie" id="chart_pie" class="form-check-input me-2">
-                            <label for="chart_pie" class="form-check-label mb-0">
-                                <i class="fas fa-chart-pie"></i> Pie Chart
-                            </label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="include_trends" name="include_trends">
+                                <label class="form-check-label fw-semibold" for="include_trends">
+                                    <i class="fas fa-chart-line text-success me-1"></i>Trend Analizi
+                                </label>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-section">
+                    <h5><i class="fas fa-chart-pie text-primary"></i> Qrafik Növləri</h5>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="chart_types" value="bar" id="chart_bar" checked>
+                            <label class="form-check-label fw-semibold" for="chart_bar"><i class="fas fa-chart-bar text-primary me-1"></i>Bar Chart</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="chart_types" value="line" id="chart_line">
+                            <label class="form-check-label fw-semibold" for="chart_line"><i class="fas fa-chart-line text-success me-1"></i>Line Chart</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="chart_types" value="radar" id="chart_radar">
+                            <label class="form-check-label fw-semibold" for="chart_radar"><i class="fas fa-chart-area text-info me-1"></i>Radar Chart</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="chart_types" value="pie" id="chart_pie">
+                            <label class="form-check-label fw-semibold" for="chart_pie"><i class="fas fa-chart-pie text-warning me-1"></i>Pie Chart</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5><i class="fas fa-table-columns text-primary"></i> Hesabat Sütunları (Drag & Drop)</h5>
+                    <div class="column-board">
+                        <div>
+                            <h6 class="text-slate-500 fw-semibold mb-2">
+                                <i class="fas fa-list text-secondary me-1"></i>Mövcud Sütunlar
+                            </h6>
+                            <div class="column-list" id="availableColumnsList" data-board="available"></div>
+                        </div>
+                        <div>
+                            <h6 class="text-slate-500 fw-semibold mb-2 d-flex align-items-center justify-content-between">
+                                <span><i class="fas fa-check-circle text-success me-1"></i>Seçilmiş Sütunlar</span>
+                                <span class="badge badge-ghost" id="selectedCountBadge">0</span>
+                            </h6>
+                            <div class="column-list" id="selectedColumnsList" data-board="selected"></div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-hand-pointer me-1 text-info"></i>Sütunları sürükləyərək seçə və sıralaya bilərsiniz.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5><i class="fas fa-filter text-primary"></i> Dinamik Filtr Qurucusu</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-floating" id="addFilterBtn">
+                            <i class="fas fa-plus"></i> Filtr əlavə et
+                        </button>
+                    </div>
+                    <div id="filtersContainer" class="mb-2">
+                        <div class="filter-empty" id="filterEmptyState">
+                            <i class="fas fa-sliders-h me-2"></i>Hazırda heç bir filtr tətbiq edilməyib.
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-lightbulb me-1 text-warning"></i>Məsələn: "Ümumi bal ≥ 3.5" və ya "Şöbə içərir HR".
+                    </small>
                 </div>
             </div>
 
-            <!-- Summary Panel -->
             <div class="col-lg-4">
-                <div class="card shadow-sm sticky-top" style="top: 1rem;">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-clipboard-check"></i> Seçim Xülasəsi
-                        </h5>
+                <div class="card shadow-lg border-0 sticky-summary">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>Seçim Xülasəsi</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
                             <h6 class="text-muted mb-1">Kampaniya</h6>
-                            <p id="summary-campaign" class="mb-0">Seçilməyib</p>
+                            <p id="summary-campaign" class="mb-0">{{ _("Seçilməyib") }}</p>
                         </div>
-
                         {% if user.is_admin %}
                         <div class="mb-3">
                             <h6 class="text-muted mb-1">Şöbə</h6>
-                            <p id="summary-department" class="mb-0">Bütün şöbələr</p>
+                            <p id="summary-department" class="mb-0">{{ _("Bütün şöbələr") }}</p>
                         </div>
                         {% endif %}
-
                         <div class="mb-3">
                             <h6 class="text-muted mb-1">İstifadəçilər</h6>
-                            <p id="summary-users" class="mb-0">Hamısı</p>
+                            <p id="summary-users" class="mb-0">{{ _("Hamısı") }}</p>
                         </div>
-
                         <div class="mb-3">
                             <h6 class="text-muted mb-1">Metriklər</h6>
-                            <ul id="summary-metrics" class="list-unstyled mb-0 small">
-                                <li><i class="fas fa-check text-success"></i> Ümumi Statistika</li>
-                                <li><i class="fas fa-check text-success"></i> Kateqoriya Analizi</li>
-                                <li><i class="fas fa-check text-success"></i> Əlaqə Növü Analizi</li>
-                            </ul>
+                            <ul id="summary-metrics" class="summary-list list-unstyled"></ul>
                         </div>
-
                         <div class="mb-3">
-                            <h6 class="text-muted mb-1">Qrafiklər</h6>
-                            <ul id="summary-charts" class="list-unstyled mb-0 small">
-                                <li><i class="fas fa-check text-success"></i> Bar Chart</li>
-                            </ul>
+                            <h6 class="text-muted mb-1">Sütunlar</h6>
+                            <div id="summary-columns" class="summary-list"></div>
                         </div>
-
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">Filtrlər</h6>
+                            <div id="summary-filters" class="summary-list"></div>
+                        </div>
                         <hr>
-
-                        <button type="submit" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-magic"></i> Hesabat Yarat
+                        <button type="submit" class="btn btn-primary w-100 mb-3 btn-floating">
+                            <i class="fas fa-magic me-1"></i>Hesabat Yarat
                         </button>
-
-                        <div class="mt-3">
-                            <h6 class="text-muted mb-2">İxrac Et:</h6>
-                            <button type="button" class="btn btn-outline-success btn-sm w-100 mb-1" onclick="exportReport('excel')">
-                                <i class="fas fa-file-excel"></i> Excel
+                        <div class="mb-2">
+                            <h6 class="text-muted mb-2">İxrac et:</h6>
+                            <button type="button" class="btn btn-outline-success btn-sm w-100 mb-2 btn-floating" onclick="exportReport('excel')">
+                                <i class="fas fa-file-excel me-1"></i>Excel
                             </button>
-                            <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-1" onclick="exportReport('pdf')">
-                                <i class="fas fa-file-pdf"></i> PDF
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-2 btn-floating" onclick="exportReport('pdf')">
+                                <i class="fas fa-file-pdf me-1"></i>PDF
                             </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="exportReport('csv')">
-                                <i class="fas fa-file-csv"></i> CSV
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 btn-floating" onclick="exportReport('csv')">
+                                <i class="fas fa-file-csv me-1"></i>CSV
                             </button>
                         </div>
                     </div>
@@ -242,112 +370,393 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Update summary on campaign change
-    document.getElementById('campaign').addEventListener('change', function() {
-        const selectedText = this.options[this.selectedIndex].text;
-        document.getElementById('summary-campaign').textContent = selectedText || 'Seçilməyib';
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    const availableColumns = JSON.parse('{{ available_columns_json|escapejs }}');
+    const defaultSelectedColumns = JSON.parse('{{ default_columns_json|escapejs }}');
+    const filterDefinitions = JSON.parse('{{ filter_definitions_json|escapejs }}');
+    const operatorLabels = {
+        equals: 'bərabərdir',
+        contains: 'içərir',
+        gte: '≥',
+        lte: '≤',
+        gt: '>',
+        lt: '<'
+    };
 
-    {% if user.is_admin %}
-    // Update summary on department change
-    document.getElementById('department').addEventListener('change', function() {
-        const selectedText = this.options[this.selectedIndex].text;
-        document.getElementById('summary-department').textContent = selectedText;
-    });
-    {% endif %}
+    const state = {
+        selectedColumns: [...defaultSelectedColumns],
+        filters: []
+    };
 
-    // Update summary on users change
-    document.getElementById('users').addEventListener('change', function() {
-        const selectedCount = this.selectedOptions.length;
-        document.getElementById('summary-users').textContent =
-            selectedCount > 0 ? `${selectedCount} istifadəçi` : 'Hamısı';
-    });
+    const elements = {
+        availableColumnsList: document.getElementById('availableColumnsList'),
+        selectedColumnsList: document.getElementById('selectedColumnsList'),
+        selectedColumnsInput: document.getElementById('selectedColumnsInput'),
+        filtersInput: document.getElementById('filtersInput'),
+        summaryColumns: document.getElementById('summary-columns'),
+        summaryFilters: document.getElementById('summary-filters'),
+        selectedCountBadge: document.getElementById('selectedCountBadge'),
+        filterContainer: document.getElementById('filtersContainer'),
+        filterEmptyState: document.getElementById('filterEmptyState'),
+        summaryMetrics: document.getElementById('summary-metrics'),
+        summaryCampaign: document.getElementById('summary-campaign'),
+        summaryDepartment: document.getElementById('summary-department'),
+        summaryUsers: document.getElementById('summary-users')
+    };
 
-    // Update metrics summary
     const metricCheckboxes = ['include_overall', 'include_category', 'include_relationship', 'include_trends'];
     const metricNames = {
-        'include_overall': 'Ümumi Statistika',
-        'include_category': 'Kateqoriya Analizi',
-        'include_relationship': 'Əlaqə Növü Analizi',
-        'include_trends': 'Trend Analizi'
+        include_overall: 'Ümumi Statistika',
+        include_category: 'Kateqoriya Analizi',
+        include_relationship: 'Əlaqə Növü Analizi',
+        include_trends: 'Trend Analizi'
     };
-
-    metricCheckboxes.forEach(id => {
-        document.getElementById(id).addEventListener('change', function() {
-            updateMetricsSummary();
-        });
-    });
 
     function updateMetricsSummary() {
-        const summaryDiv = document.getElementById('summary-metrics');
-        summaryDiv.innerHTML = '';
-
+        elements.summaryMetrics.innerHTML = '';
         metricCheckboxes.forEach(id => {
             const checkbox = document.getElementById(id);
-            if (checkbox.checked) {
-                const li = document.createElement('li');
-                li.innerHTML = `<i class="fas fa-check text-success"></i> ${metricNames[id]}`;
-                summaryDiv.appendChild(li);
+            if (checkbox && checkbox.checked) {
+                const pill = document.createElement('span');
+                pill.className = 'summary-pill';
+                pill.innerHTML = `<i class="fas fa-check text-success"></i>${metricNames[id]}`;
+                elements.summaryMetrics.appendChild(pill);
             }
         });
-
-        if (summaryDiv.children.length === 0) {
-            summaryDiv.innerHTML = '<li class="text-muted">Heç bir metrik seçilməyib</li>';
+        if (!elements.summaryMetrics.children.length) {
+            elements.summaryMetrics.innerHTML = '<span class="text-muted small">Metrik seçilməyib</span>';
         }
     }
 
-    // Update charts summary
-    const chartCheckboxes = document.querySelectorAll('input[name="chart_types"]');
-    const chartNames = {
-        'bar': 'Bar Chart',
-        'line': 'Line Chart',
-        'radar': 'Radar Chart',
-        'pie': 'Pie Chart'
-    };
-
-    chartCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            updateChartsSummary();
-        });
+    metricCheckboxes.forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', updateMetricsSummary);
+        }
     });
 
-    function updateChartsSummary() {
-        const summaryDiv = document.getElementById('summary-charts');
-        summaryDiv.innerHTML = '';
+    document.getElementById('campaign').addEventListener('change', event => {
+        elements.summaryCampaign.textContent = event.target.value ? event.target.selectedOptions[0].text : 'Seçilməyib';
+    });
 
-        chartCheckboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                const li = document.createElement('li');
-                li.innerHTML = `<i class="fas fa-check text-success"></i> ${chartNames[checkbox.value]}`;
-                summaryDiv.appendChild(li);
+    const departmentSelect = document.getElementById('department');
+    if (departmentSelect) {
+        departmentSelect.addEventListener('change', event => {
+            elements.summaryDepartment.textContent = event.target.value ? event.target.selectedOptions[0].text : 'Bütün şöbələr';
+        });
+    }
+
+    document.getElementById('users').addEventListener('change', event => {
+        const count = event.target.selectedOptions.length;
+        elements.summaryUsers.textContent = count ? `${count} istifadəçi` : 'Hamısı';
+    });
+
+    function renderColumns() {
+        elements.selectedColumnsList.innerHTML = '';
+        elements.availableColumnsList.innerHTML = '';
+
+        state.selectedColumns.forEach(columnId => {
+            const definition = availableColumns.find(col => col.id === columnId);
+            if (!definition) {
+                return;
+            }
+            const item = createColumnItem(definition, 'selected');
+            elements.selectedColumnsList.appendChild(item);
+        });
+
+        availableColumns
+            .filter(col => !state.selectedColumns.includes(col.id))
+            .forEach(definition => {
+                const item = createColumnItem(definition, 'available');
+                elements.availableColumnsList.appendChild(item);
+            });
+
+        elements.selectedCountBadge.textContent = state.selectedColumns.length;
+        updateColumnsSummary();
+        syncStateToInputs();
+    }
+
+    function createColumnItem(definition, board) {
+        const item = document.createElement('div');
+        item.className = 'column-item';
+        item.textContent = definition.label;
+        item.dataset.id = definition.id;
+        item.dataset.board = board;
+        item.draggable = true;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge rounded-pill';
+        badge.textContent = definition.type === 'number' ? 'Sayısal' : (definition.type === 'date' ? 'Tarix' : 'Mətn');
+        item.appendChild(badge);
+
+        item.addEventListener('dragstart', event => {
+            event.dataTransfer.setData('column-id', definition.id);
+            event.dataTransfer.setData('source-board', board);
+            event.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => item.classList.add('opacity-50'), 0);
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('opacity-50');
+        });
+
+        item.addEventListener('dragover', event => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        });
+
+        item.addEventListener('drop', event => {
+            event.preventDefault();
+            const columnId = event.dataTransfer.getData('column-id');
+            const sourceBoard = event.dataTransfer.getData('source-board');
+            const targetId = definition.id;
+
+            if (!columnId || columnId === targetId) {
+                return;
+            }
+
+            if (sourceBoard === 'selected') {
+                state.selectedColumns = state.selectedColumns.filter(id => id !== columnId);
+            }
+
+            if (board === 'selected') {
+                const insertIndex = state.selectedColumns.indexOf(targetId);
+                if (!state.selectedColumns.includes(columnId)) {
+                    state.selectedColumns.splice(insertIndex, 0, columnId);
+                } else {
+                    state.selectedColumns.splice(insertIndex, 0, columnId);
+                    const duplicateIndex = state.selectedColumns.lastIndexOf(columnId);
+                    if (duplicateIndex !== insertIndex) {
+                        state.selectedColumns.splice(duplicateIndex, 1);
+                    }
+                }
+            } else {
+                state.selectedColumns = state.selectedColumns.filter(id => id !== columnId);
+            }
+
+            renderColumns();
+        });
+
+        return item;
+    }
+
+    function setupColumnBoard(boardElement) {
+        boardElement.addEventListener('dragover', event => {
+            event.preventDefault();
+            boardElement.classList.add('drag-over');
+            event.dataTransfer.dropEffect = 'move';
+        });
+
+        boardElement.addEventListener('dragleave', () => {
+            boardElement.classList.remove('drag-over');
+        });
+
+        boardElement.addEventListener('drop', event => {
+            event.preventDefault();
+            boardElement.classList.remove('drag-over');
+            const columnId = event.dataTransfer.getData('column-id');
+            const targetBoard = boardElement.dataset.board;
+
+            if (!columnId) {
+                return;
+            }
+
+            if (targetBoard === 'selected') {
+                if (!state.selectedColumns.includes(columnId)) {
+                    state.selectedColumns.push(columnId);
+                }
+            } else {
+                state.selectedColumns = state.selectedColumns.filter(id => id !== columnId);
+            }
+
+            renderColumns();
+        });
+    }
+
+    setupColumnBoard(elements.availableColumnsList);
+    setupColumnBoard(elements.selectedColumnsList);
+
+    function updateColumnsSummary() {
+        elements.summaryColumns.innerHTML = '';
+        if (!state.selectedColumns.length) {
+            elements.summaryColumns.innerHTML = '<span class="text-muted small">Sütun seçilməyib</span>';
+            return;
+        }
+        state.selectedColumns.forEach(columnId => {
+            const definition = availableColumns.find(col => col.id === columnId);
+            if (!definition) {
+                return;
+            }
+            const pill = document.createElement('span');
+            pill.className = 'summary-pill';
+            pill.innerHTML = `<i class="fas fa-columns text-primary"></i>${definition.label}`;
+            elements.summaryColumns.appendChild(pill);
+        });
+    }
+
+    let filterCounter = 0;
+
+    function createEmptyState() {
+        const empty = document.createElement('div');
+        empty.className = 'filter-empty';
+        empty.id = 'filterEmptyState';
+        empty.innerHTML = '<i class="fas fa-sliders-h me-2"></i>Hazırda heç bir filtr tətbiq edilməyib.';
+        elements.filterEmptyState = empty;
+        return empty;
+    }
+
+    function updateFiltersSummary() {
+        elements.summaryFilters.innerHTML = '';
+        if (!state.filters.length) {
+            elements.summaryFilters.innerHTML = '<span class="text-muted small">Filtr tətbiq edilməyib</span>';
+            return;
+        }
+
+        state.filters.forEach(filter => {
+            const definition = filterDefinitions.find(def => def.id === filter.field);
+            if (!definition) {
+                return;
+            }
+            const pill = document.createElement('span');
+            pill.className = 'summary-pill';
+            pill.innerHTML = `<i class="fas fa-filter text-primary"></i>${definition.label} ${operatorLabels[filter.operator] || filter.operator} ${filter.value}`;
+            elements.summaryFilters.appendChild(pill);
+        });
+    }
+
+    function syncStateToInputs() {
+        elements.selectedColumnsInput.value = JSON.stringify(state.selectedColumns);
+        const filtersPayload = state.filters.map(({ id, ...rest }) => rest);
+        elements.filtersInput.value = JSON.stringify(filtersPayload);
+    }
+
+    function addFilterRow(initial = null) {
+        if (elements.filterEmptyState) {
+            elements.filterEmptyState.remove();
+        }
+
+        const row = document.createElement('div');
+        row.className = 'filter-row';
+        const filterId = initial?.id || `filter_${++filterCounter}`;
+        row.dataset.filterId = filterId;
+
+        const fieldSelect = document.createElement('select');
+        fieldSelect.className = 'form-select';
+        fieldSelect.innerHTML = '<option value="">Meyar seçin...</option>';
+        filterDefinitions.forEach(def => {
+            const option = document.createElement('option');
+            option.value = def.id;
+            option.textContent = def.label;
+            fieldSelect.appendChild(option);
+        });
+
+        const operatorSelect = document.createElement('select');
+        operatorSelect.className = 'form-select';
+
+        const valueInput = document.createElement('input');
+        valueInput.className = 'form-control';
+        valueInput.placeholder = 'Dəyər';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn btn-link remove-btn';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+        removeBtn.addEventListener('click', () => {
+            state.filters = state.filters.filter(f => f.id !== filterId);
+            row.remove();
+            updateFiltersSummary();
+            syncStateToInputs();
+            if (!elements.filterContainer.children.length) {
+                elements.filterContainer.appendChild(createEmptyState());
             }
         });
 
-        if (summaryDiv.children.length === 0) {
-            summaryDiv.innerHTML = '<li class="text-muted">Heç bir qrafik seçilməyib</li>';
+        row.append(fieldSelect, operatorSelect, valueInput, removeBtn);
+        elements.filterContainer.appendChild(row);
+
+        function updateFilterState() {
+            const field = fieldSelect.value;
+            const operator = operatorSelect.value;
+            const value = valueInput.value;
+            state.filters = state.filters.filter(f => f.id !== filterId);
+            if (field && operator && value) {
+                state.filters.push({ id: filterId, field, operator, value });
+            }
+            updateFiltersSummary();
+            syncStateToInputs();
+        }
+
+        fieldSelect.addEventListener('change', () => {
+            const selectedDef = filterDefinitions.find(def => def.id === fieldSelect.value);
+            operatorSelect.innerHTML = '';
+            if (!selectedDef) {
+                valueInput.value = '';
+                valueInput.type = 'text';
+                updateFilterState();
+                return;
+            }
+
+            selectedDef.operators.forEach(op => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.textContent = operatorLabels[op] || op;
+                operatorSelect.appendChild(option);
+            });
+
+            if (selectedDef.type === 'number') {
+                valueInput.type = 'number';
+                valueInput.step = '0.01';
+            } else if (selectedDef.type === 'date') {
+                valueInput.type = 'date';
+                valueInput.step = null;
+            } else {
+                valueInput.type = 'text';
+                valueInput.step = null;
+            }
+            updateFilterState();
+        });
+
+        operatorSelect.addEventListener('change', updateFilterState);
+        valueInput.addEventListener('input', updateFilterState);
+
+        if (initial) {
+            fieldSelect.value = initial.field;
+            fieldSelect.dispatchEvent(new Event('change'));
+            operatorSelect.value = initial.operator;
+            valueInput.value = initial.value;
+            updateFilterState();
         }
     }
 
-    // Form validation
-    document.getElementById('reportBuilderForm').addEventListener('submit', function(e) {
-        const campaign = document.getElementById('campaign').value;
-        if (!campaign) {
-            e.preventDefault();
+    document.getElementById('addFilterBtn').addEventListener('click', () => addFilterRow());
+
+    document.getElementById('reportBuilderForm').addEventListener('submit', event => {
+        if (!document.getElementById('campaign').value) {
+            event.preventDefault();
             alert('Zəhmət olmasa kampaniya seçin!');
             return false;
         }
-
-        const metricsChecked = metricCheckboxes.some(id => document.getElementById(id).checked);
-        if (!metricsChecked) {
-            e.preventDefault();
+        const metricsSelected = metricCheckboxes.some(id => document.getElementById(id).checked);
+        if (!metricsSelected) {
+            event.preventDefault();
             alert('Ən azı bir metrik seçin!');
             return false;
         }
+        if (!state.selectedColumns.length) {
+            event.preventDefault();
+            alert('Ən azı bir sütun seçin!');
+            return false;
+        }
+        syncStateToInputs();
+        return true;
     });
+
+    updateMetricsSummary();
+    renderColumns();
+    elements.filtersInput.value = '[]';
 });
 
-// Export function
 function exportReport(format) {
     const campaign = document.getElementById('campaign').value;
     if (!campaign) {
@@ -355,44 +764,41 @@ function exportReport(format) {
         return;
     }
 
-    // Create hidden form for export
+    const departmentSelect = document.getElementById('department');
+    const usersSelect = document.getElementById('users');
+    const selectedColumns = document.getElementById('selectedColumnsInput').value || '[]';
+    const filters = document.getElementById('filtersInput').value || '[]';
+
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '{% url "reports:export-custom" %}';
 
-    // Add CSRF token
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = 'csrfmiddlewaretoken';
     csrfInput.value = '{{ csrf_token }}';
     form.appendChild(csrfInput);
 
-    // Add export format
     const formatInput = document.createElement('input');
     formatInput.type = 'hidden';
     formatInput.name = 'export_format';
     formatInput.value = format;
     form.appendChild(formatInput);
 
-    // Add campaign
     const campaignInput = document.createElement('input');
     campaignInput.type = 'hidden';
     campaignInput.name = 'campaign';
     campaignInput.value = campaign;
     form.appendChild(campaignInput);
 
-    // Add department if selected
-    const department = document.getElementById('department');
-    if (department && department.value) {
+    if (departmentSelect && departmentSelect.value) {
         const deptInput = document.createElement('input');
         deptInput.type = 'hidden';
         deptInput.name = 'department';
-        deptInput.value = department.value;
+        deptInput.value = departmentSelect.value;
         form.appendChild(deptInput);
     }
 
-    // Add selected users
-    const usersSelect = document.getElementById('users');
     Array.from(usersSelect.selectedOptions).forEach(option => {
         const userInput = document.createElement('input');
         userInput.type = 'hidden';
@@ -401,10 +807,22 @@ function exportReport(format) {
         form.appendChild(userInput);
     });
 
-    // Submit form
+    const selectedColumnsField = document.createElement('input');
+    selectedColumnsField.type = 'hidden';
+    selectedColumnsField.name = 'selected_columns';
+    selectedColumnsField.value = selectedColumns;
+    form.appendChild(selectedColumnsField);
+
+    const filtersField = document.createElement('input');
+    filtersField.type = 'hidden';
+    filtersField.name = 'filters';
+    filtersField.value = filters;
+    form.appendChild(filtersField);
+
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
 }
 </script>
 {% endblock %}
+
