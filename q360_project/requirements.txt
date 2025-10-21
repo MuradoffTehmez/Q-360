@@ -63,3 +63,19 @@ vaderSentiment==3.3.2
 vine==5.1.0
 wcwidth==0.2.14
 whitenoise==6.8.2
+
+# AI & NLP for CV Screening
+nltk==3.9.1
+scikit-learn==1.6.1
+spacy==3.8.4
+
+# Video Conferencing Integration (optional - only if using real APIs)
+# zoom-python==1.0.0
+# microsoft-graph-api==1.0.0
+
+# PDF Generation for Reports
+weasyprint==63.1
+pypdf==5.2.0
+
+# Additional utilities
+hashlib-wrapper==1.1.0
