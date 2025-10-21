@@ -1,6 +1,9 @@
 """
 Tests for Custom Report Builder functionality.
 """
+import json
+from decimal import Decimal
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -118,22 +121,22 @@ class CustomReportBuilderTestCase(TestCase):
         self.result1 = EvaluationResult.objects.create(
             campaign=self.campaign,
             evaluatee=self.employee,
-            overall_score=4.5,
-            self_score=4.2,
-            supervisor_score=4.8,
-            peer_score=4.3,
-            subordinate_score=4.7,
+            overall_score=Decimal('4.5'),
+            self_score=Decimal('4.2'),
+            supervisor_score=Decimal('4.8'),
+            peer_score=Decimal('4.3'),
+            subordinate_score=Decimal('4.7'),
             total_evaluators=5
         )
 
         self.result2 = EvaluationResult.objects.create(
             campaign=self.campaign,
             evaluatee=self.manager,
-            overall_score=3.8,
-            self_score=3.5,
-            supervisor_score=4.0,
-            peer_score=3.9,
-            subordinate_score=3.8,
+            overall_score=Decimal('3.8'),
+            self_score=Decimal('3.5'),
+            supervisor_score=Decimal('4.0'),
+            peer_score=Decimal('3.9'),
+            subordinate_score=Decimal('3.8'),
             total_evaluators=4
         )
 
@@ -432,3 +435,52 @@ class CustomReportBuilderTestCase(TestCase):
             self.assertIsNotNone(result.evaluatee)
             # Overall score can be None for incomplete evaluations
             self.assertIsNotNone(result.campaign)
+
+    def test_custom_report_builder_selected_columns_order(self):
+        """Custom table should reflect selected columns order."""
+        self.client.login(username='admin', password='TestPass123!')
+
+        selected_columns = ['full_name', 'overall_score', 'calculated_at']
+        post_data = {
+            'campaign': self.campaign.pk,
+            'include_overall': 'on',
+            'chart_types': ['bar'],
+            'selected_columns': json.dumps(selected_columns),
+        }
+
+        response = self.client.post(reverse('reports:custom-builder'), post_data)
+        self.assertEqual(response.status_code, 200)
+
+        table_headers = response.context['table_headers']
+        self.assertEqual([header['id'] for header in table_headers], selected_columns)
+
+        table_rows = response.context['table_rows_render']
+        self.assertTrue(table_rows)
+        first_row = table_rows[0]
+        self.assertEqual(len(first_row), len(selected_columns))
+        self.assertEqual(first_row[1]['type'], 'number')
+
+    def test_custom_report_builder_applies_numeric_filter(self):
+        """Ensure dynamic filters constrain the result set."""
+        self.client.login(username='admin', password='TestPass123!')
+
+        filters = [{'field': 'role', 'operator': 'equals', 'value': 'employee'}]
+
+        post_data = {
+            'campaign': self.campaign.pk,
+            'include_overall': 'on',
+            'chart_types': ['bar'],
+            'filters': json.dumps(filters),
+        }
+
+        response = self.client.post(reverse('reports:custom-builder'), post_data)
+        self.assertEqual(response.status_code, 200)
+
+        filtered_results = response.context['report_data']['results']
+        applied_filters = response.context['report_data']['filters']
+        self.assertTrue(applied_filters)
+        self.assertEqual(applied_filters[0]['field'], 'role')
+        self.assertEqual(applied_filters[0]['operator'], 'equals')
+        self.assertEqual(applied_filters[0]['value'], 'employee')
+        self.assertEqual(filtered_results.count(), 1, msg=str(filtered_results.query))
+        self.assertEqual(filtered_results.first().evaluatee.role, 'employee')
