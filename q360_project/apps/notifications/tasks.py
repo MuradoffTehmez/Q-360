@@ -154,12 +154,56 @@ def send_email_notification(subject, message, recipient_list):
 
 @shared_task
 def send_campaign_start_notification(campaign_id):
-    """Send notification when a campaign starts (placeholder)."""
-    from apps.evaluations.models import EvaluationCampaign
+    """Send notification when an evaluation campaign starts."""
+    from apps.evaluations.models import EvaluationCampaign, EvaluationAssignment
+    from apps.notifications.models import Notification
 
-    EvaluationCampaign.objects.get(id=campaign_id)
-    # TODO: implement campaign notifications
-    return
+    try:
+        campaign = EvaluationCampaign.objects.get(id=campaign_id)
+
+        # Get all participants (evaluators)
+        assignments = EvaluationAssignment.objects.filter(
+            campaign=campaign,
+            status='pending'
+        ).select_related('evaluator', 'evaluatee')
+
+        # Send notification to each evaluator
+        notifications_created = 0
+        for assignment in assignments:
+            # Create in-app notification
+            Notification.objects.create(
+                user=assignment.evaluator,
+                title=f'Yeni Qiymətləndirmə: {campaign.title}',
+                message=f'{assignment.evaluatee.get_full_name()} üçün qiymətləndirmə təyin edildi. Bitmə tarixi: {campaign.end_date.strftime("%d.%m.%Y")}',
+                notification_type='assignment',
+                link=f'/evaluations/assignment/{assignment.id}/',
+                priority='high'
+            )
+
+            # Send email notification
+            from apps.notifications.utils import send_notification_by_smart_routing
+            send_notification_by_smart_routing(
+                user=assignment.evaluator,
+                title=f'Yeni Qiymətləndirmə: {campaign.title}',
+                message=f'{assignment.evaluatee.get_full_name()} üçün qiymətləndirmə təyin edildi.',
+                notification_type='email',
+                priority='high',
+                context={
+                    'campaign_title': campaign.title,
+                    'evaluatee_name': assignment.evaluatee.get_full_name(),
+                    'end_date': campaign.end_date,
+                    'assignment_link': f'/evaluations/assignment/{assignment.id}/'
+                }
+            )
+
+            notifications_created += 1
+
+        return f'{notifications_created} notification(s) sent for campaign {campaign.title}'
+
+    except EvaluationCampaign.DoesNotExist:
+        return f'Campaign {campaign_id} not found'
+    except Exception as e:
+        return f'Error sending campaign notifications: {str(e)}'
 
 
 @shared_task

@@ -26,7 +26,7 @@ from apps.security import CRYPTOGRAPHY_AVAILABLE
 
 
 def login_view(request):
-    """Handle user login."""
+    """Handle user login with JWT token generation for API access."""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -39,10 +39,37 @@ def login_view(request):
 
             if user is not None:
                 login(request, user)
+
+                # Generate JWT tokens for API access
+                from rest_framework_simplejwt.tokens import RefreshToken
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+
                 messages.success(request, f'Xoş gəlmisiniz, {user.get_full_name()}!')
 
                 next_page = request.GET.get('next', 'dashboard')
-                return redirect(next_page)
+                response = redirect(next_page)
+
+                # Store tokens in secure cookies for JavaScript access
+                response.set_cookie(
+                    'access_token',
+                    access_token,
+                    max_age=3600,  # 1 hour
+                    httponly=False,  # Allow JavaScript access
+                    samesite='Lax',
+                    secure=False  # Set to True in production with HTTPS
+                )
+                response.set_cookie(
+                    'refresh_token',
+                    refresh_token,
+                    max_age=604800,  # 7 days
+                    httponly=True,  # More secure, not accessible to JavaScript
+                    samesite='Lax',
+                    secure=False
+                )
+
+                return response
         else:
             messages.error(request, 'İstifadəçi adı və ya şifrə yanlışdır.')
     else:
@@ -52,10 +79,16 @@ def login_view(request):
 
 
 def logout_view(request):
-    """Handle user logout."""
+    """Handle user logout and clear JWT tokens."""
     logout(request)
     messages.info(request, 'Uğurla çıxış etdiniz.')
-    return redirect('accounts:login')
+    response = redirect('accounts:login')
+
+    # Clear JWT tokens from cookies
+    response.delete_cookie('access_token')
+    response.delete_cookie('refresh_token')
+
+    return response
 
 
 def register_view(request):

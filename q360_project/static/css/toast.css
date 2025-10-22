@@ -1,0 +1,127 @@
+/**
+ * Q360 Toast Notification Styles
+ */
+
+.q360-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease-in-out;
+}
+
+.q360-toast.q360-toast-show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.q360-toast-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+}
+
+.q360-toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.q360-toast-message {
+    flex-grow: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
+
+.q360-toast-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: #999;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.q360-toast-close:hover {
+    color: #333;
+}
+
+/* Toast types */
+.q360-toast-success {
+    border-left: 4px solid #28a745;
+}
+
+.q360-toast-success .q360-toast-icon {
+    color: #28a745;
+}
+
+.q360-toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.q360-toast-error .q360-toast-icon {
+    color: #dc3545;
+}
+
+.q360-toast-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.q360-toast-warning .q360-toast-icon {
+    color: #ffc107;
+}
+
+.q360-toast-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.q360-toast-info .q360-toast-icon {
+    color: #17a2b8;
+}
+
+/* Loading spinner */
+.q360-loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: #667eea;
+    z-index: 10;
+}
+
+.q360-loading-spinner i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .q360-toast {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+        max-width: none;
+    }
+
+    .q360-toast {
+        transform: translateY(-100px);
+    }
+
+    .q360-toast.q360-toast-show {
+        transform: translateY(0);
+    }
+}

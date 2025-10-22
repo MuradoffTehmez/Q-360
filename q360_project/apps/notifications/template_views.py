@@ -267,25 +267,38 @@ def get_unread_count(request):
 
 @login_required
 def get_recent_notifications(request):
-    """Get recent notifications (AJAX endpoint)."""
-    # Get limit from query params
-    limit = int(request.GET.get('limit', 10))
+    """Get recent notifications (AJAX endpoint) - Protected with authentication."""
+    try:
+        # Get limit from query params
+        limit = int(request.GET.get('limit', 10))
+        limit = min(limit, 50)  # Max 50 notifications
 
-    notifications = Notification.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:limit]
+        notifications = Notification.objects.filter(
+            user=request.user
+        ).order_by('-created_at')[:limit]
 
-    data = [{
-        'id': n.id,
-        'title': n.title,
-        'message': n.message,
-        'type': n.notification_type,
-        'is_read': n.is_read,
-        'link': n.link,
-        'created_at': n.created_at.isoformat(),
-    } for n in notifications]
+        data = [{
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'type': n.notification_type,
+            'is_read': n.is_read,
+            'link': n.link,
+            'created_at': n.created_at.isoformat(),
+        } for n in notifications]
 
-    return JsonResponse({'notifications': data, 'count': len(data)})
+        return JsonResponse({
+            'success': True,
+            'notifications': data,
+            'count': len(data),
+            'unread_count': notifications.filter(is_read=False).count()
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e),
+            'message': 'Bildirişlər yüklənərkən xəta baş verdi'
+        }, status=500)
 
 
 # Bulk Notification Management (Admin/Manager only)
