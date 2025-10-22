@@ -34,6 +34,12 @@ def trigger_sentiment_analysis(sender, instance, created, **kwargs):
         - Avoids infinite loops by checking if sentiment was just updated
         - Disabled if Celery/Redis is not available (development mode)
     """
+    # Check if the update is specifically for sentiment fields to avoid infinite recursion
+    update_fields = kwargs.get('update_fields')
+    if update_fields and 'sentiment_score' in update_fields:
+        # Skip if this save is updating sentiment fields (to avoid infinite recursion)
+        return
+
     # Check if there's any text to analyze
     has_text = bool(instance.text_answer or instance.comment)
 
@@ -55,7 +61,8 @@ def trigger_sentiment_analysis(sender, instance, created, **kwargs):
 
             if text_to_analyze:
                 score, category = analyze_text(text_to_analyze)
-                with transaction.atomic():
-                    instance.sentiment_score = score
-                    instance.sentiment_category = category
-                    instance.save(update_fields=['sentiment_score', 'sentiment_category', 'updated_at'])
+                # Use update_queryset to avoid triggering the signal again
+                Response.objects.filter(pk=instance.pk).update(
+                    sentiment_score=score,
+                    sentiment_category=category
+                )
