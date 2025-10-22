@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'apps.dashboard',
     'apps.onboarding',
     'apps.wellness',
+    'engagement',
 ]
 
 MIDDLEWARE = [
