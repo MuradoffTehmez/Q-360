@@ -1,0 +1,674 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Tənzimləmələr" %} - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-nav {
+        position: sticky;
+        top: 20px;
+    }
+    .settings-nav .nav-link {
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.3s;
+        color: #6c757d;
+    }
+    .settings-nav .nav-link:hover {
+        background-color: #f8f9fa;
+        color: #495057;
+        transform: translateX(5px);
+    }
+    .settings-nav .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+    }
+    .settings-section {
+        scroll-margin-top: 80px;
+    }
+    .password-strength-meter {
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .password-strength-bar {
+        height: 100%;
+        transition: width 0.3s, background-color 0.3s;
+    }
+    .profile-picture-preview {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    .profile-picture-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .profile-picture-preview .upload-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+    }
+    .profile-picture-preview .upload-overlay:hover {
+        transform: scale(1.1);
+    }
+    .notification-toggle {
+        width: 50px;
+        height: 26px;
+        background: #ccc;
+        border-radius: 13px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .notification-toggle.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .notification-toggle::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: left 0.3s;
+    }
+    .notification-toggle.active::after {
+        left: 27px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-cog me-2 text-primary"></i>{% trans "Tənzimləmələr" %}</h2>
+                    <p class="text-muted mb-0">{% trans "Hesabınızı və seçimlərinizi idarə edin" %}</p>
+                </div>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>{% trans "Profilə Qayıt" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Navigation -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm settings-nav">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-3">{% trans "Tənzimləmələr" %}</h6>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="#general">
+                            <i class="fas fa-user-circle me-2"></i>{% trans "Ümumi" %}
+                        </a>
+                        <a class="nav-link" href="#security">
+                            <i class="fas fa-shield-alt me-2"></i>{% trans "Təhlükəsizlik" %}
+                        </a>
+                        <a class="nav-link" href="#notifications">
+                            <i class="fas fa-bell me-2"></i>{% trans "Bildirişlər" %}
+                        </a>
+                        <a class="nav-link" href="#privacy">
+                            <i class="fas fa-lock me-2"></i>{% trans "Məxfilik" %}
+                        </a>
+                        <a class="nav-link" href="#preferences">
+                            <i class="fas fa-sliders-h me-2"></i>{% trans "Seçimlər" %}
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="col-lg-9">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-{{ message.tags|yesno:'check-circle,exclamation-triangle,info-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- General Settings -->
+            <div id="general" class="card border-0 shadow-sm mb-4 settings-section">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-user-circle text-primary me-2"></i>{% trans "Ümumi Məlumatlar" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Profile Picture -->
+                        <div class="text-center mb-4">
+                            <div class="profile-picture-preview">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile" id="profileImagePreview">
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" alt="Profile" id="profileImagePreview">
+                                {% endif %}
+                                <label for="profilePictureInput" class="upload-overlay">
+                                    <i class="fas fa-camera text-white"></i>
+                                </label>
+                                <input type="file" id="profilePictureInput" name="profile_picture" class="d-none" accept="image/*">
+                            </div>
+                            <p class="text-muted small mt-2">{% trans "JPG, PNG formatında, maksimum 2MB" %}</p>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{% trans "Soyad" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{% trans "Email" %} <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{% trans "Telefon" %}</label>
+                                <input type="text" class="form-control" name="phone_number" value="{{ profile.phone_number|default:'' }}" placeholder="+994 XX XXX XX XX">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">{% trans "Bio" %}</label>
+                                <textarea class="form-control" name="bio" rows="3" placeholder="{% trans 'Özünüz haqqında qısa məlumat' %}">{{ profile.bio|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>{% trans "Yadda Saxla" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div id="security" class="card border-0 shadow-sm mb-4 settings-section">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt text-success me-2"></i>{% trans "Təhlükəsizlik" %}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Password Change -->
+                    <h6 class="fw-bold mb-3">{% trans "Şifrəni Dəyişdir" %}</h6>
+                    <form method="post" action="{% url 'accounts:change-password' %}">
+                        {% csrf_token %}
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label">{% trans "Cari Şifrə" %}</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="old_password" id="oldPassword" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('oldPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Yeni Şifrə" %}</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="new_password1" id="newPassword" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength-meter">
+                                    <div class="password-strength-bar" id="strengthBar"></div>
+                                </div>
+                                <small class="text-muted" id="strengthText"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Yeni Şifrə (Təkrar)" %}</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="new_password2" id="confirmPassword" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>{% trans "Şifrə Tələbləri" %}</h6>
+                            <ul class="mb-0 small">
+                                <li>{% trans "Minimum 8 simvol" %}</li>
+                                <li>{% trans "Ən azı 1 böyük hərf və 1 kiçik hərf" %}</li>
+                                <li>{% trans "Ən azı 1 rəqəm" %}</li>
+                                <li>{% trans "Ən azı 1 xüsusi simvol (@, #, $, və s.)" %}</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-key me-2"></i>{% trans "Şifrəni Yenilə" %}
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Two-Factor Authentication -->
+                    <h6 class="fw-bold mb-3">{% trans "İki Faktorlu Autentifikasiya (2FA)" %}</h6>
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <strong>{% trans "2FA Statusu" %}</strong>
+                            <p class="text-muted small mb-0">
+                                {% if user.has_mfa_enabled %}
+                                    <span class="badge bg-success">{% trans "Aktiv" %}</span>
+                                    {% trans "Hesabınız əlavə qorunur" %}
+                                {% else %}
+                                    <span class="badge bg-warning">{% trans "Deaktiv" %}</span>
+                                    {% trans "Təhlükəsizliyi artırmaq üçün aktivləşdirin" %}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            {% if user.has_mfa_enabled %}
+                                <a href="{% url 'accounts:mfa-disable' %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-times me-1"></i>{% trans "Deaktiv Et" %}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'accounts:mfa-initiate' %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-shield-alt me-1"></i>{% trans "Aktiv Et" %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Active Sessions -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">{% trans "Aktiv Sessiyalar" %}</h6>
+                        <a href="{% url 'accounts:sessions-terminate-all' %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-sign-out-alt me-1"></i>{% trans "Hamısını Sonlandır" %}
+                        </a>
+                    </div>
+                    {% if sessions %}
+                        <div class="list-group">
+                            {% for session in sessions %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-{{ session.is_mobile|yesno:'mobile-alt,laptop' }} me-2"></i>
+                                            {{ session.device }}
+                                            {% if session.is_current %}
+                                                <span class="badge bg-success ms-2">{% trans "Cari" %}</span>
+                                            {% endif %}
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ session.ip_address }}
+                                            <span class="mx-2">•</span>
+                                            <i class="far fa-clock me-1"></i>{{ session.last_activity|timesince }} əvvəl
+                                        </small>
+                                    </div>
+                                    {% if not session.is_current %}
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">{% trans "Aktiv sessiya yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div id="notifications" class="card border-0 shadow-sm mb-4 settings-section">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-bell text-warning me-2"></i>{% trans "Bildiriş Tənzimləmələri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{% trans "Hansı bildirişləri almaq istədiyinizi seçin" %}</p>
+
+                    <div class="row g-3">
+                        <!-- Email Notifications -->
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0"><i class="fas fa-envelope me-2"></i>{% trans "Email Bildirişləri" %}</h6>
+                                        <div class="notification-toggle active" data-type="email"></div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailEvaluations" checked>
+                                        <label class="form-check-label small" for="emailEvaluations">{% trans "Yeni qiymətləndirmələr" %}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailTrainings" checked>
+                                        <label class="form-check-label small" for="emailTrainings">{% trans "Təlim xatırlatmaları" %}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="emailGoals" checked>
+                                        <label class="form-check-label small" for="emailGoals">{% trans "Məqsəd yeniləmələri" %}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Notifications -->
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0"><i class="fas fa-desktop me-2"></i>{% trans "Sistem Bildirişləri" %}</h6>
+                                        <div class="notification-toggle active" data-type="system"></div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="systemAnnouncements" checked>
+                                        <label class="form-check-label small" for="systemAnnouncements">{% trans "Elanlar" %}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="systemUpdates" checked>
+                                        <label class="form-check-label small" for="systemUpdates">{% trans "Sistem yeniləmələri" %}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="systemSecurity" checked>
+                                        <label class="form-check-label small" for="systemSecurity">{% trans "Təhlükəsizlik xəbərdarlıqları" %}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Push Notifications -->
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0"><i class="fas fa-mobile-alt me-2"></i>{% trans "Push Bildirişləri" %}</h6>
+                                        <div class="notification-toggle" data-type="push"></div>
+                                    </div>
+                                    <p class="text-muted small">{% trans "Mobil cihazınızda brauzerdə bildirişlər alın" %}</p>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-bell me-1"></i>{% trans "Aktivləşdir" %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SMS Notifications -->
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0"><i class="fas fa-sms me-2"></i>{% trans "SMS Bildirişləri" %}</h6>
+                                        <div class="notification-toggle" data-type="sms"></div>
+                                    </div>
+                                    <p class="text-muted small">{% trans "Vacib hadisələr üçün SMS alın" %}</p>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-phone me-1"></i>{% trans "Telefon Əlavə Et" %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{% trans "Tənzimləmələri Saxla" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div id="privacy" class="card border-0 shadow-sm mb-4 settings-section">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-lock text-info me-2"></i>{% trans "Məxfilik Tənzimləmələri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6 class="fw-bold">{% trans "Profil Görünürlüyü" %}</h6>
+                        <select class="form-select">
+                            <option value="public">{% trans "Hamı görə bilər" %}</option>
+                            <option value="organization" selected>{% trans "Yalnız təşkilat" %}</option>
+                            <option value="team">{% trans "Yalnız komanda" %}</option>
+                            <option value="private">{% trans "Yalnız mən" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold">{% trans "Məlumat Paylaşımı" %}</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="sharePerformance" checked>
+                            <label class="form-check-label" for="sharePerformance">{% trans "Performans məlumatlarını paylaş" %}</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="shareSkills" checked>
+                            <label class="form-check-label" for="shareSkills">{% trans "Bacarıqlarımı paylaş" %}</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="shareGoals">
+                            <label class="form-check-label" for="shareGoals">{% trans "Məqsədlərimi paylaş" %}</label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>{% trans "Məxfilik Qeydləri" %}</h6>
+                        <p class="small mb-0">{% trans "Məlumatlarınız GDPR və yerli məlumat qoruma qanunlarına uyğun olaraq qorunur." %}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>{% trans "Hesabı Sil" %}
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{% trans "Yadda Saxla" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div id="preferences" class="card border-0 shadow-sm settings-section">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-sliders-h text-secondary me-2"></i>{% trans "Seçimlər" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Dil" %}</label>
+                            <select class="form-select">
+                                <option value="az" selected>Azərbaycan</option>
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Saat Qurşağı" %}</label>
+                            <select class="form-select">
+                                <option value="Asia/Baku" selected>Baku (GMT+4)</option>
+                                <option value="Europe/Istanbul">Istanbul (GMT+3)</option>
+                                <option value="Europe/Moscow">Moscow (GMT+3)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Tarix Formatı" %}</label>
+                            <select class="form-select">
+                                <option value="dd.mm.yyyy" selected>DD.MM.YYYY</option>
+                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Valyuta" %}</label>
+                            <select class="form-select">
+                                <option value="AZN" selected>AZN (₼)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-bold mb-3">{% trans "Görünüş Seçimləri" %}</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkMode">
+                                <label class="form-check-label" for="darkMode">
+                                    <i class="fas fa-moon me-2"></i>{% trans "Qaranlıq Rejim" %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="compactView" checked>
+                                <label class="form-check-label" for="compactView">
+                                    <i class="fas fa-compress me-2"></i>{% trans "Kompakt Görünüş" %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{% trans "Seçimləri Saxla" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Profile picture preview
+document.getElementById('profilePictureInput')?.addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImagePreview').src = e.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+// Password visibility toggle
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = event.currentTarget.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
+// Password strength meter
+document.getElementById('newPassword')?.addEventListener('input', function(e) {
+    const password = e.target.value;
+    let strength = 0;
+    const bar = document.getElementById('strengthBar');
+    const text = document.getElementById('strengthText');
+
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+    const percent = (strength / 5) * 100;
+    bar.style.width = percent + '%';
+
+    if (strength <= 2) {
+        bar.style.backgroundColor = '#dc3545';
+        text.textContent = '{% trans "Zəif" %}';
+        text.className = 'text-danger small';
+    } else if (strength <= 4) {
+        bar.style.backgroundColor = '#ffc107';
+        text.textContent = '{% trans "Orta" %}';
+        text.className = 'text-warning small';
+    } else {
+        bar.style.backgroundColor = '#28a745';
+        text.textContent = '{% trans "Güclü" %}';
+        text.className = 'text-success small';
+    }
+});
+
+// Notification toggles
+document.querySelectorAll('.notification-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+    });
+});
+
+// Smooth scroll for navigation
+document.querySelectorAll('.settings-nav .nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.settings-nav .nav-link').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Update active nav on scroll
+window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('.settings-section');
+    const navLinks = document.querySelectorAll('.settings-nav .nav-link');
+
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= (sectionTop - 100)) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+{% endblock %}
