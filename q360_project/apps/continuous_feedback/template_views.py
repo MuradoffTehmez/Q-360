@@ -353,11 +353,11 @@ def feedback_360_request(request):
     360-Degree Feedback Request view.
     Allows requesting feedback from multiple sources (self, manager, peers, etc.)
     """
-    from apps.evaluations.models import EvaluationCycle
+    from apps.evaluations.models import EvaluationCampaign
 
-    # Get active evaluation cycles
-    active_cycles = EvaluationCycle.objects.filter(
-        is_active=True,
+    # Get active evaluation campaigns
+    active_cycles = EvaluationCampaign.objects.filter(
+        status='active',
         start_date__lte=timezone.now(),
         end_date__gte=timezone.now()
     ).order_by('-start_date')

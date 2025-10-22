@@ -290,9 +290,9 @@ def forecasting_dashboard(request):
     
     # Ən son proqnoz dövrü
     latest_forecast_date = ForecastData.objects.aggregate(latest=Max('forecast_date'))['latest']
+    next_12_months = []
     if latest_forecast_date:
         # Sonrakı 12 ay üçün proqnoz məlumatları
-        next_12_months = []
         for i in range(12):
             month_date = latest_forecast_date + relativedelta(months=i+1)
             next_12_months.append({

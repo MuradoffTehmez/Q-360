@@ -25,7 +25,7 @@ urlpatterns = [
     path('applications/<int:application_id>/update-status/', views.update_application_status, name='update_application_status'),
 
     # AI Screening & Video Interviews
-    path('ai-screening/', views.ai_screening, name='ai-screening'),
-    path('video-interview-schedule/', views.video_interview_schedule, name='video-interview-schedule'),
-    path('candidate-experience/', views.candidate_experience, name='candidate-experience'),
+    path('ai-screening/', views.ai_screening, name='ai_screening'),
+    path('video-interview-schedule/', views.video_interview_schedule, name='video_interview_schedule'),
+    path('candidate-experience/', views.candidate_experience, name='candidate_experience'),
 ]
