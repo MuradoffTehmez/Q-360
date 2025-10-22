@@ -1,0 +1,116 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Recognition Wall" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="h3 mb-4">{% trans "Recognition Wall" %}</h1>
+
+    <!-- Give Recognition Form -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">{% trans "Give Recognition" %}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.given_to.label_tag }}
+                        {{ form.given_to }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.recognition_type.label_tag }}
+                        {{ form.recognition_type }}
+                    </div>
+                    <div class="col-12">
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                    </div>
+                    <div class="col-12">
+                        {{ form.message.label_tag }}
+                        {{ form.message }}
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.is_public }}
+                            <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+                                {% trans "Make this recognition public" %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> {% trans "Send Recognition" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recognition Wall -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">{% trans "Recent Recognitions" %}</h5>
+        </div>
+        <div class="card-body">
+            {% for recognition in recognitions %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            {% if recognition.badge %}
+                                <span class="badge me-2" style="background-color: {{ recognition.badge.color }}; font-size: 1.5rem;">
+                                    {{ recognition.badge.icon }}
+                                </span>
+                            {% endif %}
+                            <div>
+                                <strong>{{ recognition.given_by.get_full_name }}</strong>
+                                <i class="bi bi-arrow-right mx-2"></i>
+                                <strong>{{ recognition.given_to.get_full_name }}</strong>
+                            </div>
+                        </div>
+                        <h6>{{ recognition.title }}</h6>
+                        <p class="mb-2">{{ recognition.message }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ recognition.created_at|timesince }} {% trans "ago" %}</small>
+                            <button class="btn btn-sm btn-outline-primary like-btn" data-id="{{ recognition.id }}">
+                                <i class="bi bi-heart"></i> <span class="like-count">{{ recognition.likes_count }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center text-muted py-4">{% trans "No recognitions yet. Be the first to give one!" %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const recognitionId = this.dataset.id;
+        fetch(`/engagement/recognition/${recognitionId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.querySelector('.like-count').textContent = data.likes_count;
+            if (data.liked) {
+                this.querySelector('i').classList.remove('bi-heart');
+                this.querySelector('i').classList.add('bi-heart-fill');
+            } else {
+                this.querySelector('i').classList.remove('bi-heart-fill');
+                this.querySelector('i').classList.add('bi-heart');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

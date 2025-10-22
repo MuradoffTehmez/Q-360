@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Pulse Surveys" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="h3 mb-4">{% trans "Pulse Surveys" %}</h1>
+
+    <!-- Pending Surveys -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">{% trans "Pending Surveys" %}</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_surveys %}
+                <div class="row g-3">
+                    {% for survey in pending_surveys %}
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ survey.title }}</h5>
+                                    <p class="card-text">{{ survey.description|truncatewords:30 }}</p>
+                                    <p class="text-muted small">
+                                        {% trans "Deadline" %}: {{ survey.end_date|date:"F d, Y" }}
+                                    </p>
+                                    <a href="{% url 'engagement:survey_detail' survey.id %}" class="btn btn-primary">
+                                        {% trans "Take Survey" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted py-4">{% trans "No pending surveys" %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Completed Surveys -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">{% trans "Completed Surveys" %}</h5>
+        </div>
+        <div class="card-body">
+            {% if completed_surveys %}
+                <div class="list-group">
+                    {% for survey in completed_surveys %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ survey.title }}</h6>
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle"></i> {% trans "Completed" %}
+                                </small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted py-4">{% trans "No completed surveys yet" %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

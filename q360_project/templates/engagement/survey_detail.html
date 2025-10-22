@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ survey.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-4">
+                    <h2 class="mb-3">{{ survey.title }}</h2>
+                    <p class="text-muted">{{ survey.description }}</p>
+
+                    {% if has_responded %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> {% trans "You have already responded to this survey. Thank you!" %}
+                        </div>
+                    {% else %}
+                        <form method="post">
+                            {% csrf_token %}
+
+                            {% for question in questions %}
+                                <div class="mb-4 pb-3 border-bottom">
+                                    <label class="form-label fw-bold">
+                                        {{ forloop.counter }}. {{ question.question_text }}
+                                        {% if question.is_required %}<span class="text-danger">*</span>{% endif %}
+                                    </label>
+
+                                    {% if question.question_type == 'rating' %}
+                                        <div class="btn-group d-flex" role="group">
+                                            {% for i in "12345" %}
+                                                <input type="radio" class="btn-check" name="question_{{ question.id }}"
+                                                       id="q{{ question.id }}_{{ i }}" value="{{ i }}" {% if question.is_required %}required{% endif %}>
+                                                <label class="btn btn-outline-primary" for="q{{ question.id }}_{{ i }}">{{ i }}</label>
+                                            {% endfor %}
+                                        </div>
+
+                                    {% elif question.question_type == 'nps' %}
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            {% for i in "012345678910" %}
+                                                <input type="radio" class="btn-check" name="question_{{ question.id }}"
+                                                       id="q{{ question.id }}_{{ i }}" value="{{ i }}" {% if question.is_required %}required{% endif %}>
+                                                <label class="btn btn-outline-primary btn-sm" for="q{{ question.id }}_{{ i }}">{{ i }}</label>
+                                            {% endfor %}
+                                        </div>
+
+                                    {% elif question.question_type == 'text' %}
+                                        <textarea name="question_{{ question.id }}" class="form-control" rows="3"
+                                                  {% if question.is_required %}required{% endif %}></textarea>
+
+                                    {% elif question.question_type == 'yes_no' %}
+                                        <div class="btn-group" role="group">
+                                            <input type="radio" class="btn-check" name="question_{{ question.id }}"
+                                                   id="q{{ question.id }}_yes" value="yes" {% if question.is_required %}required{% endif %}>
+                                            <label class="btn btn-outline-success" for="q{{ question.id }}_yes">{% trans "Yes" %}</label>
+
+                                            <input type="radio" class="btn-check" name="question_{{ question.id }}"
+                                                   id="q{{ question.id }}_no" value="no" {% if question.is_required %}required{% endif %}>
+                                            <label class="btn btn-outline-danger" for="q{{ question.id }}_no">{% trans "No" %}</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-send"></i> {% trans "Submit Survey" %}
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

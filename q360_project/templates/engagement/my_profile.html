@@ -1,0 +1,133 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "My Engagement Profile" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="h3 mb-4">{% trans "My Engagement Profile" %}</h1>
+
+    <div class="row g-3">
+        <!-- Points & Level -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm text-center mb-3">
+                <div class="card-body">
+                    <h3>{% trans "Level" %} {{ user_points.current_level }}</h3>
+                    <div class="display-4 text-primary mb-3">{{ user_points.total_points }}</div>
+                    <p class="text-muted">{% trans "Total Points" %}</p>
+                </div>
+            </div>
+
+            <!-- Points Breakdown -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">{% trans "Points Breakdown" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="text-muted">{% trans "Performance" %}:</span>
+                        <strong class="float-end">{{ user_points.performance_points }}</strong>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">{% trans "Collaboration" %}:</span>
+                        <strong class="float-end">{{ user_points.collaboration_points }}</strong>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">{% trans "Innovation" %}:</span>
+                        <strong class="float-end">{{ user_points.innovation_points }}</strong>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">{% trans "Learning" %}:</span>
+                        <strong class="float-end">{{ user_points.learning_points }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">{% trans "My Badges" %} ({{ user_badges.count }})</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for user_badge in user_badges %}
+                            <span class="badge" style="background-color: {{ user_badge.badge.color }}; font-size: 2rem;"
+                                  title="{{ user_badge.badge.name }}" data-bs-toggle="tooltip">
+                                {{ user_badge.badge.icon }}
+                            </span>
+                        {% empty %}
+                            <p class="text-muted small">{% trans "No badges earned yet" %}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recognitions & Transactions -->
+        <div class="col-lg-8">
+            <!-- Received Recognitions -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">{% trans "Recognitions Received" %}</h6>
+                </div>
+                <div class="card-body">
+                    {% for recognition in received_recognitions %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="d-flex align-items-center mb-2">
+                                {% if recognition.badge %}
+                                    <span class="badge me-2" style="background-color: {{ recognition.badge.color }};">
+                                        {{ recognition.badge.icon }}
+                                    </span>
+                                {% endif %}
+                                <strong>{{ recognition.given_by.get_full_name }}</strong>
+                            </div>
+                            <h6>{{ recognition.title }}</h6>
+                            <p class="mb-1">{{ recognition.message }}</p>
+                            <small class="text-muted">{{ recognition.created_at|date:"F d, Y" }}</small>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted text-center py-3">{% trans "No recognitions received yet" %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">{% trans "Recent Activity" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "Activity" %}</th>
+                                    <th>{% trans "Points" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_transactions %}
+                                    <tr>
+                                        <td>{{ transaction.created_at|date:"M d" }}</td>
+                                        <td>{{ transaction.reason }}</td>
+                                        <td>
+                                            <span class="badge bg-success">+{{ transaction.points }}</span>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">
+                                            {% trans "No activity yet" %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

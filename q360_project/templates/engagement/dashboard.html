@@ -1,0 +1,211 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Engagement Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">{% trans "Employee Engagement Hub" %}</h1>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-primary rounded-circle p-3">
+                                <i class="bi bi-clipboard-check fs-4"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">{% trans "Active Surveys" %}</h6>
+                            <h3 class="mb-0">{{ active_surveys.count }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-success rounded-circle p-3">
+                                <i class="bi bi-trophy fs-4"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">{% trans "Total Points" %}</h6>
+                            <h3 class="mb-0">{{ user_points.total_points }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-warning rounded-circle p-3">
+                                <i class="bi bi-award fs-4"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">{% trans "Badges Earned" %}</h6>
+                            <h3 class="mb-0">{{ user_badges.count }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-info rounded-circle p-3">
+                                <i class="bi bi-heart fs-4"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">{% trans "Team Engagement" %}</h6>
+                            <h3 class="mb-0">{{ team_engagement|default:"N/A" }}{% if team_engagement %}%{% endif %}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row g-3">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Active Surveys -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{% trans "Active Pulse Surveys" %}</h5>
+                        <a href="{% url 'engagement:pulse_surveys' %}" class="btn btn-sm btn-outline-primary">
+                            {% trans "View All" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_surveys %}
+                        <div class="list-group list-group-flush">
+                            {% for survey in active_surveys %}
+                                <a href="{% url 'engagement:survey_detail' survey.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ survey.title }}</h6>
+                                        <small class="text-muted">{{ survey.end_date|date:"M d" }}</small>
+                                    </div>
+                                    <p class="mb-1 text-muted small">{{ survey.description|truncatewords:15 }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "No active surveys at the moment" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Recognitions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{% trans "Recent Recognitions" %}</h5>
+                        <a href="{% url 'engagement:recognition_wall' %}" class="btn btn-sm btn-outline-primary">
+                            {% trans "View All" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_recognitions %}
+                        {% for recognition in recent_recognitions %}
+                            <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <strong>{{ recognition.given_by.get_full_name }}</strong>
+                                        <i class="bi bi-arrow-right mx-2"></i>
+                                        <strong>{{ recognition.given_to.get_full_name }}</strong>
+                                    </div>
+                                    <p class="mb-1">{{ recognition.message|truncatewords:20 }}</p>
+                                    <small class="text-muted">{{ recognition.created_at|timesince }} {% trans "ago" %}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "No recognitions yet" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- User Points & Level -->
+            <div class="card border-0 shadow-sm mb-3 text-center">
+                <div class="card-body">
+                    <h5>{% trans "Your Level" %}</h5>
+                    <div class="display-3 text-primary">{{ user_points.current_level }}</div>
+                    <p class="text-muted mb-3">{{ user_points.total_points }} {% trans "total points" %}</p>
+                    <a href="{% url 'engagement:my_profile' %}" class="btn btn-primary btn-sm">
+                        {% trans "View Profile" %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Badges -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">{% trans "Recent Badges" %}</h6>
+                </div>
+                <div class="card-body">
+                    {% if user_badges %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for user_badge in user_badges %}
+                                <span class="badge" style="background-color: {{ user_badge.badge.color }}; font-size: 1.5rem;"
+                                      title="{{ user_badge.badge.name }}">
+                                    {{ user_badge.badge.icon }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center small">{% trans "No badges earned yet" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">{% trans "Quick Actions" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'engagement:recognition_wall' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-hand-thumbs-up me-2"></i>{% trans "Give Recognition" %}
+                        </a>
+                        <a href="{% url 'engagement:anonymous_feedback' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-chat-dots me-2"></i>{% trans "Submit Feedback" %}
+                        </a>
+                        <a href="{% url 'engagement:leaderboard' %}" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-trophy me-2"></i>{% trans "View Leaderboard" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

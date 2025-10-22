@@ -27,6 +27,16 @@ from apps.departments.views import (
     DepartmentViewSet,
     PositionViewSet,
 )
+from apps.engagement.api import (
+    PulseSurveyViewSet,
+    EngagementScoreViewSet,
+    RecognitionViewSet,
+    AnonymousFeedbackViewSet,
+    LeaderboardViewSet,
+    GamificationBadgeViewSet,
+    UserBadgeViewSet,
+    DashboardViewSet,
+)
 from api.real_time_stats import realtime_stats
 
 # Create routers for each app
@@ -50,6 +60,16 @@ departments_router.register(r'organizations', OrganizationViewSet, basename='org
 departments_router.register(r'departments', DepartmentViewSet, basename='department')
 departments_router.register(r'positions', PositionViewSet, basename='position')
 
+engagement_router = DefaultRouter()
+engagement_router.register(r'pulse-surveys', PulseSurveyViewSet, basename='pulse-survey')
+engagement_router.register(r'engagement-scores', EngagementScoreViewSet, basename='engagement-score')
+engagement_router.register(r'recognitions', RecognitionViewSet, basename='recognition')
+engagement_router.register(r'feedback', AnonymousFeedbackViewSet, basename='anonymous-feedback')
+engagement_router.register(r'leaderboard', LeaderboardViewSet, basename='leaderboard')
+engagement_router.register(r'badges', GamificationBadgeViewSet, basename='badge')
+engagement_router.register(r'user-badges', UserBadgeViewSet, basename='user-badge')
+engagement_router.register(r'dashboard', DashboardViewSet, basename='engagement-dashboard')
+
 # API URL patterns
 urlpatterns = [
     path('realtime-stats/', realtime_stats, name='realtime-stats'),
@@ -58,4 +78,5 @@ urlpatterns = [
     path('accounts/', include(accounts_router.urls)),
     path('accounts/check-password-strength/', check_password_strength, name='check-password-strength'),
     path('departments/', include(departments_router.urls)),
+    path('engagement/', include(engagement_router.urls)),
 ]
