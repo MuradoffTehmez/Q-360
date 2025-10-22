@@ -232,3 +232,294 @@ def salary_change_form(request, user_id=None):
         'current_salary': current_salary,
     }
     return render(request, 'compensation/salary_change_form.html', context)
+
+
+@login_required
+def market_benchmarking(request):
+    """
+    Market Benchmarking view - Salary market comparison.
+    Shows how salaries compare to market data by position, industry, and location.
+    """
+    from django.db.models import Avg, Min, Max, Count
+    import json
+
+    user = request.user
+
+    # Get user's current salary
+    user_salary = SalaryInformation.objects.filter(user=user, is_active=True).first()
+
+    # Check if we have market data model
+    has_market_data = hasattr(SalaryInformation, 'market_data_source')
+
+    # Get position and department for comparison
+    position = user.position if hasattr(user, 'position') else None
+    department = user.department if hasattr(user, 'department') else None
+
+    benchmarks = []
+
+    if position:
+        # Get all salaries for the same position
+        position_salaries = SalaryInformation.objects.filter(
+            is_active=True,
+            user__position=position
+        ).exclude(user=user)
+
+        if position_salaries.exists():
+            # Calculate percentiles
+            all_amounts = list(position_salaries.values_list('base_salary', flat=True))
+            all_amounts.sort()
+
+            stats = position_salaries.aggregate(
+                avg=Avg('base_salary'),
+                min=Min('base_salary'),
+                max=Max('base_salary'),
+                count=Count('id')
+            )
+
+            # Calculate percentile position
+            if user_salary and all_amounts:
+                user_amount = float(user_salary.base_salary)
+                below_count = sum(1 for amt in all_amounts if float(amt) < user_amount)
+                percentile = (below_count / len(all_amounts)) * 100
+            else:
+                percentile = 50
+
+            # Calculate percentile markers
+            p25 = all_amounts[int(len(all_amounts) * 0.25)] if all_amounts else 0
+            p50 = all_amounts[int(len(all_amounts) * 0.50)] if all_amounts else 0
+            p75 = all_amounts[int(len(all_amounts) * 0.75)] if all_amounts else 0
+
+            benchmarks.append({
+                'category': f'{position.name} - Daxili',
+                'source': 'internal',
+                'sample_size': stats['count'],
+                'min': float(stats['min']) if stats['min'] else 0,
+                'avg': float(stats['avg']) if stats['avg'] else 0,
+                'max': float(stats['max']) if stats['max'] else 0,
+                'p25': float(p25),
+                'p50': float(p50),
+                'p75': float(p75),
+                'current_salary': float(user_salary.base_salary) if user_salary else 0,
+                'current_percentile': round(percentile, 1),
+                'competitive_status': 'above' if percentile > 60 else 'competitive' if percentile > 40 else 'below',
+            })
+
+    if department:
+        # Department average
+        dept_salaries = SalaryInformation.objects.filter(
+            is_active=True,
+            user__department=department
+        ).exclude(user=user)
+
+        if dept_salaries.exists():
+            dept_stats = dept_salaries.aggregate(
+                avg=Avg('base_salary'),
+                min=Min('base_salary'),
+                max=Max('base_salary'),
+                count=Count('id')
+            )
+
+            benchmarks.append({
+                'category': f'{department.name} - Ortalama',
+                'source': 'internal',
+                'sample_size': dept_stats['count'],
+                'min': float(dept_stats['min']) if dept_stats['min'] else 0,
+                'avg': float(dept_stats['avg']) if dept_stats['avg'] else 0,
+                'max': float(dept_stats['max']) if dept_stats['max'] else 0,
+                'current_salary': float(user_salary.base_salary) if user_salary else 0,
+                'competitive_status': 'competitive',
+            })
+
+    # Company-wide average (for context)
+    company_stats = SalaryInformation.objects.filter(
+        is_active=True
+    ).aggregate(
+        avg=Avg('base_salary'),
+        min=Min('base_salary'),
+        max=Max('base_salary')
+    )
+
+    # Mock external market data (would come from external sources in production)
+    # You can integrate with salary APIs like Glassdoor, PayScale, etc.
+    if position and has_market_data:
+        # This would be real market data in production
+        external_benchmarks = []
+    else:
+        external_benchmarks = []
+
+    # Salary trend (user's salary history)
+    salary_history = SalaryInformation.objects.filter(
+        user=user
+    ).order_by('effective_date')
+
+    history_dates = [sh.effective_date.strftime('%Y-%m-%d') for sh in salary_history]
+    history_amounts = [float(sh.base_salary) for sh in salary_history]
+
+    # Recommendations
+    recommendations = []
+
+    if benchmarks and user_salary:
+        primary_benchmark = benchmarks[0]
+        if primary_benchmark['competitive_status'] == 'below':
+            gap = primary_benchmark['avg'] - float(user_salary.base_salary)
+            recommendations.append({
+                'type': 'salary_review',
+                'priority': 'high',
+                'message': f'Sizin maaşınız bazar ortalamasından {gap:.2f} {user_salary.currency} aşağıdır. Maaş yenidən baxılması tövsiyə olunur.',
+            })
+        elif primary_benchmark['competitive_status'] == 'above':
+            recommendations.append({
+                'type': 'competitive',
+                'priority': 'low',
+                'message': 'Sizin maaşınız bazar ortalamasından yuxarıdır və rəqabətədavamlıdır.',
+            })
+
+    context = {
+        'user_salary': user_salary,
+        'benchmarks': benchmarks,
+        'external_benchmarks': external_benchmarks,
+        'company_stats': {
+            'avg': float(company_stats['avg']) if company_stats['avg'] else 0,
+            'min': float(company_stats['min']) if company_stats['min'] else 0,
+            'max': float(company_stats['max']) if company_stats['max'] else 0,
+        },
+        'history_dates': json.dumps(history_dates),
+        'history_amounts': json.dumps(history_amounts),
+        'recommendations': recommendations,
+        'position': position,
+        'department': department,
+    }
+
+    return render(request, 'compensation/market_benchmarking.html', context)
+
+
+@login_required
+def total_rewards_statement(request):
+    """
+    Total Rewards Statement view - Comprehensive compensation breakdown.
+    Shows all components: base salary, bonuses, benefits, equity, etc.
+    """
+    from django.db.models import Sum
+    from datetime import datetime, timedelta
+    import json
+
+    user = request.user
+    current_year = datetime.now().year
+
+    # Base salary
+    salary_info = SalaryInformation.objects.filter(user=user, is_active=True).first()
+    base_salary = float(salary_info.base_salary) if salary_info else 0
+    currency = salary_info.currency if salary_info else 'AZN'
+
+    # Bonuses (this year)
+    bonuses = Bonus.objects.filter(
+        user=user,
+        fiscal_year=current_year
+    )
+    total_bonuses = float(bonuses.aggregate(Sum('amount'))['amount__sum'] or 0)
+
+    # Allowances (monthly recurring)
+    allowances = Allowance.objects.filter(user=user, is_active=True)
+    monthly_allowances = float(sum(a.amount for a in allowances))
+    annual_allowances = monthly_allowances * 12
+
+    # Benefits (estimated annual value)
+    # This would come from a Benefits model in a full implementation
+    benefits_value = 0
+
+    # Check if we have equity/stock options
+    has_equity = False
+    equity_value = 0
+
+    try:
+        from apps.compensation.models import EquityGrant
+        equity_grants = EquityGrant.objects.filter(
+            user=user,
+            status='active'
+        )
+        has_equity = equity_grants.exists()
+        # Calculate vested equity value
+        equity_value = sum(float(grant.current_value) for grant in equity_grants if hasattr(grant, 'current_value'))
+    except:
+        pass
+
+    # Total compensation
+    total_cash = base_salary + total_bonuses + annual_allowances
+    total_compensation = total_cash + benefits_value + equity_value
+
+    # Breakdown for chart
+    breakdown = {
+        'base_salary': base_salary,
+        'bonuses': total_bonuses,
+        'allowances': annual_allowances,
+        'benefits': benefits_value,
+        'equity': equity_value,
+    }
+
+    # Market comparison (optional - from market benchmarking)
+    position = user.position if hasattr(user, 'position') else None
+    market_avg = 0
+
+    if position:
+        position_salaries = SalaryInformation.objects.filter(
+            is_active=True,
+            user__position=position
+        ).exclude(user=user)
+
+        if position_salaries.exists():
+            from django.db.models import Avg
+            market_avg = float(position_salaries.aggregate(Avg('base_salary'))['base_salary__avg'] or 0)
+
+    # Compensation growth (last 3 years)
+    growth_data = []
+    for year in range(current_year - 2, current_year + 1):
+        year_salary = SalaryInformation.objects.filter(
+            user=user,
+            effective_date__year__lte=year
+        ).order_by('-effective_date').first()
+
+        year_bonuses = Bonus.objects.filter(
+            user=user,
+            fiscal_year=year
+        ).aggregate(Sum('amount'))['amount__sum'] or 0
+
+        year_total = (float(year_salary.base_salary) if year_salary else 0) + float(year_bonuses)
+
+        growth_data.append({
+            'year': year,
+            'total': year_total,
+        })
+
+    # Benefits breakdown (mock data - would come from Benefits model)
+    benefits_breakdown = [
+        {'name': 'Səhiyyə Sığortası', 'value': 0, 'type': 'health'},
+        {'name': 'Pensiya Töhfəsi', 'value': 0, 'type': 'pension'},
+        {'name': 'Həyat Sığortası', 'value': 0, 'type': 'life'},
+        {'name': 'Məzuniyyət', 'value': 0, 'type': 'leave'},
+    ]
+
+    context = {
+        'salary_info': salary_info,
+        'base_salary': base_salary,
+        'total_bonuses': total_bonuses,
+        'annual_allowances': annual_allowances,
+        'benefits_value': benefits_value,
+        'equity_value': equity_value,
+        'total_cash': total_cash,
+        'total_compensation': total_compensation,
+        'currency': currency,
+        'breakdown': breakdown,
+        'breakdown_json': json.dumps({
+            'labels': ['Əsas Maaş', 'Bonuslar', 'Əlavələr', 'Benefitlər', 'Equity'],
+            'data': [base_salary, total_bonuses, annual_allowances, benefits_value, equity_value]
+        }),
+        'market_avg': market_avg,
+        'growth_data': growth_data,
+        'benefits_breakdown': benefits_breakdown,
+        'bonuses_list': bonuses,
+        'allowances_list': allowances,
+        'has_equity': has_equity,
+        'current_year': current_year,
+    }
+
+    return render(request, 'compensation/total_rewards_statement.html', context)
