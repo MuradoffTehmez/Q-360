@@ -16,6 +16,6 @@ urlpatterns = [
     path('history/', views.compensation_history, name='history'),
 
     # Market Benchmarking & Total Rewards
-    path('market-benchmarking/', views.market_benchmarking, name='market-benchmarking'),
-    path('total-rewards/', views.total_rewards_statement, name='total-rewards'),
+    path('market-benchmarking/', views.market_benchmarking, name='market_benchmarking'),
+    path('total-rewards/', views.total_rewards_statement, name='total_rewards'),
 ]
