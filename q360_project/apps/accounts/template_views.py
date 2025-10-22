@@ -69,6 +69,10 @@ def login_view(request):
                     secure=False
                 )
 
+                # Store in session for templates that use localStorage as backup
+                request.session['jwt_access_token'] = access_token
+                request.session['jwt_refresh_token'] = refresh_token
+
                 return response
         else:
             messages.error(request, 'İstifadəçi adı və ya şifrə yanlışdır.')

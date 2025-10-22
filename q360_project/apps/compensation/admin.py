@@ -7,7 +7,9 @@ from .models import (
     Bonus,
     Allowance,
     Deduction,
-    DepartmentBudget
+    DepartmentBudget,
+    EmployeeBenefit,
+    EquityGrant
 )
 
 
@@ -215,3 +217,98 @@ class DepartmentBudgetAdmin(SimpleHistoryAdmin):
         return f'<span style="color: {color}; font-weight: bold;">{remaining} {obj.currency}</span>'
     remaining_budget_display.short_description = 'Qalıq Büdcə'
     remaining_budget_display.allow_tags = True
+
+
+@admin.register(EmployeeBenefit)
+class EmployeeBenefitAdmin(admin.ModelAdmin):
+    """Admin for Employee Benefits."""
+
+    list_display = [
+        'user', 'benefit_type', 'provider', 'annual_value', 'coverage_type',
+        'status', 'start_date', 'is_active_display'
+    ]
+    list_filter = ['benefit_type', 'status', 'coverage_type', 'start_date']
+    search_fields = ['user__username', 'user__first_name', 'user__last_name', 'provider']
+    date_hierarchy = 'start_date'
+    readonly_fields = ['created_at', 'updated_at', 'is_active_display']
+
+    fieldsets = (
+        ('İşçi Məlumatları', {
+            'fields': ('user',)
+        }),
+        ('Benefit Məlumatları', {
+            'fields': ('benefit_type', 'provider', 'coverage_type')
+        }),
+        ('Məbləğ və Dəyər', {
+            'fields': ('annual_value', 'employee_contribution', 'currency')
+        }),
+        ('Tarix və Status', {
+            'fields': ('start_date', 'end_date', 'status', 'is_active_display')
+        }),
+        ('Polis Təfsilatları', {
+            'fields': ('policy_number', 'coverage_details', 'notes')
+        }),
+        ('Sistem Məlumatları', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def is_active_display(self, obj):
+        """Display if benefit is currently active."""
+        is_active = obj.is_active
+        color = 'green' if is_active else 'red'
+        text = 'Aktiv' if is_active else 'Aktiv Deyil'
+        return f'<span style="color: {color}; font-weight: bold;">{text}</span>'
+    is_active_display.short_description = 'Hal-hazırda Aktiv'
+    is_active_display.allow_tags = True
+
+
+@admin.register(EquityGrant)
+class EquityGrantAdmin(SimpleHistoryAdmin):
+    """Admin for Equity Grants."""
+
+    list_display = [
+        'user', 'equity_type', 'number_of_shares', 'vested_shares',
+        'status', 'grant_date', 'vesting_start_date'
+    ]
+    list_filter = ['equity_type', 'status', 'vesting_schedule', 'grant_date']
+    search_fields = ['user__username', 'user__first_name', 'user__last_name']
+    date_hierarchy = 'grant_date'
+    readonly_fields = ['created_at', 'updated_at', 'approved_at', 'current_value_display']
+
+    fieldsets = (
+        ('İşçi Məlumatları', {
+            'fields': ('user',)
+        }),
+        ('Səhm Təqdimi Məlumatları', {
+            'fields': ('equity_type', 'grant_date', 'number_of_shares', 'strike_price', 'currency')
+        }),
+        ('Vesting Cədvəli', {
+            'fields': ('vesting_schedule', 'vesting_start_date', 'vesting_period_months', 'cliff_months')
+        }),
+        ('Hal-hazırda Status', {
+            'fields': ('status', 'vested_shares', 'exercised_shares')
+        }),
+        ('Qiymətləndirmə', {
+            'fields': ('current_share_value', 'last_valuation_date', 'current_value_display')
+        }),
+        ('Təsdiq və Bitmə', {
+            'fields': ('expiration_date', 'approved_by', 'approved_at')
+        }),
+        ('Qeydlər', {
+            'fields': ('notes',)
+        }),
+        ('Sistem Məlumatları', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def current_value_display(self, obj):
+        """Display current value of vested shares."""
+        value = obj.current_value
+        color = 'green' if value > 0 else 'gray'
+        return f'<span style="color: {color}; font-weight: bold;">{value} {obj.currency}</span>'
+    current_value_display.short_description = 'Cari Dəyər'
+    current_value_display.allow_tags = True

@@ -536,7 +536,7 @@ def candidate_experience(request):
         avg_nps = 0
         total_responses = 0
 
-    # Touchpoint ratings
+    # Touchpoint ratings - calculated from candidate_experience JSON field
     touchpoint_data = {
         'application_process': 0,
         'communication': 0,
@@ -546,9 +546,25 @@ def candidate_experience(request):
     }
 
     if has_touchpoint_ratings:
-        # Calculate average for each touchpoint
-        # (This would need JSON field support or separate ratings table)
-        pass
+        # Calculate average for each touchpoint from JSON field
+        touchpoint_counts = {key: 0 for key in touchpoint_data.keys()}
+
+        for app in recent_applications:
+            if app.candidate_experience:
+                # candidate_experience is a JSON field like:
+                # {"application_process": 4.5, "communication": 5, ...}
+                for key in touchpoint_data.keys():
+                    rating = app.candidate_experience.get(key)
+                    if rating and isinstance(rating, (int, float)):
+                        touchpoint_data[key] += float(rating)
+                        touchpoint_counts[key] += 1
+
+        # Calculate averages
+        for key in touchpoint_data.keys():
+            if touchpoint_counts[key] > 0:
+                touchpoint_data[key] = round(touchpoint_data[key] / touchpoint_counts[key], 2)
+            else:
+                touchpoint_data[key] = 0
 
     # Group by status for journey analysis
     status_breakdown = recent_applications.values('status').annotate(

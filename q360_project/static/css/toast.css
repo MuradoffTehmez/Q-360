@@ -17,6 +17,43 @@
     transition: all 0.3s ease-in-out;
 }
 
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .q360-toast {
+        background: #1f2937;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .q360-toast-message {
+        color: #f3f4f6;
+    }
+
+    .q360-toast-close {
+        color: #9ca3af;
+    }
+
+    .q360-toast-close:hover {
+        color: #f3f4f6;
+    }
+}
+
+html.dark .q360-toast {
+    background: #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .q360-toast-message {
+    color: #f3f4f6;
+}
+
+html.dark .q360-toast-close {
+    color: #9ca3af;
+}
+
+html.dark .q360-toast-close:hover {
+    color: #f3f4f6;
+}
+
 .q360-toast.q360-toast-show {
     opacity: 1;
     transform: translateX(0);

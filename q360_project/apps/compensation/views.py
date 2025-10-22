@@ -423,25 +423,37 @@ def total_rewards_statement(request):
     monthly_allowances = float(sum(a.amount for a in allowances))
     annual_allowances = monthly_allowances * 12
 
-    # Benefits (estimated annual value)
-    # This would come from a Benefits model in a full implementation
-    benefits_value = 0
+    # Benefits (actual annual value from EmployeeBenefit model)
+    from apps.compensation.models import EmployeeBenefit
+    from datetime import date
+
+    active_benefits = EmployeeBenefit.objects.filter(
+        user=user,
+        status='active',
+        start_date__lte=date.today()
+    ).filter(
+        models.Q(end_date__isnull=True) | models.Q(end_date__gte=date.today())
+    )
+
+    benefits_value = float(sum(benefit.annual_value for benefit in active_benefits))
 
     # Check if we have equity/stock options
-    has_equity = False
-    equity_value = 0
+    from apps.compensation.models import EquityGrant
 
-    try:
-        from apps.compensation.models import EquityGrant
-        equity_grants = EquityGrant.objects.filter(
-            user=user,
-            status='active'
-        )
-        has_equity = equity_grants.exists()
-        # Calculate vested equity value
-        equity_value = sum(float(grant.current_value) for grant in equity_grants if hasattr(grant, 'current_value'))
-    except:
-        pass
+    equity_grants = EquityGrant.objects.filter(
+        user=user,
+        status__in=['vesting', 'vested', 'approved']
+    )
+    has_equity = equity_grants.exists()
+
+    # Calculate vested equity value using the model's current_value property
+    equity_value = 0
+    if has_equity:
+        for grant in equity_grants:
+            # Update vested shares calculation
+            grant.calculate_vested_shares()
+            # Add current value
+            equity_value += float(grant.current_value)
 
     # Total compensation
     total_cash = base_salary + total_bonuses + annual_allowances
@@ -490,13 +502,39 @@ def total_rewards_statement(request):
             'total': year_total,
         })
 
-    # Benefits breakdown (mock data - would come from Benefits model)
-    benefits_breakdown = [
-        {'name': 'Səhiyyə Sığortası', 'value': 0, 'type': 'health'},
-        {'name': 'Pensiya Töhfəsi', 'value': 0, 'type': 'pension'},
-        {'name': 'Həyat Sığortası', 'value': 0, 'type': 'life'},
-        {'name': 'Məzuniyyət', 'value': 0, 'type': 'leave'},
-    ]
+    # Benefits breakdown (real data from EmployeeBenefit model)
+    benefits_breakdown = []
+    benefit_types_map = {
+        'health': 'Səhiyyə Sığortası',
+        'dental': 'Diş Sığortası',
+        'pension': 'Pensiya Töhfəsi',
+        'retirement': 'Təqaüd Planı',
+        'life': 'Həyat Sığortası',
+        'education': 'Təhsil Yardımı',
+        'transport': 'Nəqliyyat',
+        'meal': 'Yemək',
+        'gym': 'İdman',
+        'other': 'Digər'
+    }
+
+    for benefit_type, benefit_name in benefit_types_map.items():
+        benefit_value = active_benefits.filter(benefit_type=benefit_type).aggregate(
+            Sum('annual_value')
+        )['annual_value__sum'] or 0
+
+        if benefit_value > 0:
+            benefits_breakdown.append({
+                'name': benefit_name,
+                'value': float(benefit_value),
+                'type': benefit_type
+            })
+
+    # If no benefits, add placeholder
+    if not benefits_breakdown:
+        benefits_breakdown = [
+            {'name': 'Səhiyyə Sığortası', 'value': 0, 'type': 'health'},
+            {'name': 'Pensiya Töhfəsi', 'value': 0, 'type': 'pension'},
+        ]
 
     context = {
         'salary_info': salary_info,

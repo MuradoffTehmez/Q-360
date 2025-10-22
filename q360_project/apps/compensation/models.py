@@ -999,3 +999,177 @@ class EquityGrant(models.Model):
     def exercisable_shares(self):
         """Get number of shares that can be exercised."""
         return self.vested_shares - self.exercised_shares
+
+    @property
+    def current_value(self):
+        """Property wrapper for calculate_current_value()."""
+        return self.calculate_current_value()
+
+
+class EmployeeBenefit(models.Model):
+    """
+    Employee Benefits model - health insurance, pension, life insurance, etc.
+    """
+
+    BENEFIT_TYPE_CHOICES = [
+        ('health', 'Səhiyyə Sığortası'),
+        ('dental', 'Diş Sığortası'),
+        ('vision', 'Göz Sığortası'),
+        ('life', 'Həyat Sığortası'),
+        ('disability', 'Əlillik Sığortası'),
+        ('pension', 'Pensiya Töhfəsi'),
+        ('retirement', 'Təqaüd Planı'),
+        ('education', 'Təhsil Yardımı'),
+        ('gym', 'İdman Mərkəzi'),
+        ('transport', 'Nəqliyyat Yardımı'),
+        ('meal', 'Yemək Kuponu'),
+        ('childcare', 'Uşaq Baxımı Yardımı'),
+        ('mobile', 'Mobil Telefon'),
+        ('laptop', 'Laptop/Kompüter'),
+        ('relocation', 'Köçürmə Yardımı'),
+        ('other', 'Digər'),
+    ]
+
+    COVERAGE_TYPE_CHOICES = [
+        ('individual', 'Fərdi'),
+        ('family', 'Ailə'),
+        ('spouse', 'Həyat Yoldaşı'),
+        ('children', 'Uşaqlar'),
+    ]
+
+    STATUS_CHOICES = [
+        ('active', 'Aktiv'),
+        ('pending', 'Gözləmədə'),
+        ('cancelled', 'Ləğv Edildi'),
+        ('expired', 'Müddəti Bitdi'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='benefits',
+        verbose_name=_('İşçi')
+    )
+
+    benefit_type = models.CharField(
+        max_length=20,
+        choices=BENEFIT_TYPE_CHOICES,
+        verbose_name=_('Benefit Növü')
+    )
+
+    provider = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Təchizatçı'),
+        help_text=_('Sığorta şirkəti və ya xidmət təchizatçısı')
+    )
+
+    coverage_type = models.CharField(
+        max_length=20,
+        choices=COVERAGE_TYPE_CHOICES,
+        default='individual',
+        verbose_name=_('Əhatə Növü')
+    )
+
+    # Cost and value
+    annual_value = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('İllik Dəyər'),
+        help_text=_('İşəgötürən tərəfindən ödənilən illik dəyər')
+    )
+
+    employee_contribution = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('İşçi Töhfəsi'),
+        help_text=_('İşçi tərəfindən ödənilən məbləğ')
+    )
+
+    currency = models.CharField(
+        max_length=3,
+        default='AZN',
+        verbose_name=_('Valyuta')
+    )
+
+    # Dates
+    start_date = models.DateField(
+        verbose_name=_('Başlanğıc Tarixi')
+    )
+
+    end_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_('Bitmə Tarixi')
+    )
+
+    # Status
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name=_('Status')
+    )
+
+    # Policy details
+    policy_number = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Polis Nömrəsi')
+    )
+
+    coverage_details = models.TextField(
+        blank=True,
+        verbose_name=_('Əhatə Təfsilatı')
+    )
+
+    notes = models.TextField(
+        blank=True,
+        verbose_name=_('Qeydlər')
+    )
+
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_benefits',
+        verbose_name=_('Yaradan')
+    )
+
+    class Meta:
+        verbose_name = _('İşçi Benefiti')
+        verbose_name_plural = _('İşçi Benefitləri')
+        ordering = ['-start_date']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['benefit_type']),
+            models.Index(fields=['start_date']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.get_benefit_type_display()}"
+
+    @property
+    def employer_contribution(self):
+        """Calculate employer contribution (total value - employee contribution)."""
+        return self.annual_value - self.employee_contribution
+
+    @property
+    def is_active(self):
+        """Check if benefit is currently active."""
+        from datetime import date
+        today = date.today()
+
+        if self.status != 'active':
+            return False
+
+        if self.end_date and today > self.end_date:
+            return False
+
+        return today >= self.start_date

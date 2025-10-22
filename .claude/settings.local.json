@@ -54,7 +54,22 @@
       "Bash(set DB_HOST=127.0.0.1)",
       "Bash(set:*)",
       "Bash(Select-String -Pattern \"✓|✅|ERROR|Traceback\" -Context 0,1)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(for dir in dashboard evaluations training competencies development_plans notifications engagement wellness compensation leave_attendance recruitment)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(done)",
+      "Bash(for dir in competencies development_plans notifications engagement wellness compensation leave_attendance recruitment)",
+      "Bash(for app in dashboard engagement wellness compensation leave_attendance recruitment)",
+      "Bash(do if [ ! -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\template_views.py\" ])",
+      "Bash(then echo \"MISSING: $app\")",
+      "Bash(fi)",
+      "Bash(do if [ ! -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\forms.py\" ])",
+      "Bash(then echo \"MISSING FORMS: $app\")",
+      "Bash(for app in evaluations wellness compensation leave_attendance recruitment development_plans notifications)",
+      "Bash(do if [ -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\api_views.py\" ])",
+      "Bash([ -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\api.py\" ])",
+      "Bash(then echo \"$app: HAS API\")",
+      "Bash(else echo \"$app: NO API FILE\")"
     ],
     "deny": [],
     "ask": []

@@ -23,9 +23,10 @@ function getCSRFToken() {
 }
 
 /**
- * Get access token from cookies
+ * Get access token from cookies or localStorage (fallback)
  */
 function getAccessToken() {
+    // First try cookie (preferred method)
     const name = 'access_token';
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -38,7 +39,15 @@ function getAccessToken() {
             }
         }
     }
-    return cookieValue;
+
+    // If found in cookie, also sync to localStorage for legacy code
+    if (cookieValue) {
+        localStorage.setItem('access_token', cookieValue);
+        return cookieValue;
+    }
+
+    // Fallback to localStorage (for legacy code)
+    return localStorage.getItem('access_token');
 }
 
 /**
