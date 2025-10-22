@@ -283,20 +283,19 @@ function competencyPage() {
             return `/competencies/${id}/`;
         },
         authHeaders() {
-            const token = window.localStorage ? localStorage.getItem('access_token') : null;
+            // Use global getAccessToken from api-utils.js (supports both cookie and localStorage)
+            const token = window.getAccessToken ? window.getAccessToken() : null;
             return token ? { 'Authorization': `Bearer ${token}` } : {};
         },
         async fetchStats() {
             this.statsLoading = true;
             try {
-                const response = await fetch('/api/competencies/competencies/statistics/', { headers: this.authHeaders() });
-                if (response.ok) {
-                    const data = await response.json();
-                    this.stats.total = data.total_competencies || 0;
-                    this.stats.active = data.active_competencies || data.total_active || 0;
-                    this.stats.skills = data.total_skills || 0;
-                    this.stats.pending = data.pending_approvals || 0;
-                }
+                // Use global apiGet from api-utils.js (handles auth, errors, toast notifications)
+                const data = await window.apiGet('/api/competencies/competencies/statistics/');
+                this.stats.total = data.total_competencies || 0;
+                this.stats.active = data.active_competencies || data.total_active || 0;
+                this.stats.skills = data.total_skills || 0;
+                this.stats.pending = data.pending_approvals || 0;
             } catch (error) {
                 console.warn('Unable to load competency statistics', error);
             } finally {
@@ -314,11 +313,8 @@ function competencyPage() {
                 params.set('is_active', this.filters.status);
             }
             try {
-                const response = await fetch(`/api/competencies/competencies/?${params.toString()}`, { headers: this.authHeaders() });
-                if (!response.ok) {
-                    throw new Error('Failed to load competencies');
-                }
-                const data = await response.json();
+                // Use global apiGet from api-utils.js
+                const data = await window.apiGet(`/api/competencies/competencies/?${params.toString()}`);
                 this.competencies = data.results || [];
                 this.pagination.next = data.next;
                 this.pagination.previous = data.previous;

@@ -69,7 +69,8 @@
       "Bash(do if [ -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\api_views.py\" ])",
       "Bash([ -f \"C:\\lahiyeler\\q360\\q360_project\\apps$app\\api.py\" ])",
       "Bash(then echo \"$app: HAS API\")",
-      "Bash(else echo \"$app: NO API FILE\")"
+      "Bash(else echo \"$app: NO API FILE\")",
+      "Bash(Select-String -Pattern \"OK|FAILED|ERROR|Ran\")"
     ],
     "deny": [],
     "ask": []
