@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="faq-item p-6 mb-4" data-faq-item x-data="{ open: false }">
+    <button @click="open = !open" class="w-full flex items-center justify-between text-left">
+        <span class="font-medium text-gray-900 dark:text-white pr-4" data-question>
+            {% trans question %}
+        </span>
+        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300" :class="{'rotate-180': open}"></i>
+    </button>
+    <div x-show="open" x-collapse class="mt-4 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+        {{ answer|safe }}
+    </div>
+</div>

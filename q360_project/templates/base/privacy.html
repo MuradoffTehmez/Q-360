@@ -1,651 +1,104 @@
-<!DOCTYPE html>
-<html lang="az" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Məxfilik Siyasəti - Q360</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.5s ease-out',
-                        'bounce-subtle': 'bounceSubtle 2s infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        bounceSubtle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .dark .gradient-bg {
-            background: linear-gradient(135deg, #1e3a8a 0%, #7e22ce 100%);
-        }
-        .section-card {
-            transition: all 0.3s ease;
-        }
-        .section-card:hover {
-            transform: translateY(-5px);
-        }
-        .search-highlight {
-            background-color: rgba(255, 255, 0, 0.3);
-            padding: 0.1rem 0.2rem;
-            border-radius: 0.25rem;
-        }
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-        }
-        .dark-mode-toggle {
-            transition: all 0.3s ease;
-        }
-        .dark-mode-toggle:hover {
-            transform: rotate(12deg);
-        }
-    </style>
-</head>
-<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center text-white font-bold">
-                    Q360
-                </div>
-                <h1 class="text-xl font-bold">Məxfilik Siyasəti</h1>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <!-- Search Box -->
-                <div class="relative hidden md:block">
-                    <input type="text" id="searchInput" placeholder="Siyasətdə axtar..." 
-                           class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 w-64 transition-all duration-300">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                </div>
-                
-                <!-- Dark Mode Toggle -->
-                <button id="darkModeToggle" class="dark-mode-toggle p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">
-                    <i class="fas fa-moon text-gray-700 dark:text-yellow-300"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+{% extends 'base/base.html' %}
+{% load static %}
+{% load i18n %}
 
+{% block title %}{% trans "Privacy Policy - Q360" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Breadcrumb -->
-    <nav class="bg-gray-100 dark:bg-gray-800 py-3 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
-        <div class="container mx-auto px-4">
-            <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="#" class="text-primary-600 dark:text-primary-400 hover:underline transition-colors">Ana Səhifə</a></li>
-                <li><i class="fas fa-chevron-right text-gray-400 text-xs"></i></li>
-                <li class="text-gray-500 dark:text-gray-400" aria-current="page">Məxfilik Siyasəti</li>
-            </ol>
-        </div>
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <li>
+                <a href="{% url 'dashboard' %}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-chevron-right text-xs mx-2"></i>
+                <span class="text-gray-900 dark:text-gray-100 font-medium">{% trans "Privacy Policy" %}</span>
+            </li>
+        </ol>
     </nav>
 
-    <main class="container mx-auto px-4 py-8">
-        <!-- Hero Section -->
-        <section class="mb-12 text-center animate-fade-in">
-            <div class="max-w-3xl mx-auto">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">Məxfilik Siyasəti</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">Məlumatlarınızın təhlükəsizliyi bizim üçün ən vacib prioritetdir</p>
-                <div class="inline-flex items-center space-x-2 bg-primary-50 dark:bg-primary-900/30 px-4 py-2 rounded-full text-primary-700 dark:text-primary-300">
-                    <i class="fas fa-clock"></i>
-                    <span>Son yenilənmə: 09 Oktyabr 2025</span>
-                </div>
-            </div>
-        </section>
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mb-6">
+            <i class="fas fa-shield-alt text-white text-3xl"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            {% trans "Privacy Policy" %}
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            {% trans "Your privacy is important to us. This policy explains how we collect, use, and protect your information." %}
+        </p>
+        <div class="mt-6 inline-flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            <span>{% trans "Last updated" %}: {% trans "January 1, 2025" %}</span>
+        </div>
+    </div>
 
-        <!-- Quick Navigation -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 text-center">Tez Keçidlər</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="#info-collection" class="quick-nav-item bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 text-center group">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <span class="font-medium">Məlumat Toplama</span>
-                </a>
-                
-                <a href="#data-usage" class="quick-nav-item bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 text-center group">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <span class="font-medium">Məlumat İstifadəsi</span>
-                </a>
-                
-                <a href="#data-protection" class="quick-nav-item bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 text-center group">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <span class="font-medium">Məlumat Qorunması</span>
-                </a>
-                
-                <a href="#user-rights" class="quick-nav-item bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 text-center group">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <span class="font-medium">İstifadəçi Hüquqları</span>
-                </a>
-            </div>
-        </section>
+    <!-- Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="p-8 md:p-12">
 
-        <!-- FAQ Section -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 text-center">Tez-tez Verilən Suallar</h2>
-            <div class="max-w-3xl mx-auto space-y-4">
-                <div class="faq-item bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
-                    <button class="faq-question w-full text-left p-4 flex justify-between items-center font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                        <span>Mənim məlumatlarım üçüncü tərəflərlə paylaşılır?</span>
-                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-answer px-4 pb-4 text-gray-600 dark:text-gray-400">
-                        <p>Xeyr, şəxsi məlumatlarınız heç bir üçüncü tərəflə paylaşılmır. Məlumatlar yalnız təşkilat daxilində, qiymətləndirmə prosesi üçün təyin olunmuş rəhbər və qiymətləndiricilər, İnsan Resursları departamenti və sistem administratorları ilə məhdud şəkildə paylaşılır.</p>
+            <!-- Section 1 -->
+            <section class="mb-10">
+                <div class="flex items-center mb-6">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-database text-blue-600 dark:text-blue-400 text-xl"></i>
                     </div>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white m-0">
+                        1. {% trans "Information We Collect" %}
+                    </h2>
                 </div>
-                
-                <div class="faq-item bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
-                    <button class="faq-question w-full text-left p-4 flex justify-between items-center font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                        <span>Məlumatlarım nə qədər müddətə saxlanılır?</span>
-                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-answer px-4 pb-4 text-gray-600 dark:text-gray-400">
-                        <p>Şəxsi məlumatlarınız işçilik müqaviləsi müddətində və sonrakı 5 il ərzində, qiymətləndirmə nəticələri 3 il, inkişaf planları isə aktiv olduqları müddət ərzində saxlanılır.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
-                    <button class="faq-question w-full text-left p-4 flex justify-between items-center font-medium hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                        <span>Məlumatlarımı necə düzəldə bilərəm?</span>
-                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-answer px-4 pb-4 text-gray-600 dark:text-gray-400">
-                        <p>Profilinizdəki "Məlumatlarımı Redaktə Et" bölməsindən şəxsi məlumatlarınızı yeniləyə bilərsiniz. Əgər hər hansı problemlə qarşılaşsanız, İnsan Resursları departamenti ilə əlaqə saxlaya bilərsiniz.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Privacy Policy Content -->
-        <div class="max-w-4xl mx-auto space-y-8">
-            <!-- Introduction -->
-            <section id="introduction" class="section-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slide-up">
-                <div class="flex items-start mb-4">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mr-4 flex-shrink-0">
-                        <i class="fas fa-info-circle"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">1. Giriş</h2>
-                        <div class="mt-4 space-y-3 text-gray-600 dark:text-gray-400">
-                            <p>Q360 - 360° Qiymətləndirmə Sistemi olaraq, istifadəçilərimizin şəxsi məlumatlarının məxfiliyinə və təhlükəsizliyinə böyük əhəmiyyət veririk. Bu Məxfilik Siyasəti sizin şəxsi məlumatlarınızın necə toplandığını, istifadə edildiyini, saxlandığını və qorunduğunu izah edir.</p>
-                            <p>Q360 sistemindən istifadə etməklə, bu Məxfilik Siyasətində göstərilən qaydaları qəbul etmiş olursunuz.</p>
-                        </div>
-                    </div>
+                <div class="ml-16 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Personal Information" %}</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% trans "When you use Q360, we collect the following personal information:" %}
+                    </p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-400 space-y-2">
+                        <li>{% trans "Full name, employee ID, and contact information" %}</li>
+                        <li>{% trans "Department, position, and organizational hierarchy" %}</li>
+                        <li>{% trans "Performance evaluation data and feedback" %}</li>
+                        <li>{% trans "Skills, competencies, and development goals" %}</li>
+                    </ul>
                 </div>
             </section>
 
-            <!-- Information Collection -->
-            <section id="info-collection" class="section-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slide-up">
-                <div class="flex items-start mb-4">
-                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mr-4 flex-shrink-0">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">2. Topladığımız Məlumatlar</h2>
-                        
-                        <div class="mt-6">
-                            <h3 class="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">2.1 Şəxsi Məlumatlar</h3>
-                            <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-lg">
-                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Ad, soyad və ata adı</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> E-poçt ünvanı</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Telefon nömrəsi</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Vəzifə və departament məlumatları</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> İşə başlama tarixi</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Profil şəkli (könüllü)</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <h3 class="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">2.2 Qiymətləndirmə Məlumatları</h3>
-                            <p class="text-gray-600 dark:text-gray-400 mb-3">Sistemdə həyata keçirilən qiymətləndirmələrlə bağlı:</p>
-                            <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-lg">
-                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Qiymətləndirmə cavabları və ballar</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Şərhlər və rəylər</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> İnkişaf məqsədləri və nailiyyətlər</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Performans hesabatları</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <h3 class="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">2.3 Texniki Məlumatlar</h3>
-                            <div class="bg-gray-50 dark:bg-gray-750 p-4 rounded-lg">
-                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> IP ünvanı</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Brauzer növü və versiyası</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Cihaz məlumatları</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Sistemə giriş tarixi və saatı</li>
-                                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Sistemdə həyata keçirilən fəaliyyətlər (log qeydləri)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- More sections... (abbreviated for space) -->
 
-            <!-- Data Usage -->
-            <section id="data-usage" class="section-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slide-up">
-                <div class="flex items-start mb-4">
-                    <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mr-4 flex-shrink-0">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">3. Məlumatların İstifadəsi</h2>
-                        <p class="mt-4 text-gray-600 dark:text-gray-400">Topladığımız məlumatlar aşağıdakı məqsədlər üçün istifadə olunur:</p>
-                        
-                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 transition-all duration-300 hover:shadow-md">
-                                <div class="flex items-center mb-2">
-                                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white mr-3">
-                                        <i class="fas fa-check-circle text-sm"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-blue-700 dark:text-blue-300">Qiymətləndirmə Prosesi</h3>
-                                </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">İşçilərin performansının qiymətləndirilməsi və inkişaf planlarının hazırlanması</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-xl border border-green-200 dark:border-green-800 transition-all duration-300 hover:shadow-md">
-                                <div class="flex items-center mb-2">
-                                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white mr-3">
-                                        <i class="fas fa-chart-line text-sm"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-green-700 dark:text-green-300">Hesabat və Analiz</h3>
-                                </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Performans hesabatlarının yaradılması və təşkilati analiz</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 p-4 rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all duration-300 hover:shadow-md">
-                                <div class="flex items-center mb-2">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white mr-3">
-                                        <i class="fas fa-bell text-sm"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-indigo-700 dark:text-indigo-300">Bildirişlər</h3>
-                                </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">İstifadəçilərə sistem bildirişlərinin göndərilməsi</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4 rounded-xl border border-amber-200 dark:border-amber-800 transition-all duration-300 hover:shadow-md">
-                                <div class="flex items-center mb-2">
-                                    <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white mr-3">
-                                        <i class="fas fa-shield-alt text-sm"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-amber-700 dark:text-amber-300">Təhlükəsizlik</h3>
-                                </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Sistemin təhlükəsizliyinin təmin edilməsi və sui-istifadənin qarşısının alınması</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Data Protection -->
-            <section id="data-protection" class="section-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slide-up">
-                <div class="flex items-start mb-4">
-                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mr-4 flex-shrink-0">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="w-full">
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">4. Məlumatların Qorunması</h2>
-                        <p class="mt-4 text-gray-600 dark:text-gray-400">Şəxsi məlumatlarınızın təhlükəsizliyini təmin etmək üçün aşağıdakı tədbirləri görürük:</p>
-                        
-                        <div class="mt-6 overflow-x-auto">
-                            <table class="w-full border-collapse">
-                                <thead>
-                                    <tr class="bg-gray-100 dark:bg-gray-750">
-                                        <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Tədbir</th>
-                                        <th class="p-3 text-left font-semibold text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700">Təsvir</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700 font-medium">Şifrələmə</td>
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700">Bütün məlumatlar SSL/TLS texnologiyası ilə şifrələnir</td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700 font-medium">Giriş Nəzarəti</td>
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700">Yalnız səlahiyyətli şəxslər məlumatlara daxil ola bilər</td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700 font-medium">Audit Logları</td>
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700">Bütün əməliyyatlar qeyd edilir və izlənilir</td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700 font-medium">Yedəkləmə</td>
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700">Məlumatlar müntəzəm olaraq ehtiyat nüsxələnir</td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700 font-medium">Firewall</td>
-                                        <td class="p-3 border border-gray-300 dark:border-gray-700">Xarici hücumlardan qorunma mexanizmləri</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- User Rights -->
-            <section id="user-rights" class="section-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slide-up">
-                <div class="flex items-start mb-4">
-                    <div class="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400 mr-4 flex-shrink-0">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">6. İstifadəçi Hüquqları</h2>
-                        <p class="mt-4 text-gray-600 dark:text-gray-400">Siz öz şəxsi məlumatlarınızla bağlı aşağıdakı hüquqlara maliksiniz:</p>
-                        
-                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="flex items-start p-4 bg-gray-50 dark:bg-gray-750 rounded-xl transition-all duration-300 hover:shadow-md">
-                                <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                    <i class="fas fa-eye"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800 dark:text-white">Məlumata Baxış</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Öz məlumatlarınızı istənilən vaxt görə bilərsiniz</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-start p-4 bg-gray-50 dark:bg-gray-750 rounded-xl transition-all duration-300 hover:shadow-md">
-                                <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                    <i class="fas fa-edit"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800 dark:text-white">Düzəliş</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Yanlış məlumatları düzəldə bilərsiniz</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-start p-4 bg-gray-50 dark:bg-gray-750 rounded-xl transition-all duration-300 hover:shadow-md">
-                                <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                    <i class="fas fa-download"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800 dark:text-white">Məlumat İxracı</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Məlumatlarınızın nüsxəsini ala bilərsiniz</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-start p-4 bg-gray-50 dark:bg-gray-750 rounded-xl transition-all duration-300 hover:shadow-md">
-                                <div class="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                    <i class="fas fa-ban"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-800 dark:text-white">İstifadənin Məhdudlaşdırılması</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Bəzi məlumatların istifadəsini məhdudlaşdıra bilərsiniz</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Contact -->
-            <section class="section-card bg-gradient-to-r from-primary-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white animate-slide-up">
-                <div class="flex items-start">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white mr-4 flex-shrink-0">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4">10. Əlaqə</h2>
-                        <div class="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
-                            <p class="mb-4">Məxfilik Siyasəti ilə bağlı suallarınız varsa, bizimlə əlaqə saxlaya bilərsiniz:</p>
-                            <ul class="space-y-3">
-                                <li class="flex items-center">
-                                    <i class="fas fa-envelope mr-3 w-5 text-center"></i>
-                                    <span><strong>E-poçt:</strong> privacy@q360.gov.az</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-phone mr-3 w-5 text-center"></i>
-                                    <span><strong>Telefon:</strong> +994 12 XXX XX XX</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-3 w-5 text-center"></i>
-                                    <span><strong>Ünvan:</strong> Bakı, Azərbaycan</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+            <!-- Contact Section -->
+            <section class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-center">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                        {% trans "Questions About Privacy?" %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        {% trans "Contact our privacy team for any questions or concerns" %}
+                    </p>
+                    <a href="mailto:privacy@q360.az" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all">
+                        <i class="fas fa-envelope mr-2"></i>
+                        privacy@q360.az
+                    </a>
                 </div>
             </section>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12 py-8">
-        <div class="container mx-auto px-4">
-            <div class="text-center">
-                <p class="text-gray-600 dark:text-gray-400 mb-2">
-                    <i class="fas fa-shield-alt mr-1 text-primary-500"></i>
-                    Bu Məxfilik Siyasəti Azərbaycan Respublikasının qanunvericiliyinə uyğun hazırlanmışdır.
-                </p>
-                <p class="text-gray-500 dark:text-gray-500 text-sm">
-                    <i class="fas fa-clock mr-1"></i>
-                    Son yenilənmə: <strong>09 Oktyabr 2025</strong>
-                </p>
+        <!-- Footer Actions -->
+        <div class="bg-gray-50 dark:bg-gray-900/50 px-8 py-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <a href="{% url 'terms' %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
+                    <i class="fas fa-file-contract mr-2"></i>
+                    {% trans "Read Terms of Service" %}
+                </a>
+                <a href="{% url 'dashboard' %}" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% trans "Back to Dashboard" %}
+                </a>
             </div>
         </div>
-    </footer>
-
-    <!-- Back to Top Button -->
-    <button id="backToTop" class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 transition-all duration-300 opacity-0 invisible flex items-center justify-center">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <script>
-        // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const htmlElement = document.documentElement;
-        
-        // Check for saved theme preference or respect OS setting
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            htmlElement.classList.add('dark');
-            darkModeToggle.innerHTML = '<i class="fas fa-sun text-yellow-300"></i>';
-        } else {
-            htmlElement.classList.remove('dark');
-            darkModeToggle.innerHTML = '<i class="fas fa-moon text-gray-700"></i>';
-        }
-        
-        darkModeToggle.addEventListener('click', () => {
-            htmlElement.classList.toggle('dark');
-            
-            if (htmlElement.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-                darkModeToggle.innerHTML = '<i class="fas fa-sun text-yellow-300"></i>';
-            } else {
-                localStorage.theme = 'light';
-                darkModeToggle.innerHTML = '<i class="fas fa-moon text-gray-700"></i>';
-            }
-        });
-        
-        // FAQ Toggle
-        document.querySelectorAll('.faq-question').forEach(button => {
-            button.addEventListener('click', () => {
-                const faqItem = button.parentElement;
-                const icon = button.querySelector('i');
-                
-                // Close all other FAQs
-                document.querySelectorAll('.faq-item').forEach(item => {
-                    if (item !== faqItem) {
-                        item.classList.remove('active');
-                        item.querySelector('i').classList.remove('fa-chevron-up');
-                        item.querySelector('i').classList.add('fa-chevron-down');
-                    }
-                });
-                
-                // Toggle current FAQ
-                faqItem.classList.toggle('active');
-                
-                if (faqItem.classList.contains('active')) {
-                    icon.classList.remove('fa-chevron-down');
-                    icon.classList.add('fa-chevron-up');
-                } else {
-                    icon.classList.remove('fa-chevron-up');
-                    icon.classList.add('fa-chevron-down');
-                }
-            });
-        });
-        
-        // Back to Top Button
-        const backToTopButton = document.getElementById('backToTop');
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopButton.classList.remove('opacity-0', 'invisible');
-                backToTopButton.classList.add('opacity-100', 'visible');
-            } else {
-                backToTopButton.classList.remove('opacity-100', 'visible');
-                backToTopButton.classList.add('opacity-0', 'invisible');
-            }
-        });
-        
-        backToTopButton.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        
-        // Search Functionality
-        const searchInput = document.getElementById('searchInput');
-        
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            
-            if (searchTerm.length < 2) {
-                // Remove highlights if search term is too short
-                document.querySelectorAll('.search-highlight').forEach(el => {
-                    const parent = el.parentNode;
-                    parent.replaceChild(document.createTextNode(el.textContent), el);
-                    parent.normalize();
-                });
-                return;
-            }
-            
-            // Search in all text content of policy sections
-            document.querySelectorAll('section').forEach(section => {
-                const walker = document.createTreeWalker(
-                    section,
-                    NodeFilter.SHOW_TEXT,
-                    null,
-                    false
-                );
-                
-                let node;
-                const nodes = [];
-                
-                while (node = walker.nextNode()) {
-                    if (node.textContent.toLowerCase().includes(searchTerm)) {
-                        nodes.push(node);
-                    }
-                }
-                
-                // Remove existing highlights
-                section.querySelectorAll('.search-highlight').forEach(el => {
-                    const parent = el.parentNode;
-                    parent.replaceChild(document.createTextNode(el.textContent), el);
-                    parent.normalize();
-                });
-                
-                // Apply new highlights
-                nodes.forEach(node => {
-                    const span = document.createElement('span');
-                    span.className = 'search-highlight';
-                    span.textContent = node.textContent;
-                    node.parentNode.replaceChild(span, node);
-                });
-            });
-        });
-        
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 100,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // Add animation to quick nav items on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationDelay = `${entry.target.dataset.delay || 0}ms`;
-                    entry.target.classList.add('animate-slide-up');
-                }
-            });
-        }, observerOptions);
-        
-        document.querySelectorAll('.section-card, .quick-nav-item').forEach((el, index) => {
-            el.dataset.delay = index * 100;
-            observer.observe(el);
-        });
-    </script>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}

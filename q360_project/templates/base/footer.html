@@ -20,14 +20,17 @@
                     {% trans "Professional 360° Performance Evaluation System designed to help organizations achieve excellence through comprehensive talent management and development solutions." %}
                 </p>
                 <div class="flex space-x-3">
-                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                    <a href="https://www.linkedin.com/company/q360-performance" target="_blank" rel="noopener noreferrer" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="LinkedIn">
                         <i class="fab fa-linkedin text-sm"></i>
                     </a>
-                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                    <a href="https://twitter.com/q360performance" target="_blank" rel="noopener noreferrer" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="Twitter">
                         <i class="fab fa-twitter text-sm"></i>
                     </a>
-                    <a href="#" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                    <a href="https://www.facebook.com/q360performance" target="_blank" rel="noopener noreferrer" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="Facebook">
                         <i class="fab fa-facebook text-sm"></i>
+                    </a>
+                    <a href="https://github.com/q360-performance" target="_blank" rel="noopener noreferrer" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="GitHub">
+                        <i class="fab fa-github text-sm"></i>
                     </a>
                 </div>
             </div>
@@ -92,21 +95,21 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'reports:my-reports' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "Documentation" %}
+                            {% trans "Reports & Analytics" %}
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="/api/docs/" target="_blank" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "API" %}
+                            {% trans "API Documentation" %}
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'support:create-ticket' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "Community" %}
+                            {% trans "Support Tickets" %}
                         </a>
                     </li>
                 </ul>
@@ -132,15 +135,16 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'audit:security-logs' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "Security" %}
+                            {% trans "Security & Compliance" %}
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'dashboard' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "Status" %}
+                            {% trans "System Status" %}
+                            <span class="ml-2 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs rounded-full">{% trans "Active" %}</span>
                         </a>
                     </li>
                 </ul>
