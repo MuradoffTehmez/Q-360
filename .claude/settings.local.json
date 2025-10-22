@@ -45,7 +45,14 @@
       "Bash(redis-cli:*)",
       "Bash(taskkill:*)",
       "Bash(Select-String -Pattern \"FAILED|OK|test_\" -Context 0,1)",
-      "Bash(Select-String -Pattern \"FAILED|OK|ERROR|test_\" -Context 0,1)"
+      "Bash(Select-String -Pattern \"FAILED|OK|ERROR|test_\" -Context 0,1)",
+      "Bash(createdb:*)",
+      "Bash(set PGPASSWORD=T3hmezSecure@2025:*)",
+      "Bash(cmd /c \"set PGPASSWORD=T3hmezSecure@2025 && \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\createdb.exe\"\" -U postgres -h localhost q360_db\")",
+      "Bash(cmd /c:*)",
+      "Read(//c/Program Files/PostgreSQL/17/data/**)",
+      "Bash(set DB_HOST=127.0.0.1)",
+      "Bash(set:*)"
     ],
     "deny": [],
     "ask": []

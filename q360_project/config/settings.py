@@ -9,6 +9,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -117,27 +121,31 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # Use SQLite for development (switch to PostgreSQL for production)
+# SQLite Configuration (for development/testing only)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'OPTIONS': {
+#             'timeout': 20,  # Increase timeout to 20 seconds to avoid database locked errors
+#         },
+#     }
+# }
+
+# PostgreSQL Configuration (ACTIVE)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'q360_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
         'OPTIONS': {
-            'timeout': 20,  # Increase timeout to 20 seconds to avoid database locked errors
+            'client_encoding': 'UTF8',
         },
     }
 }
-
-# PostgreSQL Configuration (uncomment for production)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME', 'q360_db'),
-#         'USER': os.getenv('DB_USER', 'postgres'),
-#         'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-#         'HOST': os.getenv('DB_HOST', 'localhost'),
-#         'PORT': os.getenv('DB_PORT', '5432'),
-#     }
-# }
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
