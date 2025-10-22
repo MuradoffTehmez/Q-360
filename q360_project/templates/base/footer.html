@@ -107,9 +107,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'support:create-ticket' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'help' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                            {% trans "Support Tickets" %}
+                            {% trans "Support & Help" %}
                         </a>
                     </li>
                 </ul>
@@ -135,7 +135,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'audit:security-logs' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
+                        <a href="{% url 'audit:security-dashboard' %}" class="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 group">
                             <i class="fas fa-chevron-right text-xs mr-2 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
                             {% trans "Security & Compliance" %}
                         </a>
