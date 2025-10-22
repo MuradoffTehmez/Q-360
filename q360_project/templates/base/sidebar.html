@@ -616,6 +616,59 @@
                 </div>
             </div>
 
+            <!-- Employee Engagement Hub -->
+            <div class="space-y-1" x-data="{ open: false }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-users-rays w-4 text-purple-500 group-hover:text-purple-600 transition-colors"></i>
+                        <span>{% trans "İşçi Mənsubiyyəti" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200 text-gray-500"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+
+                    <a href="{% url 'engagement:engagement_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if request.path == '/engagement/' %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-chart-line w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Dashboard" %}</span>
+                    </a>
+
+                    <a href="{% url 'engagement:pulse_surveys' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/engagement/surveys' in request.path %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-poll w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Pulse Sorğular" %}</span>
+                    </a>
+
+                    <a href="{% url 'engagement:recognition_wall' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/engagement/recognition' in request.path %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-hand-holding-heart w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Recognition Wall" %}</span>
+                    </a>
+
+                    <a href="{% url 'engagement:anonymous_feedback' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/engagement/feedback' in request.path %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-comment-dots w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Anonim Feedback" %}</span>
+                    </a>
+
+                    <a href="{% url 'engagement:leaderboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/engagement/leaderboard' in request.path %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-trophy w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Leaderboard" %}</span>
+                    </a>
+
+                    <a href="{% url 'engagement:my_profile' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/engagement/my-profile' in request.path %}bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-700 dark:text-purple-400 border-l-4 border-purple-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-circle w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Mənim Profilim" %}</span>
+                    </a>
+
+                </div>
+            </div>
+
             <div class="space-y-1" x-data="{ open: true }">
                 <button type="button"
                     class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"

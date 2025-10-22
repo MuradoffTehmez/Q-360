@@ -61,6 +61,34 @@
                     <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-3/4 h-0.5 bg-white rounded-full transition-all duration-300"></div>
                 </a>
 
+                <div class="relative" x-data="{ engageOpen: false }">
+                    <button @mouseover="engageOpen = true" @mouseleave="engageOpen = false" class="flex items-center px-3 py-2 text-white hover:bg-white/10 rounded-lg text-sm font-medium transition-all duration-200 group relative mx-1">
+                        <i class="fas fa-users-rays mr-1.5 group-hover:scale-110 transition-transform"></i>
+                        <span>{% trans "Engagement" %}</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-3/4 h-0.5 bg-white rounded-full transition-all duration-300"></div>
+                    </button>
+
+                    <div x-show="engageOpen" @mouseenter="engageOpen = true" @mouseleave="engageOpen = false" x-transition class="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden z-50 border border-gray-200 dark:border-gray-700">
+                        <a href="{% url 'engagement:engagement_dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-chart-line w-4 mr-2 text-purple-500"></i>
+                            <span>{% trans "Dashboard" %}</span>
+                        </a>
+                        <a href="{% url 'engagement:pulse_surveys' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-poll w-4 mr-2 text-blue-500"></i>
+                            <span>{% trans "Pulse Surveys" %}</span>
+                        </a>
+                        <a href="{% url 'engagement:recognition_wall' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-hand-holding-heart w-4 mr-2 text-pink-500"></i>
+                            <span>{% trans "Recognition" %}</span>
+                        </a>
+                        <a href="{% url 'engagement:leaderboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-trophy w-4 mr-2 text-yellow-500"></i>
+                            <span>{% trans "Leaderboard" %}</span>
+                        </a>
+                    </div>
+                </div>
+
                 {% if user.is_manager %}
                 <a href="{% url 'reports:my-reports' %}" class="flex items-center px-3 py-2 text-white hover:bg-white/10 rounded-lg text-sm font-medium transition-all duration-200 group relative mx-1">
                     <i class="fas fa-chart-bar mr-1.5 group-hover:scale-110 transition-transform"></i>
