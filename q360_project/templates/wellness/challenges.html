@@ -1,0 +1,84 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="h3 mb-4">
+        <i class="fas fa-trophy text-warning me-2"></i>
+        {% trans "Wellness Yarışları" %}
+    </h2>
+
+    <!-- Active Challenges -->
+    <div class="mb-4">
+        <h5 class="mb-3">{% trans "Aktiv Yarışlar" %}</h5>
+        <div class="row">
+            {% for challenge in active_challenges %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5 class="card-title">{{ challenge.title }}</h5>
+                            <i class="fas fa-trophy text-warning fa-2x"></i>
+                        </div>
+                        <p class="text-muted small">{{ challenge.description|truncatewords:15 }}</p>
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ challenge.start_date|date:"d M" }} - {{ challenge.end_date|date:"d M" }}
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-users me-1"></i>
+                                {{ challenge.get_participant_count }} {% trans "iştirakçı" %}
+                            </small>
+                        </div>
+                        <a href="{% url 'wellness:challenge_detail' challenge.id %}" class="btn btn-sm btn-warning w-100">
+                            {% trans "Detallara bax" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% trans "Hal-hazırda aktiv yarış yoxdur" %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- My Challenges -->
+    {% if my_participations %}
+    <div class="mb-4">
+        <h5 class="mb-3">{% trans "Mənim İştirakım" %}</h5>
+        <div class="row">
+            {% for participation in my_participations %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card border-0 shadow-sm border-success border-start border-3">
+                    <div class="card-body">
+                        <h6>{{ participation.challenge.title }}</h6>
+                        <div class="mb-2">
+                            <small class="text-muted d-block">{% trans "İrəliləyiş" %}</small>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" style="width: {{ participation.progress }}%">
+                                    {{ participation.progress }}%
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url 'wellness:challenge_detail' participation.challenge.id %}" class="btn btn-sm btn-outline-success mt-2">
+                            {% trans "Davam et" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

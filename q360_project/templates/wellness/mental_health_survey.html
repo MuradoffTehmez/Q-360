@@ -1,0 +1,152 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white py-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-brain me-2"></i>
+                        {% trans "Mental Sağlamlıq Survey" %}
+                    </h4>
+                    <p class="mb-0 small mt-2">
+                        {% trans "Bu survey anonim ola bilər və sizin rifahınızı dəstəkləmək üçün istifadə olunur" %}
+                    </p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Stress Level -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                {{ form.stress_level.label }}
+                            </label>
+                            <div class="d-flex justify-content-between gap-2">
+                                {% for value, label in form.stress_level.field.choices %}
+                                <label class="flex-fill">
+                                    <input type="radio" name="stress_level" value="{{ value }}"
+                                           class="btn-check" id="stress_{{ value }}">
+                                    <label class="btn btn-outline-primary w-100" for="stress_{{ value }}">
+                                        {{ label }}
+                                    </label>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.stress_level.errors %}
+                                <div class="invalid-feedback d-block">{{ form.stress_level.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Workload Satisfaction -->
+                        <div class="mb-4">
+                            <label for="{{ form.workload_satisfaction.id_for_label }}" class="form-label fw-bold">
+                                {{ form.workload_satisfaction.label }}
+                            </label>
+                            <input type="range" class="form-range" min="1" max="5"
+                                   name="workload_satisfaction" id="{{ form.workload_satisfaction.id_for_label }}"
+                                   value="3" oninput="this.nextElementSibling.value = this.value">
+                            <output class="badge bg-primary">3</output>
+                            {% if form.workload_satisfaction.errors %}
+                                <div class="invalid-feedback d-block">{{ form.workload_satisfaction.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Work Life Balance -->
+                        <div class="mb-4">
+                            <label for="{{ form.work_life_balance.id_for_label }}" class="form-label fw-bold">
+                                {{ form.work_life_balance.label }}
+                            </label>
+                            <input type="range" class="form-range" min="1" max="5"
+                                   name="work_life_balance" id="{{ form.work_life_balance.id_for_label }}"
+                                   value="3" oninput="this.nextElementSibling.value = this.value">
+                            <output class="badge bg-primary">3</output>
+                            {% if form.work_life_balance.errors %}
+                                <div class="invalid-feedback d-block">{{ form.work_life_balance.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Sleep Quality -->
+                        <div class="mb-4">
+                            <label for="{{ form.sleep_quality.id_for_label }}" class="form-label fw-bold">
+                                {{ form.sleep_quality.label }}
+                            </label>
+                            <input type="range" class="form-range" min="1" max="5"
+                                   name="sleep_quality" id="{{ form.sleep_quality.id_for_label }}"
+                                   value="3" oninput="this.nextElementSibling.value = this.value">
+                            <output class="badge bg-primary">3</output>
+                            {% if form.sleep_quality.errors %}
+                                <div class="invalid-feedback d-block">{{ form.sleep_quality.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Anxiety Level -->
+                        <div class="mb-4">
+                            <label for="{{ form.anxiety_level.id_for_label }}" class="form-label fw-bold">
+                                {{ form.anxiety_level.label }}
+                            </label>
+                            <input type="range" class="form-range" min="1" max="5"
+                                   name="anxiety_level" id="{{ form.anxiety_level.id_for_label }}"
+                                   value="3" oninput="this.nextElementSibling.value = this.value">
+                            <output class="badge bg-primary">3</output>
+                            {% if form.anxiety_level.errors %}
+                                <div class="invalid-feedback d-block">{{ form.anxiety_level.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Seeking Support -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.seeking_support }}
+                                <label class="form-check-label" for="{{ form.seeking_support.id_for_label }}">
+                                    {{ form.seeking_support.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Comments -->
+                        <div class="mb-4">
+                            <label for="{{ form.comments.id_for_label }}" class="form-label fw-bold">
+                                {{ form.comments.label }}
+                            </label>
+                            {{ form.comments }}
+                            {% if form.comments.errors %}
+                                <div class="invalid-feedback d-block">{{ form.comments.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Is Anonymous -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_anonymous }}
+                                <label class="form-check-label" for="{{ form.is_anonymous.id_for_label }}">
+                                    {{ form.is_anonymous.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-2"></i>
+                                {% trans "Survey-i tamamla" %}
+                            </button>
+                            <a href="{% url 'wellness:dashboard' %}" class="btn btn-secondary">
+                                {% trans "Ləğv et" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>
+                {% trans "Bu məlumatlar konfidensial saxlanılır və yalnız rifahınızı dəstəkləmək üçün istifadə olunur" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

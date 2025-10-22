@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <a href="{% url 'wellness:medical_claims' %}" class="btn btn-link mb-3">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Geri" %}
+            </a>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{{ claim.get_claim_type_display }}</h4>
+                        <span class="badge
+                            {% if claim.status == 'pending' %}bg-warning
+                            {% elif claim.status == 'approved' %}bg-success
+                            {% elif claim.status == 'paid' %}bg-info
+                            {% else %}bg-danger{% endif %} px-3 py-2">
+                            {{ claim.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Tələb Tarixi" %}</h6>
+                            <p>{{ claim.claim_date|date:"d F Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Müalicə Tarixi" %}</h6>
+                            <p>{{ claim.treatment_date|date:"d F Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">{% trans "Tibbi Xidmət Təminatçısı" %}</h6>
+                        <p>{{ claim.provider }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">{% trans "Təsvir" %}</h6>
+                        <p>{{ claim.description }}</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Tələb Edilən Məbləğ" %}</h6>
+                            <h4>{{ claim.amount_claimed }} AZN</h4>
+                        </div>
+                        {% if claim.amount_approved %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Təsdiq Edilən Məbləğ" %}</h6>
+                            <h4 class="text-success">{{ claim.amount_approved }} AZN</h4>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if claim.receipt_file %}
+                    <div class="mb-4">
+                        <h6 class="text-muted">{% trans "Qəbz" %}</h6>
+                        <a href="{{ claim.receipt_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-file-download me-2"></i>{% trans "Yüklə" %}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if claim.rejection_reason %}
+                    <div class="alert alert-danger">
+                        <h6>{% trans "Rədd Səbəbi" %}</h6>
+                        <p class="mb-0">{{ claim.rejection_reason }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

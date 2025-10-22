@@ -1,0 +1,134 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="h3 mb-4">
+        <i class="fas fa-shoe-prints text-primary me-2"></i>
+        {% trans "Addım İzləmə" %}
+    </h2>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-walking fa-2x text-primary mb-2"></i>
+                    <h6 class="text-muted">{% trans "Ümumi Addımlar" %}</h6>
+                    <h3>{{ total_steps|floatformat:0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                    <h6 class="text-muted">{% trans "Ortalama (Gün)" %}</h6>
+                    <h3>{{ avg_steps|floatformat:0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-route fa-2x text-info mb-2"></i>
+                    <h6 class="text-muted">{% trans "Ümumi Məsafə" %}</h6>
+                    <h3>{{ total_distance|floatformat:2 }} km</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-fire fa-2x text-danger mb-2"></i>
+                    <h6 class="text-muted">{% trans "Yandırılan Kalori" %}</h6>
+                    <h3>{{ total_calories|floatformat:0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">{% trans "Son 30 Gün" %}</h5>
+            <canvas id="stepsChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <!-- Daily Data Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">{% trans "Günlük Məlumatlar" %}</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Tarix" %}</th>
+                            <th>{% trans "Addımlar" %}</th>
+                            <th>{% trans "Məsafə" %}</th>
+                            <th>{% trans "Kalori" %}</th>
+                            <th>{% trans "Aktiv Dəqiqə" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in step_data %}
+                        <tr>
+                            <td>{{ data.tracking_date|date:"d M Y" }}</td>
+                            <td><strong>{{ data.steps }}</strong></td>
+                            <td>{{ data.distance_km }} km</td>
+                            <td>{{ data.calories_burned }}</td>
+                            <td>{{ data.active_minutes }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                {% trans "Məlumat yoxdur" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('stepsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for data in step_data reversed %}'{{ data.tracking_date|date:"d M" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '{% trans "Addımlar" %}',
+                data: [{% for data in step_data reversed %}{{ data.steps }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

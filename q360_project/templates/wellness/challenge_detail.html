@@ -1,0 +1,102 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <a href="{% url 'wellness:challenges' %}" class="btn btn-link mb-3">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Geri" %}
+            </a>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-warning text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">{{ challenge.title }}</h4>
+                            <p class="mb-0 small">{{ challenge.start_date|date:"d F" }} - {{ challenge.end_date|date:"d F Y" }}</p>
+                        </div>
+                        <i class="fas fa-trophy fa-3x"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ challenge.description }}</p>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Hədəf" %}</h6>
+                            <p>{{ challenge.goal }}</p>
+                        </div>
+                        {% if challenge.prize %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Mükafat" %}</h6>
+                            <p class="text-success fw-bold">{{ challenge.prize }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if participation %}
+                    <div class="alert alert-success mb-4">
+                        <h6>{% trans "Sizin İrəliləyişiniz" %}</h6>
+                        <div class="progress mb-2" style="height: 30px;">
+                            <div class="progress-bar bg-success" style="width: {{ participation.progress }}%">
+                                {{ participation.progress }}%
+                            </div>
+                        </div>
+                        <p class="mb-0 small">{% trans "Cari dəyər" %}: {{ participation.current_value }}</p>
+                    </div>
+                    {% else %}
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-check me-2"></i>{% trans "Yarışa Qoşul" %}
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Leaderboard -->
+                    <h5 class="mb-3">{% trans "Liderlik Lövhəsi" %}</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Rütbə" %}</th>
+                                    <th>{% trans "İştirakçı" %}</th>
+                                    <th>{% trans "İrəliləyiş" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in leaderboard %}
+                                <tr {% if item.participant == request.user %}class="table-success"{% endif %}>
+                                    <td>
+                                        {% if forloop.counter == 1 %}
+                                            <i class="fas fa-trophy text-warning"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="fas fa-medal text-secondary"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="fas fa-medal" style="color: #CD7F32;"></i>
+                                        {% else %}
+                                            {{ forloop.counter }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.participant.get_full_name }}</td>
+                                    <td>
+                                        <div class="progress" style="width: 150px; height: 20px;">
+                                            <div class="progress-bar" style="width: {{ item.progress }}%">
+                                                {{ item.progress }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

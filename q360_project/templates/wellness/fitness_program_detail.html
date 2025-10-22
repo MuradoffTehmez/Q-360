@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <a href="{% url 'wellness:fitness_programs' %}" class="btn btn-link mb-3">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Geri" %}
+            </a>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{{ program.title }}</h4>
+                        <span class="badge bg-{{ program.status == 'active' and 'success' or 'primary' }} px-3 py-2">
+                            {{ program.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ program.description }}</p>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "Tarixlər" %}</h6>
+                            <p>{{ program.start_date|date:"d F Y" }} - {{ program.end_date|date:"d F Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">{% trans "İştirakçılar" %}</h6>
+                            <p>{{ program.get_participant_count }} / {{ program.capacity }}</p>
+                        </div>
+                    </div>
+
+                    {% if program.instructor %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">{% trans "Təlimatçı" %}</h6>
+                        <p>{{ program.instructor }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <h6 class="text-muted">{% trans "Yer" %}</h6>
+                        <p>{{ program.location }}</p>
+                    </div>
+
+                    {% if not is_enrolled and not program.is_full %}
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>{% trans "Proqrama Qoşul" %}
+                        </button>
+                    </form>
+                    {% elif is_enrolled %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>{% trans "Siz artıq bu proqramda iştirak edirsiniz" %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Proqram doludur" %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

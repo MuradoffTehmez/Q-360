@@ -558,6 +558,64 @@
                 </div>
             </div>
 
+            <div class="space-y-1" x-data="{ open: false }">
+                <button type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
+                    @click="open = !open">
+                    <span class="flex items-center space-x-2">
+                        <i class="fas fa-heartbeat w-4 text-red-500 group-hover:text-red-600 transition-colors"></i>
+                        <span>{% trans "Sağlamlıq və Wellness" %}</span>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200 text-gray-500"
+                       :class="{'rotate-180': open}"></i>
+                </button>
+                <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
+
+                    <a href="{% url 'wellness:dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/' in request.path and 'checkups' not in request.path and 'fitness' not in request.path and 'claims' not in request.path and 'challenges' not in request.path and 'steps' not in request.path and 'mental-health' not in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-tachometer-alt w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Dashboard" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:checkup_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/checkups' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-stethoscope w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Tibbi Müayinələr" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:mental_health_survey' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/mental-health' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-brain w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Mental Sağlamlıq" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:fitness_programs' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/fitness' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-dumbbell w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Fitness Proqramları" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:medical_claims' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/claims' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-file-medical w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Tibbi Xərc Tələbləri" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:challenges' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/challenges' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-trophy w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Wellness Yarışları" %}</span>
+                    </a>
+
+                    <a href="{% url 'wellness:step_tracking' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/wellness/steps' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-shoe-prints w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Addım İzləmə" %}</span>
+                    </a>
+
+                </div>
+            </div>
+
             <div class="space-y-1" x-data="{ open: true }">
                 <button type="button"
                     class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
