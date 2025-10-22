@@ -53,7 +53,8 @@
       "Read(//c/Program Files/PostgreSQL/17/data/**)",
       "Bash(set DB_HOST=127.0.0.1)",
       "Bash(set:*)",
-      "Bash(Select-String -Pattern \"✓|✅|ERROR|Traceback\" -Context 0,1)"
+      "Bash(Select-String -Pattern \"✓|✅|ERROR|Traceback\" -Context 0,1)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
