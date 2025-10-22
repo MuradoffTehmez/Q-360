@@ -233,10 +233,14 @@ def dashboard_view(request):
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
-    """User profile view."""
+    """Enhanced User profile view with complete system integration."""
     template_name = 'accounts/profile.html'
 
     def get_context_data(self, **kwargs):
+        from django.db.models import Avg, Count, Q, Sum
+        from datetime import datetime, timedelta
+        import json
+
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
@@ -246,44 +250,292 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         if hasattr(user, 'profile'):
             context['profile'] = user.profile
         else:
-            # Create profile if doesn't exist
             from .models import Profile
             context['profile'] = Profile.objects.create(user=user)
 
-        # Get evaluation statistics
-        from apps.evaluations.models import EvaluationAssignment, EvaluationResult
+        # ==================== EVALUATION SYSTEM ====================
+        from apps.evaluations.models import EvaluationAssignment, EvaluationResult, Response
+
+        # Evaluation statistics
         context['completed_evaluations'] = EvaluationAssignment.objects.filter(
             evaluator=user,
             status='completed'
         ).count()
 
-        # Get average score
+        context['pending_evaluations'] = EvaluationAssignment.objects.filter(
+            evaluator=user,
+            status__in=['pending', 'in_progress']
+        ).count()
+
+        # Get average score and latest result
         latest_result = EvaluationResult.objects.filter(
             evaluatee=user
         ).order_by('-calculated_at').first()
 
         if latest_result and latest_result.overall_score:
-            context['average_score'] = f"{latest_result.overall_score:.2f}"
+            context['average_score'] = f"{latest_result.overall_score:.1f}"
+            context['latest_evaluation_date'] = latest_result.calculated_at
         else:
             context['average_score'] = "N/A"
+            context['latest_evaluation_date'] = None
 
-        # Get active development goals
+        # ==================== DEVELOPMENT & GOALS ====================
         from apps.development_plans.models import DevelopmentGoal
-        context['active_goals'] = DevelopmentGoal.objects.filter(
+
+        active_goals = DevelopmentGoal.objects.filter(
             user=user,
             status='active'
-        ).count()
+        )
+        context['active_goals'] = active_goals.count()
+        context['active_goals_list'] = active_goals[:5]  # Top 5 for display
 
-        # Achievements count (placeholder)
-        context['achievements_count'] = 0
+        # Goal completion percentage
+        if context['active_goals'] > 0:
+            avg_progress = active_goals.aggregate(avg=Avg('progress_percentage'))['avg'] or 0
+            context['goals_completion_avg'] = round(avg_progress, 1)
+        else:
+            context['goals_completion_avg'] = 0
 
-        # Recent activities (placeholder)
-        context['recent_activities'] = []
+        # ==================== TRAINING & CERTIFICATIONS ====================
+        from apps.training.models import UserTraining, Certification
 
-        # Competencies (placeholder)
-        context['competencies'] = []
+        # Training statistics
+        all_trainings = UserTraining.objects.filter(user=user)
+        context['total_trainings'] = all_trainings.count()
+        context['completed_trainings'] = all_trainings.filter(status='completed').count()
+        context['in_progress_trainings'] = all_trainings.filter(status='in_progress').count()
+        context['pending_trainings'] = all_trainings.filter(status='pending').count()
+
+        # Upcoming trainings (within 30 days)
+        upcoming_trainings = all_trainings.filter(
+            due_date__lte=datetime.now().date() + timedelta(days=30),
+            due_date__gte=datetime.now().date(),
+            status__in=['pending', 'in_progress']
+        ).order_by('due_date')
+        context['upcoming_trainings'] = upcoming_trainings[:5]
+        context['upcoming_trainings_count'] = upcoming_trainings.count()
+
+        # Active certifications
+        active_certs = Certification.objects.filter(
+            user=user,
+            status='active'
+        )
+        context['active_certifications'] = active_certs.count()
+        context['certifications_list'] = active_certs[:5]
+
+        # Expiring certifications (within 60 days)
+        expiring_certs = active_certs.filter(
+            expiration_date__lte=datetime.now().date() + timedelta(days=60),
+            expiration_date__gte=datetime.now().date()
+        )
+        context['expiring_certifications'] = expiring_certs.count()
+
+        # ==================== COMPETENCIES & SKILLS ====================
+        from apps.competencies.models import UserSkill
+
+        user_skills = UserSkill.objects.filter(user=user, is_approved=True)
+        context['total_skills'] = user_skills.count()
+        context['skills_list'] = user_skills.select_related('competency')[:10]
+
+        # Skills by proficiency level
+        context['expert_skills'] = user_skills.filter(level__name='expert').count()
+        context['advanced_skills'] = user_skills.filter(level__name='advanced').count()
+
+        # ==================== ENGAGEMENT & RECOGNITION ====================
+        try:
+            from apps.engagement.models import UserBadge, UserPoints, Recognition
+
+            # Badges
+            user_badges = UserBadge.objects.filter(user=user)
+            context['total_badges'] = user_badges.count()
+            context['recent_badges'] = user_badges.order_by('-earned_at')[:4]
+
+            # Points and level
+            user_points, _ = UserPoints.objects.get_or_create(user=user)
+            context['user_points'] = user_points.total_points
+            context['user_level'] = user_points.level
+            context['user_rank'] = user_points.overall_rank
+
+            # Recognition received
+            recognitions_received = Recognition.objects.filter(
+                recipient=user,
+                visibility__in=['public', 'team']
+            ).order_by('-created_at')
+            context['recognitions_received'] = recognitions_received[:5]
+            context['total_recognitions'] = recognitions_received.count()
+        except Exception as e:
+            context['total_badges'] = 0
+            context['user_points'] = 0
+            context['user_level'] = 1
+            context['total_recognitions'] = 0
+
+        # ==================== WELLNESS & HEALTH ====================
+        try:
+            from apps.wellness.models import HealthScore, FitnessProgram, WellnessChallengeParticipation
+
+            # Latest health score
+            latest_health_score = HealthScore.objects.filter(user=user).order_by('-date').first()
+            if latest_health_score:
+                context['health_score'] = latest_health_score.overall_score
+                context['physical_health'] = latest_health_score.physical_health
+                context['mental_health'] = latest_health_score.mental_health
+            else:
+                context['health_score'] = None
+
+            # Active fitness programs
+            active_fitness = FitnessProgram.objects.filter(
+                fitnessprogramparticipation__user=user,
+                status='active'
+            ).distinct()
+            context['active_fitness_programs'] = active_fitness.count()
+
+            # Active wellness challenges
+            active_challenges = WellnessChallengeParticipation.objects.filter(
+                user=user,
+                challenge__status='active'
+            )
+            context['active_wellness_challenges'] = active_challenges.count()
+        except Exception as e:
+            context['health_score'] = None
+            context['active_fitness_programs'] = 0
+            context['active_wellness_challenges'] = 0
+
+        # ==================== LEAVE & ATTENDANCE ====================
+        try:
+            from apps.leave_attendance.models import LeaveBalance, LeaveRequest
+
+            # Leave balance for current year
+            current_year = datetime.now().year
+            leave_balances = LeaveBalance.objects.filter(
+                user=user,
+                year=current_year
+            )
+
+            total_entitled = leave_balances.aggregate(sum=Sum('entitled_days'))['sum'] or 0
+            total_used = leave_balances.aggregate(sum=Sum('used_days'))['sum'] or 0
+            context['leave_balance_total'] = total_entitled - total_used
+            context['leave_used'] = total_used
+
+            # Pending leave requests
+            pending_leaves = LeaveRequest.objects.filter(
+                user=user,
+                status='pending'
+            )
+            context['pending_leave_requests'] = pending_leaves.count()
+        except Exception as e:
+            context['leave_balance_total'] = 0
+            context['pending_leave_requests'] = 0
+
+        # ==================== COMPENSATION ====================
+        try:
+            from apps.compensation.models import SalaryInformation, Bonus
+
+            # Current salary
+            current_salary = SalaryInformation.objects.filter(
+                user=user,
+                is_active=True
+            ).first()
+
+            if current_salary:
+                context['current_salary'] = current_salary.base_salary
+                context['salary_currency'] = current_salary.currency
+            else:
+                context['current_salary'] = None
+
+            # Bonuses this year
+            bonuses_this_year = Bonus.objects.filter(
+                user=user,
+                fiscal_year=datetime.now().year,
+                status='paid'
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            context['bonuses_this_year'] = bonuses_this_year
+        except Exception as e:
+            context['current_salary'] = None
+            context['bonuses_this_year'] = 0
+
+        # ==================== NOTIFICATIONS ====================
+        from apps.notifications.models import Notification
+
+        unread_notifications = Notification.objects.filter(
+            user=user,
+            is_read=False
+        ).order_by('-created_at')
+        context['unread_notifications'] = unread_notifications[:5]
+        context['unread_count'] = unread_notifications.count()
+
+        # ==================== RECENT ACTIVITY ====================
+        from apps.audit.models import AuditLog
+
+        recent_activities = AuditLog.objects.filter(
+            user=user,
+            action__in=['create', 'update', 'complete', 'submit']
+        ).order_by('-created_at')[:10]
+
+        # Format activities for display
+        activities = []
+        for log in recent_activities:
+            activity = {
+                'title': self._format_activity_title(log),
+                'description': log.changes or '',
+                'created_at': log.created_at,
+                'url': self._get_activity_url(log)
+            }
+            activities.append(activity)
+        context['recent_activities'] = activities
+
+        # ==================== ACHIEVEMENTS ====================
+        # Calculate dynamic achievements based on actual data
+        achievements_count = 0
+        if context['completed_evaluations'] > 0:
+            achievements_count += 1  # First evaluation
+        if context['average_score'] != "N/A" and float(context['average_score']) >= 4.0:
+            achievements_count += 1  # High performance
+        if context['active_goals'] > 0:
+            achievements_count += 1  # Goal setter
+        if context['total_trainings'] >= 5:
+            achievements_count += 1  # Learning enthusiast
+
+        context['achievements_count'] = achievements_count
+
+        # ==================== TEAM INFORMATION ====================
+        # Subordinates (for managers)
+        if user.is_manager() or user.is_admin():
+            subordinates = User.objects.filter(supervisor=user)
+            context['team_size'] = subordinates.count()
+            context['team_members'] = subordinates[:5]
+        else:
+            context['team_size'] = 0
+            context['team_members'] = []
+
+        # ==================== COMPETENCY RADAR CHART DATA ====================
+        # Get top competencies with scores for radar chart
+        competencies_data = []
+        for skill in user_skills[:8]:  # Top 8 for radar chart
+            competencies_data.append({
+                'label': skill.competency.name,
+                'value': skill.get_proficiency_score(),  # Convert level to numeric
+                'level': skill.level.display_name if skill.level else 'N/A'
+            })
+        context['competencies_data'] = json.dumps(competencies_data)
 
         return context
+
+    def _format_activity_title(self, log):
+        """Format activity log title for display."""
+        action_map = {
+            'create': 'Yaradıldı',
+            'update': 'Yeniləndi',
+            'complete': 'Tamamlandı',
+            'submit': 'Təqdim edildi'
+        }
+        action = action_map.get(log.action, log.action.title())
+        model_name = log.model_name or 'Obyekt'
+        return f"{model_name} {action}"
+
+    def _get_activity_url(self, log):
+        """Get URL for activity (if applicable)."""
+        # This can be extended based on model types
+        return None
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):

@@ -352,3 +352,31 @@ class UserSkill(models.Model):
             pass
 
         self.save()
+
+    def get_proficiency_score(self):
+        """Convert proficiency level to numeric score (0-100) for charts."""
+        if self.current_score:
+            return float(self.current_score)
+
+        # If no current score, use level midpoint
+        if self.level:
+            midpoint = (float(self.level.score_min) + float(self.level.score_max)) / 2
+            return round(midpoint, 1)
+
+        # Default fallback
+        level_map = {
+            'basic': 25.0,
+            'intermediate': 50.0,
+            'advanced': 75.0,
+            'expert': 95.0
+        }
+        if self.level and hasattr(self.level, 'name'):
+            return level_map.get(self.level.name, 50.0)
+        return 50.0
+
+    @property
+    def proficiency_level(self):
+        """Return proficiency level name."""
+        if self.level:
+            return self.level.display_name
+        return "Naməlum"

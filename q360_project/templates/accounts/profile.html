@@ -1,283 +1,472 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Profil - {{ user.get_full_name }}{% endblock %}
+{% block title %}{% trans "Profil" %} - {{ user.get_full_name }}{% endblock %}
 
-{% block page_header %}
-<!-- Profile Header with Gradient -->
-<div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 rounded-2xl shadow-xl p-8 mb-6 overflow-hidden">
-    <!-- Decorative Pattern -->
-    <div class="absolute inset-0 opacity-10">
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
-    </div>
-
-    <div class="relative grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-        <!-- Avatar Section -->
-        <div class="flex justify-center lg:justify-start">
-            {% if user.profile_picture %}
-                <img src="{{ user.profile_picture.url }}" alt="Profile" class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-200 shadow-2xl object-cover">
-            {% else %}
-                <div class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-200 bg-white/30 backdrop-blur-sm flex items-center justify-center text-white text-5xl font-bold shadow-2xl">
-                    {{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|default:""|upper }}
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- User Info -->
-        <div class="text-center lg:text-left lg:col-span-1">
-            <h1 class="text-3xl font-bold text-white mb-3">{{ user.get_full_name|default:user.username }}</h1>
-            <div class="space-y-2 text-white/90">
-                <p class="flex items-center justify-center lg:justify-start">
-                    <i class="fas fa-briefcase mr-2"></i>{{ user.position|default:"İstifadəçi" }}
-                </p>
-                <p class="flex items-center justify-center lg:justify-start">
-                    <i class="fas fa-building mr-2"></i>{{ user.department|default:"Departament təyin edilməyib" }}
-                </p>
-                <p class="flex items-center justify-center lg:justify-start">
-                    <i class="fas fa-envelope mr-2"></i>{{ user.email }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col gap-3">
-            <a href="{% url 'accounts:profile-edit' %}" class="px-6 py-3 bg-white text-indigo-600 hover:bg-gray-100 rounded-lg font-semibold transition-all shadow-lg text-center">
-                <i class="fas fa-edit mr-2"></i>Profili Redaktə Et
-            </a>
-            <a href="{% url 'accounts:settings' %}" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border-2 border-white/30 rounded-lg font-semibold transition-all text-center">
-                <i class="fas fa-cog mr-2"></i>Tənzimləmələr
-            </a>
-        </div>
-    </div>
-</div>
+{% block extra_css %}
+<style>
+    .metric-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+    }
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    .badge-item {
+        transition: transform 0.2s;
+    }
+    .badge-item:hover {
+        transform: scale(1.1);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700 shadow-sm hover:shadow-lg transition-all">
-        <div class="text-center">
-            <i class="fas fa-clipboard-check text-5xl text-green-600 dark:text-green-400 mb-3"></i>
-            <h3 class="text-3xl font-bold text-green-700 dark:text-green-300 mb-1">{{ completed_evaluations|default:0 }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Tamamlanmış Qiymətləndirmə</p>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-800/20 rounded-xl p-6 border border-yellow-200 dark:border-yellow-700 shadow-sm hover:shadow-lg transition-all">
-        <div class="text-center">
-            <i class="fas fa-star text-5xl text-yellow-600 dark:text-yellow-400 mb-3"></i>
-            <h3 class="text-3xl font-bold text-yellow-700 dark:text-yellow-300 mb-1">{{ average_score|default:"N/A" }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Ortalama Performans Balı</p>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-lg transition-all">
-        <div class="text-center">
-            <i class="fas fa-bullseye text-5xl text-blue-600 dark:text-blue-400 mb-3"></i>
-            <h3 class="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-1">{{ active_goals|default:0 }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Aktiv İnkişaf Məqsədi</p>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700 shadow-sm hover:shadow-lg transition-all">
-        <div class="text-center">
-            <i class="fas fa-trophy text-5xl text-purple-600 dark:text-purple-400 mb-3"></i>
-            <h3 class="text-3xl font-bold text-purple-700 dark:text-purple-300 mb-1">{{ achievements_count|default:0 }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Qazanılmış Nailiyyət</p>
-        </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Main Content (Left Side) -->
-    <div class="lg:col-span-2 space-y-6">
-        <!-- Personal Information -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-user mr-2 text-indigo-600"></i>Şəxsi Məlumatlar
-                </h2>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Ad Soyad</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{{ user.get_full_name|default:"-" }}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Email</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{{ user.email }}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Telefon</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{{ user.phone_number|default:"-" }}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Vəzifə</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{{ user.position|default:"-" }}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Departament</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{{ user.department|default:"-" }}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Rəhbər</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{% if user.supervisor %}{{ user.supervisor.get_full_name }}{% else %}-{% endif %}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">İşə Başlama</span>
-                        <span class="text-gray-900 dark:text-white font-semibold">{% if profile.hire_date %}{{ profile.hire_date|date:"d.m.Y" }}{% else %}-{% endif %}</span>
-                    </div>
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Rol</span>
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
-                            {{ user.get_role_display }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-history mr-2 text-blue-600"></i>Son Fəaliyyətlər
-                </h2>
-            </div>
-            <div class="p-6">
-                {% if recent_activities %}
-                    <div class="space-y-4">
-                        {% for activity in recent_activities %}
-                        <div class="relative pl-6 pb-4 border-l-2 border-blue-500 dark:border-blue-400 last:pb-0">
-                            <div class="absolute left-0 top-0 w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full transform -translate-x-1.5"></div>
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <h6 class="font-semibold text-gray-900 dark:text-white mb-1">{{ activity.title }}</h6>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ activity.description }}</p>
-                                    <small class="text-xs text-gray-500 dark:text-gray-500">
-                                        <i class="far fa-clock mr-1"></i>{{ activity.created_at|timesince }} əvvəl
-                                    </small>
+<div class="container-fluid py-4">
+    <!-- Profile Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Avatar -->
+                        <div class="col-md-2 text-center">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}"
+                                     class="rounded-circle border border-4 border-white shadow-lg"
+                                     style="width: 140px; height: 140px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle border border-4 border-white shadow-lg bg-white d-inline-flex align-items-center justify-content-center"
+                                     style="width: 140px; height: 140px;">
+                                    <span class="display-3 fw-bold text-primary">
+                                        {{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|default:""|upper }}
+                                    </span>
                                 </div>
-                                {% if activity.url %}
-                                <a href="{{ activity.url }}" class="ml-4 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition-colors text-sm">
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
-                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <!-- User Info -->
+                        <div class="col-md-7">
+                            <h2 class="text-white mb-2 fw-bold">{{ user.get_full_name|default:user.username }}</h2>
+                            <div class="text-white opacity-90">
+                                <p class="mb-2">
+                                    <i class="fas fa-briefcase me-2"></i>{{ user.position|default:"İstifadəçi" }}
+                                    {% if user.department %}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-building me-2"></i>{{ user.department.name }}
+                                    {% endif %}
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-envelope me-2"></i>{{ user.email }}
+                                    {% if profile.phone_number %}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-phone me-2"></i>{{ profile.phone_number }}
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0">
+                                    <span class="badge bg-white bg-opacity-25 text-white px-3 py-2">
+                                        <i class="fas fa-shield-alt me-1"></i>{{ user.get_role_display }}
+                                    </span>
+                                    {% if user.is_manager or user.is_admin %}
+                                        <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 ms-2">
+                                            <i class="fas fa-users me-1"></i>{% trans "Komanda" %}: {{ team_size }}
+                                        </span>
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
-                        {% endfor %}
+
+                        <!-- Quick Actions -->
+                        <div class="col-md-3">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'accounts:profile-edit' %}" class="btn btn-light btn-lg shadow">
+                                    <i class="fas fa-edit me-2"></i>{% trans "Profili Redaktə Et" %}
+                                </a>
+                                <a href="{% url 'accounts:settings' %}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-cog me-2"></i>{% trans "Tənzimləmələr" %}
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <i class="fas fa-info-circle text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                        <p class="text-gray-500 dark:text-gray-400">Hələ heç bir fəaliyyət yoxdur</p>
-                    </div>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar (Right Side) -->
-    <div class="space-y-6">
-        <!-- Skills & Competencies with Radar Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-chart-radar mr-2 text-green-600"></i>Kompetensiya Radar
-                </h2>
-                <div class="flex gap-2" x-data="{ chartView: 'radar' }">
-                    <button @click="chartView = 'radar'; updateChartView('radar')"
-                            :class="chartView === 'radar' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
-                            class="p-2 rounded-lg transition-colors" title="Radar View">
-                        <i class="fas fa-chart-radar"></i>
-                    </button>
-                    <button @click="chartView = 'bar'; updateChartView('bar')"
-                            :class="chartView === 'bar' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
-                            class="p-2 rounded-lg transition-colors" title="Bar View">
-                        <i class="fas fa-chart-bar"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6">
-                <div class="relative" style="height: 300px;">
-                    <canvas id="competencyRadarChart"></canvas>
-                </div>
-
-                <!-- Legend with progress bars below chart -->
-                <div class="mt-6 space-y-3 max-h-64 overflow-y-auto" id="competencyLegend">
-                    <!-- Will be populated by JavaScript -->
+    <!-- Key Metrics Row -->
+    <div class="row g-3 mb-4">
+        <!-- Performance Score -->
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-warning mb-3">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="display-5 fw-bold mb-1">{{ average_score|default:"N/A" }}</h3>
+                    <p class="text-muted mb-0">{% trans "Ortalama Performans" %}</p>
+                    {% if latest_evaluation_date %}
+                        <small class="text-muted">{{ latest_evaluation_date|date:"d.m.Y" }}</small>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Achievements -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-trophy mr-2 text-yellow-500"></i>Nailiyyətlər
-                </h2>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="text-center">
-                        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-3xl shadow-lg">
-                            <i class="fas fa-medal"></i>
-                        </div>
-                        <p class="text-xs text-gray-600 dark:text-gray-400">İlk Qiymətləndirmə</p>
+        <!-- Evaluations -->
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-success mb-3">
+                        <i class="fas fa-clipboard-check"></i>
                     </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-3xl shadow-lg">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p class="text-xs text-gray-600 dark:text-gray-400">Yüksək Performans</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white text-3xl shadow-lg">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <p class="text-xs text-gray-600 dark:text-gray-400">Məqsəd Nailiyyəti</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-3xl shadow-lg">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <p class="text-xs text-gray-600 dark:text-gray-400">Komanda Oyunçusu</p>
-                    </div>
+                    <h3 class="display-5 fw-bold mb-1">{{ completed_evaluations }}</h3>
+                    <p class="text-muted mb-0">{% trans "Tamamlanmış Qiymətləndirmə" %}</p>
+                    {% if pending_evaluations > 0 %}
+                        <small class="text-warning"><i class="fas fa-clock me-1"></i>{{ pending_evaluations }} gözləyir</small>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Quick Links -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <i class="fas fa-link mr-2 text-purple-600"></i>Sürətli Keçidlər
-                </h2>
+        <!-- Active Goals -->
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-primary mb-3">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="display-5 fw-bold mb-1">{{ active_goals }}</h3>
+                    <p class="text-muted mb-0">{% trans "Aktiv Məqsəd" %}</p>
+                    {% if goals_completion_avg %}
+                        <div class="progress mt-2" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 style="width: {{ goals_completion_avg }}%"
+                                 aria-valuenow="{{ goals_completion_avg }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">{{ goals_completion_avg }}% ortalama</small>
+                    {% endif %}
+                </div>
             </div>
-            <div class="p-6 space-y-3">
-                <a href="{% url 'reports:my-reports' %}" class="flex items-center w-full px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 hover:shadow-md rounded-lg transition-all">
-                    <i class="fas fa-chart-line mr-3"></i>
-                    <span class="font-medium">Hesabatlarım</span>
-                </a>
-                <a href="{% url 'development-plans:my-goals' %}" class="flex items-center w-full px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 text-green-700 dark:text-green-300 hover:shadow-md rounded-lg transition-all">
-                    <i class="fas fa-bullseye mr-3"></i>
-                    <span class="font-medium">İnkişaf Məqsədlərim</span>
-                </a>
-                <a href="{% url 'evaluations:my-assignments' %}" class="flex items-center w-full px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 hover:shadow-md rounded-lg transition-all">
-                    <i class="fas fa-tasks mr-3"></i>
-                    <span class="font-medium">Tapşırıqlarım</span>
-                </a>
-                <a href="{% url 'accounts:security' %}" class="flex items-center w-full px-4 py-3 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-700 dark:to-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md rounded-lg transition-all">
-                    <i class="fas fa-key mr-3"></i>
-                    <span class="font-medium">Şifrəni Dəyiş</span>
-                </a>
+        </div>
+
+        <!-- Level & Points -->
+        <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-info mb-3">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="display-5 fw-bold mb-1">{{ user_level|default:1 }}</h3>
+                    <p class="text-muted mb-0">{% trans "Səviyyə" %}</p>
+                    <small class="text-muted"><i class="fas fa-coins me-1"></i>{{ user_points|default:0 }} xal</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Training & Certifications -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary me-2"></i>{% trans "Təlim və Sertifikatlar" %}</h5>
+                        <a href="{% url 'training:my-trainings' %}" class="btn btn-sm btn-outline-primary">{% trans "Hamısına Bax" %}</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-primary mb-1">{{ total_trainings }}</h4>
+                                <small class="text-muted">{% trans "Ümumi Təlim" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-success mb-1">{{ completed_trainings }}</h4>
+                                <small class="text-muted">{% trans "Tamamlandı" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-warning mb-1">{{ in_progress_trainings }}</h4>
+                                <small class="text-muted">{% trans "Davam Edir" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-info mb-1">{{ active_certifications }}</h4>
+                                <small class="text-muted">{% trans "Aktiv Sertifikat" %}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if upcoming_trainings %}
+                        <h6 class="fw-bold mb-3">{% trans "Yaxın Təlimlər" %}</h6>
+                        <div class="list-group list-group-flush">
+                            {% for training in upcoming_trainings %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ training.training_resource.title }}</h6>
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar me-1"></i>{{ training.due_date|date:"d M Y" }}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-{{ training.status|yesno:'success,warning,secondary' }}">
+                                        {{ training.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "Yaxın zamanda təlim yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Development Goals -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-rocket text-success me-2"></i>{% trans "İnkişaf Məqsədləri" %}</h5>
+                        <a href="{% url 'development-plans:my-goals' %}" class="btn btn-sm btn-outline-success">{% trans "Hamısına Bax" %}</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_goals_list %}
+                        {% for goal in active_goals_list %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">{{ goal.title }}</h6>
+                                <span class="badge bg-primary">{{ goal.progress_percentage }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-gradient" role="progressbar"
+                                     style="width: {{ goal.progress_percentage }}%"
+                                     aria-valuenow="{{ goal.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>{% trans "Son yeniləmə" %}: {{ goal.updated_at|timesince }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "Hələ aktiv məqsəd yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-history text-info me-2"></i>{% trans "Son Fəaliyyətlər" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="timeline">
+                            {% for activity in recent_activities %}
+                            <div class="timeline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1">{{ activity.title }}</h6>
+                                        <p class="text-muted small mb-1">{{ activity.description|truncatewords:15 }}</p>
+                                        <small class="text-muted">
+                                            <i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} əvvəl
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "Hələ fəaliyyət yoxdur" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Skills & Competencies -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-radar text-primary me-2"></i>{% trans "Kompetensiyalar" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <canvas id="skillsRadarChart" width="300" height="300"></canvas>
+                    </div>
+
+                    {% if skills_list %}
+                        <div class="mt-3">
+                            {% for skill in skills_list|slice:":5" %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small">{{ skill.competency.name }}</span>
+                                <span class="badge bg-{% if skill.level.name == 'expert' %}success{% elif skill.level.name == 'advanced' %}primary{% elif skill.level.name == 'intermediate' %}info{% else %}secondary{% endif %}">
+                                    {{ skill.level.display_name }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">{% trans "Hələ bacarıq qeyd edilməyib" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Badges & Achievements -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-medal text-warning me-2"></i>{% trans "Nailiyyətlər" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_badges %}
+                        <div class="row g-2">
+                            {% for badge in recent_badges %}
+                            <div class="col-6 text-center">
+                                <div class="badge-item p-3 rounded bg-light">
+                                    <div class="display-4 mb-2">{{ badge.badge.icon|default:"🏆" }}</div>
+                                    <small class="text-muted d-block">{{ badge.badge.name }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'engagement:badges' %}" class="btn btn-sm btn-outline-primary">
+                                {% trans "Bütün Nailiyyətlər" %} ({{ total_badges }})
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="display-1 text-muted mb-3">🏆</div>
+                            <p class="text-muted">{% trans "Hələ nailiyyət qazanılmayıb" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Wellness & Health -->
+            {% if health_score %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-heartbeat text-danger me-2"></i>{% trans "Sağlamlıq" %}</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <svg width="120" height="120">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12"/>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#28a745" stroke-width="12"
+                                    stroke-dasharray="{{ health_score|floatformat:0 }} 340"
+                                    stroke-dashoffset="0" class="progress-ring"/>
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <h2 class="mb-0">{{ health_score|floatformat:0 }}</h2>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-3">{% trans "Ümumi Sağlamlıq Balı" %}</p>
+                    <div class="row g-2 text-start">
+                        <div class="col-6">
+                            <small class="text-muted">{% trans "Fiziki" %}</small>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: {{ physical_health }}%"></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">{% trans "Ruhi" %}</small>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-info" style="width: {{ mental_health }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'wellness:dashboard' %}" class="btn btn-sm btn-outline-success mt-3">{% trans "Wellness Dashboard" %}</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar text-info me-2"></i>{% trans "Sürətli Statistika" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <span class="text-muted"><i class="fas fa-calendar-check me-2"></i>{% trans "Məzuniyyət Balansı" %}</span>
+                        <span class="fw-bold">{{ leave_balance_total }} gün</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <span class="text-muted"><i class="fas fa-bell me-2"></i>{% trans "Oxunmamış Bildiriş" %}</span>
+                        <span class="fw-bold">{{ unread_count }}</span>
+                    </div>
+                    {% if current_salary %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted"><i class="fas fa-money-bill-wave me-2"></i>{% trans "Bonuslar (bu il)" %}</span>
+                        <span class="fw-bold">{{ bonuses_this_year|floatformat:2 }} {{ salary_currency|default:"AZN" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{% static 'js/competency-radar.js' %}"></script>
+<script>
+// Skills Radar Chart
+const competenciesData = {{ competencies_data|safe }};
+
+if (competenciesData && competenciesData.length > 0) {
+    const ctx = document.getElementById('skillsRadarChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: competenciesData.map(c => c.label),
+                datasets: [{
+                    label: 'Bacarıq Səviyyəsi',
+                    data: competenciesData.map(c => c.value),
+                    fill: true,
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgb(102, 126, 234)',
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(102, 126, 234)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+}
+</script>
 {% endblock %}
