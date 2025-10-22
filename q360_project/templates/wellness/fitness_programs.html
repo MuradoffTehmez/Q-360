@@ -39,7 +39,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <h5 class="card-title">{{ program.title }}</h5>
-                        <span class="badge bg-{{ program.status == 'active' and 'success' or 'primary' }}">
+                        <span class="badge {% if program.status == 'active' %}bg-success{% else %}bg-primary{% endif %}">
                             {{ program.get_status_display }}
                         </span>
                     </div>

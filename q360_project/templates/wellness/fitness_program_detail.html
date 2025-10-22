@@ -15,7 +15,7 @@
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">{{ program.title }}</h4>
-                        <span class="badge bg-{{ program.status == 'active' and 'success' or 'primary' }} px-3 py-2">
+                        <span class="badge bg-{% if program.status == 'active' %}success{% else %}primary{% endif %} px-3 py-2">
                             {{ program.get_status_display }}
                         </span>
                     </div>
