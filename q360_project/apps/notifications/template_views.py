@@ -273,9 +273,12 @@ def get_recent_notifications(request):
         limit = int(request.GET.get('limit', 10))
         limit = min(limit, 50)  # Max 50 notifications
 
-        notifications = Notification.objects.filter(
-            user=request.user
-        ).order_by('-created_at')[:limit]
+        # Get all notifications for the user (for unread count)
+        all_notifications = Notification.objects.filter(user=request.user)
+        unread_count = all_notifications.filter(is_read=False).count()
+
+        # Get limited notifications for display
+        notifications = all_notifications.order_by('-created_at')[:limit]
 
         data = [{
             'id': n.id,
@@ -291,7 +294,7 @@ def get_recent_notifications(request):
             'success': True,
             'notifications': data,
             'count': len(data),
-            'unread_count': notifications.filter(is_read=False).count()
+            'unread_count': unread_count
         })
     except Exception as e:
         return JsonResponse({
