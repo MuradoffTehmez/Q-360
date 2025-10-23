@@ -156,9 +156,182 @@ class Q360DataTable {
      * Bütün məlumatları export edir
      */
     exportData(format = 'csv') {
-        // Export funksionallığı
-        console.log(`Export format: ${format}`);
-        // TODO: Backend export endpoint çağırış
+        const exportUrl = `${this.apiUrl.replace('/datatable/', '')}/export/`;
+
+        // Prepare export parameters
+        const params = new URLSearchParams({
+            format: format,
+            search: this.table.search()
+        });
+
+        // Add column filters if any
+        this.table.columns().every(function(index) {
+            const search = this.search();
+            if (search) {
+                params.append(`column_${index}_search`, search);
+            }
+        });
+
+        // Open export URL
+        window.open(`${exportUrl}?${params.toString()}`, '_blank');
+    }
+
+    /**
+     * Bulk actions - Seçilmiş sətirlərə kütləvi əməliyyat
+     */
+    enableBulkActions(actions) {
+        // Add checkboxes to table
+        if (!this.columns[0].data || this.columns[0].data !== 'checkbox') {
+            this.columns.unshift({
+                data: null,
+                orderable: false,
+                className: 'select-checkbox',
+                render: () => '<input type="checkbox" class="row-checkbox">'
+            });
+        }
+
+        // Bulk action toolbar
+        const toolbar = document.createElement('div');
+        toolbar.id = 'bulk-actions-toolbar';
+        toolbar.className = 'hidden bg-blue-50 p-3 mb-3 rounded flex items-center gap-4';
+        toolbar.innerHTML = `
+            <span id="selected-count" class="font-semibold">0 seçildi</span>
+            <div class="flex gap-2" id="bulk-action-buttons"></div>
+        `;
+
+        // Add toolbar before table
+        this.table.table().container().parentNode.insertBefore(
+            toolbar,
+            this.table.table().container()
+        );
+
+        // Add action buttons
+        const buttonsContainer = document.getElementById('bulk-action-buttons');
+        Object.keys(actions).forEach(actionKey => {
+            const action = actions[actionKey];
+            const button = document.createElement('button');
+            button.className = `px-4 py-2 rounded ${action.class || 'bg-blue-600 text-white hover:bg-blue-700'}`;
+            button.innerText = action.label;
+            button.onclick = () => this.executeBulkAction(actionKey, action.handler);
+            buttonsContainer.appendChild(button);
+        });
+
+        // Select all checkbox in header
+        $(this.selector + ' thead').on('click', '.select-all-checkbox', (e) => {
+            const isChecked = e.target.checked;
+            $(this.selector + ' tbody .row-checkbox').prop('checked', isChecked);
+            this.updateBulkActionToolbar();
+        });
+
+        // Individual checkbox click
+        $(this.selector + ' tbody').on('click', '.row-checkbox', () => {
+            this.updateBulkActionToolbar();
+        });
+    }
+
+    /**
+     * Bulk action toolbar yeniləməsi
+     */
+    updateBulkActionToolbar() {
+        const selectedCount = $(this.selector + ' tbody .row-checkbox:checked').length;
+        const toolbar = document.getElementById('bulk-actions-toolbar');
+        const countSpan = document.getElementById('selected-count');
+
+        if (selectedCount > 0) {
+            toolbar.classList.remove('hidden');
+            countSpan.innerText = `${selectedCount} seçildi`;
+        } else {
+            toolbar.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Bulk action icra et
+     */
+    executeBulkAction(actionKey, handler) {
+        const selectedRows = [];
+        $(this.selector + ' tbody .row-checkbox:checked').each((i, checkbox) => {
+            const row = this.table.row($(checkbox).closest('tr'));
+            selectedRows.push(row.data());
+        });
+
+        if (selectedRows.length === 0) {
+            alert('Heç bir sətr seçilməyib');
+            return;
+        }
+
+        // Execute handler
+        if (typeof handler === 'function') {
+            handler(selectedRows);
+        }
+
+        // Clear selection after action
+        $(this.selector + ' tbody .row-checkbox').prop('checked', false);
+        this.updateBulkActionToolbar();
+    }
+
+    /**
+     * Column visibility toggle
+     */
+    enableColumnVisibility() {
+        const container = document.createElement('div');
+        container.className = 'mb-3';
+        container.innerHTML = `
+            <button id="column-visibility-toggle" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                Sütunları seç
+            </button>
+            <div id="column-visibility-menu" class="hidden absolute bg-white border rounded shadow-lg p-3 mt-1 z-10">
+                <div class="font-semibold mb-2">Görünən sütunlar:</div>
+                <div id="column-checkboxes"></div>
+            </div>
+        `;
+
+        this.table.table().container().parentNode.insertBefore(
+            container,
+            this.table.table().container()
+        );
+
+        // Add checkbox for each column
+        const checkboxesContainer = document.getElementById('column-checkboxes');
+        this.table.columns().every(function(index) {
+            const column = this;
+            const title = $(column.header()).text();
+
+            if (title) {
+                const checkbox = document.createElement('label');
+                checkbox.className = 'flex items-center gap-2 mb-2 cursor-pointer';
+                checkbox.innerHTML = `
+                    <input type="checkbox" ${column.visible() ? 'checked' : ''}
+                           class="column-visibility-checkbox" data-column="${index}">
+                    <span>${title}</span>
+                `;
+                checkboxesContainer.appendChild(checkbox);
+            }
+        });
+
+        // Toggle menu
+        document.getElementById('column-visibility-toggle').onclick = () => {
+            const menu = document.getElementById('column-visibility-menu');
+            menu.classList.toggle('hidden');
+        };
+
+        // Checkbox change handler
+        document.querySelectorAll('.column-visibility-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const columnIdx = parseInt(e.target.dataset.column);
+                const column = this.table.column(columnIdx);
+                column.visible(e.target.checked);
+            });
+        });
+    }
+
+    /**
+     * Save table state (filters, sorting, pagination)
+     */
+    enableStateSave() {
+        // DataTables built-in state saving
+        this.table.settings()[0].oFeatures.bStateSave = true;
+        this.table.settings()[0].oInit.stateSave = true;
     }
 
     /**

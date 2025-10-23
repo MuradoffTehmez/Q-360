@@ -9,6 +9,13 @@ from typing import Dict, List, Tuple, Optional
 from django.db.models import Q
 from django.core.files.uploadedfile import UploadedFile
 
+# Sentiment Analysis
+try:
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+    VADER_AVAILABLE = True
+except ImportError:
+    VADER_AVAILABLE = False
+
 
 class ResumeFileExtractor:
     """
@@ -444,13 +451,14 @@ class AIScreeningEngine:
     """
 
     @staticmethod
-    def screen_application(application, resume_text: str) -> Dict:
+    def screen_application(application, resume_text: str, include_sentiment=True) -> Dict:
         """
         Screen an application using AI-powered analysis.
 
         Args:
             application: Application model instance
             resume_text: Extracted text from resume file
+            include_sentiment: Include sentiment analysis of cover letter
 
         Returns:
             Dictionary with screening results and recommendations
@@ -468,6 +476,25 @@ class AIScreeningEngine:
         scorer = CandidateScorer(application.job_posting)
         scores = scorer.score_application(application, parsed_cv)
 
+        # Sentiment analysis of cover letter
+        sentiment_analysis = None
+        sentiment_feedback = []
+        if include_sentiment and hasattr(application, 'cover_letter') and application.cover_letter:
+            sentiment_analyzer = SentimentAnalyzer()
+            sentiment_analysis = sentiment_analyzer.analyze_cover_letter(application.cover_letter)
+            sentiment_feedback = sentiment_analyzer.generate_feedback(sentiment_analysis)
+
+            # Adjust overall score based on sentiment (max ±5%)
+            sentiment_adjustment = 0
+            if sentiment_analysis['sentiment'] == 'positive' and sentiment_analysis['confidence'] > 60:
+                sentiment_adjustment = 5
+            elif sentiment_analysis['sentiment'] == 'negative':
+                sentiment_adjustment = -5
+
+            scores['original_score'] = scores['overall_score']
+            scores['overall_score'] = min(100, max(0, scores['overall_score'] + sentiment_adjustment))
+            scores['sentiment_adjustment'] = sentiment_adjustment
+
         # Generate recommendation
         overall_score = scores['overall_score']
         if overall_score >= 75:
@@ -483,13 +510,20 @@ class AIScreeningEngine:
             recommendation = 'no'
             recommendation_text = 'Uyğun deyil'
 
-        return {
+        result = {
             'parsed_cv': parsed_cv,
             'scores': scores,
             'recommendation': recommendation,
             'recommendation_text': recommendation_text,
             'screening_summary': AIScreeningEngine._generate_summary(scores, parsed_cv)
         }
+
+        # Add sentiment analysis results if available
+        if sentiment_analysis:
+            result['sentiment_analysis'] = sentiment_analysis
+            result['sentiment_feedback'] = sentiment_feedback
+
+        return result
 
     @staticmethod
     def _generate_summary(scores: Dict, parsed_cv: Dict) -> str:
@@ -573,3 +607,185 @@ class AIScreeningEngine:
         )
 
         return screened_results
+
+
+class SentimentAnalyzer:
+    """
+    Cover letter və motivasiya məktublarının sentiment analizi.
+    VADER Sentiment Analysis istifadə edir.
+    """
+
+    def __init__(self):
+        """Initialize sentiment analyzer."""
+        if VADER_AVAILABLE:
+            self.analyzer = SentimentIntensityAnalyzer()
+        else:
+            self.analyzer = None
+
+    def analyze_cover_letter(self, cover_letter_text: str) -> Dict:
+        """
+        Cover letter-in sentiment analizini aparır.
+
+        Args:
+            cover_letter_text: Cover letter mətni
+
+        Returns:
+            Sentiment scores və qiymətləndirmə
+        """
+        if not cover_letter_text or not cover_letter_text.strip():
+            return {
+                'sentiment': 'neutral',
+                'score': 0,
+                'confidence': 0,
+                'details': {},
+                'interpretation': 'Mətn təqdim edilməyib'
+            }
+
+        if not self.analyzer:
+            return {
+                'sentiment': 'unavailable',
+                'score': 0,
+                'confidence': 0,
+                'details': {},
+                'interpretation': 'Sentiment analysis kitabxanası mövcud deyil'
+            }
+
+        # VADER sentiment scores
+        scores = self.analyzer.polarity_scores(cover_letter_text)
+
+        # Determine overall sentiment
+        compound = scores['compound']
+
+        if compound >= 0.05:
+            sentiment = 'positive'
+            interpretation = 'Pozitiv və həvəsli ton'
+        elif compound <= -0.05:
+            sentiment = 'negative'
+            interpretation = 'Neqativ və ya şübhəli ton'
+        else:
+            sentiment = 'neutral'
+            interpretation = 'Neytral və peşəkar ton'
+
+        # Calculate confidence (0-100)
+        confidence = min(abs(compound) * 100, 100)
+
+        # Advanced analysis
+        advanced_metrics = self._analyze_writing_quality(cover_letter_text)
+
+        return {
+            'sentiment': sentiment,
+            'score': compound,  # -1 to +1
+            'confidence': confidence,
+            'details': {
+                'positive': scores['pos'],
+                'neutral': scores['neu'],
+                'negative': scores['neg'],
+                **advanced_metrics
+            },
+            'interpretation': interpretation
+        }
+
+    def _analyze_writing_quality(self, text: str) -> Dict:
+        """
+        Yazı keyfiyyətinin əlavə metrikləri.
+
+        Args:
+            text: Təhlil ediləcək mətn
+
+        Returns:
+            Keyfiyyət metriklərı
+        """
+        # Word count
+        words = text.split()
+        word_count = len(words)
+
+        # Sentence count
+        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+        sentence_count = len(sentences)
+
+        # Average words per sentence
+        avg_words_per_sentence = word_count / sentence_count if sentence_count > 0 else 0
+
+        # Professional keywords
+        professional_keywords = [
+            'experience', 'skills', 'qualified', 'expertise', 'proficient',
+            'accomplished', 'dedicated', 'motivated', 'passionate', 'collaborative',
+            'innovative', 'results-driven', 'achievement', 'leadership'
+        ]
+
+        professional_keyword_count = sum(
+            1 for keyword in professional_keywords
+            if keyword.lower() in text.lower()
+        )
+
+        # Enthusiasm indicators
+        enthusiasm_indicators = ['!', 'excited', 'eager', 'looking forward', 'thrilled']
+        enthusiasm_score = sum(
+            text.count(indicator) if indicator == '!' else (1 if indicator.lower() in text.lower() else 0)
+            for indicator in enthusiasm_indicators
+        )
+
+        # Formality check (capitalization, no excessive slang)
+        first_letter_caps = sum(1 for s in sentences if s and s[0].isupper())
+        formality_score = (first_letter_caps / sentence_count * 100) if sentence_count > 0 else 0
+
+        return {
+            'word_count': word_count,
+            'sentence_count': sentence_count,
+            'avg_words_per_sentence': round(avg_words_per_sentence, 1),
+            'professional_keywords': professional_keyword_count,
+            'enthusiasm_score': enthusiasm_score,
+            'formality_score': round(formality_score, 1),
+            'readability': 'good' if 15 <= avg_words_per_sentence <= 25 else 'needs_improvement'
+        }
+
+    def generate_feedback(self, sentiment_result: Dict) -> List[str]:
+        """
+        Sentiment nəticəsinə əsasən feedback generasiya edir.
+
+        Args:
+            sentiment_result: analyze_cover_letter() nəticəsi
+
+        Returns:
+            Feedback tövsiyələri
+        """
+        feedback = []
+
+        # Sentiment-based feedback
+        if sentiment_result['sentiment'] == 'positive':
+            feedback.append("✓ Pozitiv və həvəsli ton müsbət təəssürat yaradır")
+        elif sentiment_result['sentiment'] == 'negative':
+            feedback.append("⚠ Daha pozitiv və konstruktiv ton tövsiyə olunur")
+        else:
+            feedback.append("• Peşəkar və balanslaşdırılmış ton")
+
+        details = sentiment_result.get('details', {})
+
+        # Word count feedback
+        word_count = details.get('word_count', 0)
+        if word_count < 100:
+            feedback.append("⚠ Cover letter çox qısa (min 150 söz tövsiyə olunur)")
+        elif word_count > 500:
+            feedback.append("⚠ Cover letter çox uzun (max 400 söz tövsiyə olunur)")
+        else:
+            feedback.append("✓ Optimal uzunluq")
+
+        # Professional keywords
+        prof_keywords = details.get('professional_keywords', 0)
+        if prof_keywords < 3:
+            feedback.append("⚠ Daha çox peşəkar açar sözlər istifadə edin")
+        else:
+            feedback.append(f"✓ {prof_keywords} peşəkar açar söz istifadə edilib")
+
+        # Readability
+        if details.get('readability') == 'needs_improvement':
+            feedback.append("⚠ Cümlələrin uzunluğu optimallaşdırılmalıdır")
+
+        # Enthusiasm
+        enthusiasm = details.get('enthusiasm_score', 0)
+        if enthusiasm == 0:
+            feedback.append("💡 Həvəsinizi və motivasiyanızı daha aydın ifadə edin")
+        elif enthusiasm > 5:
+            feedback.append("⚠ Həvəsi daha balanslaşdırın (çox məcbur görünə bilər)")
+
+        return feedback

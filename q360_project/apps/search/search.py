@@ -6,7 +6,7 @@ from django.contrib.postgres.search import (
     SearchVector, SearchQuery, SearchRank,
     TrigramSimilarity, SearchHeadline
 )
-from django.db.models import Q, F, Value
+from django.db.models import Q, F, Value, Count
 from django.apps import apps
 from django.conf import settings
 from django.db import connection
@@ -226,6 +226,122 @@ def create_search_indexes_sql():
         # Department table trigram indexes
         "CREATE INDEX IF NOT EXISTS departments_department_name_trgm_idx ON departments_department USING gin (name gin_trgm_ops);",
     ]
+
+
+class FacetedSearch:
+    """
+    Faceted search - Filter kombinasiyaları ilə təkmilləşdirilmiş axtarış.
+    """
+
+    def __init__(self, query='', models=None):
+        """
+        Initialize faceted search.
+
+        Args:
+            query: Axtarış sorğusu
+            models: Axtarış ediləcək model list-i
+        """
+        self.query = query
+        self.models = models or ['accounts.User', 'competencies.Competency', 'training.TrainingResource']
+        self.filters = {}
+        self.results = {}
+        self.facets = {}
+
+    def add_filter(self, facet_name, value):
+        """
+        Filter əlavə edir.
+
+        Args:
+            facet_name: Filter adı (role, department, status, date_range)
+            value: Filter dəyəri
+        """
+        self.filters[facet_name] = value
+        return self
+
+    def execute(self):
+        """
+        Faceted search icra edir.
+
+        Returns:
+            Search results ilə birlikdə facet counts
+        """
+        from django.apps import apps
+
+        for model_path in self.models:
+            app_label, model_name = model_path.split('.')
+            model = apps.get_model(app_label, model_name)
+
+            # Base queryset
+            qs = model.objects.all()
+
+            # Apply text search
+            if self.query:
+                search_vector = SearchVector(*self._get_search_fields(model))
+                search_query = SearchQuery(self.query, config='azerbaijani')
+                qs = qs.annotate(search=search_vector).filter(search=search_query)
+
+            # Apply facet filters
+            for facet_name, value in self.filters.items():
+                if hasattr(model, facet_name):
+                    qs = qs.filter(**{facet_name: value})
+
+            # Get results
+            self.results[model_name.lower()] = list(qs[:50])
+
+            # Calculate facets for this model
+            self.facets[model_name.lower()] = self._calculate_facets(model, qs)
+
+        return {
+            'results': self.results,
+            'facets': self.facets,
+            'query': self.query,
+            'filters': self.filters
+        }
+
+    def _get_search_fields(self, model):
+        """Model üçün axtarış sahələrini qaytarır."""
+        field_map = {
+            'User': ['first_name', 'last_name', 'username', 'email'],
+            'Competency': ['name', 'description'],
+            'TrainingResource': ['title', 'description']
+        }
+        return field_map.get(model.__name__, ['name'])
+
+    def _calculate_facets(self, model, queryset):
+        """
+        Facet counts hesablayır.
+
+        Returns:
+            Facet adı və count-ları
+        """
+        facets = {}
+
+        # Role facets (for User model)
+        if hasattr(model, 'role'):
+            facets['role'] = queryset.values('role').annotate(count=Count('id'))
+
+        # Department facets
+        if hasattr(model, 'department'):
+            facets['department'] = queryset.values('department__name').annotate(count=Count('id'))
+
+        # Status facets
+        if hasattr(model, 'is_active'):
+            facets['is_active'] = queryset.values('is_active').annotate(count=Count('id'))
+
+        # Date range facets (created_at)
+        if hasattr(model, 'created_at'):
+            from django.utils import timezone
+            from datetime import timedelta
+
+            now = timezone.now()
+            facets['date_range'] = {
+                'today': queryset.filter(created_at__date=now.date()).count(),
+                'this_week': queryset.filter(created_at__gte=now - timedelta(days=7)).count(),
+                'this_month': queryset.filter(created_at__gte=now - timedelta(days=30)).count(),
+                'this_year': queryset.filter(created_at__year=now.year).count()
+            }
+
+        return facets
 
 
 def global_search_old(query, user=None):
