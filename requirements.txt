@@ -1,0 +1,47 @@
+# Core Django
+Django>=4.2,<5.0
+psycopg2-binary>=2.9.0
+
+# Database and Caching
+redis>=4.5.0
+django-redis>=5.2.0
+
+# REST API
+djangorestframework>=3.14.0
+djangorestframework-simplejwt>=5.2.0
+drf-spectacular>=0.26.0
+
+# Authentication & Security
+django-cors-headers>=4.0.0
+django-ratelimit>=4.1.0
+pyotp>=2.9.0  # TOTP for 2FA
+qrcode>=7.4.2  # QR code generation for 2FA
+Pillow>=10.0.0  # Required for qrcode image generation
+
+# File Processing
+openpyxl>=3.1.0  # Excel files
+reportlab>=4.0.0  # PDF generation
+python-docx>=0.8.11  # Word documents
+PyPDF2>=3.0.0  # PDF manipulation
+
+# Communication
+celery>=5.3.0  # Task queue
+django-celery-beat>=2.5.0  # Periodic tasks
+channels>=4.0.0  # WebSocket support
+channels-redis>=4.1.0  # Redis for channels
+
+# Utilities
+python-dotenv>=1.0.0
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Monitoring & Logging
+sentry-sdk>=1.32.0
+
+# Development & Testing (optional, can be in separate dev-requirements.txt)
+pytest>=7.4.0
+pytest-django>=4.5.0
+pytest-cov>=4.1.0
+factory-boy>=3.3.0
+black>=23.0.0
+flake8>=6.1.0

@@ -1,0 +1,140 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}2FA Deaktiv Et - Q360{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">2FA Deaktiv Et</h1>
+            <p class="text-gray-600">İki faktorlu autentifikasiyanı söndür</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="px-8 py-10">
+                <!-- Warning -->
+                <div class="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+                    <div class="flex items-start">
+                        <svg class="w-8 h-8 text-red-600 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-bold text-red-800 mb-2">DİQQƏT: Təhlükəsizlik Azalacaq</h3>
+                            <p class="text-sm text-red-700">
+                                İki faktorlu autentifikasiyanı deaktiv etdikdə, hesabınız daha az qorunacaq.
+                                Bu əməliyyatı yalnız mütləq zərurət olduqda edin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consequences List -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-3">2FA deaktiv edildikdə:</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>Hesabınıza giriş üçün yalnız şifrə tələb olunacaq</span>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>Backup kodlarınız silinəcək</span>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>TOTP konfiqurasiyası silinəcək</span>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>Phishing hücumlarına qarşı qorunma zəifləyəcək</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Davam etmək üçün şifrənizi daxil edin:
+                        </label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               required
+                               autofocus
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               placeholder="Şifrəniz">
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm">{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="flex space-x-4">
+                        <a href="{% url 'accounts:profile' %}"
+                           class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200 text-center">
+                            Ləğv et
+                        </a>
+                        <button type="submit"
+                                class="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg font-semibold hover:from-red-600 hover:to-orange-600 transition-all duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Deaktiv Et
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Alternative -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-sm text-gray-600 text-center mb-3">
+                        Problemləriniz var? 2FA-nı deaktiv etməkdənsə:
+                    </p>
+                    <div class="flex flex-col space-y-2">
+                        <a href="{% url 'accounts:2fa_backup_codes' %}"
+                           class="text-sm text-indigo-600 hover:text-indigo-700 font-semibold text-center">
+                            Yeni backup kodlar yaradın
+                        </a>
+                        <a href="mailto:support@q360.example.com"
+                           class="text-sm text-indigo-600 hover:text-indigo-700 font-semibold text-center">
+                            Texniki dəstəyə müraciət edin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back link -->
+        <div class="mt-6 text-center">
+            <a href="{% url 'accounts:profile' %}"
+               class="text-sm text-gray-600 hover:text-gray-700">
+                Profil səhifəsinə qayıt
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

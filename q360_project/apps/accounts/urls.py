@@ -2,7 +2,7 @@
 URL configuration for accounts app.
 """
 from django.urls import path
-from . import template_views
+from . import template_views, two_factor_views
 
 app_name = 'accounts'
 
@@ -23,6 +23,13 @@ urlpatterns = [
     path('mfa-disable/', template_views.mfa_disable, name='mfa-disable'),
     path('mfa-backup-regenerate/', template_views.mfa_backup_regenerate, name='mfa-backup-regenerate'),
     path('sessions-terminate-all/', template_views.sessions_terminate_all, name='sessions-terminate-all'),
+
+    # Two-Factor Authentication (2FA)
+    path('2fa/setup/', two_factor_views.setup_2fa_view, name='2fa_setup'),
+    path('2fa/verify/', two_factor_views.verify_2fa_view, name='2fa_verify'),
+    path('2fa/disable/', two_factor_views.disable_2fa_view, name='2fa_disable'),
+    path('2fa/backup-codes/', two_factor_views.backup_codes_view, name='2fa_backup_codes'),
+    path('2fa/status/', two_factor_views.check_2fa_status, name='2fa_status'),
 
     # User management
     path('users/', template_views.user_list_view, name='user-list'),

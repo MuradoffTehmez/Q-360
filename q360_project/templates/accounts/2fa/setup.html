@@ -1,0 +1,209 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}İki Faktorlu Autentifikasiya Qurmaq - Q360{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">İki Faktorlu Autentifikasiya</h1>
+            <p class="text-gray-600">Hesabınızı əlavə qoruma ilə təmin edin</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Progress Steps -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-6">
+                <div class="flex items-center justify-between max-w-2xl mx-auto">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 bg-white rounded-full text-indigo-600 font-bold">1</div>
+                        <span class="ml-3 text-white font-semibold">QR Kodu Skan Et</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-white/30 mx-4"></div>
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 bg-white/30 rounded-full text-white font-bold">2</div>
+                        <span class="ml-3 text-white/70 font-semibold">Təsdiq Et</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-white/30 mx-4"></div>
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 bg-white/30 rounded-full text-white font-bold">3</div>
+                        <span class="ml-3 text-white/70 font-semibold">Backup Kodlar</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 py-10">
+                <!-- Step 1: Scan QR Code -->
+                <div class="mb-10">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                        </svg>
+                        Addım 1: Authenticator Tətbiqi ilə QR Kodu Skan Edin
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- QR Code -->
+                        <div class="flex flex-col items-center">
+                            <div class="bg-white border-4 border-indigo-100 rounded-xl p-6 shadow-lg">
+                                <img src="{{ qr_code }}" alt="2FA QR Code" class="w-64 h-64">
+                            </div>
+                            <p class="text-sm text-gray-600 mt-4 text-center">
+                                QR kodu mobil tətbiq ilə skan edin
+                            </p>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                                <h3 class="font-semibold text-blue-900 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Authenticator Tətbiqi Quraşdırın
+                                </h3>
+                                <ul class="space-y-2 text-sm text-blue-800">
+                                    <li class="flex items-start">
+                                        <span class="mr-2">📱</span>
+                                        <span><strong>iOS:</strong> Google Authenticator, Microsoft Authenticator</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2">🤖</span>
+                                        <span><strong>Android:</strong> Google Authenticator, Authy</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2">💻</span>
+                                        <span><strong>Desktop:</strong> Authy, 1Password</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Manual Entry -->
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                                <h3 class="font-semibold text-gray-900 mb-3">QR Kodu skan edə bilmirsinizsə?</h3>
+                                <p class="text-sm text-gray-600 mb-3">Bu açarı əl ilə daxil edin:</p>
+                                <div class="bg-white border border-gray-300 rounded-lg p-3 font-mono text-sm break-all flex items-center justify-between">
+                                    <code id="manual-key" class="text-indigo-600 font-bold">{{ manual_entry_key }}</code>
+                                    <button onclick="copyManualKey()" class="ml-3 text-indigo-600 hover:text-indigo-700">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    <strong>Şirkət:</strong> {{ company_name }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Verify Token -->
+                <div class="border-t border-gray-200 pt-10">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Addım 2: Kodu Təsdiq Edin
+                    </h2>
+
+                    <div class="max-w-md mx-auto">
+                        <form method="post" class="space-y-6">
+                            {% csrf_token %}
+
+                            <div>
+                                <label for="token" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Authenticator tətbiqindən 6 rəqəmli kodu daxil edin:
+                                </label>
+                                <input type="text"
+                                       id="token"
+                                       name="token"
+                                       maxlength="6"
+                                       pattern="[0-9]{6}"
+                                       required
+                                       autofocus
+                                       class="w-full px-4 py-3 text-center text-2xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent tracking-widest"
+                                       placeholder="000000">
+                                <p class="mt-2 text-sm text-gray-500">
+                                    Kod hər 30 saniyədə yenilənir
+                                </p>
+                            </div>
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+                                        <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex space-x-4">
+                                <a href="{% url 'accounts:profile' %}"
+                                   class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200 text-center">
+                                    Ləğv et
+                                </a>
+                                <button type="submit"
+                                        class="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Təsdiq et və Aktivləşdir
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="mt-10 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-yellow-800 mb-2">Vacib Təhlükəsizlik Qeydi</h3>
+                            <ul class="text-sm text-yellow-700 space-y-1">
+                                <li>• QR kodu və ya manual açarı təhlükəsiz yerdə saxlayın</li>
+                                <li>• Heç kəslə bu məlumatları paylaşmayın</li>
+                                <li>• Telefonunuzu itirirsinizsə, backup kodlardan istifadə edə bilərsiniz</li>
+                                <li>• Backup kodları növbəti addımda əldə edəcəksiniz</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyManualKey() {
+    const keyElement = document.getElementById('manual-key');
+    const key = keyElement.textContent;
+
+    navigator.clipboard.writeText(key).then(() => {
+        // Show success message
+        const originalHTML = keyElement.parentElement.innerHTML;
+        keyElement.parentElement.innerHTML = '<span class="text-green-600 font-semibold">✓ Kopyalandı!</span>';
+
+        setTimeout(() => {
+            keyElement.parentElement.innerHTML = originalHTML;
+        }, 2000);
+    });
+}
+
+// Auto-format token input
+document.getElementById('token').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

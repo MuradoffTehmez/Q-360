@@ -543,6 +543,28 @@ class Profile(models.Model):
         verbose_name=_('SMS Bildirişləri')
     )
 
+    # Two-Factor Authentication
+    two_factor_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('2FA Aktiv')
+    )
+    two_factor_secret = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+        verbose_name=_('2FA Secret')
+    )
+    two_factor_backup_codes = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_('2FA Backup Kodları')
+    )
+    two_factor_enabled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('2FA Aktivləşdirmə Tarixi')
+    )
+
     # Metadata
     created_at = models.DateTimeField(
         auto_now_add=True,
