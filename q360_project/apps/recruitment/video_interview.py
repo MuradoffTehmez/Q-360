@@ -393,14 +393,181 @@ Hörmətlə,
             print(f"Error sending email: {e}")
 
     def _send_reschedule_notification(self, interview, meeting_details):
-        """Send notification about rescheduled interview."""
-        # Similar to invitation but with rescheduling message
-        pass
+        """
+        Send notification about rescheduled interview.
+
+        Args:
+            interview: Interview model instance
+            meeting_details: New meeting details dict
+        """
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        subject = f"Müsahibə Yenidən Planlaşdırıldı - {interview.application.job_posting.title}"
+
+        # Prepare context
+        context = {
+            'candidate_name': interview.application.full_name,
+            'job_title': interview.application.job_posting.title,
+            'interview_type': interview.get_interview_type_display(),
+            'scheduled_date': interview.scheduled_date,
+            'duration': interview.duration_minutes,
+            'meeting_link': meeting_details.get('join_url'),
+            'meeting_password': meeting_details.get('password'),
+            'interviewers': ', '.join([i.get_full_name() for i in interview.interviewers.all()]),
+        }
+
+        message = f"""
+Hörmətli {context['candidate_name']},
+
+{context['job_title']} vəzifəsi üçün müsahibəniz yenidən planlaşdırıldı.
+
+YENİ Müsahibə Detalları:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Tarix və Vaxt: {context['scheduled_date'].strftime('%d.%m.%Y, saat %H:%M')}
+⏱ Müddət: {context['duration']} dəqiqə
+📝 Növ: {context['interview_type']}
+👥 Müsahibə Alanlar: {context['interviewers']}
+
+🔗 Video Müsahibə Linki:
+{context['meeting_link']}
+
+🔐 Şifrə: {context.get('meeting_password', 'Lazım deyil')}
+
+⚠️ VACIB QEYDLƏR:
+• Köhnə link artıq etibarsızdır
+• Yeni link və vaxtdan istifadə edin
+• Müsahibədən 5-10 dəqiqə əvvəl link-ə daxil olun
+• Kamera və mikrofonu əvvəlcədən test edin
+• Sakit və rahat bir yer seçin
+
+Dəyişiklik üçün üzr istəyirik və başa düşdüyünüz üçün təşəkkür edirik.
+
+Müvəffəqiyyətlər arzulayırıq!
+
+Hörmətlə,
+İşəqəbul Komandası
+{settings.COMPANY_NAME if hasattr(settings, 'COMPANY_NAME') else 'Q360 HR System'}
+        """
+
+        # Send email
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [interview.application.email],
+                fail_silently=False,
+            )
+
+            # Also send notification to interviewers
+            interviewer_emails = [i.email for i in interview.interviewers.all() if i.email]
+            if interviewer_emails:
+                interviewer_message = f"""
+Hörmətli Həmkarlar,
+
+{context['candidate_name']} ({context['job_title']}) ilə müsahibə yenidən planlaşdırıldı.
+
+Yeni Vaxt: {context['scheduled_date'].strftime('%d.%m.%Y, saat %H:%M')}
+Müddət: {context['duration']} dəqiqə
+
+Meeting Link: {context['meeting_link']}
+
+Hörmətlə,
+İşəqəbul Sistemi
+                """
+
+                send_mail(
+                    f"Müsahibə Yenidən Planlaşdırıldı - {context['candidate_name']}",
+                    interviewer_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    interviewer_emails,
+                    fail_silently=True,
+                )
+
+        except Exception as e:
+            print(f"Error sending reschedule email: {e}")
 
     def _send_cancellation_notification(self, interview):
-        """Send notification about cancelled interview."""
-        # Send cancellation email
-        pass
+        """
+        Send notification about cancelled interview.
+
+        Args:
+            interview: Interview model instance
+        """
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        subject = f"Müsahibə Ləğv Edildi - {interview.application.job_posting.title}"
+
+        context = {
+            'candidate_name': interview.application.full_name,
+            'job_title': interview.application.job_posting.title,
+            'interview_type': interview.get_interview_type_display(),
+            'original_date': interview.scheduled_date,
+        }
+
+        message = f"""
+Hörmətli {context['candidate_name']},
+
+Təəssüflə bildiririk ki, {context['job_title']} vəzifəsi üçün planlaşdırılmış müsahibə ləğv edilmişdir.
+
+Ləğv Edilən Müsahibə:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Tarix: {context['original_date'].strftime('%d.%m.%Y, saat %H:%M')}
+📝 Növ: {context['interview_type']}
+
+Ləğv etmə səbəbi:
+Bu, müvəqqəti bir vəziyyətdir və sizinlə əlaqə saxlanılacaq.
+
+Əgər hər hansı sualınız varsa, bizimlə əlaqə saxlaya bilərsiniz.
+
+Başa düşdüyünüz və səbriniz üçün təşəkkür edirik.
+
+Hörmətlə,
+İşəqəbul Komandası
+{settings.COMPANY_NAME if hasattr(settings, 'COMPANY_NAME') else 'Q360 HR System'}
+
+📧 Email: {settings.DEFAULT_FROM_EMAIL}
+📞 Əlaqə: {settings.CONTACT_PHONE if hasattr(settings, 'CONTACT_PHONE') else 'N/A'}
+        """
+
+        # Send email to candidate
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [interview.application.email],
+                fail_silently=False,
+            )
+
+            # Notify interviewers
+            interviewer_emails = [i.email for i in interview.interviewers.all() if i.email]
+            if interviewer_emails:
+                interviewer_message = f"""
+Hörmətli Həmkarlar,
+
+{context['candidate_name']} ({context['job_title']}) ilə müsahibə ləğv edildi.
+
+Əvvəlki Vaxt: {context['original_date'].strftime('%d.%m.%Y, saat %H:%M')}
+
+Qeyd: Namizədə bildiriş göndərildi.
+
+Hörmətlə,
+İşəqəbul Sistemi
+                """
+
+                send_mail(
+                    f"Müsahibə Ləğv Edildi - {context['candidate_name']}",
+                    interviewer_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    interviewer_emails,
+                    fail_silently=True,
+                )
+
+        except Exception as e:
+            print(f"Error sending cancellation email: {e}")
 
 
 # Factory function for easy access

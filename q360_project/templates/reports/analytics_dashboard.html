@@ -753,8 +753,38 @@ new Chart(securityTrendCtx, {
 
 // Export function
 function exportData() {
-    alert('Export funksiyası tezliklə aktiv olacaq!');
-    // TODO: Implement export to Excel/PDF
+    // Show export options modal
+    const exportOptions = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="export-modal">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-xl font-bold mb-4">Analytics Export</h3>
+                <p class="text-gray-600 mb-6">Hesabatı ixrac formatını seçin:</p>
+                <div class="space-y-3">
+                    <a href="{% url 'dashboard:export_analytics_excel' %}"
+                       class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded text-center transition">
+                        <i class="fas fa-file-excel mr-2"></i>Excel Format (.xlsx)
+                    </a>
+                    <a href="{% url 'dashboard:export_analytics_pdf' %}"
+                       class="block w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded text-center transition">
+                        <i class="fas fa-file-pdf mr-2"></i>PDF Format (.pdf)
+                    </a>
+                    <button onclick="closeExportModal()"
+                            class="block w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-4 rounded text-center transition">
+                        Ləğv et
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', exportOptions);
+}
+
+function closeExportModal() {
+    const modal = document.getElementById('export-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 // Auto-refresh every 5 minutes
