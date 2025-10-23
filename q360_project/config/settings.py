@@ -92,6 +92,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Two-Factor Authentication Middleware
+    'apps.accounts.middleware.two_factor_middleware.TwoFactorAuthMiddleware',
+    'apps.accounts.middleware.two_factor_middleware.Session2FAMiddleware',
+    # Rate Limiting Middleware
+    'apps.accounts.middleware.rate_limit_middleware.RateLimitMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
@@ -883,3 +888,35 @@ JAZZMIN_UI_TWEAKS = {
 #         },
 #     },
 # }
+
+# ========================================
+# TWO-FACTOR AUTHENTICATION (2FA) SETTINGS
+# ========================================
+
+# Require 2FA for admin and superadmin roles
+TWO_FA_REQUIRED_FOR_ADMINS = env_bool('2FA_REQUIRED_FOR_ADMINS', True)
+
+# 2FA session timeout in minutes (default: 60 minutes)
+TWO_FA_SESSION_TIMEOUT = int(os.getenv('2FA_SESSION_TIMEOUT', '60'))
+
+# Company name for 2FA QR codes
+COMPANY_NAME = os.getenv('COMPANY_NAME', 'Q360 Evaluation System')
+
+# ========================================
+# RATE LIMITING SETTINGS
+# ========================================
+
+# Rate limit configurations (requests/window in seconds)
+RATELIMIT_ENABLE = env_bool('RATELIMIT_ENABLE', True)
+
+# Login rate limiting: 5 attempts per 5 minutes
+LOGIN_RATE_LIMIT = os.getenv('LOGIN_RATE_LIMIT', '5/5m')
+
+# API rate limiting: 60 requests per minute
+API_RATE_LIMIT = os.getenv('API_RATE_LIMIT', '60/m')
+
+# General rate limiting: 100 requests per minute
+GENERAL_RATE_LIMIT = os.getenv('GENERAL_RATE_LIMIT', '100/m')
+
+# Rate limit view - uses custom error page
+RATELIMIT_VIEW = 'apps.accounts.middleware.rate_limit_middleware.ratelimit_handler'

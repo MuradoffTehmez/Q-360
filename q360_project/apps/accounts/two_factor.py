@@ -161,7 +161,7 @@ class TwoFactorAuthManager:
 
         # Check if role requires 2FA
         if user.is_superadmin() or user.is_admin():
-            return getattr(settings, '2FA_REQUIRED_FOR_ADMINS', True)
+            return getattr(settings, 'TWO_FA_REQUIRED_FOR_ADMINS', True)
 
         return False
 

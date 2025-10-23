@@ -63,7 +63,7 @@ class TwoFactorAuthMiddleware:
 
         # Require 2FA for admins and superadmins
         if user.is_superadmin() or user.is_admin():
-            require_for_admins = getattr(settings, '2FA_REQUIRED_FOR_ADMINS', True)
+            require_for_admins = getattr(settings, 'TWO_FA_REQUIRED_FOR_ADMINS', True)
             if require_for_admins:
                 return True
 
@@ -94,7 +94,7 @@ class Session2FAMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.timeout_minutes = getattr(settings, '2FA_SESSION_TIMEOUT', 60)  # 60 minutes default
+        self.timeout_minutes = getattr(settings, 'TWO_FA_SESSION_TIMEOUT', 60)  # 60 minutes default
 
     def __call__(self, request):
         if request.user.is_authenticated:
