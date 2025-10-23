@@ -23,10 +23,24 @@ def dashboard_home(request):
     """
     Ana dashboard səhifəsi
     """
+    from apps.accounts.models import User
+    from apps.evaluations.models import EvaluationCampaign
+    from apps.training.models import UserTraining
+    from django.db.models import Count, Avg
+
+    # Real statistics
+    stats = {
+        'total_users': User.objects.filter(is_active=True).count(),
+        'active_campaigns': EvaluationCampaign.objects.filter(status='active').count(),
+        'completed_trainings': UserTraining.objects.filter(status='completed').count(),
+        'avg_evaluation_score': EvaluationCampaign.objects.aggregate(Avg('id'))['id__avg'] or 0,
+    }
+
     context = {
         'title': _('Dashboard'),
         'widgets': DashboardWidget.objects.filter(is_active=True).order_by('order'),
-        'kpi_stats': SystemKPI.objects.all()[:6],  # İlk 6 KPI göstəricisi
+        'kpi_stats': SystemKPI.objects.all()[:6],
+        'stats': stats,  # Real data
     }
     return render(request, 'dashboard/home.html', context)
 

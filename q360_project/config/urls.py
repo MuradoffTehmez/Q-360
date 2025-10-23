@@ -75,6 +75,7 @@ urlpatterns = [
     path('sentiment-analysis/', include(('apps.sentiment_analysis.urls', 'sentiment_analysis'), namespace='sentiment_analysis')),
     path('wellness/', include('apps.wellness.urls', namespace='wellness')),
     path('engagement/', include('apps.engagement.urls', namespace='engagement')),
+    path('support/', include(('apps.support.urls', 'support'), namespace='support')),
 
     # API endpoints (all under /api/ prefix)
     path('api/notifications/', get_recent_notifications, name='api-notifications'),
