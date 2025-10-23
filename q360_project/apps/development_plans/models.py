@@ -311,6 +311,149 @@ class DevelopmentGoal(models.Model):
         chain.reverse()
         return chain
 
+    def calculate_alignment_percentage(self):
+        """
+        Calculate alignment percentage based on multiple factors:
+        - Parent goal alignment (if exists)
+        - Strategic objective alignment (if exists)
+        - Department goals alignment (if exists)
+        - Keywords similarity (basic text matching)
+
+        Returns:
+            int: Alignment percentage (0-100)
+        """
+        # If no parent or strategic objective, alignment is 100% by default
+        if not self.parent_goal and not self.strategic_objective:
+            return 100
+
+        alignment_scores = []
+
+        # 1. Parent goal alignment (weight: 50%)
+        if self.parent_goal:
+            parent_score = self._calculate_parent_alignment()
+            alignment_scores.append(('parent', parent_score, 0.5))
+
+        # 2. Strategic objective alignment (weight: 30%)
+        if self.strategic_objective:
+            strategic_score = self._calculate_strategic_alignment()
+            alignment_scores.append(('strategic', strategic_score, 0.3))
+
+        # 3. Department goals alignment (weight: 20%)
+        if self.related_department:
+            department_score = self._calculate_department_alignment()
+            alignment_scores.append(('department', department_score, 0.2))
+
+        # Calculate weighted average
+        if not alignment_scores:
+            return 100
+
+        total_weight = sum(weight for _, _, weight in alignment_scores)
+        weighted_sum = sum(score * weight for _, score, weight in alignment_scores)
+
+        return int(weighted_sum / total_weight)
+
+    def _calculate_parent_alignment(self):
+        """Calculate alignment with parent goal based on keywords and category."""
+        if not self.parent_goal:
+            return 100
+
+        score = 0
+
+        # Same category: +40 points
+        if self.category == self.parent_goal.category:
+            score += 40
+
+        # Title keywords overlap: up to +30 points
+        parent_words = set(self.parent_goal.title.lower().split())
+        child_words = set(self.title.lower().split())
+        common_words = parent_words & child_words
+        if parent_words:
+            keyword_score = min(30, int((len(common_words) / len(parent_words)) * 30))
+            score += keyword_score
+
+        # Description keywords overlap: up to +30 points
+        parent_desc_words = set(self.parent_goal.description.lower().split())
+        child_desc_words = set(self.description.lower().split())
+        common_desc = parent_desc_words & child_desc_words
+        if parent_desc_words:
+            desc_score = min(30, int((len(common_desc) / len(parent_desc_words)) * 30))
+            score += desc_score
+
+        return min(100, score)
+
+    def _calculate_strategic_alignment(self):
+        """Calculate alignment with strategic objective."""
+        if not self.strategic_objective:
+            return 100
+
+        score = 0
+
+        # Title keywords overlap with strategic objective: up to +50 points
+        objective_words = set(self.strategic_objective.title.lower().split())
+        goal_words = set(self.title.lower().split())
+        common_words = objective_words & goal_words
+        if objective_words:
+            keyword_score = min(50, int((len(common_words) / len(objective_words)) * 50))
+            score += keyword_score
+
+        # Description keywords overlap: up to +50 points
+        if hasattr(self.strategic_objective, 'description') and self.strategic_objective.description:
+            objective_desc_words = set(self.strategic_objective.description.lower().split())
+            goal_desc_words = set(self.description.lower().split())
+            common_desc = objective_desc_words & goal_desc_words
+            if objective_desc_words:
+                desc_score = min(50, int((len(common_desc) / len(objective_desc_words)) * 50))
+                score += desc_score
+        else:
+            # If no description, give base score
+            score += 50
+
+        return min(100, score)
+
+    def _calculate_department_alignment(self):
+        """Calculate alignment with other department goals."""
+        if not self.related_department:
+            return 100
+
+        # Get other active goals in the same department
+        department_goals = DevelopmentGoal.objects.filter(
+            related_department=self.related_department,
+            status='active'
+        ).exclude(id=self.id)
+
+        if not department_goals.exists():
+            return 100
+
+        # Calculate average keyword overlap with department goals
+        total_score = 0
+        count = 0
+
+        for dept_goal in department_goals[:5]:  # Limit to 5 for performance
+            # Title keywords overlap
+            dept_words = set(dept_goal.title.lower().split())
+            goal_words = set(self.title.lower().split())
+            common_words = dept_words & goal_words
+
+            if dept_words:
+                overlap_score = (len(common_words) / len(dept_words)) * 100
+                total_score += overlap_score
+                count += 1
+
+        if count > 0:
+            return int(total_score / count)
+
+        return 100
+
+    def update_alignment_percentage(self):
+        """
+        Update alignment percentage and save.
+        Should be called when goal relationships change.
+        """
+        new_alignment = self.calculate_alignment_percentage()
+        self.alignment_percentage = new_alignment
+        self.save(update_fields=['alignment_percentage', 'updated_at'])
+        return new_alignment
+
     def cascade_to_team(self, team_members, weight_per_member=None):
         """
         Cascade this goal to team members as individual goals.
@@ -337,12 +480,13 @@ class DevelopmentGoal(models.Model):
                 target_date=self.target_date,
                 goal_level='individual',
                 parent_goal=self,
-                alignment_percentage=100,
                 weight_in_parent=weight,
                 related_department=self.related_department,
                 strategic_objective=self.strategic_objective,
                 created_by=self.user
             )
+            # Calculate alignment for cascaded goal
+            child_goal.update_alignment_percentage()
             created_goals.append(child_goal)
 
         return created_goals
