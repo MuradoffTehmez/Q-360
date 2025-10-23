@@ -131,71 +131,62 @@ def send_push_via_mobile(user, title, message, data=None, priority='normal', pla
 def send_push_via_fcm(user, title, message, data=None, priority='normal'):
     """
     Send push notification via Firebase Cloud Messaging.
-
-    Args:
-        user (User): User to send notification to
-        title (str): Notification title
-        message (str): Notification message
-        data (dict): Additional data
-        priority (str): Priority level
-
-    Returns:
-        bool: True if successful, False otherwise
+    Real implementation with firebase-admin SDK.
     """
     try:
-        # This would require the firebase-admin SDK
-        # For now, we'll provide a placeholder implementation
-        
-        # In a real implementation:
-        # import firebase_admin
-        # from firebase_admin import messaging
-        #
-        # # Get user's FCM token from a model
-        # fcm_token = get_user_fcm_token(user)
-        # if not fcm_token:
-        #     return False
-        #
-        # # Create message
-        # android_config = messaging.AndroidConfig(
-        #     priority=priority,
-        #     notification=messaging.AndroidNotification(
-        #         title=title,
-        #         body=message,
-        #     ),
-        # )
-        #
-        # apns_config = messaging.APNSConfig(
-        #     payload=messaging.APNSPayload(
-        #         aps=messaging.Aps(
-        #             alert=messaging.ApsAlert(
-        #                 title=title,
-        #                 body=message
-        #             ),
-        #             sound='default'
-        #         ),
-        #         # Add custom data
-        #     )
-        # )
-        #
-        # fcm_message = messaging.Message(
-        #     data=data or {},
-        #     notification=messaging.Notification(
-        #         title=title,
-        #         body=message
-        #     ),
-        #     android=android_config,
-        #     apns=apns_config,
-        #     token=fcm_token
-        # )
-        #
-        # # Send message
-        # response = messaging.send(fcm_message)
-        
-        # Placeholder implementation
+        import firebase_admin
+        from firebase_admin import credentials, messaging
+        from django.conf import settings
+
+        # Initialize Firebase Admin if not already initialized
+        if not firebase_admin._apps:
+            cred_path = getattr(settings, 'FIREBASE_CREDENTIALS_PATH', None)
+            if cred_path:
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+            else:
+                logger.warning("Firebase credentials not configured")
+                return False
+
+        # Get user's FCM token
+        fcm_token = get_user_fcm_token(user)
+        if not fcm_token:
+            logger.info(f"No FCM token for user {user.id}")
+            return False
+
+        # Create message
+        fcm_message = messaging.Message(
+            data=data or {},
+            notification=messaging.Notification(
+                title=title,
+                body=message
+            ),
+            android=messaging.AndroidConfig(
+                priority='high' if priority == 'high' else 'normal',
+                notification=messaging.AndroidNotification(
+                    title=title,
+                    body=message,
+                    sound='default'
+                ),
+            ),
+            apns=messaging.APNSConfig(
+                payload=messaging.APNSPayload(
+                    aps=messaging.Aps(
+                        alert=messaging.ApsAlert(title=title, body=message),
+                        sound='default'
+                    ),
+                )
+            ),
+            token=fcm_token
+        )
+
+        # Send message
+        response = messaging.send(fcm_message)
+        logger.info(f"FCM message sent successfully: {response}")
         return True
-        
+
     except ImportError:
-        logger.error("Firebase Admin SDK not installed")
+        logger.error("Firebase Admin SDK not installed. Run: pip install firebase-admin")
         return False
     except Exception as e:
         logger.error(f"Error sending FCM push notification: {e}")
@@ -313,3 +304,28 @@ def register_user_push_token(user, token, platform='web'):
     # This would normally store the token in a UserPushToken model
     # Placeholder implementation
     return True
+
+def get_user_fcm_token(user):
+    """Get user's FCM token from profile or dedicated model."""
+    try:
+        if hasattr(user, 'profile') and hasattr(user.profile, 'fcm_token'):
+            return user.profile.fcm_token
+        # Alternative: Check PushToken model if exists
+        # from .models import PushToken
+        # token = PushToken.objects.filter(user=user, platform='fcm', is_active=True).first()
+        # return token.token if token else None
+        return None
+    except Exception as e:
+        logger.error(f"Error getting FCM token: {e}")
+        return None
+
+
+def get_user_apns_token(user):
+    """Get user's APNS token from profile."""
+    try:
+        if hasattr(user, 'profile') and hasattr(user.profile, 'apns_token'):
+            return user.profile.apns_token
+        return None
+    except Exception as e:
+        logger.error(f"Error getting APNS token: {e}")
+        return None

@@ -1,0 +1,177 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Create Support Ticket" %} - Q360{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="fw-bold mb-2">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>
+                    {% trans "Create Support Ticket" %}
+                </h2>
+                <p class="text-muted">{% trans "Submit a new support request" %}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">
+                                {% trans "Title" %} <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control form-control-lg"
+                                id="title"
+                                name="title"
+                                required
+                                placeholder="{% trans 'Brief description of the issue' %}"
+                                maxlength="200"
+                            >
+                            <div class="form-text">
+                                {% trans "Provide a clear and concise title for your issue" %}
+                            </div>
+                        </div>
+
+                        <!-- Priority Field -->
+                        <div class="mb-4">
+                            <label for="priority" class="form-label fw-bold">
+                                {% trans "Priority" %} <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="low">
+                                    <i class="fas fa-circle text-success"></i>
+                                    {% trans "Low - General inquiry or minor issue" %}
+                                </option>
+                                <option value="medium" selected>
+                                    <i class="fas fa-circle text-warning"></i>
+                                    {% trans "Medium - Issue affecting work but has workaround" %}
+                                </option>
+                                <option value="high">
+                                    <i class="fas fa-circle text-danger"></i>
+                                    {% trans "High - Critical issue preventing work" %}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">
+                                {% trans "Description" %} <span class="text-danger">*</span>
+                            </label>
+                            <textarea
+                                class="form-control"
+                                id="description"
+                                name="description"
+                                rows="8"
+                                required
+                                placeholder="{% trans 'Provide detailed information about your issue...' %}"
+                            ></textarea>
+                            <div class="form-text">
+                                {% trans "Include steps to reproduce, expected vs actual behavior, and any error messages" %}
+                            </div>
+                        </div>
+
+                        <!-- Help Text Card -->
+                        <div class="alert alert-info d-flex align-items-start mb-4">
+                            <i class="fas fa-info-circle fa-2x me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-2">{% trans "Tips for a better support experience:" %}</h6>
+                                <ul class="mb-0 small">
+                                    <li>{% trans "Be as specific as possible in your description" %}</li>
+                                    <li>{% trans "Include relevant screenshots or error messages if available" %}</li>
+                                    <li>{% trans "Mention what you've already tried to fix the issue" %}</li>
+                                    <li>{% trans "Include your browser/device information if relevant" %}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                {% trans "Submit Ticket" %}
+                            </button>
+                            <a href="{% url 'support:dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>
+                                {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Support Info -->
+            <div class="card border-0 bg-light mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle me-2"></i>
+                        {% trans "Need immediate help?" %}
+                    </h6>
+                    <p class="mb-2">
+                        <i class="fas fa-phone text-primary me-2"></i>
+                        <strong>{% trans "Phone:" %}</strong> +994 12 XXX XX XX
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        <strong>{% trans "Email:" %}</strong> support@q360.com
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-clock text-primary me-2"></i>
+                        <strong>{% trans "Hours:" %}</strong> {% trans "Monday - Friday, 9:00 - 18:00" %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Character counter for title
+    const titleInput = document.getElementById('title');
+    if (titleInput) {
+        titleInput.addEventListener('input', function() {
+            const remaining = 200 - this.value.length;
+            const helpText = this.nextElementSibling;
+            if (remaining < 50) {
+                helpText.textContent = `${remaining} {% trans "characters remaining" %}`;
+                helpText.classList.add('text-warning');
+            } else {
+                helpText.textContent = '{% trans "Provide a clear and concise title for your issue" %}';
+                helpText.classList.remove('text-warning');
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!title || !description) {
+                e.preventDefault();
+                alert('{% trans "Please fill in all required fields" %}');
+                return false;
+            }
+
+            if (description.length < 20) {
+                e.preventDefault();
+                alert('{% trans "Please provide a more detailed description (at least 20 characters)" %}');
+                return false;
+            }
+        });
+    }
+</script>
+{% endblock %}

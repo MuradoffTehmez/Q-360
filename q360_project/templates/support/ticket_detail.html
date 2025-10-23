@@ -1,0 +1,283 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Ticket" %} #{{ ticket.id }} - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+    .comment-card {
+        border-left: 3px solid #e9ecef;
+        transition: border-color 0.3s;
+    }
+    .comment-card:hover {
+        border-left-color: #0d6efd;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 2.5rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: -1rem;
+        width: 2px;
+        background: #e9ecef;
+    }
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    .timeline-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 2px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <a href="{% url 'support:dashboard' %}" class="btn btn-sm btn-outline-secondary mb-2">
+                        <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Dashboard" %}
+                    </a>
+                    <h2 class="fw-bold mb-2">
+                        <i class="fas fa-ticket-alt text-primary me-2"></i>
+                        {% trans "Ticket" %} #{{ ticket.id }}
+                    </h2>
+                    <h4 class="text-muted">{{ ticket.title }}</h4>
+                </div>
+                {% if request.user.is_admin or ticket.created_by == request.user %}
+                    {% if ticket.status != 'closed' %}
+                        <a href="{% url 'support:ticket_close' ticket.pk %}" class="btn btn-danger" onclick="return confirm('{% trans "Are you sure you want to close this ticket?" %}')">
+                            <i class="fas fa-times-circle me-2"></i>{% trans "Close Ticket" %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Ticket Details Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">{% trans "Ticket Details" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>{% trans "Status:" %}</strong>
+                                {% if ticket.status == 'open' %}
+                                    <span class="badge bg-info">{% trans "Open" %}</span>
+                                {% elif ticket.status == 'in_progress' %}
+                                    <span class="badge bg-warning">{% trans "In Progress" %}</span>
+                                {% elif ticket.status == 'resolved' %}
+                                    <span class="badge bg-success">{% trans "Resolved" %}</span>
+                                {% elif ticket.status == 'closed' %}
+                                    <span class="badge bg-secondary">{% trans "Closed" %}</span>
+                                {% endif %}
+                            </p>
+                            <p class="mb-2">
+                                <strong>{% trans "Priority:" %}</strong>
+                                {% if ticket.priority == 'high' %}
+                                    <span class="badge bg-danger">{% trans "High" %}</span>
+                                {% elif ticket.priority == 'medium' %}
+                                    <span class="badge bg-warning">{% trans "Medium" %}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{% trans "Low" %}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>{% trans "Created:" %}</strong> {{ ticket.created_at|date:"d M Y, H:i" }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>{% trans "Updated:" %}</strong> {{ ticket.updated_at|date:"d M Y, H:i" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="fw-bold mb-3">{% trans "Description" %}</h6>
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0" style="white-space: pre-wrap;">{{ ticket.description }}</p>
+                    </div>
+
+                    {% if ticket.created_by %}
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            {% trans "Submitted by" %} {{ ticket.created_by.get_full_name }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>
+                        {% trans "Comments" %} ({{ comments.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Existing Comments -->
+                    {% if comments %}
+                        <div class="mb-4">
+                            {% for comment in comments %}
+                                <div class="timeline-item mb-4">
+                                    <div class="timeline-icon bg-primary">
+                                        <i class="fas fa-comment text-white small"></i>
+                                    </div>
+                                    <div class="comment-card card border-0 bg-light">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <strong>{{ comment.user.get_full_name }}</strong>
+                                                    {% if comment.user.is_admin %}
+                                                        <span class="badge bg-primary ms-2">{% trans "Staff" %}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <small class="text-muted">{{ comment.created_at|date:"d M Y, H:i" }}</small>
+                                            </div>
+                                            <p class="mb-0" style="white-space: pre-wrap;">{{ comment.comment }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 mb-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">{% trans "No comments yet. Be the first to comment!" %}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Add Comment Form -->
+                    {% if ticket.status != 'closed' %}
+                        <div class="border-top pt-4">
+                            <h6 class="fw-bold mb-3">{% trans "Add Comment" %}</h6>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea
+                                        class="form-control"
+                                        name="comment"
+                                        rows="4"
+                                        placeholder="{% trans 'Write your comment here...' %}"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    {% trans "Post Comment" %}
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary mb-0">
+                            <i class="fas fa-lock me-2"></i>
+                            {% trans "This ticket is closed. Comments are disabled." %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">{% trans "Quick Actions" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if request.user.is_admin %}
+                            {% if ticket.status == 'open' %}
+                                <button class="btn btn-outline-primary btn-sm" onclick="updateStatus('in_progress')">
+                                    <i class="fas fa-play me-2"></i>{% trans "Start Working" %}
+                                </button>
+                            {% elif ticket.status == 'in_progress' %}
+                                <button class="btn btn-outline-success btn-sm" onclick="updateStatus('resolved')">
+                                    <i class="fas fa-check me-2"></i>{% trans "Mark Resolved" %}
+                                </button>
+                            {% endif %}
+                        {% endif %}
+
+                        <a href="{% url 'support:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>{% trans "All Tickets" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">{% trans "Ticket Information" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">{% trans "Ticket ID" %}</small>
+                        <strong>#{{ ticket.id }}</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">{% trans "Created By" %}</small>
+                        <strong>{{ ticket.created_by.get_full_name }}</strong>
+                    </div>
+
+                    {% if ticket.assigned_to %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">{% trans "Assigned To" %}</small>
+                        <strong>{{ ticket.assigned_to.get_full_name }}</strong>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">{% trans "Created On" %}</small>
+                        <strong>{{ ticket.created_at|date:"d M Y, H:i" }}</strong>
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block mb-1">{% trans "Last Updated" %}</small>
+                        <strong>{{ ticket.updated_at|date:"d M Y, H:i" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateStatus(newStatus) {
+        // Placeholder for status update functionality
+        // In a real implementation, this would send an AJAX request
+        alert('Status update functionality would go here');
+    }
+</script>
+{% endblock %}

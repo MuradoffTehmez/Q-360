@@ -37,6 +37,25 @@ from apps.engagement.api import (
     UserBadgeViewSet,
     DashboardViewSet,
 )
+from apps.compensation.api_views import (
+    SalaryInformationViewSet,
+    EmployeeBenefitViewSet,
+    BonusViewSet,
+    CompensationHistoryViewSet,
+)
+from apps.leave_attendance.api_views import (
+    LeaveRequestViewSet,
+    AttendanceViewSet,
+    LeaveBalanceViewSet,
+    LeaveTypeViewSet,
+    HolidayViewSet,
+)
+from apps.recruitment.api_views import (
+    JobPostingViewSet,
+    ApplicationViewSet,
+    InterviewViewSet,
+    OfferViewSet,
+)
 from api.real_time_stats import realtime_stats
 
 # Create routers for each app
@@ -70,6 +89,25 @@ engagement_router.register(r'badges', GamificationBadgeViewSet, basename='badge'
 engagement_router.register(r'user-badges', UserBadgeViewSet, basename='user-badge')
 engagement_router.register(r'dashboard', DashboardViewSet, basename='engagement-dashboard')
 
+compensation_router = DefaultRouter()
+compensation_router.register(r'salary-information', SalaryInformationViewSet, basename='salary-information')
+compensation_router.register(r'benefits', EmployeeBenefitViewSet, basename='benefit')
+compensation_router.register(r'bonuses', BonusViewSet, basename='bonus')
+compensation_router.register(r'compensation-history', CompensationHistoryViewSet, basename='compensation-history')
+
+leave_attendance_router = DefaultRouter()
+leave_attendance_router.register(r'leave-requests', LeaveRequestViewSet, basename='leave-request')
+leave_attendance_router.register(r'attendance', AttendanceViewSet, basename='attendance')
+leave_attendance_router.register(r'leave-balances', LeaveBalanceViewSet, basename='leave-balance')
+leave_attendance_router.register(r'leave-types', LeaveTypeViewSet, basename='leave-type')
+leave_attendance_router.register(r'holidays', HolidayViewSet, basename='holiday')
+
+recruitment_router = DefaultRouter()
+recruitment_router.register(r'job-postings', JobPostingViewSet, basename='job-posting')
+recruitment_router.register(r'applications', ApplicationViewSet, basename='application')
+recruitment_router.register(r'interviews', InterviewViewSet, basename='interview')
+recruitment_router.register(r'offers', OfferViewSet, basename='offer')
+
 # API URL patterns
 urlpatterns = [
     path('realtime-stats/', realtime_stats, name='realtime-stats'),
@@ -79,4 +117,7 @@ urlpatterns = [
     path('accounts/check-password-strength/', check_password_strength, name='check-password-strength'),
     path('departments/', include(departments_router.urls)),
     path('engagement/', include(engagement_router.urls)),
+    path('compensation/', include(compensation_router.urls)),
+    path('leave-attendance/', include(leave_attendance_router.urls)),
+    path('recruitment/', include(recruitment_router.urls)),
 ]
