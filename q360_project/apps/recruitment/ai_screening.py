@@ -3,9 +3,100 @@ AI-powered CV/Resume screening and candidate matching.
 Uses NLP techniques for automated candidate evaluation and ranking.
 """
 import re
+import os
 from decimal import Decimal
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 from django.db.models import Q
+from django.core.files.uploadedfile import UploadedFile
+
+
+class ResumeFileExtractor:
+    """
+    Rezyume fayllarından mətn çıxarır (PDF, DOCX, TXT).
+    """
+
+    @staticmethod
+    def extract_text_from_file(file_path: str) -> str:
+        """
+        Fayldan mətn çıxarır.
+
+        Args:
+            file_path: Fayl yolu
+
+        Returns:
+            Çıxarılmış mətn
+        """
+        file_extension = os.path.splitext(file_path)[1].lower()
+
+        try:
+            if file_extension == '.pdf':
+                return ResumeFileExtractor._extract_from_pdf(file_path)
+            elif file_extension in ['.docx', '.doc']:
+                return ResumeFileExtractor._extract_from_docx(file_path)
+            elif file_extension == '.txt':
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            else:
+                raise ValueError(f"Dəstəklənməyən fayl formatı: {file_extension}")
+        except Exception as e:
+            raise Exception(f"Fayldan mətn çıxarılarkən xəta: {str(e)}")
+
+    @staticmethod
+    def _extract_from_pdf(file_path: str) -> str:
+        """PDF fayldan mətn çıxarır."""
+        try:
+            import PyPDF2
+            text = ""
+            with open(file_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                for page in pdf_reader.pages:
+                    text += page.extract_text() + "\n"
+            return text
+        except ImportError:
+            # PyPDF2 yoxdursa, sadə oxuma
+            raise ImportError("PyPDF2 kitabxanası quraşdırılmayıb. pip install PyPDF2")
+        except Exception as e:
+            raise Exception(f"PDF oxuma xətası: {str(e)}")
+
+    @staticmethod
+    def _extract_from_docx(file_path: str) -> str:
+        """DOCX fayldan mətn çıxarır."""
+        try:
+            import docx
+            doc = docx.Document(file_path)
+            text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            return text
+        except ImportError:
+            raise ImportError("python-docx kitabxanası quraşdırılmayıb. pip install python-docx")
+        except Exception as e:
+            raise Exception(f"DOCX oxuma xətası: {str(e)}")
+
+    @staticmethod
+    def extract_from_uploaded_file(uploaded_file: UploadedFile) -> str:
+        """
+        Django UploadedFile obyektindən mətn çıxarır.
+
+        Args:
+            uploaded_file: Django yüklənmiş fayl obyekti
+
+        Returns:
+            Çıxarılmış mətn
+        """
+        import tempfile
+
+        # Müvəqqəti faylda saxla və oxu
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp_file:
+            for chunk in uploaded_file.chunks():
+                tmp_file.write(chunk)
+            tmp_file_path = tmp_file.name
+
+        try:
+            text = ResumeFileExtractor.extract_text_from_file(tmp_file_path)
+            return text
+        finally:
+            # Müvəqqəti faylı sil
+            if os.path.exists(tmp_file_path):
+                os.remove(tmp_file_path)
 
 
 class CVParser:

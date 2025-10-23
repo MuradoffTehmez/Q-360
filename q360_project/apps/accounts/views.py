@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+from django.db.models import Q, Count, Prefetch
 from .models import User, Profile, Role
 from .serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
@@ -124,6 +125,71 @@ class UserViewSet(viewsets.ModelViewSet):
             {"detail": "İstifadəçi deaktivləşdirildi."},
             status=status.HTTP_200_OK
         )
+
+    @action(detail=False, methods=['get'])
+    def datatable(self, request):
+        """
+        DataTables API endpoint for dynamic table rendering.
+        Supports server-side processing with pagination, search, and ordering.
+
+        Query Parameters:
+            - draw: DataTables draw counter
+            - start: Starting record index
+            - length: Number of records to return
+            - search[value]: Global search value
+            - order[0][column]: Column index for ordering
+            - order[0][dir]: Order direction (asc/desc)
+        """
+        # Get DataTables parameters
+        draw = int(request.GET.get('draw', 1))
+        start = int(request.GET.get('start', 0))
+        length = int(request.GET.get('length', 10))
+        search_value = request.GET.get('search[value]', '')
+        order_column_idx = int(request.GET.get('order[0][column]', 0))
+        order_dir = request.GET.get('order[0][dir]', 'asc')
+
+        # Column mapping for ordering
+        columns = ['id', 'username', 'first_name', 'last_name', 'email',
+                   'department__name', 'position', 'role', 'is_active']
+
+        # Get base queryset
+        queryset = self.get_queryset()
+
+        # Apply global search
+        if search_value:
+            queryset = queryset.filter(
+                Q(username__icontains=search_value) |
+                Q(first_name__icontains=search_value) |
+                Q(last_name__icontains=search_value) |
+                Q(email__icontains=search_value) |
+                Q(employee_id__icontains=search_value) |
+                Q(department__name__icontains=search_value) |
+                Q(position__icontains=search_value)
+            )
+
+        # Get total count before pagination
+        records_total = User.objects.count()
+        records_filtered = queryset.count()
+
+        # Apply ordering
+        order_column = columns[order_column_idx] if order_column_idx < len(columns) else 'id'
+        if order_dir == 'desc':
+            order_column = f'-{order_column}'
+        queryset = queryset.order_by(order_column)
+
+        # Apply pagination
+        queryset = queryset[start:start + length]
+
+        # Serialize data
+        serializer = UserListSerializer(queryset, many=True)
+
+        # DataTables response format
+        return Response({
+            'draw': draw,
+            'recordsTotal': records_total,
+            'recordsFiltered': records_filtered,
+            'data': serializer.data
+        })
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

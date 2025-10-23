@@ -55,10 +55,35 @@ class Command(BaseCommand):
             action='store_true',
             help='Output results in JSON format',
         )
+        parser.add_argument(
+            '--threat-analysis',
+            action='store_true',
+            help='Perform threat level analysis on audit logs',
+        )
+        parser.add_argument(
+            '--threat-threshold',
+            type=int,
+            default=60,
+            help='Threat score threshold for alerts (default: 60)',
+        )
 
     def handle(self, *args, **options):
         """Handle command execution."""
         monitor = LogMonitor()
+
+        # Threat analysis
+        if options['threat_analysis']:
+            self.stdout.write(self.style.SUCCESS('\n🔐 Threat Level Analysis\n'))
+            result = self._perform_threat_analysis(
+                threshold=options['threat_threshold'],
+                hours=options.get('hours', 24)
+            )
+
+            if options['json']:
+                self.stdout.write(json.dumps(result, indent=2, ensure_ascii=False))
+            else:
+                self._display_threat_analysis(result)
+            return
 
         # Get summary of all logs
         if options['summary']:
@@ -188,3 +213,125 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.SUCCESS(f'\n✅ Error count is within acceptable limits')
             )
+
+    def _perform_threat_analysis(self, threshold=60, hours=24):
+        """Perform threat level analysis on audit logs."""
+        from apps.audit.models import AuditLog
+        from django.utils import timezone
+        from datetime import timedelta
+        from collections import defaultdict
+
+        start_time = timezone.now() - timedelta(hours=hours)
+
+        # Yüksək təhdid səviyyəsi olan qeydlər
+        high_threats = AuditLog.objects.filter(
+            created_at__gte=start_time,
+            threat_score__gte=threshold
+        ).select_related('user').order_by('-threat_score')
+
+        # İstifadəçi bazasında təhdid statistikası
+        user_threat_stats = defaultdict(lambda: {'count': 0, 'max_score': 0, 'actions': []})
+
+        for log in high_threats:
+            if log.user:
+                user_key = log.user.username
+                user_threat_stats[user_key]['count'] += 1
+                user_threat_stats[user_key]['max_score'] = max(
+                    user_threat_stats[user_key]['max_score'],
+                    log.threat_score
+                )
+                user_threat_stats[user_key]['actions'].append({
+                    'action': log.action,
+                    'threat_level': log.threat_level,
+                    'threat_score': log.threat_score,
+                    'timestamp': log.created_at.isoformat(),
+                })
+
+        # IP bazasında təhdid statistikası
+        ip_threat_stats = defaultdict(lambda: {'count': 0, 'max_score': 0})
+
+        for log in high_threats:
+            if log.ip_address:
+                ip_threat_stats[log.ip_address]['count'] += 1
+                ip_threat_stats[log.ip_address]['max_score'] = max(
+                    ip_threat_stats[log.ip_address]['max_score'],
+                    log.threat_score
+                )
+
+        # Ən yüksək təhdidli istifadəçilər
+        top_threat_users = sorted(
+            user_threat_stats.items(),
+            key=lambda x: x[1]['max_score'],
+            reverse=True
+        )[:10]
+
+        # Ən yüksək təhdidli IP-lər
+        top_threat_ips = sorted(
+            ip_threat_stats.items(),
+            key=lambda x: x[1]['max_score'],
+            reverse=True
+        )[:10]
+
+        return {
+            'analysis_period_hours': hours,
+            'threat_threshold': threshold,
+            'total_high_threats': high_threats.count(),
+            'top_threat_users': [
+                {
+                    'username': username,
+                    'threat_count': data['count'],
+                    'max_threat_score': data['max_score'],
+                    'recent_actions': data['actions'][:5]
+                }
+                for username, data in top_threat_users
+            ],
+            'top_threat_ips': [
+                {
+                    'ip_address': ip,
+                    'threat_count': data['count'],
+                    'max_threat_score': data['max_score']
+                }
+                for ip, data in top_threat_ips
+            ],
+            'severity_distribution': {
+                'critical': high_threats.filter(threat_level='critical').count(),
+                'high': high_threats.filter(threat_level='high').count(),
+                'medium': high_threats.filter(threat_level='medium').count(),
+            }
+        }
+
+    def _display_threat_analysis(self, result):
+        """Display threat analysis results."""
+        self.stdout.write(f"Analiz müddəti: {result['analysis_period_hours']} saat")
+        self.stdout.write(f"Təhdid eşiyi: {result['threat_threshold']}")
+        self.stdout.write(f"\nCəmi yüksək təhdid: {result['total_high_threats']}")
+
+        # Severity distribution
+        self.stdout.write(self.style.HTTP_INFO('\n📊 Təhdid Səviyyəsi Paylanması:'))
+        severity_dist = result['severity_distribution']
+        if severity_dist['critical'] > 0:
+            self.stdout.write(self.style.ERROR(f"   KRİTİK: {severity_dist['critical']}"))
+        if severity_dist['high'] > 0:
+            self.stdout.write(self.style.WARNING(f"   YÜKSƏK: {severity_dist['high']}"))
+        if severity_dist['medium'] > 0:
+            self.stdout.write(f"   ORTA: {severity_dist['medium']}")
+
+        # Top threat users
+        if result['top_threat_users']:
+            self.stdout.write(self.style.WARNING('\n⚠️  Ən Yüksək Təhdidli İstifadəçilər:'))
+            for i, user_data in enumerate(result['top_threat_users'][:5], 1):
+                self.stdout.write(
+                    f"   {i}. {user_data['username']} - "
+                    f"Təhdid Sayı: {user_data['threat_count']}, "
+                    f"Max Skor: {user_data['max_threat_score']}"
+                )
+
+        # Top threat IPs
+        if result['top_threat_ips']:
+            self.stdout.write(self.style.WARNING('\n🌐 Ən Yüksək Təhdidli IP Ünvanları:'))
+            for i, ip_data in enumerate(result['top_threat_ips'][:5], 1):
+                self.stdout.write(
+                    f"   {i}. {ip_data['ip_address']} - "
+                    f"Təhdid Sayı: {ip_data['threat_count']}, "
+                    f"Max Skor: {ip_data['max_threat_score']}"
+                )

@@ -1,17 +1,240 @@
 """
 Global search functionality for Q360 system
+Optimized with PostgreSQL Full-Text Search and Trigram indexes
 """
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-from django.db.models import Q, F
+from django.contrib.postgres.search import (
+    SearchVector, SearchQuery, SearchRank,
+    TrigramSimilarity, SearchHeadline
+)
+from django.db.models import Q, F, Value
 from django.apps import apps
 from django.conf import settings
+from django.db import connection
+
+def advanced_search(query, user=None, use_trigram=True, min_similarity=0.3):
+    """
+    Advanced search with PostgreSQL Full-Text Search and Trigram similarity.
+
+    Args:
+        query: Axtarış sorğusu
+        user: İstifadəçi (icazə yoxlaması üçün)
+        use_trigram: Trigram oxşarlığını istifadə et (fuzzy search)
+        min_similarity: Minimum oxşarlıq dərəcəsi (0-1)
+
+    Returns:
+        Sıralanmış axtarış nəticələri
+    """
+    results = {}
+
+    # Define searchable models and their search configuration
+    search_configs = {
+        'accounts.User': {
+            'search_fields': ['first_name', 'last_name', 'username', 'email'],
+            'trigram_fields': ['first_name', 'last_name', 'username'],
+            'display_fields': ['get_full_name', 'email'],
+            'title_field': 'get_full_name',
+            'url_pattern': 'accounts:profile',
+            'url_field': 'id'
+        },
+        'competencies.Competency': {
+            'search_fields': ['name', 'description'],
+            'trigram_fields': ['name'],
+            'display_fields': ['name', 'description'],
+            'title_field': 'name',
+            'url_pattern': 'competencies:competency-detail',
+            'url_field': 'id'
+        },
+        'training.TrainingResource': {
+            'search_fields': ['title', 'description'],
+            'trigram_fields': ['title'],
+            'display_fields': ['title', 'description'],
+            'title_field': 'title',
+            'url_pattern': 'training:training-detail',
+            'url_field': 'id'
+        },
+        'departments.Department': {
+            'search_fields': ['name', 'description'],
+            'trigram_fields': ['name'],
+            'display_fields': ['name', 'description'],
+            'title_field': 'name',
+            'url_pattern': 'departments:detail',
+            'url_field': 'id'
+        },
+        'evaluations.Question': {
+            'search_fields': ['text'],
+            'trigram_fields': ['text'],
+            'display_fields': ['text'],
+            'title_field': 'text',
+            'url_pattern': 'evaluations:question-detail',
+            'url_field': 'id'
+        }
+    }
+
+    # For each model, perform advanced search
+    for model_path, config in search_configs.items():
+        try:
+            app_label, model_name = model_path.split('.')
+            model = apps.get_model(app_label, model_name)
+
+            # Build FTS search vector
+            search_vector = SearchVector(*config['search_fields'], config='azerbaijani')
+            search_query = SearchQuery(query, config='azerbaijani')
+
+            qs = model.objects.annotate(
+                search=search_vector,
+                rank=SearchRank(search_vector, search_query)
+            )
+
+            # Trigram similarity for fuzzy matching
+            if use_trigram and config.get('trigram_fields'):
+                # Calculate combined trigram similarity
+                trigram_annotations = {}
+                for i, field in enumerate(config['trigram_fields']):
+                    trigram_annotations[f'similarity_{i}'] = TrigramSimilarity(field, query)
+
+                qs = qs.annotate(**trigram_annotations)
+
+                # Build OR filter for all trigram fields
+                trigram_filter = Q()
+                for i in range(len(config['trigram_fields'])):
+                    trigram_filter |= Q(**{f'similarity_{i}__gte': min_similarity})
+
+                # Combine FTS and trigram results
+                qs = qs.filter(Q(search=search_query) | trigram_filter)
+
+                # Calculate combined score (FTS rank + avg trigram similarity)
+                similarity_sum = sum(F(f'similarity_{i}') for i in range(len(config['trigram_fields'])))
+                qs = qs.annotate(
+                    combined_score=F('rank') + (similarity_sum / len(config['trigram_fields']))
+                )
+                order_field = '-combined_score'
+            else:
+                # FTS only
+                qs = qs.filter(search=search_query)
+                order_field = '-rank'
+
+            # Apply user permissions
+            if user and hasattr(model, 'user'):
+                qs = filter_by_user_permissions(qs, user, model)
+
+            qs = qs.order_by(order_field)[:10]
+
+            # Convert to result format with search highlighting
+            results[model_name.lower()] = [
+                {
+                    'title': getattr(result, config['title_field'], str(result)),
+                    'display_text': format_display_text(result, config['display_fields']),
+                    'highlighted': generate_search_headline(result, config['search_fields'], query),
+                    'url': get_object_url(result, config),
+                    'model': model_name,
+                    'score': getattr(result, 'combined_score', getattr(result, 'rank', 0))
+                }
+                for result in qs
+            ]
+        except LookupError:
+            continue
+        except Exception as e:
+            # Log error but continue
+            print(f"Search error for {model_path}: {str(e)}")
+            continue
+
+    return results
+
 
 def global_search(query, user=None):
     """
+    Perform global search across multiple model types.
+    Wrapper for advanced_search with default settings.
+    """
+    return advanced_search(query, user=user, use_trigram=True, min_similarity=0.3)
+
+
+def generate_search_headline(obj, search_fields, query):
+    """
+    PostgreSQL search headline ilə nəticə vurğulanması.
+
+    Args:
+        obj: Model obyekti
+        search_fields: Axtarış sahələri
+        query: Axtarış sorğusu
+
+    Returns:
+        Vurğulanmış mətn
+    """
+    headlines = []
+    for field in search_fields[:2]:  # İlk 2 sahə
+        try:
+            if hasattr(obj, field):
+                field_value = getattr(obj, field)
+                if field_value:
+                    # SearchHeadline istifadə edərək vurğulama
+                    from django.contrib.postgres.search import SearchQuery
+                    search_query = SearchQuery(query, config='azerbaijani')
+                    headline = SearchHeadline(
+                        Value(str(field_value)),
+                        search_query,
+                        start_sel='<mark>',
+                        stop_sel='</mark>',
+                        max_words=30,
+                        min_words=15
+                    )
+                    headlines.append(str(headline))
+        except:
+            continue
+
+    return ' ... '.join(headlines) if headlines else None
+
+
+def optimize_search_indexes():
+    """
+    PostgreSQL üçün axtarış indekslərini optimallaşdırır.
+    Bu funksiya migration fayllarında və ya management command-da istifadə edilməlidir.
+    """
+    with connection.cursor() as cursor:
+        # pg_trgm extension aktivləşdir
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
+        # Azərbaycan dili üçün FTS konfiqurasiyası
+        try:
+            cursor.execute("""
+                CREATE TEXT SEARCH CONFIGURATION azerbaijani (COPY = simple);
+            """)
+        except:
+            # Artıq mövcuddursa, xəta atmayacaq
+            pass
+
+    return True
+
+
+def create_search_indexes_sql():
+    """
+    Axtarış indekslərini yaratmaq üçün SQL sorğuları qaytarır.
+    Migration fayllarında istifadə üçün.
+    """
+    return [
+        # User table trigram indexes
+        "CREATE INDEX IF NOT EXISTS accounts_user_first_name_trgm_idx ON accounts_user USING gin (first_name gin_trgm_ops);",
+        "CREATE INDEX IF NOT EXISTS accounts_user_last_name_trgm_idx ON accounts_user USING gin (last_name gin_trgm_ops);",
+        "CREATE INDEX IF NOT EXISTS accounts_user_username_trgm_idx ON accounts_user USING gin (username gin_trgm_ops);",
+
+        # Competency table trigram indexes
+        "CREATE INDEX IF NOT EXISTS competencies_competency_name_trgm_idx ON competencies_competency USING gin (name gin_trgm_ops);",
+
+        # Training table trigram indexes
+        "CREATE INDEX IF NOT EXISTS training_trainingresource_title_trgm_idx ON training_trainingresource USING gin (title gin_trgm_ops);",
+
+        # Department table trigram indexes
+        "CREATE INDEX IF NOT EXISTS departments_department_name_trgm_idx ON departments_department USING gin (name gin_trgm_ops);",
+    ]
+
+
+def global_search_old(query, user=None):
+    """
+    Old global search implementation (kept for backward compatibility).
     Perform global search across multiple model types
     """
     results = {}
-    
+
     # Define searchable models and their search configuration
     search_configs = {
         'accounts.User': {
