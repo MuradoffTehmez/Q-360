@@ -178,27 +178,41 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
 <script>
-    // Update real-time stats
-    document.getElementById('update-stats-btn').addEventListener('click', function() {
-        fetch('{% url "dashboard:update_realtime_stats" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    // Update real-time stats (using new getCSRFToken helper)
+    const updateStatsBtn = document.getElementById('update-stats-btn');
+    if (updateStatsBtn) {
+        updateStatsBtn.addEventListener('click', function() {
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showError('CSRF token tapılmadı');
+                return;
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Refresh the page to show updated stats
-                location.reload();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
+
+            fetch('{% url "dashboard:update_realtime_stats" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Use refresh function from dashboard.js
+                    refreshDashboard();
+                } else {
+                    showError(data.message || 'Xəta baş verdi');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Statistika yenilənərkən xəta baş verdi');
+            });
+        });
+    }
 
     // Initialize charts for widgets
     document.addEventListener('DOMContentLoaded', function() {

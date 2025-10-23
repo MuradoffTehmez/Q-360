@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import api_views
 from . import export_views
+from . import api
 
 app_name = 'dashboard'
 
@@ -11,6 +12,11 @@ urlpatterns = [
     path('kpi/', views.kpi_dashboard, name='kpi_dashboard'),
     path('trend/', views.trend_analysis, name='trend_analysis'),
     path('forecast/', views.forecasting_dashboard, name='forecasting_dashboard'),
+
+    # Real-time API endpoints
+    path('api/stats/', api.dashboard_stats, name='api_stats'),
+    path('api/trends/', api.dashboard_trends, name='api_trends'),
+    path('api/forecasting/', api.dashboard_forecasting, name='api_forecasting'),
 
     # Export endpointləri
     path('export/analytics/excel/', export_views.export_analytics_excel, name='export_analytics_excel'),

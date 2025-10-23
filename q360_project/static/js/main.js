@@ -3,6 +3,38 @@
  * Handles common functionality across the application
  */
 
+/**
+ * CSRF Token Helper - Get CSRF token from meta tag or cookie
+ */
+function getCSRFToken() {
+    // Try meta tag first
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        const content = metaTag.getAttribute('content');
+        // Extract token from Django's {% csrf_token %} format
+        const match = content.match(/value='([^']+)'/);
+        if (match) {
+            return match[1];
+        }
+        return content;
+    }
+
+    // Fallback to cookie
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // Document Ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -148,9 +180,10 @@ function markAsRead(notificationId) {
  */
 function setupAjaxDefaults() {
     // Add CSRF token to all AJAX requests
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = getCSRFToken();
 
-    if (window.jQuery) {
+    // Setup for jQuery if available
+    if (window.jQuery && csrftoken) {
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!csrfSafe(settings.type) && !this.crossDomain) {
@@ -158,6 +191,22 @@ function setupAjaxDefaults() {
                 }
             }
         });
+    }
+
+    // Setup for Fetch API (modern approach)
+    if (csrftoken) {
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            let [resource, config] = args;
+
+            // Add CSRF token to non-safe methods
+            if (config && config.method && !csrfSafe(config.method)) {
+                config.headers = config.headers || {};
+                config.headers['X-CSRFToken'] = csrftoken;
+            }
+
+            return originalFetch(resource, config);
+        };
     }
 }
 

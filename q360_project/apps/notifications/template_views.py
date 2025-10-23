@@ -292,7 +292,8 @@ def get_recent_notifications(request):
 
         return JsonResponse({
             'success': True,
-            'notifications': data,
+            'results': data,  # Changed from 'notifications' to 'results' for JS compatibility
+            'notifications': data,  # Keep for backward compatibility
             'count': len(data),
             'unread_count': unread_count
         })
