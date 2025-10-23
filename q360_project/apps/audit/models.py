@@ -1,6 +1,8 @@
 """Models for audit app."""
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 from apps.accounts.models import User
 
 
@@ -41,6 +43,9 @@ class AuditLog(models.Model):
     user_agent = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Full-text search field
+    search_vector = SearchVectorField(null=True, editable=False)
+
     class Meta:
         verbose_name = _('Audit Qeydi')
         verbose_name_plural = _('Audit Qeydləri')
@@ -49,6 +54,7 @@ class AuditLog(models.Model):
             models.Index(fields=['user', 'created_at']),
             models.Index(fields=['action', 'model_name']),
             models.Index(fields=['severity', 'created_at']),
+            GinIndex(fields=['search_vector'], name='audit_search_idx'),
         ]
 
     def __str__(self):

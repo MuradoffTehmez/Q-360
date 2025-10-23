@@ -53,6 +53,10 @@ def send_sms_notification(recipient_phone, message, provider_name=None, user=Non
             success = send_sms_via_aws_sns(provider.configuration, recipient_phone, message)
         elif provider.provider == 'clickatell':
             success = send_sms_via_clickatell(provider.configuration, recipient_phone, message)
+        elif provider.provider == 'azercell':
+            success = send_sms_via_azercell(provider.configuration, recipient_phone, message)
+        elif provider.provider == 'bakcell':
+            success = send_sms_via_bakcell(provider.configuration, recipient_phone, message)
         elif provider.provider == 'custom':
             success = send_sms_via_custom(provider.configuration, recipient_phone, message)
         else:
@@ -237,6 +241,115 @@ def send_sms_via_clickatell(config, recipient_phone, message):
         return False
 
 
+def send_sms_via_azercell(config, recipient_phone, message):
+    """
+    Send SMS using Azercell SMS Gateway.
+
+    Azercell SMS Gateway API integration for Azerbaijan.
+
+    Args:
+        config (dict): Azercell configuration with 'username', 'password', 'originator'
+        recipient_phone (str): Recipient's phone number (format: 994xxxxxxxxx)
+        message (str): SMS message content
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        import requests
+
+        username = config.get('username')
+        password = config.get('password')
+        originator = config.get('originator', 'Q360')
+        api_url = config.get('api_url', 'https://sms.azercell.com/api/send')
+
+        if not all([username, password]):
+            logger.error("Missing Azercell credentials")
+            return False
+
+        # Prepare request payload
+        payload = {
+            'username': username,
+            'password': password,
+            'originator': originator,
+            'recipient': recipient_phone,
+            'message': message
+        }
+
+        response = requests.post(api_url, json=payload, timeout=30)
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('status') == 'success':
+                logger.info(f"SMS sent via Azercell to {recipient_phone}")
+                return True
+            else:
+                logger.error(f"Azercell API error: {result.get('message', 'Unknown error')}")
+                return False
+        else:
+            logger.error(f"Azercell API HTTP error: {response.status_code}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Error sending SMS via Azercell: {e}")
+        return False
+
+
+def send_sms_via_bakcell(config, recipient_phone, message):
+    """
+    Send SMS using Bakcell SMS API.
+
+    Bakcell SMS API integration for Azerbaijan.
+
+    Args:
+        config (dict): Bakcell configuration with 'api_key', 'sender_id'
+        recipient_phone (str): Recipient's phone number (format: 994xxxxxxxxx)
+        message (str): SMS message content
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        import requests
+
+        api_key = config.get('api_key')
+        sender_id = config.get('sender_id', 'Q360')
+        api_url = config.get('api_url', 'https://api.bakcell.com/sms/send')
+
+        if not api_key:
+            logger.error("Missing Bakcell API key")
+            return False
+
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+
+        payload = {
+            'sender': sender_id,
+            'recipient': recipient_phone,
+            'text': message
+        }
+
+        response = requests.post(api_url, headers=headers, json=payload, timeout=30)
+
+        if response.status_code in [200, 201]:
+            result = response.json()
+            if result.get('success'):
+                logger.info(f"SMS sent via Bakcell to {recipient_phone}")
+                return True
+            else:
+                logger.error(f"Bakcell API error: {result.get('error', 'Unknown error')}")
+                return False
+        else:
+            logger.error(f"Bakcell API HTTP error: {response.status_code}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Error sending SMS via Bakcell: {e}")
+        return False
+
+
 def send_sms_via_custom(config, recipient_phone, message):
     """
     Send SMS using a custom provider implementation.
@@ -251,33 +364,44 @@ def send_sms_via_custom(config, recipient_phone, message):
     """
     # This is a placeholder for custom SMS providers
     # In a real implementation, you would have specific logic based on the configuration
-    
+
     # For demonstration, let's assume there's a custom_url and custom_token in config
     try:
         import requests
-        
+
         custom_url = config.get('custom_url')
         custom_token = config.get('custom_token')
-        
+        custom_method = config.get('method', 'POST').upper()
+
         if not custom_url:
             logger.error("Missing custom SMS provider URL")
             return False
-        
+
         headers = {
             'Authorization': f'Bearer {custom_token}' if custom_token else '',
             'Content-Type': 'application/json'
         }
-        
+
         payload = {
             'to': recipient_phone,
             'message': message
         }
-        
-        response = requests.post(custom_url, headers=headers, json=payload)
-        
+
+        if custom_method == 'GET':
+            response = requests.get(custom_url, headers=headers, params=payload, timeout=30)
+        else:
+            response = requests.post(custom_url, headers=headers, json=payload, timeout=30)
+
         # Check if the request was successful
-        return response.status_code in [200, 201, 202]
-        
+        success = response.status_code in [200, 201, 202]
+
+        if success:
+            logger.info(f"SMS sent via custom provider to {recipient_phone}")
+        else:
+            logger.error(f"Custom provider error: {response.status_code} - {response.text}")
+
+        return success
+
     except Exception as e:
         logger.error(f"Error sending SMS via custom provider: {e}")
         return False

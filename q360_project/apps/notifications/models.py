@@ -212,6 +212,8 @@ class SMSProvider(models.Model):
         ('twilio', 'Twilio'),
         ('aws_sns', 'AWS SNS'),
         ('clickatell', 'Clickatell'),
+        ('azercell', 'Azercell'),
+        ('bakcell', 'Bakcell'),
         ('custom', 'Fərdi'),
     ]
 
