@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% block title %}Müqayisə Hesabatı - Q360{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-6">
+    <h2 class="mb-4">
+        <i class="fas fa-balance-scale me-2"></i>Performance Müqayisəsi
+    </h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>{{ user1.get_full_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center">{{ user1_score|floatformat:1 }}</h3>
+                    <canvas id="user1Chart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>{{ user2.get_full_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center">{{ user2_score|floatformat:1 }}</h3>
+                    <canvas id="user2Chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <canvas id="comparisonChart"></canvas>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Add chart initialization here
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>İstifadəçilər Hesabatı</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #4CAF50; color: white; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>İstifadəçilər Hesabatı</h1>
+    <p>Tarix: {{ report_date|date:"Y-m-d H:i" }}</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Qeydiyyat Tarixi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.get_full_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.get_role_display }}</td>
+                <td>{{ user.department|default:"—" }}</td>
+                <td>{% if user.is_active %}Aktiv{% else %}Deaktiv{% endif %}</td>
+                <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <p><strong>Ümumi:</strong> {{ users|length }} istifadəçi</p>
+</body>
+</html>

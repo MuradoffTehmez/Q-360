@@ -1,0 +1,483 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}AI İdarəetmə Paneli - Q360{% endblock %}
+
+{% block extra_css %}
+<style>
+.ai-metric-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.ai-metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.model-status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-6">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">
+                <i class="fas fa-robot me-2 text-primary"></i>
+                AI İdarəetmə Paneli
+            </h1>
+            <p class="text-muted">Süni İntellekt model və xidmətlərini idarə edin</p>
+        </div>
+        <div>
+            <button class="btn btn-success" onclick="refreshAllModels()">
+                <i class="fas fa-sync me-2"></i>Yenilə
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#trainModelModal">
+                <i class="fas fa-brain me-2"></i>Model Təlimi
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Service Status -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card ai-metric-card border-primary">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <span class="model-status-indicator bg-success"></span>
+                        <strong class="ms-2">Sentiment Analysis</strong>
+                    </div>
+                    <h3 class="text-primary mb-2">{{ sentiment_status.accuracy|floatformat:1 }}%</h3>
+                    <p class="text-muted small mb-0">Model Dəqiqliyi</p>
+                    <small class="text-muted">{{ sentiment_status.total_predictions }} təxmin</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card ai-metric-card border-info">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <span class="model-status-indicator bg-success"></span>
+                        <strong class="ms-2">Smart Matching</strong>
+                    </div>
+                    <h3 class="text-info mb-2">{{ matching_status.match_rate|floatformat:1 }}%</h3>
+                    <p class="text-muted small mb-0">Uyğunluq Nisbəti</p>
+                    <small class="text-muted">{{ matching_status.total_matches }} uyğunlaşma</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card ai-metric-card border-warning">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <span class="model-status-indicator bg-warning"></span>
+                        <strong class="ms-2">Performance Prediction</strong>
+                    </div>
+                    <h3 class="text-warning mb-2">{{ prediction_status.rmse|floatformat:2 }}</h3>
+                    <p class="text-muted small mb-0">RMSE</p>
+                    <small class="text-muted">{{ prediction_status.total_predictions }} təxmin</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card ai-metric-card border-success">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <span class="model-status-indicator bg-success"></span>
+                        <strong class="ms-2">Skills Analysis</strong>
+                    </div>
+                    <h3 class="text-success mb-2">{{ skills_status.identified_skills }}</h3>
+                    <p class="text-muted small mb-0">Müəyyən Edilmiş Bacarıqlar</p>
+                    <small class="text-muted">{{ skills_status.total_analyzed }} təhlil</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Training History -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2"></i>Model Təlim Tarixçəsi
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Model</th>
+                            <th>Tarix</th>
+                            <th>Dataset Ölçüsü</th>
+                            <th>Dəqiqlik</th>
+                            <th>Status</th>
+                            <th>Müddət</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for training in training_history %}
+                        <tr>
+                            <td>
+                                <i class="fas fa-brain text-primary me-2"></i>
+                                <strong>{{ training.model_name }}</strong>
+                            </td>
+                            <td class="text-muted small">{{ training.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ training.dataset_size }} qeyd</span>
+                            </td>
+                            <td>
+                                {% if training.accuracy %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success"
+                                             style="width: {{ training.accuracy }}%"
+                                             role="progressbar">
+                                            {{ training.accuracy|floatformat:1 }}%
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if training.status == 'completed' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Tamamlandı
+                                    </span>
+                                {% elif training.status == 'training' %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-spinner fa-spin me-1"></i>Təlim edilir
+                                    </span>
+                                {% elif training.status == 'failed' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>Uğursuz
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ training.duration|default:"—" }}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary"
+                                        onclick="viewTrainingDetails({{ training.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                Təlim tarixçəsi mövcud deyil
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Configuration -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Model Konfiqurasiyası
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="aiConfigForm">
+                        {% csrf_token %}
+
+                        <!-- Sentiment Analysis -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Sentiment Analysis</h6>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="sentimentEnabled"
+                                       {% if ai_config.sentiment_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="sentimentEnabled">
+                                    Aktiv
+                                </label>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Threshold</label>
+                                <input type="range" class="form-range" min="0" max="100"
+                                       value="{{ ai_config.sentiment_threshold }}"
+                                       id="sentimentThreshold">
+                                <small class="text-muted">{{ ai_config.sentiment_threshold }}%</small>
+                            </div>
+                        </div>
+
+                        <!-- Smart Matching -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Smart Matching</h6>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="matchingEnabled"
+                                       {% if ai_config.matching_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="matchingEnabled">
+                                    Aktiv
+                                </label>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Min Uyğunluq %</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       value="{{ ai_config.min_match_score }}"
+                                       id="minMatchScore" min="0" max="100">
+                            </div>
+                        </div>
+
+                        <!-- Auto-Retrain -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2">Avtomatik Təkrar Təlim</h6>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="autoRetrainEnabled"
+                                       {% if ai_config.auto_retrain_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="autoRetrainEnabled">
+                                    Aktiv
+                                </label>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small">Tezlik (günlər)</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       value="{{ ai_config.retrain_interval_days }}"
+                                       id="retrainInterval" min="1" max="365">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Yadda Saxla
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Performance Metrikləri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="aiPerformanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Usage Stats -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-bar me-2"></i>API İstifadə Statistikası
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h4 class="text-primary">{{ api_stats.today_requests }}</h4>
+                    <p class="text-muted small mb-0">Bugünkü Sorğular</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="text-info">{{ api_stats.month_requests }}</h4>
+                    <p class="text-muted small mb-0">Aylıq Sorğular</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="text-success">{{ api_stats.avg_response_time }}ms</h4>
+                    <p class="text-muted small mb-0">Orta Cavab Müddəti</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="text-warning">{{ api_stats.error_rate }}%</h4>
+                    <p class="text-muted small mb-0">Xəta Nisbəti</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Train Model Modal -->
+<div class="modal fade" id="trainModelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-brain me-2"></i>Model Təlimi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="trainModelForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="modelType" class="form-label">Model Tipi</label>
+                        <select class="form-select" id="modelType" name="model_type" required>
+                            <option value="">Seçin...</option>
+                            <option value="sentiment">Sentiment Analysis</option>
+                            <option value="matching">Smart Matching</option>
+                            <option value="prediction">Performance Prediction</option>
+                            <option value="skills">Skills Analysis</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="datasetSize" class="form-label">Dataset Ölçüsü (qeyd)</label>
+                        <input type="number" class="form-control" id="datasetSize" name="dataset_size"
+                               min="100" value="1000" required>
+                        <small class="text-muted">Minimum 100 qeyd tələb olunur</small>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="useLatestData" checked>
+                            <label class="form-check-label" for="useLatestData">
+                                Ən son məlumatlardan istifadə et
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+                <button type="button" class="btn btn-primary" onclick="startTraining()">
+                    <i class="fas fa-play me-2"></i>Təlimə Başla
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Performance Chart
+const ctx = document.getElementById('aiPerformanceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ performance_labels|safe }},
+        datasets: [
+            {
+                label: 'Dəqiqlik',
+                data: {{ performance_accuracy|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.4
+            },
+            {
+                label: 'Sorğu Sayı',
+                data: {{ performance_requests|safe }},
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Dəqiqlik (%)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Sorğular'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                }
+            }
+        }
+    }
+});
+
+function startTraining() {
+    const formData = new FormData(document.getElementById('trainModelForm'));
+
+    fetch('/api/ai/train/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Model təlimi başladıldı!');
+            bootstrap.Modal.getInstance(document.getElementById('trainModelModal')).hide();
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.error);
+        }
+    });
+}
+
+function refreshAllModels() {
+    location.reload();
+}
+
+function viewTrainingDetails(trainingId) {
+    window.location.href = `/dashboard/ai/training/${trainingId}/`;
+}
+
+// Save AI Config
+document.getElementById('aiConfigForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = {
+        sentiment_enabled: document.getElementById('sentimentEnabled').checked,
+        sentiment_threshold: document.getElementById('sentimentThreshold').value,
+        matching_enabled: document.getElementById('matchingEnabled').checked,
+        min_match_score: document.getElementById('minMatchScore').value,
+        auto_retrain_enabled: document.getElementById('autoRetrainEnabled').checked,
+        retrain_interval_days: document.getElementById('retrainInterval').value
+    };
+
+    fetch('/api/ai/config/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Konfiqurasiya yeniləndi!');
+        }
+    });
+});
+
+// Update threshold display
+document.getElementById('sentimentThreshold').addEventListener('input', function() {
+    this.nextElementSibling.textContent = this.value + '%';
+});
+</script>
+{% endblock %}

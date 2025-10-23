@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+{% block title %}Şablon Önizləmə - Q360{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>{{ template.name }}</h4>
+        </div>
+        <div class="card-body">
+            <iframe srcdoc="{{ rendered_content }}" style="width: 100%; height: 600px; border: 1px solid #ddd;"></iframe>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'notifications:template_management' %}" class="btn btn-secondary">Geri</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

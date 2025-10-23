@@ -1,0 +1,36 @@
+{% extends 'base/base.html' %}
+{% block title %}Müqayisə Seçimi - Q360{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-balance-scale me-2"></i>Müqayisə üçün seçim edin</h2>
+    
+    <form method="post" action="{% url 'reports:comparison_report' %}">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">İlk İstifadəçi</label>
+                    <select name="user1" class="form-select" required>
+                        <option value="">Seçin...</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">İkinci İstifadəçi</label>
+                    <select name="user2" class="form-select" required>
+                        <option value="">Seçin...</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-line me-2"></i>Müqayisə Et
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

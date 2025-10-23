@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+{% block title %}Feedback Detalları - Q360{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Feedback Təhlili Detalları</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Tarix:</dt>
+                <dd class="col-sm-9">{{ feedback.created_at|date:"Y-m-d H:i:s" }}</dd>
+
+                <dt class="col-sm-3">Mətn:</dt>
+                <dd class="col-sm-9">{{ feedback.text }}</dd>
+
+                <dt class="col-sm-3">Sentiment:</dt>
+                <dd class="col-sm-9">
+                    {% if feedback.sentiment == 'positive' %}
+                        <span class="badge bg-success fs-5">
+                            <i class="fas fa-smile me-2"></i>Müsbət
+                        </span>
+                    {% elif feedback.sentiment == 'negative' %}
+                        <span class="badge bg-danger fs-5">
+                            <i class="fas fa-frown me-2"></i>Mənfi
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning fs-5">
+                            <i class="fas fa-meh me-2"></i>Neytral
+                        </span>
+                    {% endif %}
+                </dd>
+
+                <dt class="col-sm-3">Etibar Səviyyəsi:</dt>
+                <dd class="col-sm-9">
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-info" style="width: {{ feedback.confidence }}%">
+                            {{ feedback.confidence|floatformat:1 }}%
+                        </div>
+                    </div>
+                </dd>
+
+                {% if feedback.keywords %}
+                <dt class="col-sm-3">Açar Sözlər:</dt>
+                <dd class="col-sm-9">
+                    {% for keyword in feedback.keywords %}
+                        <span class="badge bg-secondary">{{ keyword }}</span>
+                    {% endfor %}
+                </dd>
+                {% endif %}
+
+                {% if feedback.user %}
+                <dt class="col-sm-3">İstifadəçi:</dt>
+                <dd class="col-sm-9">{{ feedback.user.get_full_name }}</dd>
+                {% endif %}
+            </dl>
+
+            <div class="mt-4">
+                <a href="{% url 'sentiment_analysis:dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Geri
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

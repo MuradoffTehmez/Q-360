@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+{% block title %}Bildiriş Statistikası - Q360{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-6">
+    <h2><i class="fas fa-chart-bar me-2"></i>Bildiriş Statistikası</h2>
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_sent }}</h3>
+                    <p>Göndərildi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_delivered }}</h3>
+                    <p>Çatdırıldı</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_opened }}</h3>
+                    <p>Açıldı</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_clicked }}</h3>
+                    <p>Kliklənd</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

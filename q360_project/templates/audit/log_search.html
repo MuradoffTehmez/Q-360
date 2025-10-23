@@ -1,0 +1,385 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Audit Log Axtarışı - Q360{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-6">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">
+                <i class="fas fa-search me-2 text-primary"></i>
+                Audit Log Axtarışı
+            </h1>
+            <p class="text-muted">Sistem hadisələrini axtarın və təhlil edin</p>
+        </div>
+        <div>
+            <a href="{% url 'audit:security_dashboard' %}" class="btn btn-outline-primary">
+                <i class="fas fa-shield-alt me-2"></i>Təhlükəsizlik Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Filters Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>Axtarış Filterləri
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" id="searchForm">
+                <div class="row g-3">
+                    <!-- Search Query -->
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Axtarış</label>
+                        <input type="text"
+                               class="form-control"
+                               id="search"
+                               name="search"
+                               placeholder="İstifadəçi adı, email, IP, action..."
+                               value="{{ request.GET.search }}">
+                    </div>
+
+                    <!-- Action Type -->
+                    <div class="col-md-3">
+                        <label for="action" class="form-label">Əməliyyat</label>
+                        <select class="form-select" id="action" name="action">
+                            <option value="">Hamısı</option>
+                            <option value="create" {% if request.GET.action == 'create' %}selected{% endif %}>Yaradılma</option>
+                            <option value="update" {% if request.GET.action == 'update' %}selected{% endif %}>Yenilənmə</option>
+                            <option value="delete" {% if request.GET.action == 'delete' %}selected{% endif %}>Silinmə</option>
+                            <option value="login" {% if request.GET.action == 'login' %}selected{% endif %}>Giriş</option>
+                            <option value="logout" {% if request.GET.action == 'logout' %}selected{% endif %}>Çıxış</option>
+                            <option value="login_failed" {% if request.GET.action == 'login_failed' %}selected{% endif %}>Uğursuz Giriş</option>
+                            <option value="2fa_enabled" {% if request.GET.action == '2fa_enabled' %}selected{% endif %}>2FA Aktivləşdirildi</option>
+                            <option value="2fa_disabled" {% if request.GET.action == '2fa_disabled' %}selected{% endif %}>2FA Deaktiv edildi</option>
+                            <option value="password_change" {% if request.GET.action == 'password_change' %}selected{% endif %}>Şifrə Dəyişdirildi</option>
+                        </select>
+                    </div>
+
+                    <!-- Severity -->
+                    <div class="col-md-3">
+                        <label for="severity" class="form-label">Səviyyə</label>
+                        <select class="form-select" id="severity" name="severity">
+                            <option value="">Hamısı</option>
+                            <option value="info" {% if request.GET.severity == 'info' %}selected{% endif %}>
+                                <i class="fas fa-info-circle text-info"></i> Info
+                            </option>
+                            <option value="warning" {% if request.GET.severity == 'warning' %}selected{% endif %}>
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Warning
+                            </option>
+                            <option value="error" {% if request.GET.severity == 'error' %}selected{% endif %}>
+                                <i class="fas fa-times-circle text-danger"></i> Error
+                            </option>
+                            <option value="critical" {% if request.GET.severity == 'critical' %}selected{% endif %}>
+                                <i class="fas fa-skull-crossbones text-danger"></i> Critical
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">Başlanğıc Tarixi</label>
+                        <input type="date"
+                               class="form-control"
+                               id="date_from"
+                               name="date_from"
+                               value="{{ request.GET.date_from }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">Bitmə Tarixi</label>
+                        <input type="date"
+                               class="form-control"
+                               id="date_to"
+                               name="date_to"
+                               value="{{ request.GET.date_to }}">
+                    </div>
+
+                    <!-- User Filter -->
+                    <div class="col-md-3">
+                        <label for="user" class="form-label">İstifadəçi</label>
+                        <input type="text"
+                               class="form-control"
+                               id="user"
+                               name="user"
+                               placeholder="İstifadəçi ID və ya username"
+                               value="{{ request.GET.user }}">
+                    </div>
+
+                    <!-- IP Address -->
+                    <div class="col-md-3">
+                        <label for="ip_address" class="form-label">IP Ünvanı</label>
+                        <input type="text"
+                               class="form-control"
+                               id="ip_address"
+                               name="ip_address"
+                               placeholder="192.168.1.1"
+                               value="{{ request.GET.ip_address }}">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Axtar
+                        </button>
+                        <a href="{% url 'audit:log_search' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Sıfırla
+                        </a>
+                        <button type="button" class="btn btn-success" onclick="exportResults()">
+                            <i class="fas fa-file-export me-2"></i>Export (CSV)
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Stats -->
+    {% if logs %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_count }}</h3>
+                    <p class="text-muted mb-0">Ümumi Nəticə</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ info_count }}</h3>
+                    <p class="text-muted mb-0">Info</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ warning_count }}</h3>
+                    <p class="text-muted mb-0">Warning</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ error_count|add:critical_count }}</h3>
+                    <p class="text-muted mb-0">Error/Critical</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Results Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Axtarış Nəticələri
+                {% if logs %}
+                    <span class="badge bg-primary">{{ logs|length }} qeyd</span>
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 160px;">Tarix</th>
+                                <th style="width: 150px;">İstifadəçi</th>
+                                <th style="width: 120px;">Əməliyyat</th>
+                                <th style="width: 100px;">Model</th>
+                                <th>Təsvir</th>
+                                <th style="width: 80px;">Səviyyə</th>
+                                <th style="width: 120px;">IP</th>
+                                <th style="width: 60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td class="text-muted small">
+                                    {{ log.timestamp|date:"Y-m-d H:i:s" }}
+                                </td>
+                                <td>
+                                    {% if log.user %}
+                                        <a href="{% url 'accounts:user-detail' log.user.id %}" class="text-decoration-none">
+                                            {{ log.user.get_full_name|default:log.user.username }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ log.action }}</span>
+                                </td>
+                                <td class="small">{{ log.model_name|default:"—" }}</td>
+                                <td class="small">
+                                    {{ log.description|truncatewords:10|default:"—" }}
+                                </td>
+                                <td>
+                                    {% if log.severity == 'info' %}
+                                        <span class="badge bg-info">Info</span>
+                                    {% elif log.severity == 'warning' %}
+                                        <span class="badge bg-warning">Warning</span>
+                                    {% elif log.severity == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% elif log.severity == 'critical' %}
+                                        <span class="badge bg-danger">Critical</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">
+                                    {{ log.ip_address|default:"—" }}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="viewDetails({{ log.id }})"
+                                            title="Detallara bax">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="card-footer bg-light">
+                    <nav aria-label="Log pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{{ query_params }}">İlk</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ query_params }}">Əvvəlki</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Səhifə {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{{ query_params }}">Növbəti</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{{ query_params }}">Son</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="p-5 text-center text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p class="mb-0">Heç bir nəticə tapılmadı. Axtarış meyarlarınızı dəyişdirin.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="logDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Detalları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="logDetailContent">
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yüklənir...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewDetails(logId) {
+    const modal = new bootstrap.Modal(document.getElementById('logDetailModal'));
+    modal.show();
+
+    fetch(`/api/audit/logs/${logId}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('logDetailContent').innerHTML = `
+                <dl class="row">
+                    <dt class="col-sm-3">Tarix:</dt>
+                    <dd class="col-sm-9">${data.timestamp}</dd>
+
+                    <dt class="col-sm-3">İstifadəçi:</dt>
+                    <dd class="col-sm-9">${data.user || '—'}</dd>
+
+                    <dt class="col-sm-3">Əməliyyat:</dt>
+                    <dd class="col-sm-9"><span class="badge bg-secondary">${data.action}</span></dd>
+
+                    <dt class="col-sm-3">Model:</dt>
+                    <dd class="col-sm-9">${data.model_name || '—'}</dd>
+
+                    <dt class="col-sm-3">Object ID:</dt>
+                    <dd class="col-sm-9">${data.object_id || '—'}</dd>
+
+                    <dt class="col-sm-3">Səviyyə:</dt>
+                    <dd class="col-sm-9">${getSeverityBadge(data.severity)}</dd>
+
+                    <dt class="col-sm-3">IP Ünvanı:</dt>
+                    <dd class="col-sm-9">${data.ip_address || '—'}</dd>
+
+                    <dt class="col-sm-3">User Agent:</dt>
+                    <dd class="col-sm-9"><small class="text-muted">${data.user_agent || '—'}</small></dd>
+
+                    <dt class="col-sm-3">Təsvir:</dt>
+                    <dd class="col-sm-9">${data.description || '—'}</dd>
+
+                    ${data.context ? `
+                        <dt class="col-sm-3">Kontekst:</dt>
+                        <dd class="col-sm-9"><pre class="bg-light p-3 rounded">${JSON.stringify(data.context, null, 2)}</pre></dd>
+                    ` : ''}
+                </dl>
+            `;
+        })
+        .catch(error => {
+            document.getElementById('logDetailContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Məlumat yüklənərkən xəta baş verdi.
+                </div>
+            `;
+        });
+}
+
+function getSeverityBadge(severity) {
+    const badges = {
+        'info': '<span class="badge bg-info">Info</span>',
+        'warning': '<span class="badge bg-warning">Warning</span>',
+        'error': '<span class="badge bg-danger">Error</span>',
+        'critical': '<span class="badge bg-danger">Critical</span>'
+    };
+    return badges[severity] || severity;
+}
+
+function exportResults() {
+    const form = document.getElementById('searchForm');
+    const params = new URLSearchParams(new FormData(form));
+    params.append('export', 'csv');
+    window.location.href = '{% url "audit:log_search" %}?' + params.toString();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}360° Qiymətləndirmə Nəticələri - Q360{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-6">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">
+                <i class="fas fa-chart-radar me-2 text-primary"></i>
+                360° Qiymətləndirmə Nəticələri
+            </h1>
+            <p class="text-muted">{{ user.get_full_name }} - {{ campaign.name }}</p>
+        </div>
+        <div>
+            <button class="btn btn-success" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Çap Et
+            </button>
+            <a href="{% url 'evaluations:export_results' result.id %}" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>PDF Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Overall Score -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body text-center p-5">
+            <h2 class="mb-3">Ümumi Nəticə</h2>
+            <div class="display-1 text-primary fw-bold mb-3">
+                {{ result.overall_score|floatformat:1 }}
+            </div>
+            <p class="text-muted">100 bal üzərindən</p>
+            
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     style="width: {{ result.overall_score }}%">
+                    {{ result.overall_score|floatformat:1 }}%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Scores -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Kateqoriya Nəticələri</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for category in category_scores %}
+                <div class="col-md-6 mb-3">
+                    <h6>{{ category.name }}</h6>
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: {{ category.score }}%; background-color: {{ category.color }}">
+                            {{ category.score|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <canvas id="radarChart" height="400"></canvas>
+        </div>
+    </div>
+
+    <!-- Feedback Summary -->
+    {% if feedback_summary %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Rəylər və Tövsiyələr</h5>
+        </div>
+        <div class="card-body">
+            {{ feedback_summary|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('radarChart').getContext('2d');
+new Chart(ctx, {
+    type: 'radar',
+    data: {
+        labels: {{ category_labels|safe }},
+        datasets: [{
+            label: 'Nəticələr',
+            data: {{ category_data|safe }},
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(54, 162, 235)'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
