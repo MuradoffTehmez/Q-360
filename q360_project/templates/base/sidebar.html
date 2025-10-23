@@ -1,6 +1,7 @@
 ﻿{% load static %}
 {% load i18n %}
 {% load navigation_filters %}
+{% load sidebar_filters %}
 <!-- Sidebar for authenticated users -->
 <aside
     class="w-64 bg-white dark:bg-gray-900 shadow-xl border-r border-gray-200 dark:border-gray-800 hidden md:block overflow-y-auto"
@@ -357,6 +358,8 @@
                 </div>
             </div>
 
+            {% can_view_menu 'hr_management' as can_view_hr %}
+            {% if can_view_hr %}
             <div class="space-y-1" x-data="{ open: true }">
                 <button type="button"
                     class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
@@ -369,20 +372,26 @@
                        :class="{'rotate-180': open}"></i>
                 </button>
                 <div x-show="open" x-transition x-cloak class="mt-2 space-y-1">
-                    
+
+                    {% can_view_menu 'user_list' as can_view_users %}
+                    {% if can_view_users %}
                     <a href="{% url 'accounts:user-list' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if request.path|startswith:'/accounts/users' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-users w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "İstifadəçi Siyahısı" %}</span>
                     </a>
-                    
+                    {% endif %}
 
-                    
+
+
+                    {% can_view_menu 'departments' as can_view_departments %}
+                    {% if can_view_departments %}
                     <a href="{% url 'departments:department-list' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if request.path|startswith:'/departments/' %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-network-wired w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Şöbələr" %}</span>
                     </a>
+                    {% endif %}
                     
 
                     
@@ -409,12 +418,16 @@
                     </a>
                     
 
-                    
+
+
+                    {% can_view_menu 'salary_change' as can_change_salary %}
+                    {% if can_change_salary %}
                     <a href="{% url 'compensation:salary_change' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/compensation/salaries/change' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-edit w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Maaş Dəyişiklikləri" %}</span>
                     </a>
+                    {% endif %}
                     
 
                     
@@ -557,6 +570,7 @@
 
                 </div>
             </div>
+            {% endif %}
 
             <div class="space-y-1" x-data="{ open: false }">
                 <button type="button"
@@ -705,33 +719,47 @@
                     </a>
                     
 
-                    
+
+
+                    {% can_view_menu 'sms_providers' as can_view_sms %}
+                    {% if can_view_sms %}
                     <a href="{% url 'notifications:sms-providers-list' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/notifications/sms/providers' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-sms w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "SMS Təchizatçıları" %}</span>
                     </a>
-                    
+                    {% endif %}
 
-                    
+
+
+                    {% can_view_menu 'notification_templates' as can_view_templates %}
+                    {% if can_view_templates %}
                     <a href="{% url 'notifications:templates-list' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/notifications/templates' in request.path and '/emails' not in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-file-alt w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Bildiriş Şablonları" %}</span>
                     </a>
-                    
+                    {% endif %}
 
-                    
+
+
+                    {% can_view_menu 'email_templates' as can_view_email_templates %}
+                    {% if can_view_email_templates %}
                     <a href="{% url 'notifications:email-templates' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/notifications/templates/emails' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-envelope w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Email Şablonları" %}</span>
-                    
+                    </a>
+                    {% endif %}
+
+                    {% can_view_menu 'delivery_logs' as can_view_logs %}
+                    {% if can_view_logs %}
                     <a href="{% url 'notifications:delivery_logs' %}"
                         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative overflow-hidden group {% if '/notifications/delivery-logs/' in request.path %}bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-400 border-l-4 border-blue-500{% else %}text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600/50{% endif %}">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <i class="fas fa-truck w-5 mr-3 relative z-10"></i><span class="relative z-10">{% trans "Göndəriş Logları" %}</span>
                     </a>
+                    {% endif %}
                     
                     </a>
                     
