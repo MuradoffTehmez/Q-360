@@ -13,7 +13,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Üstün istedad. Güçlü rəhbərlik, strategik düşüncə və innovasiya. Nazir müavini vəzifəsinə namizəd.",
-      "development_actions": "Executive MBA proqramı, beynəlxalq təcrübə mübadiləsi"
+      "development_actions": "Executive MBA proqramı, beynəlxalq təcrübə mübadiləsi",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -30,7 +32,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Yüksək ifaçı. E-xidmətlər sahəsində güçlü ekspertiza. Rəhbərlik bacarıqları inkişaf edir.",
-      "development_actions": "Liderlik təlimi, departament direktoru vəzifəsinə hazırlıq"
+      "development_actions": "Liderlik təlimi, departament direktoru vəzifəsinə hazırlıq",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -47,7 +51,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Üstün texniki istedad. Full-stack development expertizası. Arxitektur qərarlar qəbul edə bilir.",
-      "development_actions": "Tech lead roluna keçid, system design təlimləri"
+      "development_actions": "Tech lead roluna keçid, system design təlimləri",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -64,7 +70,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Yüksək ifaçı UI/UX dizayner. Kreativ həllər, istifadəçi yönümlü dizayn.",
-      "development_actions": "UX Research metodologiyası, design system leadership"
+      "development_actions": "UX Research metodologiyası, design system leadership",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -81,7 +89,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Gələcək lider. Yüksək öyrənmə qabiliyyəti, motivasiya və potensial.",
-      "development_actions": "Mentorluq proqramı, advanced technical training, real project experience"
+      "development_actions": "Mentorluq proqramı, advanced technical training, real project experience",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -98,7 +108,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Üstün istedad. Kibertəhlükəsizlik eksperti. Sertifikatlar və beynəlxalq təcrübə.",
-      "development_actions": "Departament direktoru roluna keçid hazırlığı"
+      "development_actions": "Departament direktoru roluna keçid hazırlığı",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -115,7 +127,9 @@
       "assessment_date": "2024-02-15",
       "assessment_period": "2024 Q1",
       "notes": "Gələcək lider. SOC təcrübəsi, təhlil bacarıqları güclüdür. İnkişaf potensialı yüksək.",
-      "development_actions": "Advanced security training, incident response leadership"
+      "development_actions": "Advanced security training, incident response leadership",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -126,11 +140,19 @@
       "current_holder": 2,
       "criticality_level": "critical",
       "business_impact": "Rəqəmsal İnkişaf Departamenti nazirliyinş strategic məqsədləri üçün kritik əhəmiyyətə malikdir. E-xidmətlər və rəqəmsal transformasiya layihələrini idarə edir.",
-      "required_competencies": [1, 5, 6, 4],
+      "required_competencies": [
+        1,
+        5,
+        6,
+        4
+      ],
       "required_experience_years": 7,
       "succession_readiness": "ready_1_2_years",
       "is_active": true,
-      "notes": "Leyla Hüseynova hazırda şöbə müdiridir və 2 il ərzində bu vəzifəyə hazır olacaq"
+      "notes": "Leyla Hüseynova hazırda şöbə müdiridir və 2 il ərzində bu vəzifəyə hazır olacaq",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "designated_date": "2024-01-01"
     }
   },
   {
@@ -141,11 +163,18 @@
       "current_holder": 7,
       "criticality_level": "critical",
       "business_impact": "Kibertəhlükəsizlik nazirliyiş bütün IT infrastrukturu və məlumatları üçün həyati əhəmiyyət daşıyır. Cyber hücumlar və data breaches riskini azaltır.",
-      "required_competencies": [8, 1, 6],
+      "required_competencies": [
+        8,
+        1,
+        6
+      ],
       "required_experience_years": 5,
       "succession_readiness": "ready_1_2_years",
       "is_active": true,
-      "notes": "Aysel Məmmədova hazırlanır"
+      "notes": "Aysel Məmmədova hazırlanır",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "designated_date": "2024-01-01"
     }
   },
   {
@@ -156,11 +185,18 @@
       "current_holder": 9,
       "criticality_level": "high",
       "business_impact": "İnsan resursları strategiyası və talent management təşkilatın inkişafı üçün vacibdir.",
-      "required_competencies": [11, 1, 2],
+      "required_competencies": [
+        11,
+        1,
+        2
+      ],
       "required_experience_years": 7,
       "succession_readiness": "ready_1_2_years",
       "is_active": true,
-      "notes": "Sevinc Hüseynli succession candidate kimi hazırlanır"
+      "notes": "Sevinc Hüseynli succession candidate kimi hazırlanır",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "designated_date": "2024-01-01"
     }
   },
   {
@@ -175,7 +211,10 @@
       "development_needs": "Strategik planlaşdırma, budget management, stakeholder management bacarıqları",
       "development_plan": "1. PMP sertifikatı almaq\n2. Strategic planning workshop\n3. Budget və financial management təlimi\n4. Executive mentorship (Rəşad Məmmədov)",
       "nominated_by": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "nomination_date": "2024-01-01"
     }
   },
   {
@@ -190,7 +229,10 @@
       "development_needs": "Liderlik və komanda idarəetməsi, strategik risk management, vendor management",
       "development_plan": "1. CEH sertifikatı almaq\n2. Liderlik və komanda idarəetməsi təlimi\n3. CISM (Certified Information Security Manager) sertifikatına hazırlıq\n4. Mentorship from Farid İsmayılov",
       "nominated_by": 7,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "nomination_date": "2024-01-01"
     }
   },
   {
@@ -205,7 +247,10 @@
       "development_needs": "Strategic HR leadership, change management, executive presence",
       "development_plan": "1. PHR sertifikatını Senior PHR-ə yüksəltmək\n2. Executive coaching proqramı\n3. Strategic HR leadership təlimi\n4. Cross-functional project leadership təcrübəsi",
       "nominated_by": 9,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "nomination_date": "2024-01-01"
     }
   },
   {
@@ -222,12 +267,17 @@
       "gap_status": "moderate_gap",
       "target_position": 6,
       "recommended_actions": "1. Python proqramlaşdırma kursunu tamamlamaq\n2. Django framework öyrənmək\n3. Real layihələrdə iştirak etmək\n4. Code review və mentorship",
-      "recommended_trainings": [1, 2],
+      "recommended_trainings": [
+        1,
+        2
+      ],
       "priority": "high",
       "target_close_date": "2024-06-30",
       "is_closed": false,
       "closed_date": null,
-      "closure_notes": ""
+      "closure_notes": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -244,12 +294,17 @@
       "gap_status": "minor_gap",
       "target_position": 3,
       "recommended_actions": "1. PMP sertifikatı əldə etmək\n2. Large-scale project management təcrübəsi\n3. Agile və Scrum metodologiyası",
-      "recommended_trainings": [7, 10],
+      "recommended_trainings": [
+        7,
+        10
+      ],
       "priority": "medium",
       "target_close_date": "2024-09-30",
       "is_closed": false,
       "closed_date": null,
-      "closure_notes": ""
+      "closure_notes": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -266,12 +321,16 @@
       "gap_status": "minor_gap",
       "target_position": 8,
       "recommended_actions": "1. CEH sertifikatı almaq\n2. Advanced penetration testing təcrübəsi\n3. Security architecture və design\n4. Incident response leadership",
-      "recommended_trainings": [5],
+      "recommended_trainings": [
+        5
+      ],
       "priority": "high",
       "target_close_date": "2024-08-31",
       "is_closed": false,
       "closed_date": null,
-      "closure_notes": ""
+      "closure_notes": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -288,12 +347,16 @@
       "gap_status": "moderate_gap",
       "target_position": 10,
       "recommended_actions": "1. Liderlik və idarəetmə təlimləri\n2. Executive coaching\n3. Cross-functional team leadership təcrübəsi\n4. Strategic decision making",
-      "recommended_trainings": [6],
+      "recommended_trainings": [
+        6
+      ],
       "priority": "medium",
       "target_close_date": "2024-12-31",
       "is_closed": false,
       "closed_date": null,
-      "closure_notes": ""
+      "closure_notes": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -310,12 +373,16 @@
       "gap_status": "minor_gap",
       "target_position": 5,
       "recommended_actions": "1. React və modern JavaScript frameworks\n2. Advanced front-end architecture\n3. Performance optimization\n4. State management patterns",
-      "recommended_trainings": [12],
+      "recommended_trainings": [
+        12
+      ],
       "priority": "medium",
       "target_close_date": "2024-07-31",
       "is_closed": false,
       "closed_date": null,
-      "closure_notes": ""
+      "closure_notes": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

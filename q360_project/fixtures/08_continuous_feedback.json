@@ -7,7 +7,9 @@
       "description": "Komanda ilə əməkdaşlıq və birlikdə iş",
       "icon": "fa-users",
       "is_active": true,
-      "usage_count": 15
+      "usage_count": 15,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -18,7 +20,9 @@
       "description": "Rəhbərlik və lider keyfiyyətləri",
       "icon": "fa-crown",
       "is_active": true,
-      "usage_count": 12
+      "usage_count": 12,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -29,7 +33,9 @@
       "description": "Texniki bilik və ekspertiza",
       "icon": "fa-code",
       "is_active": true,
-      "usage_count": 20
+      "usage_count": 20,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -40,7 +46,9 @@
       "description": "Ünsiyyət bacarıqları",
       "icon": "fa-comments",
       "is_active": true,
-      "usage_count": 18
+      "usage_count": 18,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -51,7 +59,9 @@
       "description": "Kreativ düşüncə və innovasiya",
       "icon": "fa-lightbulb",
       "is_active": true,
-      "usage_count": 10
+      "usage_count": 10,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -62,7 +72,9 @@
       "description": "Problemləri həll etmək bacarığı",
       "icon": "fa-puzzle-piece",
       "is_active": true,
-      "usage_count": 14
+      "usage_count": 14,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -84,7 +96,9 @@
       "recipient_response": "Təşəkkür edirəm! Komanda ilə birlikdə gözəl nəticə əldə etdik.",
       "responded_at": "2024-03-15T14:00:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -106,7 +120,9 @@
       "recipient_response": "Çox sağ ol! Sizinlə işləmək çox rahat oldu, texniki hissə mükəmməl idi.",
       "responded_at": "2024-03-16T11:30:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -128,7 +144,9 @@
       "recipient_response": "Təşəkkür edirəm! Komandanın dəstəyi olmadan bu mümkün olmazdı.",
       "responded_at": "2024-03-20T16:00:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -150,7 +168,9 @@
       "recipient_response": "Təşəkkür edirəm! SOC komandasının təlimi və əməkdaşlığı sayəsində.",
       "responded_at": "2024-03-19T10:30:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -172,7 +192,9 @@
       "recipient_response": "Anladım, təşəkkürlər feedback üçün. Növbəti PR-lərdə bu nöqsanları düzəldəcəm.",
       "responded_at": "2024-03-22T14:00:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -194,7 +216,9 @@
       "recipient_response": "Təşəkkür edirəm! Hiring manager-lərin dəstəyi və sürətli qərar qəbul etməsi çox kömək etdi.",
       "responded_at": "2024-03-25T11:00:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -216,7 +240,9 @@
       "recipient_response": "Çox xoşbəxtəm ki, kömək oldu! Documentation-a vaxt ayırmaq sonradan çox qazandırır.",
       "responded_at": "2024-03-28T10:00:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -238,7 +264,9 @@
       "recipient_response": "Təşəkkür edirəm! Security culture yaratmaq uzun yoldur, amma başlanğıc yaxşı oldu.",
       "responded_at": "2024-03-30T15:30:00Z",
       "is_flagged": false,
-      "flagged_reason": ""
+      "flagged_reason": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -250,10 +278,16 @@
       "total_recognitions": 2,
       "total_improvements": 0,
       "average_rating": "5.00",
-      "top_strengths": ["Texniki bacarıq", "Ünsiyyət", "Komanda işi"],
+      "top_strengths": [
+        "Texniki bacarıq",
+        "Ünsiyyət",
+        "Komanda işi"
+      ],
       "top_improvement_areas": [],
       "positive_sentiment_score": "95.00",
-      "last_feedback_date": "2024-03-28T09:00:00Z"
+      "last_feedback_date": "2024-03-28T09:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -265,10 +299,16 @@
       "total_recognitions": 2,
       "total_improvements": 0,
       "average_rating": "5.00",
-      "top_strengths": ["UI/UX dizayn", "Yaradıcılıq", "İstifadəçi yönümlülük"],
+      "top_strengths": [
+        "UI/UX dizayn",
+        "Yaradıcılıq",
+        "İstifadəçi yönümlülük"
+      ],
       "top_improvement_areas": [],
       "positive_sentiment_score": "98.00",
-      "last_feedback_date": "2024-03-16T10:00:00Z"
+      "last_feedback_date": "2024-03-16T10:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -280,10 +320,16 @@
       "total_recognitions": 1,
       "total_improvements": 0,
       "average_rating": "5.00",
-      "top_strengths": ["Layihə idarəetməsi", "Liderlik", "Komanda koordinasiyası"],
+      "top_strengths": [
+        "Layihə idarəetməsi",
+        "Liderlik",
+        "Komanda koordinasiyası"
+      ],
       "top_improvement_areas": [],
       "positive_sentiment_score": "92.00",
-      "last_feedback_date": "2024-03-20T15:00:00Z"
+      "last_feedback_date": "2024-03-20T15:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -295,10 +341,16 @@
       "total_recognitions": 1,
       "total_improvements": 0,
       "average_rating": "5.00",
-      "top_strengths": ["Kibertəhlükəsizlik", "Incident response", "Professional çıxış"],
+      "top_strengths": [
+        "Kibertəhlükəsizlik",
+        "Incident response",
+        "Professional çıxış"
+      ],
       "top_improvement_areas": [],
       "positive_sentiment_score": "94.00",
-      "last_feedback_date": "2024-03-19T09:00:00Z"
+      "last_feedback_date": "2024-03-19T09:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -311,9 +363,15 @@
       "total_improvements": 1,
       "average_rating": "3.00",
       "top_strengths": [],
-      "top_improvement_areas": ["Error handling", "Unit testing", "Code quality"],
+      "top_improvement_areas": [
+        "Error handling",
+        "Unit testing",
+        "Code quality"
+      ],
       "positive_sentiment_score": "45.00",
-      "last_feedback_date": "2024-03-22T11:00:00Z"
+      "last_feedback_date": "2024-03-22T11:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -325,7 +383,9 @@
       "comments_count": 3,
       "views_count": 45,
       "is_featured": false,
-      "featured_until": null
+      "featured_until": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -337,7 +397,9 @@
       "comments_count": 4,
       "views_count": 52,
       "is_featured": true,
-      "featured_until": "2024-04-10T00:00:00Z"
+      "featured_until": "2024-04-10T00:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -349,7 +411,9 @@
       "comments_count": 5,
       "views_count": 68,
       "is_featured": false,
-      "featured_until": null
+      "featured_until": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -361,7 +425,9 @@
       "comments_count": 6,
       "views_count": 75,
       "is_featured": true,
-      "featured_until": "2024-04-15T00:00:00Z"
+      "featured_until": "2024-04-15T00:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -373,7 +439,9 @@
       "comments_count": 7,
       "views_count": 82,
       "is_featured": false,
-      "featured_until": null
+      "featured_until": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

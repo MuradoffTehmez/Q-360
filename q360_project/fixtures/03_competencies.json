@@ -7,7 +7,9 @@
       "display_name": "Əsas",
       "score_min": "0.00",
       "score_max": "25.00",
-      "description": "Əsas səviyyə - İlkin bilik və bacarıqlar"
+      "description": "Əsas səviyyə - İlkin bilik və bacarıqlar",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -18,7 +20,9 @@
       "display_name": "Orta",
       "score_min": "25.01",
       "score_max": "50.00",
-      "description": "Orta səviyyə - Müstəqil iş apara bilir"
+      "description": "Orta səviyyə - Müstəqil iş apara bilir",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -29,7 +33,9 @@
       "display_name": "Təkmil",
       "score_min": "50.01",
       "score_max": "75.00",
-      "description": "Təkmil səviyyə - Mürəkkəb tapşırıqları yerinə yetirir və başqalarına öyrədir"
+      "description": "Təkmil səviyyə - Mürəkkəb tapşırıqları yerinə yetirir və başqalarına öyrədir",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -40,7 +46,9 @@
       "display_name": "Ekspert",
       "score_min": "75.01",
       "score_max": "100.00",
-      "description": "Ekspert səviyyə - Sahədə lider, strategiya və innovasiya"
+      "description": "Ekspert səviyyə - Sahədə lider, strategiya və innovasiya",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -49,7 +57,9 @@
     "fields": {
       "name": "Rəhbərlik və Liderlik",
       "description": "Komandaya rəhbərlik etmək, motivasiya yaratmaq və strateji qərarlar qəbul etmək bacarığı",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -58,7 +68,9 @@
     "fields": {
       "name": "Komanda İşi və Əməkdaşlıq",
       "description": "Komanda ilə effektiv işləmək, koordinasiya və əməkdaşlıq bacarıqları",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -67,7 +79,9 @@
     "fields": {
       "name": "Ünsiyyət və Təqdimat",
       "description": "Məlumatı aydın çatdırmaq, yazılı və şifahi ünsiyyət bacarıqları",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -76,7 +90,9 @@
     "fields": {
       "name": "Analitik Təfəkkür və Problemlərin Həlli",
       "description": "Məlumatları təhlil etmək, problem həll etmək və qərar qəbul etmək",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -85,7 +101,9 @@
     "fields": {
       "name": "Layihə İdarəetməsi",
       "description": "Layihələri planlaşdırmaq, icra etmək və monitorinq etmək bacarığı",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -94,7 +112,9 @@
     "fields": {
       "name": "Texniki Bilik (IT)",
       "description": "İnformasiya texnologiyaları sahəsində texniki bilik və bacarıqlar",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -103,7 +123,9 @@
     "fields": {
       "name": "Proqramlaşdırma və Kodlaşdırma",
       "description": "Proqramlaşdırma dilləri və kod yazma bacarıqları",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -112,7 +134,9 @@
     "fields": {
       "name": "Kibertəhlükəsizlik",
       "description": "İnformasiya təhlükəsizliyi, risk idarəetməsi və kibertəhlükəsizlik təcrübələri",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -121,7 +145,9 @@
     "fields": {
       "name": "UI/UX Dizayn",
       "description": "İstifadəçi interfeysi və təcrübəsi dizaynı",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -130,7 +156,9 @@
     "fields": {
       "name": "Dəyişikliklərə Uyğunlaşma",
       "description": "Dəyişən şəraitə tez uyğunlaşmaq və çeviklik göstərmək",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -139,7 +167,9 @@
     "fields": {
       "name": "İnsan Resursları İdarəetməsi",
       "description": "Kadr siyasəti, talent management və HR proseslər",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -148,7 +178,9 @@
     "fields": {
       "name": "Müştəri Yönümlülük",
       "description": "Müştəri ehtiyaclarını başa düşmək və xidmət keyfiyyəti",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -157,7 +189,9 @@
     "fields": {
       "name": "İnnovasiya və Yaradıcılıq",
       "description": "Yeni ideyalar yaratmaq və innovativ həllər təklif etmək",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -166,7 +200,9 @@
     "fields": {
       "name": "Vaxt İdarəetməsi",
       "description": "Vaxtı effektiv planlaşdırmaq və prioritetləri idarə etmək",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -175,7 +211,9 @@
     "fields": {
       "name": "Data Təhlili və Vizuallaşdırma",
       "description": "Məlumat təhlili, statistika və vizualizasiya bacarıqları",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -186,7 +224,9 @@
       "competency": 1,
       "weight": 90,
       "required_level": 4,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -197,7 +237,9 @@
       "competency": 5,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -208,7 +250,9 @@
       "competency": 4,
       "weight": 80,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -219,7 +263,9 @@
       "competency": 1,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -230,7 +276,9 @@
       "competency": 2,
       "weight": 80,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -241,7 +289,9 @@
       "competency": 6,
       "weight": 75,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -252,7 +302,9 @@
       "competency": 7,
       "weight": 90,
       "required_level": 4,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -263,7 +315,9 @@
       "competency": 6,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -274,7 +328,9 @@
       "competency": 4,
       "weight": 75,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -285,7 +341,9 @@
       "competency": 7,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -296,7 +354,9 @@
       "competency": 6,
       "weight": 80,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -307,7 +367,9 @@
       "competency": 7,
       "weight": 70,
       "required_level": 2,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -318,7 +380,9 @@
       "competency": 6,
       "weight": 65,
       "required_level": 2,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -329,7 +393,9 @@
       "competency": 8,
       "weight": 95,
       "required_level": 4,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -340,7 +406,9 @@
       "competency": 1,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -351,7 +419,9 @@
       "competency": 8,
       "weight": 90,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -362,7 +432,9 @@
       "competency": 6,
       "weight": 80,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -373,7 +445,9 @@
       "competency": 11,
       "weight": 95,
       "required_level": 4,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -384,7 +458,9 @@
       "competency": 1,
       "weight": 90,
       "required_level": 4,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -395,7 +471,9 @@
       "competency": 11,
       "weight": 85,
       "required_level": 3,
-      "is_mandatory": true
+      "is_mandatory": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -411,7 +489,9 @@
       "approved_by": 9,
       "approved_at": "2024-03-01T10:00:00Z",
       "self_assessment_score": "80.00",
-      "notes": "Güçlü liderlik bacarıqları və komanda motivasiyası"
+      "notes": "Güçlü liderlik bacarıqları və komanda motivasiyası",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -427,7 +507,9 @@
       "approved_by": 9,
       "approved_at": "2024-03-01T10:00:00Z",
       "self_assessment_score": "75.00",
-      "notes": "Çoxsaylı uğurlu layihə təcrübəsi"
+      "notes": "Çoxsaylı uğurlu layihə təcrübəsi",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -443,7 +525,9 @@
       "approved_by": 2,
       "approved_at": "2024-03-05T14:00:00Z",
       "self_assessment_score": "65.00",
-      "notes": "İnkişaf edən rəhbərlik bacarıqları"
+      "notes": "İnkişaf edən rəhbərlik bacarıqları",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -459,7 +543,9 @@
       "approved_by": 2,
       "approved_at": "2024-03-05T14:00:00Z",
       "self_assessment_score": "70.00",
-      "notes": "E-government layihələrində təcrübə"
+      "notes": "E-government layihələrində təcrübə",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -475,7 +561,9 @@
       "approved_by": 3,
       "approved_at": "2024-03-10T09:00:00Z",
       "self_assessment_score": "83.00",
-      "notes": "Python, JavaScript, Django expertizası"
+      "notes": "Python, JavaScript, Django expertizası",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -491,7 +579,9 @@
       "approved_by": 3,
       "approved_at": "2024-03-10T09:00:00Z",
       "self_assessment_score": "72.00",
-      "notes": "Geniş texnoloji stack bilikləri"
+      "notes": "Geniş texnoloji stack bilikləri",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -507,7 +597,9 @@
       "approved_by": 3,
       "approved_at": "2024-03-10T09:00:00Z",
       "self_assessment_score": "85.00",
-      "notes": "Figma, Adobe XD, responsive design expertizası"
+      "notes": "Figma, Adobe XD, responsive design expertizası",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -523,7 +615,9 @@
       "approved_by": 3,
       "approved_at": "2024-03-10T09:00:00Z",
       "self_assessment_score": "60.00",
-      "notes": "HTML, CSS, JavaScript bacarıqları"
+      "notes": "HTML, CSS, JavaScript bacarıqları",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -539,7 +633,9 @@
       "approved_by": 3,
       "approved_at": "2024-04-01T11:00:00Z",
       "self_assessment_score": "40.00",
-      "notes": "İnkişaf mərhələsində, öyrənməyə açıq"
+      "notes": "İnkişaf mərhələsində, öyrənməyə açıq",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -555,7 +651,9 @@
       "approved_by": 2,
       "approved_at": "2024-03-15T10:00:00Z",
       "self_assessment_score": "90.00",
-      "notes": "CISSP, CEH sertifikatları, geniş təcrübə"
+      "notes": "CISSP, CEH sertifikatları, geniş təcrübə",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -571,7 +669,9 @@
       "approved_by": 7,
       "approved_at": "2024-03-20T13:00:00Z",
       "self_assessment_score": "68.00",
-      "notes": "SOC analisti, SIEM və incident response təcrübəsi"
+      "notes": "SOC analisti, SIEM və incident response təcrübəsi",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -587,7 +687,9 @@
       "approved_by": 1,
       "approved_at": "2024-03-01T12:00:00Z",
       "self_assessment_score": "88.00",
-      "notes": "15 illik HR təcrübəsi, PHR sertifikatı"
+      "notes": "15 illik HR təcrübəsi, PHR sertifikatı",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -603,7 +705,9 @@
       "approved_by": 9,
       "approved_at": "2024-03-08T15:00:00Z",
       "self_assessment_score": "70.00",
-      "notes": "Talent management və performance management expertise"
+      "notes": "Talent management və performance management expertise",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

@@ -6,7 +6,9 @@
       "name": "Rəhbərlik və İdarəetmə",
       "description": "Rəhbərlik, liderlik və komanda idarəetməsi bacarıqları",
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -16,7 +18,9 @@
       "name": "Texniki Kompetensiya",
       "description": "Peşəkar və texniki bilik və bacarıqlar",
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -26,7 +30,9 @@
       "name": "Ünsiyyət və Əməkdaşlıq",
       "description": "Ünsiyyət bacarıqları və komanda ilə əməkdaşlıq",
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -36,7 +42,9 @@
       "name": "İş Nəticələri və Performans",
       "description": "İş nəticələri, keyfiyyət və effektivlik",
       "order": 4,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -46,7 +54,9 @@
       "name": "Şəxsi İnkişaf",
       "description": "Öz-özünə inkişaf, öyrənmə və adaptasiya",
       "order": 5,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -59,7 +69,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -72,7 +84,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -85,7 +99,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -98,7 +114,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -111,7 +129,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -124,7 +144,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -137,7 +159,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -150,7 +174,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -163,7 +189,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -176,7 +204,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -189,7 +219,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -202,7 +234,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -215,7 +249,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 1,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -228,7 +264,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 2,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -241,7 +279,9 @@
       "max_score": 5,
       "is_required": true,
       "order": 3,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -254,7 +294,9 @@
       "max_score": 5,
       "is_required": false,
       "order": 4,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -267,7 +309,9 @@
       "max_score": 5,
       "is_required": false,
       "order": 4,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -282,8 +326,15 @@
       "is_anonymous": true,
       "allow_self_evaluation": true,
       "created_by": 9,
-      "target_departments": [2, 3, 4, 5],
-      "target_users": []
+      "target_departments": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "target_users": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -298,8 +349,15 @@
       "is_anonymous": false,
       "allow_self_evaluation": true,
       "created_by": 9,
-      "target_departments": [2, 3, 4, 5],
-      "target_users": []
+      "target_departments": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "target_users": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -308,7 +366,9 @@
     "fields": {
       "campaign": 1,
       "question": 1,
-      "order": 1
+      "order": 1,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -317,7 +377,9 @@
     "fields": {
       "campaign": 1,
       "question": 2,
-      "order": 2
+      "order": 2,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -326,7 +388,9 @@
     "fields": {
       "campaign": 1,
       "question": 3,
-      "order": 3
+      "order": 3,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -335,7 +399,9 @@
     "fields": {
       "campaign": 1,
       "question": 4,
-      "order": 4
+      "order": 4,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -344,7 +410,9 @@
     "fields": {
       "campaign": 1,
       "question": 5,
-      "order": 5
+      "order": 5,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -353,7 +421,9 @@
     "fields": {
       "campaign": 1,
       "question": 6,
-      "order": 6
+      "order": 6,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -362,7 +432,9 @@
     "fields": {
       "campaign": 1,
       "question": 7,
-      "order": 7
+      "order": 7,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -371,7 +443,9 @@
     "fields": {
       "campaign": 1,
       "question": 8,
-      "order": 8
+      "order": 8,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -380,7 +454,9 @@
     "fields": {
       "campaign": 1,
       "question": 9,
-      "order": 9
+      "order": 9,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -389,7 +465,9 @@
     "fields": {
       "campaign": 1,
       "question": 10,
-      "order": 10
+      "order": 10,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -398,7 +476,9 @@
     "fields": {
       "campaign": 1,
       "question": 11,
-      "order": 11
+      "order": 11,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -407,7 +487,9 @@
     "fields": {
       "campaign": 1,
       "question": 12,
-      "order": 12
+      "order": 12,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -416,7 +498,9 @@
     "fields": {
       "campaign": 1,
       "question": 13,
-      "order": 13
+      "order": 13,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -425,7 +509,9 @@
     "fields": {
       "campaign": 1,
       "question": 14,
-      "order": 14
+      "order": 14,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -434,7 +520,9 @@
     "fields": {
       "campaign": 1,
       "question": 15,
-      "order": 15
+      "order": 15,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -443,7 +531,9 @@
     "fields": {
       "campaign": 1,
       "question": 16,
-      "order": 16
+      "order": 16,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -452,7 +542,9 @@
     "fields": {
       "campaign": 1,
       "question": 17,
-      "order": 17
+      "order": 17,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

@@ -12,7 +12,9 @@
       "email": "info@mincom.gov.az",
       "website": "https://mincom.gov.az",
       "is_active": true,
-      "established_date": "2019-07-15"
+      "established_date": "2019-07-15",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -28,7 +30,9 @@
       "email": "info@economy.gov.az",
       "website": "https://economy.gov.az",
       "is_active": true,
-      "established_date": "1991-11-28"
+      "established_date": "1991-11-28",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -44,7 +48,13 @@
       "email": "cabinet@mincom.gov.az",
       "location": "Mərkəzi bina, 4-cü mərtəbə",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 1,
+      "level": 0
     }
   },
   {
@@ -60,7 +70,13 @@
       "email": "digital@mincom.gov.az",
       "location": "Mərkəzi bina, 3-cü mərtəbə",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 2,
+      "level": 0
     }
   },
   {
@@ -76,7 +92,13 @@
       "email": "eservices@mincom.gov.az",
       "location": "Mərkəzi bina, 3-cü mərtəbə, otaq 310",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 3,
+      "level": 0
     }
   },
   {
@@ -92,7 +114,13 @@
       "email": "cybersec@mincom.gov.az",
       "location": "Mərkəzi bina, 2-ci mərtəbə",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 4,
+      "level": 0
     }
   },
   {
@@ -108,7 +136,13 @@
       "email": "hr@mincom.gov.az",
       "location": "Mərkəzi bina, 1-ci mərtəbə",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 5,
+      "level": 0
     }
   },
   {
@@ -124,7 +158,13 @@
       "email": "macro@economy.gov.az",
       "location": "Əsas bina, 5-ci mərtəbə",
       "head": null,
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578",
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 6,
+      "level": 0
     }
   },
   {
@@ -141,7 +181,9 @@
       "reports_to": null,
       "required_education": "Ali təhsil (Magistr və ya PhD)",
       "required_experience": "15+ il idarəetmə təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -158,7 +200,9 @@
       "reports_to": 1,
       "required_education": "Ali təhsil (Magistr)",
       "required_experience": "10+ il idarəetmə təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -175,7 +219,9 @@
       "reports_to": 2,
       "required_education": "Ali təhsil",
       "required_experience": "7+ il sahə təcrübəsi, 3+ il rəhbərlik təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -192,7 +238,9 @@
       "reports_to": 3,
       "required_education": "Ali təhsil",
       "required_experience": "5+ il sahə təcrübəsi, 2+ il rəhbərlik təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -209,7 +257,9 @@
       "reports_to": 4,
       "required_education": "Ali təhsil",
       "required_experience": "5+ il sahə təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -226,7 +276,9 @@
       "reports_to": 4,
       "required_education": "Ali təhsil",
       "required_experience": "3+ il sahə təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -243,7 +295,9 @@
       "reports_to": 4,
       "required_education": "Ali təhsil",
       "required_experience": "1+ il təcrübə",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -260,7 +314,9 @@
       "reports_to": 3,
       "required_education": "Ali təhsil (İnformasiya Təhlükəsizliyi)",
       "required_experience": "5+ il sahə təcrübəsi, sertifikatlar (CISSP, CEH və s.)",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -277,7 +333,9 @@
       "reports_to": 8,
       "required_education": "Ali təhsil",
       "required_experience": "3+ il sahə təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -294,7 +352,9 @@
       "reports_to": 2,
       "required_education": "Ali təhsil (İnsan Resursları və ya əlaqəli sahə)",
       "required_experience": "7+ il HR sahəsində, 3+ il rəhbərlik təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -311,7 +371,9 @@
       "reports_to": 10,
       "required_education": "Ali təhsil",
       "required_experience": "4+ il HR təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -328,7 +390,9 @@
       "reports_to": null,
       "required_education": "Ali təhsil (İqtisadiyyat, PhD üstünlük təşkil edir)",
       "required_experience": "8+ il iqtisadi təhlil təcrübəsi",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

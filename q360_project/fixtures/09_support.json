@@ -9,7 +9,9 @@
       "priority": "high",
       "created_by": 6,
       "assigned_to": 1,
-      "resolved_at": "2024-03-10T14:30:00Z"
+      "resolved_at": "2024-03-10T14:30:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -22,7 +24,9 @@
       "priority": "medium",
       "created_by": 5,
       "assigned_to": 4,
-      "resolved_at": null
+      "resolved_at": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -35,7 +39,9 @@
       "priority": "low",
       "created_by": 10,
       "assigned_to": null,
-      "resolved_at": null
+      "resolved_at": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -48,7 +54,9 @@
       "priority": "low",
       "created_by": 8,
       "assigned_to": 1,
-      "resolved_at": "2024-03-12T10:00:00Z"
+      "resolved_at": "2024-03-12T10:00:00Z",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -61,7 +69,9 @@
       "priority": "medium",
       "created_by": 9,
       "assigned_to": 4,
-      "resolved_at": null
+      "resolved_at": null,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -71,7 +81,9 @@
       "ticket": 1,
       "comment": "Parolunuzu reset edib yenidən təyin etməyinizi xahiş edirəm. Password reset linki email-inizə göndərildi.",
       "created_by": 1,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -81,7 +93,9 @@
       "ticket": 1,
       "comment": "Təşəkkür edirəm, problem həll olundu. İndi giriş edə bildim.",
       "created_by": 6,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -91,7 +105,9 @@
       "ticket": 2,
       "comment": "Problemi reproduce etməyə çalışıram. Hansı browser istifadə edirsiniz?",
       "created_by": 4,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -101,7 +117,9 @@
       "ticket": 2,
       "comment": "Chrome 122 istifadə edirəm. Problem konsistent şəkildə təkrarlanır.",
       "created_by": 5,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -111,7 +129,9 @@
       "ticket": 2,
       "comment": "Validation xətası olduğu görünür. Frontend validation əlavə etməliyik ki, required field-ləri göstərsin.",
       "created_by": 4,
-      "is_internal": true
+      "is_internal": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -121,7 +141,9 @@
       "ticket": 4,
       "comment": "Maksimum 5MB ölçüdə şəkil yükləyə bilərsiniz. Sizin şəklin 8MB-dır. Image resize tool istifadə edə və ya compress edə bilərsiniz.",
       "created_by": 1,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -131,7 +153,9 @@
       "ticket": 4,
       "comment": "Başa düşdüm, compress etdikdən sonra yüklədim. İşlədi, təşəkkürlər!",
       "created_by": 8,
-      "is_internal": false
+      "is_internal": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -141,7 +165,9 @@
       "ticket": 5,
       "comment": "Caching problemi ola bilər. Cache-i clear etdikdən sonra yenidən yoxlayacağam.",
       "created_by": 4,
-      "is_internal": true
+      "is_internal": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

@@ -22,7 +22,9 @@
       "bio": "Sistem administratoru",
       "supervisor": null,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -48,7 +50,9 @@
       "bio": "Rəqəmsal İnkişaf Departamenti direktoru. 12 illik idarəetmə təcrübəsi.",
       "supervisor": null,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -74,7 +78,9 @@
       "bio": "E-xidmətlər Şöbəsi müdiri. E-government layihələrində 8 illik təcrübə.",
       "supervisor": 2,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -100,7 +106,9 @@
       "bio": "E-xidmətlər üzrə baş mütəxəssis. Full-stack developer.",
       "supervisor": 3,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -126,7 +134,9 @@
       "bio": "UI/UX dizayner və front-end developer. 4 illik təcrübə.",
       "supervisor": 3,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -152,7 +162,9 @@
       "bio": "Junior developer. Yeni məzun, 1 illik təcrübə.",
       "supervisor": 3,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -178,7 +190,9 @@
       "bio": "Kibertəhlükəsizlik şöbəsi müdiri. CISSP və CEH sertifikatları. 10 illik təcrübə.",
       "supervisor": 2,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -204,7 +218,9 @@
       "bio": "SOC analisti. 5 illik təcrübə.",
       "supervisor": 7,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -230,7 +246,9 @@
       "bio": "HR direktoru. PHR sertifikatı. 15 illik HR təcrübəsi.",
       "supervisor": null,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -256,7 +274,9 @@
       "bio": "HR Business Partner. Talent management mütəxəssisi. 6 illik təcrübə.",
       "supervisor": 9,
       "groups": [],
-      "user_permissions": []
+      "user_permissions": [],
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -273,7 +293,9 @@
       "address": "Bakı, Azərbaycan",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -290,7 +312,9 @@
       "address": "Bakı, Yasamal rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": true
+      "sms_notifications": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -307,7 +331,9 @@
       "address": "Bakı, Nəsimi rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -324,7 +350,9 @@
       "address": "Bakı, Nərimanov rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -341,7 +369,9 @@
       "address": "Bakı, Səbail rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -358,7 +388,9 @@
       "address": "Bakı, Xətai rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -375,7 +407,9 @@
       "address": "Bakı, Binəqədi rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": true
+      "sms_notifications": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -392,7 +426,9 @@
       "address": "Bakı, Nəsimi rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -409,7 +445,9 @@
       "address": "Bakı, Yasamal rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": true
+      "sms_notifications": true,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -426,7 +464,9 @@
       "address": "Bakı, Nərimanov rayonu",
       "language_preference": "az",
       "email_notifications": true,
-      "sms_notifications": false
+      "sms_notifications": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

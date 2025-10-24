@@ -13,7 +13,9 @@
       "approved_by": 3,
       "approved_at": "2024-03-02T10:00:00Z",
       "approval_note": "Yaxşı məqsəddir, təlim resources təyin edildi",
-      "created_by": 6
+      "created_by": 6,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -30,7 +32,9 @@
       "approved_by": 3,
       "approved_at": "2024-02-15T14:00:00Z",
       "approval_note": "UI/UX təcrübəsini kod ilə birləşdirmək üçün əla plan",
-      "created_by": 5
+      "created_by": 5,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -47,7 +51,9 @@
       "approved_by": 2,
       "approved_at": "2024-02-20T11:00:00Z",
       "approval_note": "Rəhbərlik vəzifəsi üçün vacib sertifikat. Dəstək veriləcək.",
-      "created_by": 3
+      "created_by": 3,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -64,7 +70,9 @@
       "approved_by": 7,
       "approved_at": "2024-03-16T09:00:00Z",
       "approval_note": "Kibertəhlükəsizlik komandası üçün kritik sertifikat",
-      "created_by": 8
+      "created_by": 8,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -81,7 +89,9 @@
       "approved_by": 9,
       "approved_at": "2024-02-25T15:00:00Z",
       "approval_note": "Succession planning üçün vacib inkişaf",
-      "created_by": 10
+      "created_by": 10,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -98,7 +108,9 @@
       "approved_by": null,
       "approved_at": null,
       "approval_note": "",
-      "created_by": 4
+      "created_by": 4,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -109,7 +121,9 @@
       "note": "Python kursunun 45%-ni tamamladım. List comprehensions və decorators mövzularını öyrəndim.",
       "progress_percentage": 45,
       "logged_by": 6,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -120,7 +134,9 @@
       "note": "İlk kiçik layihəni tamamladım - TODO list application. Django ilə REST API yaratdım.",
       "progress_percentage": 60,
       "logged_by": 6,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -131,7 +147,9 @@
       "note": "React fundamentals tamamlandı. Components, props və state management başa düşülür.",
       "progress_percentage": 30,
       "logged_by": 5,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -142,7 +160,9 @@
       "note": "PMP hazırlıq kursuna başladım. 5 knowledge area tamamlandı.",
       "progress_percentage": 25,
       "logged_by": 3,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -153,7 +173,9 @@
       "note": "CEH kursu davam edir. Footprinting və reconnaissance modulları tamamlandı.",
       "progress_percentage": 30,
       "logged_by": 8,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -164,7 +186,9 @@
       "note": "Liderlik workshopunda iştirak etdim. Situational leadership modeli öyrəndim.",
       "progress_percentage": 20,
       "logged_by": 10,
-      "is_draft": false
+      "is_draft": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]

@@ -12,13 +12,17 @@
       "difficulty_level": "beginner",
       "duration_hours": "40.00",
       "language": "İngilis (Azərbaycan altyazı)",
-      "required_competencies": [7],
+      "required_competencies": [
+        7
+      ],
       "provider": "Udemy",
       "instructor": "Jose Portilla",
       "cost": "150.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -34,13 +38,18 @@
       "difficulty_level": "intermediate",
       "duration_hours": "60.00",
       "language": "İngilis",
-      "required_competencies": [7, 6],
+      "required_competencies": [
+        7,
+        6
+      ],
       "provider": "Udemy",
       "instructor": "Nick Walter",
       "cost": "200.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -56,13 +65,17 @@
       "difficulty_level": "beginner",
       "duration_hours": "35.00",
       "language": "İngilis (Azərbaycan altyazı)",
-      "required_competencies": [9],
+      "required_competencies": [
+        9
+      ],
       "provider": "Coursera - Google",
       "instructor": "Google Instructors",
       "cost": "180.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -78,13 +91,18 @@
       "difficulty_level": "advanced",
       "duration_hours": "120.00",
       "language": "İngilis",
-      "required_competencies": [8, 6],
+      "required_competencies": [
+        8,
+        6
+      ],
       "provider": "(ISC)² Training",
       "instructor": "Certified CISSP Instructors",
       "cost": "5000.00",
       "max_participants": 20,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -100,13 +118,17 @@
       "difficulty_level": "advanced",
       "duration_hours": "80.00",
       "language": "İngilis",
-      "required_competencies": [8],
+      "required_competencies": [
+        8
+      ],
       "provider": "EC-Council",
       "instructor": "Certified CEH Trainers",
       "cost": "4500.00",
       "max_participants": 15,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -122,13 +144,18 @@
       "difficulty_level": "intermediate",
       "duration_hours": "24.00",
       "language": "Azərbaycan",
-      "required_competencies": [1, 2],
+      "required_competencies": [
+        1,
+        2
+      ],
       "provider": "IREX Azerbaijan",
       "instructor": "Rəşad Bayramov",
       "cost": "800.00",
       "max_participants": 25,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -144,13 +171,18 @@
       "difficulty_level": "advanced",
       "duration_hours": "100.00",
       "language": "İngilis və Azərbaycan",
-      "required_competencies": [5, 1],
+      "required_competencies": [
+        5,
+        1
+      ],
       "provider": "PMI Authorized Training Partner",
       "instructor": "PMP Certified Trainers",
       "cost": "3500.00",
       "max_participants": 30,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -166,13 +198,17 @@
       "difficulty_level": "beginner",
       "duration_hours": "16.00",
       "language": "Azərbaycan",
-      "required_competencies": [3],
+      "required_competencies": [
+        3
+      ],
       "provider": "Dale Carnegie Training",
       "instructor": "Aynur Məmmədova",
       "cost": "600.00",
       "max_participants": 20,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -188,13 +224,18 @@
       "difficulty_level": "intermediate",
       "duration_hours": "45.00",
       "language": "İngilis",
-      "required_competencies": [15, 7],
+      "required_competencies": [
+        15,
+        7
+      ],
       "provider": "DataCamp",
       "instructor": "Hugo Bowne-Anderson",
       "cost": "250.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -210,13 +251,18 @@
       "difficulty_level": "beginner",
       "duration_hours": "20.00",
       "language": "İngilis (Azərbaycan altyazı)",
-      "required_competencies": [5, 2],
+      "required_competencies": [
+        5,
+        2
+      ],
       "provider": "Scrum Alliance",
       "instructor": "Jeff Sutherland",
       "cost": "300.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -232,13 +278,17 @@
       "difficulty_level": "advanced",
       "duration_hours": "90.00",
       "language": "İngilis",
-      "required_competencies": [11],
+      "required_competencies": [
+        11
+      ],
       "provider": "HRCI",
       "instructor": "HRCI Approved Trainers",
       "cost": "4000.00",
       "max_participants": 20,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -254,13 +304,18 @@
       "difficulty_level": "intermediate",
       "duration_hours": "50.00",
       "language": "İngilis",
-      "required_competencies": [7, 6],
+      "required_competencies": [
+        7,
+        6
+      ],
       "provider": "Udemy",
       "instructor": "Maximilian Schwarzmüller",
       "cost": "180.00",
       "max_participants": null,
       "is_active": true,
-      "is_mandatory": false
+      "is_mandatory": false,
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -280,7 +335,9 @@
       "completion_note": "",
       "user_feedback": "",
       "rating": null,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -300,7 +357,9 @@
       "completion_note": "Uğurla tamamlandı. Layihə yaradıldı.",
       "user_feedback": "Çox faydalı kurs idi. Django-nun advanced features-ləri haqqında ətraflı məlumat aldım.",
       "rating": 5,
-      "certificate_url": "https://udemy.com/certificate/ABC123"
+      "certificate_url": "https://udemy.com/certificate/ABC123",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -320,7 +379,9 @@
       "completion_note": "Möhtəşəm nəticələr",
       "user_feedback": "UI/UX design principles haqqında biliklərim xeyli artdı. Google instructors-dan çox şey öyrəndim.",
       "rating": 5,
-      "certificate_url": "https://coursera.org/certificate/XYZ789"
+      "certificate_url": "https://coursera.org/certificate/XYZ789",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -340,7 +401,9 @@
       "completion_note": "",
       "user_feedback": "",
       "rating": null,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -360,7 +423,9 @@
       "completion_note": "Liderlik bacarıqları inkişaf etdi",
       "user_feedback": "Real case study-lər çox faydalı oldu. Komanda motivasiyası üçün yeni metodlar öyrəndim.",
       "rating": 4,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -380,7 +445,9 @@
       "completion_note": "",
       "user_feedback": "",
       "rating": null,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -400,7 +467,9 @@
       "completion_note": "",
       "user_feedback": "",
       "rating": null,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   },
   {
@@ -420,7 +489,9 @@
       "completion_note": "Excellent performance",
       "user_feedback": "Təqdimat bacarıqlarım xeyli yaxşılaşdı. Dale Carnegie metodları çox effektivdir.",
       "rating": 5,
-      "certificate_url": ""
+      "certificate_url": "",
+      "created_at": "2025-10-24T12:18:27.435578",
+      "updated_at": "2025-10-24T12:18:27.435578"
     }
   }
 ]
