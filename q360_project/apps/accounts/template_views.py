@@ -689,15 +689,18 @@ def security_settings(request):
         if not mfa_config.secret:
             mfa_config.secret = generate_base32_secret()
         if not mfa_config.backup_codes:
-            mfa_config.backup_codes = generate_backup_codes()
+            plain_codes = generate_backup_codes()
+            mfa_config.set_backup_codes(plain_codes)
+            # Store plain codes in session to display once
+            request.session['mfa_new_backup_codes'] = plain_codes
         mfa_config.save()
 
-    # Show actual backup codes if just generated, otherwise mask them
+    # Show actual backup codes if just generated (from session), otherwise don't show
+    # Note: backup codes are hashed in database, so we can't show them again
     if request.session.get('mfa_new_backup_codes'):
         backup_codes = request.session.pop('mfa_new_backup_codes')
-    elif mfa_config.is_enabled and mfa_config.backup_codes:
-        backup_codes = mfa_config.backup_codes
     else:
+        # Don't show hashed codes, only show when newly generated
         backup_codes = []
 
     user_agent = request.META.get("HTTP_USER_AGENT", "")
@@ -810,8 +813,11 @@ def mfa_verify(request):
             # Regenerate backup codes
             mfa_config = request.user.ensure_mfa_config()
             from .mfa import generate_backup_codes
-            mfa_config.backup_codes = generate_backup_codes()
+            plain_codes = generate_backup_codes()
+            mfa_config.set_backup_codes(plain_codes)
             mfa_config.save()
+            # Store in session to show once
+            request.session['mfa_new_backup_codes'] = plain_codes
             messages.success(request, _('Yedek kodlar yenidən yaradıldı.'))
         
         elif action == 'verify_backup':
@@ -845,8 +851,11 @@ def mfa_initiate(request):
     if not mfa_config.secret or not mfa_config.backup_codes:
         from .mfa import generate_base32_secret, generate_backup_codes
         mfa_config.secret = generate_base32_secret()
-        mfa_config.backup_codes = generate_backup_codes()
+        plain_codes = generate_backup_codes()
+        mfa_config.set_backup_codes(plain_codes)
         mfa_config.save()
+        # Store plain codes in session to display
+        request.session['mfa_new_backup_codes'] = plain_codes
 
     # Generate QR code
     totp = pyotp.TOTP(mfa_config.secret)
@@ -905,18 +914,19 @@ def mfa_backup_regenerate(request):
 
     mfa_config = request.user.ensure_mfa_config()
     from .mfa import generate_backup_codes
-    mfa_config.backup_codes = generate_backup_codes()
+    plain_codes = generate_backup_codes()
+    mfa_config.set_backup_codes(plain_codes)
     mfa_config.save()
 
     # Store in session to show once
-    request.session['mfa_new_backup_codes'] = mfa_config.backup_codes
+    request.session['mfa_new_backup_codes'] = plain_codes
 
     messages.success(request, _('Yedek kodlar uğurla yeniləndi.'))
 
     # Log this action
     AuditLog.objects.create(
         user=request.user,
-        action='mfa_backup_regenerated',
+        action='mfa_backup_regen',
         model_name='UserMFAConfig',
         severity='info',
         ip_address=request.META.get('REMOTE_ADDR')
@@ -945,7 +955,8 @@ def mfa_reset(request):
             # Generate new secret and backup codes
             from .mfa import generate_base32_secret, generate_backup_codes
             mfa_config.secret = generate_base32_secret()
-            mfa_config.backup_codes = generate_backup_codes()
+            plain_codes = generate_backup_codes()
+            mfa_config.set_backup_codes(plain_codes)
             mfa_config.is_enabled = False  # User needs to verify new setup
             mfa_config.save()
 

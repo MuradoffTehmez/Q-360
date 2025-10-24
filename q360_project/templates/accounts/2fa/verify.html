@@ -167,14 +167,14 @@
                             <input type="text"
                                    id="backupCode"
                                    name="token"
-                                   maxlength="9"
-                                   pattern="[A-Za-z0-9]{4}-[A-Za-z0-9]{4}"
-                                   class="code-input w-full px-6 py-5 text-center text-3xl font-bold border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 uppercase"
-                                   placeholder="XXXX-XXXX"
+                                   maxlength="10"
+                                   pattern="[A-Za-z0-9]{10}"
+                                   class="code-input w-full px-6 py-5 text-center text-2xl font-bold border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 uppercase"
+                                   placeholder="XXXXXXXXXX"
                                    autocomplete="off">
                             <p class="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                XXXX-XXXX formatında daxil edin
+                                10 xanəli backup kodu daxil edin
                             </p>
                         </div>
 
@@ -330,17 +330,15 @@ if (tokenInput) {
     });
 }
 
-// Auto-format backup code input
+// Auto-format backup code input (10 characters, no dashes)
 const backupCodeInput = document.getElementById('backupCode');
 if (backupCodeInput) {
     backupCodeInput.addEventListener('input', function(e) {
+        // Only allow alphanumeric characters, max 10
         let value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-
-        // Add dash after 4 characters
-        if (value.length > 4) {
-            value = value.slice(0, 4) + '-' + value.slice(4, 8);
+        if (value.length > 10) {
+            value = value.substring(0, 10);
         }
-
         this.value = value;
     });
 }

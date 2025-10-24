@@ -141,12 +141,28 @@ def verify_2fa_view(request):
         verified = False
 
         if use_backup_code:
-            # Verify backup code
-            verified = TwoFactorBackupCode.verify_and_consume(user, token)
+            # Verify backup code - check both mfa_config and TwoFactorBackupCode model
+            if has_mfa:
+                # Check mfa_config backup codes
+                mfa_config = user.mfa_config
+                if mfa_config.verify_backup_code(token):
+                    verified = True
+                else:
+                    # Also check legacy TwoFactorBackupCode model
+                    verified = TwoFactorBackupCode.verify_and_consume(user, token)
+            else:
+                # Legacy backup code verification
+                verified = TwoFactorBackupCode.verify_and_consume(user, token)
             method = 'backup_code'
         else:
-            # Verify TOTP token
-            if hasattr(user, 'profile') and user.profile.two_factor_secret:
+            # Verify TOTP token - check both mfa_config and profile
+            if has_mfa:
+                # Use mfa_config secret
+                mfa_config = user.mfa_config
+                from .mfa import verify_totp_code
+                verified = verify_totp_code(mfa_config.secret, token)
+            elif hasattr(user, 'profile') and user.profile.two_factor_secret:
+                # Use legacy profile secret
                 verified = TwoFactorAuthManager.verify_token(
                     user.profile.two_factor_secret,
                     token
@@ -267,7 +283,7 @@ def backup_codes_view(request):
 
         AuditLog.objects.create(
             user=user,
-            action='2fa_backup_codes_regenerated',
+            action='2fa_backup_regen',
             model_name='Profile',
             severity='info',
             ip_address=request.META.get('REMOTE_ADDR')
