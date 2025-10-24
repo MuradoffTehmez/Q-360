@@ -148,6 +148,7 @@ class TwoFactorAuthManager:
     def is_2fa_required(user):
         """
         Check if 2FA is required for user.
+        Only require if user has explicitly enabled it.
 
         Args:
             user: User instance
@@ -155,13 +156,13 @@ class TwoFactorAuthManager:
         Returns:
             bool: True if 2FA required
         """
-        # Check user's 2FA status
-        if hasattr(user, 'two_factor_enabled') and user.two_factor_enabled:
+        # Check user's MFA config
+        if hasattr(user, 'mfa_config') and user.mfa_config.is_enabled:
             return True
 
-        # Check if role requires 2FA
-        if user.is_superadmin() or user.is_admin():
-            return getattr(settings, 'TWO_FA_REQUIRED_FOR_ADMINS', True)
+        # Legacy check for profile-based 2FA
+        if hasattr(user, 'profile') and user.profile.two_factor_enabled:
+            return True
 
         return False
 

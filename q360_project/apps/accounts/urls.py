@@ -33,6 +33,7 @@ urlpatterns = [
 
     # User management
     path('users/', template_views.user_list_view, name='user-list'),
+    path('users/create/', template_views.user_create_view, name='user-create'),
     path('rbac/', template_views.rbac_matrix_view, name='rbac-matrix'),
 
     # Password reset

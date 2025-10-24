@@ -56,16 +56,15 @@ class TwoFactorAuthMiddleware:
     def _is_2fa_required(self, user):
         """
         Check if 2FA is required for user.
+        Only require 2FA if user has explicitly enabled it.
         """
-        # Check user's 2FA status
-        if hasattr(user, 'profile') and user.profile.two_factor_enabled:
+        # Check user's MFA config
+        if hasattr(user, 'mfa_config') and user.mfa_config.is_enabled:
             return True
 
-        # Require 2FA for admins and superadmins
-        if user.is_superadmin() or user.is_admin():
-            require_for_admins = getattr(settings, 'TWO_FA_REQUIRED_FOR_ADMINS', True)
-            if require_for_admins:
-                return True
+        # Legacy check for profile-based 2FA
+        if hasattr(user, 'profile') and user.profile.two_factor_enabled:
+            return True
 
         return False
 

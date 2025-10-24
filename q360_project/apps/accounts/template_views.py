@@ -96,27 +96,30 @@ def logout_view(request):
 
 
 def register_view(request):
-    """Handle user registration."""
-    if request.user.is_authenticated:
+    """Handle user registration (public registration - disabled for security)."""
+    messages.info(request, 'Qeydiyyat üçün adminlə əlaqə saxlayın.')
+    return redirect('accounts:login')
+
+
+@login_required
+def user_create_view(request):
+    """Admin-only view for creating new users."""
+    if not request.user.is_admin():
+        messages.error(request, 'Bu əməliyyat üçün admin icazəsi tələb olunur.')
         return redirect('dashboard')
 
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Qeydiyyat uğurla tamamlandı! İndi giriş edə bilərsiniz.')
-
-            # Optionally auto-login the user
-            # login(request, user)
-            # return redirect('dashboard')
-
-            return redirect('accounts:login')
+            messages.success(request, f'{user.get_full_name()} istifadəçisi uğurla yaradıldı!')
+            return redirect('accounts:user-list')
         else:
             messages.error(request, 'Zəhmət olmasa xətaları düzəldin.')
     else:
         form = UserRegistrationForm()
 
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/user_create.html', {'form': form})
 
 
 @login_required

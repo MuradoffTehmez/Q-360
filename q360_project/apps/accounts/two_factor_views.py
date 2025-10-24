@@ -105,8 +105,13 @@ def verify_2fa_view(request):
         next_url = request.session.pop('2fa_next', None)
         return redirect(next_url or 'dashboard:index')
 
-    # Check if 2FA is required
-    if not TwoFactorAuthManager.is_2fa_required(user):
+    # Check if 2FA is enabled for user
+    has_mfa = hasattr(user, 'mfa_config') and user.mfa_config.is_enabled
+    has_profile_2fa = hasattr(user, 'profile') and user.profile.two_factor_enabled
+
+    if not has_mfa and not has_profile_2fa:
+        # 2FA not enabled, redirect to dashboard
+        messages.info(request, 'İki faktorlu autentifikasiya aktiv deyil.')
         return redirect('dashboard:index')
 
     if request.method == 'POST':
