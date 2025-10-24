@@ -234,7 +234,7 @@ def skill_matrix(request):
     Skill Matrix view - Interactive skill matrix for team/department.
     Shows proficiency levels across competencies for all team members.
     """
-    from apps.competencies.models import UserSkill, CompetencyLevel
+    from apps.competencies.models import UserSkill, ProficiencyLevel
     from apps.accounts.models import User
 
     user = request.user
@@ -372,8 +372,8 @@ def certification_tracking(request):
         active_certs = my_certifications.filter(status='active')
         expiring_soon = my_certifications.filter(
             status='active',
-            expiry_date__lte=timezone.now().date() + timedelta(days=90),
-            expiry_date__gt=timezone.now().date()
+            expiration_date__lte=timezone.now().date() + timedelta(days=90),
+            expiration_date__gt=timezone.now().date()
         )
         expired_certs = my_certifications.filter(status='expired')
 

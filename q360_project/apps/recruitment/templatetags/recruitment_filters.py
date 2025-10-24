@@ -10,3 +10,12 @@ def split(value, arg):
     if value:
         return [item.strip() for item in value.split(arg) if item.strip()]
     return []
+
+
+@register.filter(name='mul')
+def multiply(value, arg):
+    """Multiply the value by the argument."""
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return 0

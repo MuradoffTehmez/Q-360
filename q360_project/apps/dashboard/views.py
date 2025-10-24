@@ -108,25 +108,27 @@ def kpi_dashboard(request):
     from django.db.models.functions import Coalesce
 
     # Annotate departments with user counts and performance metrics
+    # Note: 'users' is the related_name from User.department ForeignKey
+    # 'evaluation_results' is the related_name from Response.evaluatee ForeignKey
     departments_with_stats = Department.objects.annotate(
-        user_count=Count('user', distinct=True),
+        user_count=Count('users', distinct=True),
         avg_performance=Coalesce(
-            Avg('user__assignment_evaluatee__response__score'),
+            Avg('users__evaluation_results__score'),
             0.0,
             output_field=FloatField()
         ),
         recent_performance=Coalesce(
             Avg(
-                'user__assignment_evaluatee__response__score',
-                filter=Q(user__assignment_evaluatee__response__created_at__date__range=[start_date, end_date])
+                'users__evaluation_results__score',
+                filter=Q(users__evaluation_results__created_at__date__range=[start_date, end_date])
             ),
             0.0,
             output_field=FloatField()
         ),
         prev_performance=Coalesce(
             Avg(
-                'user__assignment_evaluatee__response__score',
-                filter=Q(user__assignment_evaluatee__response__created_at__date__range=[prev_start_date, start_date])
+                'users__evaluation_results__score',
+                filter=Q(users__evaluation_results__created_at__date__range=[prev_start_date, start_date])
             ),
             0.0,
             output_field=FloatField()

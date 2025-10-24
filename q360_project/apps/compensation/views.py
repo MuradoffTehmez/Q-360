@@ -427,12 +427,14 @@ def total_rewards_statement(request):
     from apps.compensation.models import EmployeeBenefit
     from datetime import date
 
+    from django.db.models import Q
+
     active_benefits = EmployeeBenefit.objects.filter(
         user=user,
         status='active',
         start_date__lte=date.today()
     ).filter(
-        models.Q(end_date__isnull=True) | models.Q(end_date__gte=date.today())
+        Q(end_date__isnull=True) | Q(end_date__gte=date.today())
     )
 
     benefits_value = float(sum(benefit.annual_value for benefit in active_benefits))

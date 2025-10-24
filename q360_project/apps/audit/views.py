@@ -238,11 +238,21 @@ def log_search(request):
     paginator = Paginator(logs, 25)  # Show 25 logs per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
+    # Calculate statistics for the template
+    total_count = logs.count()
+    error_count = logs.filter(action__icontains='error').count()
+    critical_count = logs.filter(action__icontains='critical').count()
+    warning_count = logs.filter(action__icontains='warning').count()
+
     context = {
         'logs': page_obj,
         'action_types': action_types,
         'page_obj': page_obj,
+        'total_count': total_count,
+        'error_count': error_count,
+        'critical_count': critical_count,
+        'warning_count': warning_count,
     }
-    
+
     return render(request, 'audit/log_search.html', context)
