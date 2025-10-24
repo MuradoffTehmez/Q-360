@@ -262,14 +262,26 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label>{% trans "E-poçt" %}</label>
+                                <label>{% trans "İş E-poçtu" %}</label>
                                 <input type="email" class="form-control" name="email" value="{{ employee.email }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label>{% trans "Telefon" %}</label>
+                                <label>{% trans "İş Telefonu" %}</label>
                                 <input type="text" class="form-control" name="phone_number" value="{{ employee.phone_number|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Şəxsi E-poçt" %}</label>
+                                <input type="email" class="form-control" name="personal_email" value="{{ employee.profile.personal_email|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Şəxsi Telefon" %}</label>
+                                <input type="text" class="form-control" name="personal_phone" value="{{ employee.profile.personal_phone|default:'' }}">
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -278,13 +290,19 @@
                                 <textarea class="form-control" name="address" rows="2">{{ employee.profile.address|default:'' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label>{% trans "Şəhər" %}</label>
                                 <input type="text" class="form-control" name="city" value="{{ employee.profile.city|default:'' }}">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Poçt Kodu" %}</label>
+                                <input type="text" class="form-control" name="postal_code" value="{{ employee.profile.postal_code|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label>{% trans "Ölkə" %}</label>
                                 <input type="text" class="form-control" name="country" value="{{ employee.profile.country|default:'' }}">
@@ -645,49 +663,61 @@
 {% block extra_js %}
 <script>
 // Handle tab navigation from URL hash
-document.addEventListener('DOMContentLoaded', function() {
-    // Activate tab based on URL hash
-    function activateTabFromHash() {
-        let hash = window.location.hash;
-        if (hash) {
-            const tabTrigger = document.querySelector(`[href="${hash}"]`);
-            if (tabTrigger && typeof bootstrap !== 'undefined') {
-                try {
-                    const tab = new bootstrap.Tab(tabTrigger);
-                    tab.show();
-                } catch (e) {
-                    console.error('Error activating tab:', e);
-                    // Fallback: manually activate tab
-                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-                    document.querySelectorAll('.tab-pane').forEach(pane => {
-                        pane.classList.remove('show', 'active');
-                    });
-                    tabTrigger.classList.add('active');
-                    const targetPane = document.querySelector(hash);
-                    if (targetPane) {
-                        targetPane.classList.add('show', 'active');
-                    }
-                }
-            }
+(function() {
+    // Wait for Bootstrap to be loaded
+    function waitForBootstrap(callback) {
+        if (typeof bootstrap !== 'undefined') {
+            callback();
+        } else {
+            setTimeout(() => waitForBootstrap(callback), 100);
         }
     }
 
-    // Initial load
-    activateTabFromHash();
+    waitForBootstrap(function() {
+        // Activate tab based on URL hash
+        function activateTabFromHash(e) {
+            if (e) e.preventDefault();
 
-    // Listen for hash changes
-    window.addEventListener('hashchange', activateTabFromHash);
-
-    // Update hash when tab is clicked
-    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
-        tabEl.addEventListener('shown.bs.tab', function(event) {
-            const hash = event.target.getAttribute('href');
-            if (hash && hash.startsWith('#')) {
-                history.replaceState(null, null, hash);
+            let hash = window.location.hash;
+            if (!hash) {
+                hash = '#personal'; // Default tab
             }
+
+            const tabTrigger = document.querySelector(`[href="${hash}"][data-bs-toggle="tab"]`);
+            if (tabTrigger) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+
+        // Initial load - set default tab if no hash
+        if (!window.location.hash) {
+            window.location.hash = '#personal';
+        }
+        activateTabFromHash();
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', activateTabFromHash);
+
+        // Update hash when tab is clicked and prevent default behavior
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+            tabEl.addEventListener('click', function(event) {
+                event.preventDefault();
+                const hash = this.getAttribute('href');
+                if (hash && hash.startsWith('#')) {
+                    window.location.hash = hash;
+                }
+            });
+
+            tabEl.addEventListener('shown.bs.tab', function(event) {
+                const hash = event.target.getAttribute('href');
+                if (hash && hash.startsWith('#')) {
+                    history.replaceState(null, null, hash);
+                }
+            });
         });
     });
-});
+})();
 
 // Upload Profile Picture
 function uploadProfilePicture(input) {

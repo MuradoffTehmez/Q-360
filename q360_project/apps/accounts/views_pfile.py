@@ -139,6 +139,14 @@ def employee_edit(request, pk):
                 profile.number_of_children = int(number_of_children) if number_of_children else 0
 
             # Contact Information
+            personal_email = request.POST.get('personal_email')
+            if personal_email is not None:
+                profile.personal_email = personal_email
+
+            personal_phone = request.POST.get('personal_phone')
+            if personal_phone is not None:
+                profile.personal_phone = personal_phone
+
             address = request.POST.get('address')
             if address is not None:
                 profile.address = address
@@ -146,6 +154,10 @@ def employee_edit(request, pk):
             city = request.POST.get('city')
             if city is not None:
                 profile.city = city
+
+            postal_code = request.POST.get('postal_code')
+            if postal_code is not None:
+                profile.postal_code = postal_code
 
             country = request.POST.get('country')
             if country is not None:
