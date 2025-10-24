@@ -88,10 +88,16 @@ def employee_edit(request, pk):
                 employee.first_name = request.POST.get('first_name', employee.first_name)
             if 'last_name' in request.POST:
                 employee.last_name = request.POST.get('last_name', employee.last_name)
+            if 'middle_name' in request.POST:
+                employee.middle_name = request.POST.get('middle_name', '')
             if 'email' in request.POST:
                 employee.email = request.POST.get('email', employee.email)
             if 'phone_number' in request.POST:
-                employee.phone_number = request.POST.get('phone_number', employee.phone_number)
+                employee.phone_number = request.POST.get('phone_number', '')
+            if 'employee_id' in request.POST:
+                employee.employee_id = request.POST.get('employee_id', '')
+            if 'position' in request.POST:
+                employee.position = request.POST.get('position', '')
 
             department_id = request.POST.get('department')
             if department_id:
@@ -103,17 +109,38 @@ def employee_edit(request, pk):
 
             employee.save()
 
-            # Update profile fields
+            # Update profile fields - Personal Information
             date_of_birth = request.POST.get('date_of_birth')
             if date_of_birth:
                 profile.date_of_birth = date_of_birth
+
+            place_of_birth = request.POST.get('place_of_birth')
+            if place_of_birth is not None:
+                profile.place_of_birth = place_of_birth
 
             gender = request.POST.get('gender')
             if gender:
                 profile.gender = gender
 
+            nationality = request.POST.get('nationality')
+            if nationality is not None:
+                profile.nationality = nationality
+
+            national_id = request.POST.get('national_id')
+            if national_id is not None:
+                profile.national_id = national_id
+
+            marital_status = request.POST.get('marital_status')
+            if marital_status:
+                profile.marital_status = marital_status
+
+            number_of_children = request.POST.get('number_of_children')
+            if number_of_children is not None:
+                profile.number_of_children = int(number_of_children) if number_of_children else 0
+
+            # Contact Information
             address = request.POST.get('address')
-            if address is not None:  # Allow empty string
+            if address is not None:
                 profile.address = address
 
             city = request.POST.get('city')
@@ -124,21 +151,56 @@ def employee_edit(request, pk):
             if country is not None:
                 profile.country = country
 
-            education_level = request.POST.get('education_level')
-            if education_level:
-                profile.education_level = education_level
-
-            field_of_study = request.POST.get('field_of_study')
-            if field_of_study is not None:
-                profile.field_of_study = field_of_study
-
+            # Emergency Contact
             emergency_contact_name = request.POST.get('emergency_contact_name')
             if emergency_contact_name is not None:
                 profile.emergency_contact_name = emergency_contact_name
 
+            emergency_contact_relationship = request.POST.get('emergency_contact_relationship')
+            if emergency_contact_relationship is not None:
+                profile.emergency_contact_relationship = emergency_contact_relationship
+
             emergency_contact_phone = request.POST.get('emergency_contact_phone')
             if emergency_contact_phone is not None:
                 profile.emergency_contact_phone = emergency_contact_phone
+
+            # Professional Information
+            hire_date = request.POST.get('hire_date')
+            if hire_date:
+                profile.hire_date = hire_date
+
+            contract_type = request.POST.get('contract_type')
+            if contract_type:
+                profile.contract_type = contract_type
+
+            contract_start_date = request.POST.get('contract_start_date')
+            if contract_start_date:
+                profile.contract_start_date = contract_start_date
+
+            contract_end_date = request.POST.get('contract_end_date')
+            if contract_end_date:
+                profile.contract_end_date = contract_end_date
+
+            probation_end_date = request.POST.get('probation_end_date')
+            if probation_end_date:
+                profile.probation_end_date = probation_end_date
+
+            # Education
+            education_level = request.POST.get('education_level')
+            if education_level:
+                profile.education_level = education_level
+
+            specialization = request.POST.get('specialization')
+            if specialization is not None:
+                profile.specialization = specialization
+
+            university = request.POST.get('university')
+            if university is not None:
+                profile.university = university
+
+            graduation_year = request.POST.get('graduation_year')
+            if graduation_year:
+                profile.graduation_year = int(graduation_year) if graduation_year else None
 
             profile.save()
 
