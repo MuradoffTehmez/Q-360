@@ -42,12 +42,22 @@ function getAccessToken() {
 
     // If found in cookie, also sync to localStorage for legacy code
     if (cookieValue) {
-        localStorage.setItem('access_token', cookieValue);
+        // Use saved original setItem to avoid recursion
+        if (window._originalStorageMethods && window._originalStorageMethods.setItem) {
+            window._originalStorageMethods.setItem.call(localStorage, 'access_token', cookieValue);
+        } else {
+            Storage.prototype.setItem.call(localStorage, 'access_token', cookieValue);
+        }
         return cookieValue;
     }
 
     // Fallback to localStorage (for legacy code)
-    return localStorage.getItem('access_token');
+    // Use saved original getItem to avoid infinite recursion with auth-fix.js
+    if (window._originalStorageMethods && window._originalStorageMethods.getItem) {
+        return window._originalStorageMethods.getItem.call(localStorage, 'access_token');
+    } else {
+        return Storage.prototype.getItem.call(localStorage, 'access_token');
+    }
 }
 
 /**

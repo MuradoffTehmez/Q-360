@@ -3,17 +3,22 @@
  * Auto-fixes all pages that use localStorage.getItem('access_token')
  */
 
+// Save original Storage methods globally BEFORE any override
+window._originalStorageMethods = {
+    getItem: Storage.prototype.getItem,
+    setItem: Storage.prototype.setItem,
+    removeItem: Storage.prototype.removeItem
+};
+
 // Override localStorage.getItem to use getAccessToken when available
 if (window.getAccessToken && window.Storage) {
-    const originalGetItem = Storage.prototype.getItem;
-
     Storage.prototype.getItem = function(key) {
         // If requesting access_token, use our unified getAccessToken function
         if (key === 'access_token' && window.getAccessToken) {
             return window.getAccessToken();
         }
         // Otherwise, use original behavior
-        return originalGetItem.call(this, key);
+        return window._originalStorageMethods.getItem.call(this, key);
     };
 }
 
