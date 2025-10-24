@@ -217,7 +217,9 @@ def employee_edit(request, pk):
             profile.save()
 
             messages.success(request, 'Profil uğurla yeniləndi!')
-            return redirect('pfile:employee_detail', pk=pk)
+
+            # Redirect back to same page - hash will be preserved by browser
+            return redirect('pfile:employee_edit', pk=pk)
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()

@@ -148,25 +148,25 @@
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="profileTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="personal-tab" data-bs-toggle="tab" href="#personal" role="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">
                 <i class="fas fa-user mr-1"></i>{% trans "Şəxsi Məlumat" %}
-            </a>
+            </button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="professional-tab" data-bs-toggle="tab" href="#professional" role="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="professional-tab" data-bs-toggle="tab" data-bs-target="#professional" type="button" role="tab" aria-controls="professional" aria-selected="false">
                 <i class="fas fa-briefcase mr-1"></i>{% trans "Peşəkar Məlumat" %}
-            </a>
+            </button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="documents-tab" data-bs-toggle="tab" href="#documents" role="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab" aria-controls="documents" aria-selected="false">
                 <i class="fas fa-folder mr-1"></i>{% trans "Sənədlər" %}
-            </a>
+            </button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history" role="tab">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
                 <i class="fas fa-history mr-1"></i>{% trans "İş Tarixçəsi" %}
-            </a>
+            </button>
         </li>
     </ul>
 
@@ -305,62 +305,64 @@
 
 {% block extra_js %}
 <script>
-// Handle tab navigation from URL hash
-(function() {
-    // Wait for Bootstrap to be loaded
-    function waitForBootstrap(callback) {
-        if (typeof bootstrap !== 'undefined') {
-            callback();
-        } else {
-            setTimeout(() => waitForBootstrap(callback), 100);
+// Tab navigation with hash support
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing tabs...');
+
+    // Wait for Bootstrap to load
+    const checkBootstrap = setInterval(function() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+            clearInterval(checkBootstrap);
+            console.log('Bootstrap loaded, setting up tabs...');
+            initializeTabs();
         }
-    }
+    }, 100);
 
-    waitForBootstrap(function() {
-        // Activate tab based on URL hash
-        function activateTabFromHash(e) {
-            if (e) e.preventDefault();
+    function initializeTabs() {
+        const triggerTabList = document.querySelectorAll('[data-bs-toggle="tab"]');
+        console.log('Found ' + triggerTabList.length + ' tab triggers');
 
-            let hash = window.location.hash;
-            if (!hash) {
-                hash = '#personal'; // Default tab
-            }
-
-            const tabTrigger = document.querySelector(`[href="${hash}"][data-bs-toggle="tab"]`);
-            if (tabTrigger) {
-                const tab = new bootstrap.Tab(tabTrigger);
-                tab.show();
-            }
-        }
-
-        // Initial load - set default tab if no hash
-        if (!window.location.hash) {
-            window.location.hash = '#personal';
-        }
-        activateTabFromHash();
-
-        // Listen for hash changes
-        window.addEventListener('hashchange', activateTabFromHash);
-
-        // Update hash when tab is clicked and prevent default behavior
-        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
-            tabEl.addEventListener('click', function(event) {
-                event.preventDefault();
-                const hash = this.getAttribute('href');
-                if (hash && hash.startsWith('#')) {
-                    window.location.hash = hash;
-                }
-            });
-
-            tabEl.addEventListener('shown.bs.tab', function(event) {
-                const hash = event.target.getAttribute('href');
-                if (hash && hash.startsWith('#')) {
+        // Listen to tab shown events to update URL hash
+        triggerTabList.forEach(function(triggerEl) {
+            triggerEl.addEventListener('shown.bs.tab', function(e) {
+                const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('aria-controls');
+                if (target) {
+                    const hash = target.startsWith('#') ? target : '#' + target;
+                    console.log('Tab shown, updating hash to: ' + hash);
                     history.replaceState(null, null, hash);
                 }
             });
         });
-    });
-})();
+
+        // Function to activate tab from hash
+        function activateTabFromHash() {
+            let hash = window.location.hash || '#personal';
+            console.log('Activating tab from hash: ' + hash);
+
+            // Remove # if present
+            const tabId = hash.replace('#', '');
+            const tabElement = document.querySelector(`[data-bs-toggle="tab"][aria-controls="${tabId}"]`) ||
+                              document.querySelector(`[data-bs-toggle="tab"][data-bs-target="${hash}"]`);
+
+            if (tabElement) {
+                console.log('Found tab element, showing...');
+                const tab = bootstrap.Tab.getInstance(tabElement) || new bootstrap.Tab(tabElement);
+                tab.show();
+            } else {
+                console.log('Tab element not found for: ' + hash);
+            }
+        }
+
+        // Activate tab on page load
+        activateTabFromHash();
+
+        // Activate tab when hash changes
+        window.addEventListener('hashchange', function() {
+            console.log('Hash changed to: ' + window.location.hash);
+            activateTabFromHash();
+        });
+    }
+});
 
 // Upload Profile Picture
 function uploadProfilePicture(input) {
