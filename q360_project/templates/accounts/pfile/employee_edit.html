@@ -101,17 +101,33 @@
 
 {% block content %}
 <div class="container-fluid">
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <!-- Profile Header -->
     <div class="profile-header">
         <div class="row align-items-center">
             <div class="col-auto">
-                {% if employee.profile.profile_picture %}
-                    <img src="{{ employee.profile.profile_picture.url }}" alt="{{ employee.get_full_name }}" class="profile-avatar">
-                {% else %}
-                    <div class="profile-avatar d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.2);">
-                        <i class="fas fa-user fa-3x"></i>
-                    </div>
-                {% endif %}
+                <div class="position-relative">
+                    {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}" class="profile-avatar" id="profilePicturePreview">
+                    {% else %}
+                        <div class="profile-avatar d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.2);" id="profilePicturePreview">
+                            <i class="fas fa-user fa-3x"></i>
+                        </div>
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-light position-absolute" style="bottom: 0; right: 0; border-radius: 50%;" onclick="document.getElementById('profilePictureInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <input type="file" id="profilePictureInput" accept="image/*" style="display: none;" onchange="uploadProfilePicture(this)">
             </div>
             <div class="col">
                 <h2 class="mb-2">{{ employee.get_full_name }}</h2>
@@ -503,6 +519,70 @@
 
 {% block extra_js %}
 <script>
+// Handle tab navigation from URL hash
+document.addEventListener('DOMContentLoaded', function() {
+    // Activate tab based on URL hash
+    function activateTabFromHash() {
+        let hash = window.location.hash;
+        if (hash) {
+            const tabTrigger = document.querySelector(`[href="${hash}"]`);
+            if (tabTrigger) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+    }
+
+    // Initial load
+    activateTabFromHash();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', activateTabFromHash);
+
+    // Update hash when tab is clicked
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+        tabEl.addEventListener('shown.bs.tab', function(event) {
+            const hash = event.target.getAttribute('href');
+            if (hash && hash.startsWith('#')) {
+                history.replaceState(null, null, hash);
+            }
+        });
+    });
+});
+
+// Upload Profile Picture
+function uploadProfilePicture(input) {
+    if (input.files && input.files[0]) {
+        const formData = new FormData();
+        formData.append('profile_picture', input.files[0]);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch("{% url 'pfile:employee_edit' employee.id %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePicturePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Profile" class="profile-avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+
+                alert('Profil şəkli uğurla yeniləndi!');
+            } else {
+                alert('Xəta baş verdi!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Xəta baş verdi!');
+        });
+    }
+}
+
 // Add Document Form Submit
 document.getElementById('addDocumentForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -522,6 +602,10 @@ document.getElementById('addDocumentForm').addEventListener('submit', function(e
         } else {
             alert('Xəta: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Xəta baş verdi!');
     });
 });
 
@@ -544,6 +628,10 @@ document.getElementById('addHistoryForm').addEventListener('submit', function(e)
         } else {
             alert('Xəta: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Xəta baş verdi!');
     });
 });
 
@@ -563,6 +651,10 @@ function deleteDocument(id) {
             } else {
                 alert('Xəta: ' + data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Xəta baş verdi!');
         });
     }
 }
@@ -583,20 +675,12 @@ function deleteHistory(id) {
             } else {
                 alert('Xəta: ' + data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Xəta baş verdi!');
         });
     }
 }
-
-// Handle tab navigation from URL hash
-window.addEventListener('DOMContentLoaded', function() {
-    const hash = window.location.hash;
-    if (hash) {
-        const tabTrigger = document.querySelector(`[href="${hash}"]`);
-        if (tabTrigger) {
-            const tab = new bootstrap.Tab(tabTrigger);
-            tab.show();
-        }
-    }
-});
 </script>
 {% endblock %}

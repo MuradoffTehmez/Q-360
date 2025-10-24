@@ -76,11 +76,22 @@ def employee_edit(request, pk):
 
     if request.method == 'POST':
         try:
-            # Update user fields
-            employee.first_name = request.POST.get('first_name', employee.first_name)
-            employee.last_name = request.POST.get('last_name', employee.last_name)
-            employee.email = request.POST.get('email', employee.email)
-            employee.phone_number = request.POST.get('phone_number', employee.phone_number)
+            # Handle profile picture upload separately
+            if 'profile_picture' in request.FILES:
+                employee.profile_picture = request.FILES['profile_picture']
+                employee.save()
+                messages.success(request, 'Profil şəkli uğurla yeniləndi!')
+                return redirect('pfile:employee_edit', pk=pk)
+
+            # Update user fields only if they exist in POST
+            if 'first_name' in request.POST:
+                employee.first_name = request.POST.get('first_name', employee.first_name)
+            if 'last_name' in request.POST:
+                employee.last_name = request.POST.get('last_name', employee.last_name)
+            if 'email' in request.POST:
+                employee.email = request.POST.get('email', employee.email)
+            if 'phone_number' in request.POST:
+                employee.phone_number = request.POST.get('phone_number', employee.phone_number)
 
             department_id = request.POST.get('department')
             if department_id:
@@ -101,17 +112,34 @@ def employee_edit(request, pk):
             if gender:
                 profile.gender = gender
 
-            profile.address = request.POST.get('address', profile.address)
-            profile.city = request.POST.get('city', profile.city)
-            profile.country = request.POST.get('country', profile.country)
+            address = request.POST.get('address')
+            if address is not None:  # Allow empty string
+                profile.address = address
+
+            city = request.POST.get('city')
+            if city is not None:
+                profile.city = city
+
+            country = request.POST.get('country')
+            if country is not None:
+                profile.country = country
 
             education_level = request.POST.get('education_level')
             if education_level:
                 profile.education_level = education_level
 
-            profile.field_of_study = request.POST.get('field_of_study', profile.field_of_study)
-            profile.emergency_contact_name = request.POST.get('emergency_contact_name', profile.emergency_contact_name)
-            profile.emergency_contact_phone = request.POST.get('emergency_contact_phone', profile.emergency_contact_phone)
+            field_of_study = request.POST.get('field_of_study')
+            if field_of_study is not None:
+                profile.field_of_study = field_of_study
+
+            emergency_contact_name = request.POST.get('emergency_contact_name')
+            if emergency_contact_name is not None:
+                profile.emergency_contact_name = emergency_contact_name
+
+            emergency_contact_phone = request.POST.get('emergency_contact_phone')
+            if emergency_contact_phone is not None:
+                profile.emergency_contact_phone = emergency_contact_phone
+
             profile.save()
 
             messages.success(request, 'Profil uğurla yeniləndi!')
