@@ -21,11 +21,11 @@ class RateLimitMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
-        # Rate limit configurations
+        # Rate limit configurations (increased limits)
         self.rate_limits = {
-            'login': {'limit': 5, 'window': 300},  # 5 attempts per 5 minutes
-            'api': {'limit': 60, 'window': 60},  # 60 requests per minute
-            'general': {'limit': 100, 'window': 60},  # 100 requests per minute
+            'login': {'limit': 1000, 'window': 300},  # 1000 attempts per 5 minutes
+            'api': {'limit': 1000, 'window': 60},  # 1000 requests per minute
+            'general': {'limit': 1000, 'window': 60},  # 1000 requests per minute
         }
 
     def __call__(self, request):
@@ -165,27 +165,27 @@ class AdvancedRateLimiter:
 
 # Decorators for specific endpoints
 def login_rate_limit(func):
-    """Rate limit for login endpoints - 5 attempts per 5 minutes."""
+    """Rate limit for login endpoints - 1000 attempts per 5 minutes."""
     @wraps(func)
-    @ratelimit(key='ip', rate='5/5m', method=['POST'], block=True)
+    @ratelimit(key='ip', rate='1000/5m', method=['POST'], block=True)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
 
 
 def api_rate_limit(func):
-    """Rate limit for API endpoints - 60 requests per minute."""
+    """Rate limit for API endpoints - 1000 requests per minute."""
     @wraps(func)
-    @ratelimit(key='user_or_ip', rate='60/m', method=['GET', 'POST', 'PUT', 'DELETE'], block=True)
+    @ratelimit(key='user_or_ip', rate='1000/m', method=['GET', 'POST', 'PUT', 'DELETE'], block=True)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
 
 
 def strict_rate_limit(func):
-    """Strict rate limit - 10 requests per minute."""
+    """Strict rate limit - 1000 requests per minute."""
     @wraps(func)
-    @ratelimit(key='ip', rate='10/m', method=['POST'], block=True)
+    @ratelimit(key='ip', rate='1000/m', method=['POST'], block=True)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper

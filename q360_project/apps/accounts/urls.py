@@ -21,6 +21,7 @@ urlpatterns = [
     path('mfa-verify/', template_views.mfa_verify, name='mfa-verify'),
     path('mfa-initiate/', template_views.mfa_initiate, name='mfa-initiate'),
     path('mfa-disable/', template_views.mfa_disable, name='mfa-disable'),
+    path('mfa-reset/', template_views.mfa_reset, name='mfa-reset'),
     path('mfa-backup-regenerate/', template_views.mfa_backup_regenerate, name='mfa-backup-regenerate'),
     path('sessions-terminate-all/', template_views.sessions_terminate_all, name='sessions-terminate-all'),
 

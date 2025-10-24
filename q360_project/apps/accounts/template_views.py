@@ -96,9 +96,22 @@ def logout_view(request):
 
 
 def register_view(request):
-    """Handle user registration (public registration - disabled for security)."""
-    messages.info(request, 'Qeydiyyat üçün adminlə əlaqə saxlayın.')
-    return redirect('accounts:login')
+    """Handle user registration (public registration enabled)."""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Qeydiyyat uğurla tamamlandı! İndi giriş edə bilərsiniz.')
+            return redirect('accounts:login')
+        else:
+            messages.error(request, 'Zəhmət olmasa xətaları düzəldin.')
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'accounts/register.html', {'form': form})
 
 
 @login_required
@@ -813,7 +826,7 @@ def mfa_backup_regenerate(request):
     from django.contrib import messages
     from django.shortcuts import redirect
     from django.utils.translation import gettext_lazy as _
-    
+
     if request.method == 'POST':
         mfa_config = request.user.mfa_config
         if mfa_config:
@@ -823,7 +836,48 @@ def mfa_backup_regenerate(request):
             messages.success(request, _('Yedek kodlar uğurla yeniləndi.'))
         else:
             messages.error(request, _('MFA konfiqurasiya tapılmadı.'))
-    
+
+    return redirect('accounts:security')
+
+
+def mfa_reset(request):
+    """Reset and reconfigure MFA with password verification."""
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.utils.translation import gettext_lazy as _
+
+    if request.method == 'POST':
+        password = request.POST.get('password')
+
+        # Verify password
+        if not request.user.check_password(password):
+            messages.error(request, _('Yanlış şifrə. 2FA yenidən quraşdırıla bilmədi.'))
+            return redirect('accounts:security')
+
+        # Reset MFA
+        mfa_config = request.user.mfa_config
+        if mfa_config:
+            # Generate new secret and backup codes
+            from .mfa import generate_base32_secret, generate_backup_codes
+            mfa_config.secret = generate_base32_secret()
+            mfa_config.backup_codes = generate_backup_codes()
+            mfa_config.is_enabled = False  # User needs to verify new setup
+            mfa_config.save()
+
+            messages.success(request, _('2FA uğurla sıfırlandı. İndi yenidən quraşdırın.'))
+
+            # Log this action
+            AuditLog.objects.create(
+                user=request.user,
+                action='2fa_reset',
+                model_name='UserMFAConfig',
+                severity='warning',
+                context={'reason': 'user_requested'},
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+        else:
+            messages.error(request, _('MFA konfiqurasiya tapılmadı.'))
+
     return redirect('accounts:security')
 
 

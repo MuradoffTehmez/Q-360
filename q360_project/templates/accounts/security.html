@@ -150,9 +150,14 @@
                     </p>
                 </div>
                 {% if user.has_mfa_enabled %}
-                    <a href="{% url 'accounts:mfa-disable' %}" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-times me-1"></i>{% trans "Deaktiv et" %}
-                    </a>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#resetMfaModal">
+                            <i class="fas fa-sync me-1"></i>{% trans "Yenidən Quraşdır" %}
+                        </button>
+                        <a href="{% url 'accounts:mfa-disable' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-times me-1"></i>{% trans "Deaktiv et" %}
+                        </a>
+                    </div>
                 {% endif %}
             </div>
 
@@ -446,6 +451,41 @@
         </div>
     </div>
 </div>
+<!-- Modal: Yenidən MFA Quraşdır -->
+<div class="modal fade" id="resetMfaModal" tabindex="-1" aria-labelledby="resetMfaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetMfaModalLabel">
+                    <i class="fas fa-sync text-primary me-2"></i>{% trans "2FA Yenidən Quraşdır" %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'accounts:mfa-reset' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% trans "2FA-nı yenidən quraşdırmaq üçün şifrənizi daxil edin. Bu əməliyyat mövcud 2FA-nı silib yenisini yaradacaq." %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="resetMfaPassword" class="form-label">{% trans "Şifrəniz" %}</label>
+                        <input type="password" class="form-control" id="resetMfaPassword" name="password" required placeholder="{% trans 'Şifrəni daxil edin' %}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>{% trans "Ləğv et" %}
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync me-1"></i>{% trans "Yenidən Quraşdır" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
