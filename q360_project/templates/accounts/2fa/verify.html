@@ -3,54 +3,144 @@
 
 {% block title %}İki Faktorlu Autentifikasiya Təsdiqi - Q360{% endblock %}
 
+{% block extra_css %}
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .5;
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-10px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(10px);
+        }
+    }
+
+    .verify-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .verify-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+
+    .verify-card {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+    }
+
+    .dark .verify-card {
+        background: rgba(31, 41, 55, 0.98);
+    }
+
+    .code-input {
+        letter-spacing: 0.5em;
+        transition: all 0.3s ease;
+    }
+
+    .code-input:focus {
+        transform: scale(1.02);
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .shake-animation {
+        animation: shake 0.6s ease-in-out;
+    }
+
+    .pulse-animation {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
+<div class="verify-container flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full relative z-10">
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="flex justify-center mb-4">
-                <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-full shadow-2xl">
+                    <svg class="w-16 h-16 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
             </div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">İki Faktorlu Autentifikasiya</h1>
-            <p class="text-gray-600">Davam etmək üçün autentifikasiya kodu daxil edin</p>
+            <h1 class="text-4xl font-bold text-white mb-2">İki Faktorlu Təsdiq</h1>
+            <p class="text-indigo-100">Hesabınıza daxil olmaq üçün təsdiq kodunuzu daxil edin</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div class="verify-card bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
             <div class="px-8 py-10">
                 {% if rate_limited %}
                     <!-- Rate Limited Message -->
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
                         <div class="flex items-start">
-                            <svg class="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                            <div>
-                                <h3 class="font-semibold text-red-800 mb-2">Çox sayda uğursuz cəhd</h3>
-                                <p class="text-sm text-red-700">
+                            <div class="flex-shrink-0">
+                                <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold text-red-800 dark:text-red-300 text-lg mb-2">
+                                    <i class="fas fa-ban mr-2"></i>Çox sayda uğursuz cəhd
+                                </h3>
+                                <p class="text-sm text-red-700 dark:text-red-400 mb-3">
                                     Təhlükəsizlik məqsədilə hesabınız müvəqqəti bloklanıb.
-                                    15 dəqiqə gözləyib yenidən cəhd edin.
+                                    <strong>15 dəqiqə</strong> gözləyib yenidən cəhd edin.
                                 </p>
+                                <div class="flex gap-2 flex-wrap">
+                                    <a href="{% url 'accounts:login' %}"
+                                       class="inline-flex items-center px-4 py-2 bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors">
+                                        <i class="fas fa-arrow-left mr-2"></i>
+                                        Giriş səhifəsinə qayıt
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="text-center">
-                        <a href="{% url 'accounts:login' %}"
-                           class="text-indigo-600 hover:text-indigo-700 font-semibold">
-                            Giriş səhifəsinə qayıt
-                        </a>
-                    </div>
                 {% else %}
                     <!-- Verification Form -->
-                    <form method="post" id="verifyForm">
+                    <form method="post" id="verifyForm" class="space-y-6">
                         {% csrf_token %}
                         <input type="hidden" name="use_backup_code" id="useBackupCode" value="false">
 
+                        <!-- TOTP Section -->
                         <div id="totpSection">
-                            <label for="token" class="block text-sm font-medium text-gray-700 mb-2">
-                                Authenticator tətbiqinizdən kodu daxil edin:
+                            <label for="token" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">
+                                <i class="fas fa-mobile-alt mr-2 text-indigo-600 dark:text-indigo-400"></i>
+                                Authenticator tətbiqinizdən kodu daxil edin
                             </label>
                             <input type="text"
                                    id="token"
@@ -59,101 +149,119 @@
                                    pattern="[0-9]{6}"
                                    required
                                    autofocus
-                                   class="w-full px-4 py-4 text-center text-3xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent tracking-widest"
-                                   placeholder="000000">
-                            <p class="mt-2 text-sm text-gray-500 text-center">
+                                   class="code-input w-full px-6 py-5 text-center text-4xl font-bold border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                                   placeholder="● ● ● ● ● ●"
+                                   autocomplete="off">
+                            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center flex items-center justify-center">
+                                <span class="pulse-animation inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                                 6 rəqəmli kodu daxil edin
                             </p>
                         </div>
 
+                        <!-- Backup Code Section -->
                         <div id="backupSection" class="hidden">
-                            <label for="backupCode" class="block text-sm font-medium text-gray-700 mb-2">
-                                Backup kodu daxil edin:
+                            <label for="backupCode" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">
+                                <i class="fas fa-key mr-2 text-indigo-600 dark:text-indigo-400"></i>
+                                Backup kodu daxil edin
                             </label>
                             <input type="text"
                                    id="backupCode"
                                    name="token"
                                    maxlength="9"
                                    pattern="[A-Za-z0-9]{4}-[A-Za-z0-9]{4}"
-                                   class="w-full px-4 py-4 text-center text-2xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent tracking-wider uppercase"
-                                   placeholder="XXXX-XXXX">
-                            <p class="mt-2 text-sm text-gray-500 text-center">
+                                   class="code-input w-full px-6 py-5 text-center text-3xl font-bold border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 uppercase"
+                                   placeholder="XXXX-XXXX"
+                                   autocomplete="off">
+                            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                <i class="fas fa-info-circle mr-1"></i>
                                 XXXX-XXXX formatında daxil edin
                             </p>
                         </div>
 
+                        <!-- Error Messages -->
                         {% if messages %}
-                            <div class="mt-4">
+                            <div class="space-y-2">
                                 {% for message in messages %}
-                                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
-                                        <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg flex items-center shake-animation">
+                                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                         </svg>
-                                        <span class="text-sm">{{ message }}</span>
+                                        <span class="text-sm font-medium">{{ message }}</span>
                                     </div>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
+                        <!-- Submit Button -->
                         <button type="submit"
-                                class="mt-6 w-full px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="w-full px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold text-lg hover:from-indigo-600 hover:to-purple-700 focus:ring-4 focus:ring-indigo-500 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Təsdiq et
+                            Təsdiq et və Daxil ol
                         </button>
                     </form>
 
-                    <!-- Toggle to backup code -->
+                    <!-- Toggle Backup Code -->
                     <div class="mt-6 text-center">
                         <button onclick="toggleBackupCode()"
                                 id="toggleButton"
-                                class="text-sm text-indigo-600 hover:text-indigo-700 font-semibold flex items-center justify-center mx-auto">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold flex items-center justify-center mx-auto px-4 py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
                             </svg>
                             <span id="toggleText">Backup kod istifadə edin</span>
                         </button>
                         {% if remaining_backup_codes > 0 %}
-                            <p class="text-xs text-gray-500 mt-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <i class="fas fa-shield-alt mr-1"></i>
                                 {{ remaining_backup_codes }} backup kod qalıb
                             </p>
                         {% endif %}
                     </div>
 
-                    <!-- Help section -->
-                    <div class="mt-8 pt-6 border-t border-gray-200">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-3">Koda çıxışınız yoxdur?</h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Help Section -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center">
+                            <i class="fas fa-question-circle text-indigo-600 dark:text-indigo-400 mr-2"></i>
+                            Koda çıxışınız yoxdur?
+                        </h3>
+                        <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="flex items-start bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 <span>Backup kodlarınızdan birini istifadə edin</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </div>
+                            <div class="flex items-start bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 <span>Telefonunuzun vaxtının düzgün olduğundan əmin olun</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </div>
+                            <div class="flex items-start bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
-                                <span>Yardım üçün <a href="mailto:support@q360.example.com" class="text-indigo-600 hover:underline">texniki dəstəyə</a> müraciət edin</span>
-                            </li>
-                        </ul>
+                                <span>Yardım üçün <a href="mailto:support@q360.com" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">texniki dəstəyə</a> müraciət edin</span>
+                            </div>
+                        </div>
                     </div>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Logout option -->
-        <div class="mt-6 text-center">
+        <!-- Footer Actions -->
+        <div class="mt-6 flex items-center justify-center gap-4 text-sm">
             <a href="{% url 'accounts:logout' %}"
-               class="text-sm text-gray-600 hover:text-gray-700">
-                Fərqli hesabla daxil olun
+               class="flex items-center px-4 py-2 text-white hover:text-indigo-100 bg-white/10 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Fərqli hesabla daxil ol
+            </a>
+            <a href="{% url 'accounts:security' %}"
+               class="flex items-center px-4 py-2 text-white hover:text-indigo-100 bg-white/10 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm">
+                <i class="fas fa-cog mr-2"></i>
+                Təhlükəsizlik
             </a>
         </div>
     </div>
@@ -169,41 +277,89 @@ function toggleBackupCode() {
     const backupSection = document.getElementById('backupSection');
     const useBackupCodeInput = document.getElementById('useBackupCode');
     const toggleText = document.getElementById('toggleText');
+    const tokenInput = document.getElementById('token');
+    const backupCodeInput = document.getElementById('backupCode');
 
     if (usingBackupCode) {
         totpSection.classList.add('hidden');
         backupSection.classList.remove('hidden');
         useBackupCodeInput.value = 'true';
         toggleText.textContent = 'Authenticator kodu istifadə edin';
-        document.getElementById('backupCode').focus();
-        document.getElementById('backupCode').required = true;
-        document.getElementById('token').required = false;
+        backupCodeInput.focus();
+        backupCodeInput.required = true;
+        tokenInput.required = false;
     } else {
         totpSection.classList.remove('hidden');
         backupSection.classList.add('hidden');
         useBackupCodeInput.value = 'false';
         toggleText.textContent = 'Backup kod istifadə edin';
-        document.getElementById('token').focus();
-        document.getElementById('token').required = true;
-        document.getElementById('backupCode').required = false;
+        tokenInput.focus();
+        tokenInput.required = true;
+        backupCodeInput.required = false;
     }
 }
 
-// Auto-format TOTP token input
-document.getElementById('token').addEventListener('input', function(e) {
-    this.value = this.value.replace(/[^0-9]/g, '');
-});
+// Auto-format and validate TOTP token input
+const tokenInput = document.getElementById('token');
+if (tokenInput) {
+    tokenInput.addEventListener('input', function(e) {
+        // Only allow digits
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Auto-submit when 6 digits entered
+        if (this.value.length === 6) {
+            // Add a small delay for better UX
+            setTimeout(() => {
+                document.getElementById('verifyForm').submit();
+            }, 300);
+        }
+    });
+
+    // Add paste support
+    tokenInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const digitsOnly = pastedText.replace(/[^0-9]/g, '').slice(0, 6);
+        this.value = digitsOnly;
+
+        if (digitsOnly.length === 6) {
+            setTimeout(() => {
+                document.getElementById('verifyForm').submit();
+            }, 300);
+        }
+    });
+}
 
 // Auto-format backup code input
-document.getElementById('backupCode').addEventListener('input', function(e) {
-    let value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+const backupCodeInput = document.getElementById('backupCode');
+if (backupCodeInput) {
+    backupCodeInput.addEventListener('input', function(e) {
+        let value = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
 
-    // Add dash after 4 characters
-    if (value.length > 4) {
-        value = value.slice(0, 4) + '-' + value.slice(4, 8);
+        // Add dash after 4 characters
+        if (value.length > 4) {
+            value = value.slice(0, 4) + '-' + value.slice(4, 8);
+        }
+
+        this.value = value;
+    });
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Alt + B to toggle backup code
+    if (e.altKey && e.key === 'b') {
+        e.preventDefault();
+        toggleBackupCode();
     }
+});
 
-    this.value = value;
+// Focus management
+document.addEventListener('DOMContentLoaded', function() {
+    const tokenInput = document.getElementById('token');
+    if (tokenInput && !tokenInput.disabled) {
+        tokenInput.focus();
+    }
 });
 </script>
 {% endblock %}
