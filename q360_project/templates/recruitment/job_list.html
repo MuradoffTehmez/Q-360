@@ -55,7 +55,7 @@
             <h2><i class="fas fa-briefcase mr-2"></i>{% trans "Vakansiyalar" %}</h2>
         </div>
         <div class="col-md-6 text-right">
-            <button class="btn btn-primary" data-toggle="modal" data-target="#createJobModal">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal">
                 <i class="fas fa-plus mr-1"></i>{% trans "Yeni Vakansiya" %}
             </button>
             <a href="{% url 'recruitment:dashboard' %}" class="btn btn-outline-secondary">
@@ -224,7 +224,7 @@
         <div class="col-12 text-center py-5">
             <i class="fas fa-briefcase fa-4x text-muted mb-3"></i>
             <p class="text-muted">{% trans "Vakansiya yoxdur" %}</p>
-            <button class="btn btn-primary" data-toggle="modal" data-target="#createJobModal">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal">
                 <i class="fas fa-plus mr-1"></i>{% trans "İlk vakansiyanı yarat" %}
             </button>
         </div>
@@ -267,7 +267,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{% trans "Yeni Vakansiya" %}</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="createJobForm" method="post">
                 {% csrf_token %}
@@ -342,7 +342,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Ləğv Et" %}</button>
                     <button type="submit" class="btn btn-primary">{% trans "Yarat" %}</button>
                 </div>
             </form>

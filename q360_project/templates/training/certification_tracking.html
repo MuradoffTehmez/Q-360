@@ -82,7 +82,7 @@
             </p>
         </div>
         <div class="col-md-4 text-right">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertModal">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCertModal">
                 <i class="fas fa-plus"></i> Sertifikat Əlavə Et
             </button>
         </div>
@@ -131,17 +131,17 @@
     <!-- Tabs -->
     <ul class="nav nav-tabs mb-3" id="certTabs" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="my-certs-tab" data-toggle="tab" href="#my-certs">
+            <a class="nav-link active" id="my-certs-tab" data-bs-toggle="tab" href="#my-certs">
                 <i class="fas fa-user"></i> Mənim Sertifikatlarım
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="team-certs-tab" data-toggle="tab" href="#team-certs">
+            <a class="nav-link" id="team-certs-tab" data-bs-toggle="tab" href="#team-certs">
                 <i class="fas fa-users"></i> Komanda Sertifikatları
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="renewals-tab" data-toggle="tab" href="#renewals">
+            <a class="nav-link" id="renewals-tab" data-bs-toggle="tab" href="#renewals">
                 <i class="fas fa-bell"></i> Yeniləmə Xatırlatmaları
                 <span class="badge badge-warning">{{ stats.pending_renewal_count }}</span>
             </a>
@@ -250,7 +250,7 @@
                 <div class="col-12 text-center py-5">
                     <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
                     <p class="text-muted">Sertifikat qeydləri yoxdur</p>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCertModal">
                         <i class="fas fa-plus"></i> İlk Sertifikatı Əlavə Et
                     </button>
                 </div>
@@ -413,7 +413,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Yeni Sertifikat Əlavə Et</h5>
-                <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close" data-bs-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
@@ -493,7 +493,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Ləğv et</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Saxla
                     </button>
