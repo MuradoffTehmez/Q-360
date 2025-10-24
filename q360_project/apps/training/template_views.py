@@ -419,12 +419,12 @@ def certification_tracking(request):
     if has_certification_model:
         upcoming_renewals = my_certifications.filter(
             status='active',
-            expiry_date__lte=timezone.now().date() + timedelta(days=180),
-            expiry_date__gt=timezone.now().date()
-        ).order_by('expiry_date')
+            expiration_date__lte=timezone.now().date() + timedelta(days=180),
+            expiration_date__gt=timezone.now().date()
+        ).order_by('expiration_date')
 
         for cert in upcoming_renewals:
-            days_until_expiry = (cert.expiry_date - timezone.now().date()).days
+            days_until_expiry = (cert.expiration_date - timezone.now().date()).days
             renewal_reminders.append({
                 'certification': cert,
                 'days_until_expiry': days_until_expiry,
@@ -439,7 +439,7 @@ def certification_tracking(request):
 
         timeline_certs = my_certifications.filter(
             Q(issue_date__gte=timeline_start) |
-            Q(expiry_date__lte=timeline_end, expiry_date__gte=timezone.now().date())
+            Q(expiration_date__lte=timeline_end, expiration_date__gte=timezone.now().date())
         ).order_by('-issue_date')
 
         for cert in timeline_certs:
@@ -448,9 +448,9 @@ def certification_tracking(request):
                 'type': 'issued',
                 'certification': cert,
             })
-            if cert.expiry_date:
+            if cert.expiration_date:
                 timeline_items.append({
-                    'date': cert.expiry_date,
+                    'date': cert.expiration_date,
                     'type': 'expires',
                     'certification': cert,
                 })
