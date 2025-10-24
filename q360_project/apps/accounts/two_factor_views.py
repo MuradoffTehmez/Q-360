@@ -103,7 +103,7 @@ def verify_2fa_view(request):
     # Check if 2FA already verified
     if request.session.get('2fa_verified'):
         next_url = request.session.pop('2fa_next', None)
-        return redirect(next_url or 'dashboard:index')
+        return redirect(next_url or 'dashboard')
 
     # Check if 2FA is enabled for user
     has_mfa = hasattr(user, 'mfa_config') and user.mfa_config.is_enabled
@@ -112,7 +112,7 @@ def verify_2fa_view(request):
     if not has_mfa and not has_profile_2fa:
         # 2FA not enabled, redirect to dashboard
         messages.info(request, 'İki faktorlu autentifikasiya aktiv deyil.')
-        return redirect('dashboard:index')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         token = request.POST.get('token', '').strip()
@@ -191,7 +191,7 @@ def verify_2fa_view(request):
 
             # Redirect to intended page
             next_url = request.session.pop('2fa_next', None)
-            return redirect(next_url or 'dashboard:index')
+            return redirect(next_url or 'dashboard')
         else:
             messages.error(
                 request,
