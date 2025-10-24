@@ -72,7 +72,8 @@
       "Bash(else echo \"$app: NO API FILE\")",
       "Bash(Select-String -Pattern \"OK|FAILED|ERROR|Ran\")",
       "Bash(Select-String -Pattern \"✓|✅|ERROR|Traceback|Starting\" -Context 0,1)",
-      "Bash(Select-String -Pattern \"requirements|pyproject|Pipfile\")"
+      "Bash(Select-String -Pattern \"requirements|pyproject|Pipfile\")",
+      "Bash(Select-String -Pattern \"OK|FAILED|ERROR|Ran\" -Context 0,1)"
     ],
     "deny": [],
     "ask": []

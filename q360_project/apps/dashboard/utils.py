@@ -103,13 +103,19 @@ def update_real_time_statistics():
         stat.current_value = pending_leaves
         stat.save()
 
-    # Təlim tamamlamaları
-    completed_trainings = 0  # Placeholder - real model mövcud deyilsə 0 saxlayırıq
+    # FIXED: Təlim tamamlamaları - real UserTraining modelindən götürülür
+    try:
+        from apps.training.models import UserTraining
+        completed_trainings = UserTraining.objects.filter(status='completed').count()
+    except (ImportError, Exception):
+        # Əgər training app mövcud deyilsə və ya UserTraining modeli yoxdursa, 0 saxlayırıq
+        completed_trainings = 0
+
     stat, created = RealTimeStat.objects.get_or_create(
         stat_type='training_completions',
         defaults={
-            'current_value': completed_trainings, 
-            'unit': '', 
+            'current_value': completed_trainings,
+            'unit': '',
             'description': 'Təlim Tamamlamaları'
         }
     )

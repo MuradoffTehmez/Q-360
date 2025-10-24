@@ -33,7 +33,8 @@ def dashboard_home(request):
         'total_users': User.objects.filter(is_active=True).count(),
         'active_campaigns': EvaluationCampaign.objects.filter(status='active').count(),
         'completed_trainings': UserTraining.objects.filter(status='completed').count(),
-        'avg_evaluation_score': EvaluationCampaign.objects.aggregate(Avg('id'))['id__avg'] or 0,
+        # Fixed: Average evaluation score from Response.score instead of Campaign ID
+        'avg_evaluation_score': Response.objects.aggregate(Avg('score'))['score__avg'] or 0,
     }
 
     context = {
@@ -50,10 +51,10 @@ def real_time_stats_api(request):
     """
     Real vaxt statistikası API
     """
-    # Update real-time stats if needed
-    from .utils import update_real_time_statistics
-    update_real_time_statistics()
-    
+    # FIXED: Removed synchronous call to update_real_time_statistics() to prevent blocking GET requests
+    # TODO: Move update_real_time_statistics() to a scheduled background task (e.g., Celery, Django-Q)
+    # that runs periodically (e.g., every 5-10 minutes) instead of on every API call
+
     stats = RealTimeStat.objects.all()
     data = []
     for stat in stats:
@@ -92,39 +93,57 @@ def kpi_dashboard(request):
     # Ən son KPI göstəriciləri
     latest_kpis = SystemKPI.objects.all().order_by('-created_at')[:10]
     
-    # Bölmələr üzrə KPI göstəriciləri
+    # FIXED: Optimized department KPIs calculation to prevent N+1 queries
+    # Calculate date ranges once
+    from datetime import timedelta
+    from django.utils import timezone
+    from django.db.models import Prefetch
+
+    end_date = timezone.now().date()
+    start_date = end_date - timedelta(days=30)  # Last 30 days
+    prev_start_date = start_date - timedelta(days=30)
+
+    # Bulk aggregate all department metrics in one query using subqueries
+    from django.db.models import OuterRef, Subquery, FloatField
+    from django.db.models.functions import Coalesce
+
+    # Annotate departments with user counts and performance metrics
+    departments_with_stats = Department.objects.annotate(
+        user_count=Count('user', distinct=True),
+        avg_performance=Coalesce(
+            Avg('user__assignment_evaluatee__response__score'),
+            0.0,
+            output_field=FloatField()
+        ),
+        recent_performance=Coalesce(
+            Avg(
+                'user__assignment_evaluatee__response__score',
+                filter=Q(user__assignment_evaluatee__response__created_at__date__range=[start_date, end_date])
+            ),
+            0.0,
+            output_field=FloatField()
+        ),
+        prev_performance=Coalesce(
+            Avg(
+                'user__assignment_evaluatee__response__score',
+                filter=Q(user__assignment_evaluatee__response__created_at__date__range=[prev_start_date, start_date])
+            ),
+            0.0,
+            output_field=FloatField()
+        )
+    ).select_related().all()
+
+    # Build department KPIs from annotated data
     department_kpis = []
-    for dept in Department.objects.all():
-        dept_users = User.objects.filter(department=dept).count()
-        dept_avg_performance = Response.objects.filter(
-            assignment__evaluatee__department=dept
-        ).aggregate(Avg('score'))['score__avg'] or 0
-        
-        # Calculate performance trend for this department
-        from datetime import timedelta
-        from django.utils import timezone
-        end_date = timezone.now().date()
-        start_date = end_date - timedelta(days=30)  # Last 30 days
-        
-        recent_performance = Response.objects.filter(
-            assignment__evaluatee__department=dept,
-            created_at__date__range=[start_date, end_date]
-        ).aggregate(Avg('score'))['score__avg'] or 0
-        
-        prev_start_date = start_date - timedelta(days=30)
-        prev_recent_performance = Response.objects.filter(
-            assignment__evaluatee__department=dept,
-            created_at__date__range=[prev_start_date, start_date]
-        ).aggregate(Avg('score'))['score__avg'] or 0
-        
+    for dept in departments_with_stats:
         performance_trend = None
-        if prev_recent_performance != 0:
-            performance_trend = ((recent_performance - prev_recent_performance) / prev_recent_performance) * 100
-        
+        if dept.prev_performance and dept.prev_performance != 0:
+            performance_trend = ((dept.recent_performance - dept.prev_performance) / dept.prev_performance) * 100
+
         department_kpis.append({
             'name': dept.name,
-            'user_count': dept_users,
-            'avg_performance': round(dept_avg_performance, 2),
+            'user_count': dept.user_count,
+            'avg_performance': round(float(dept.avg_performance), 2),
             'performance_trend': round(performance_trend, 2) if performance_trend else 0,
             'trend_direction': 'up' if performance_trend and performance_trend > 0 else 'down' if performance_trend and performance_trend < 0 else 'neutral'
         })

@@ -326,13 +326,25 @@ def department_analytics(request):
     Bölmələr üzrə analitika
     """
     from apps.dashboard.utils import get_salary_trends, get_performance_trends, get_hiring_trends
-    
+
     department_id = request.GET.get('department_id', None)
-    months = int(request.GET.get('months', 12))
-    
+
+    # FIXED: Add input validation to prevent ValueError and return 400 Bad Request
+    try:
+        months = int(request.GET.get('months', 12))
+        if months < 1 or months > 120:  # Limit to reasonable range (1-120 months)
+            return JsonResponse({'status': 'error', 'message': 'Invalid months parameter. Must be between 1 and 120.'}, status=400)
+    except (ValueError, TypeError):
+        return JsonResponse({'status': 'error', 'message': 'Invalid months parameter. Must be an integer.'}, status=400)
+
     if department_id:
-        # Müəyyən bölmə üçün analitika
-        dept = Department.objects.get(id=department_id)
+        # FIXED: Add validation for department_id and return 400/404 for invalid input
+        try:
+            dept = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': f'Department with id {department_id} does not exist.'}, status=404)
+        except (ValueError, TypeError):
+            return JsonResponse({'status': 'error', 'message': 'Invalid department_id parameter.'}, status=400)
         
         salary_trends = get_salary_trends(department_id=department_id, months=months)
         performance_trends = get_performance_trends(department_id=department_id, months=months)
