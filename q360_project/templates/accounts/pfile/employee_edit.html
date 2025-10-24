@@ -307,20 +307,16 @@
 <script>
 // Tab navigation with hash support
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing tabs...');
-
     // Wait for Bootstrap to load
     const checkBootstrap = setInterval(function() {
         if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
             clearInterval(checkBootstrap);
-            console.log('Bootstrap loaded, setting up tabs...');
             initializeTabs();
         }
     }, 100);
 
     function initializeTabs() {
         const triggerTabList = document.querySelectorAll('[data-bs-toggle="tab"]');
-        console.log('Found ' + triggerTabList.length + ' tab triggers');
 
         // Listen to tab shown events to update URL hash
         triggerTabList.forEach(function(triggerEl) {
@@ -328,7 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('aria-controls');
                 if (target) {
                     const hash = target.startsWith('#') ? target : '#' + target;
-                    console.log('Tab shown, updating hash to: ' + hash);
                     history.replaceState(null, null, hash);
                 }
             });
@@ -337,19 +332,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Function to activate tab from hash
         function activateTabFromHash() {
             let hash = window.location.hash || '#personal';
-            console.log('Activating tab from hash: ' + hash);
-
-            // Remove # if present
             const tabId = hash.replace('#', '');
             const tabElement = document.querySelector(`[data-bs-toggle="tab"][aria-controls="${tabId}"]`) ||
                               document.querySelector(`[data-bs-toggle="tab"][data-bs-target="${hash}"]`);
 
             if (tabElement) {
-                console.log('Found tab element, showing...');
                 const tab = bootstrap.Tab.getInstance(tabElement) || new bootstrap.Tab(tabElement);
                 tab.show();
-            } else {
-                console.log('Tab element not found for: ' + hash);
             }
         }
 
@@ -358,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Activate tab when hash changes
         window.addEventListener('hashchange', function() {
-            console.log('Hash changed to: ' + window.location.hash);
             activateTabFromHash();
         });
     }
