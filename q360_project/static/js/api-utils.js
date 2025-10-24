@@ -46,7 +46,12 @@ function getAccessToken() {
         if (window._originalStorageMethods && window._originalStorageMethods.setItem) {
             window._originalStorageMethods.setItem.call(localStorage, 'access_token', cookieValue);
         } else {
-            Storage.prototype.setItem.call(localStorage, 'access_token', cookieValue);
+            // Fallback to direct assignment to avoid recursion
+            try {
+                localStorage['access_token'] = cookieValue;
+            } catch (e) {
+                // Silently handle if localStorage is not available
+            }
         }
         return cookieValue;
     }
@@ -54,9 +59,18 @@ function getAccessToken() {
     // Fallback to localStorage (for legacy code)
     // Use saved original getItem to avoid infinite recursion with auth-fix.js
     if (window._originalStorageMethods && window._originalStorageMethods.getItem) {
-        return window._originalStorageMethods.getItem.call(localStorage, 'access_token');
+        try {
+            return window._originalStorageMethods.getItem.call(localStorage, 'access_token');
+        } catch (e) {
+            return null;
+        }
     } else {
-        return Storage.prototype.getItem.call(localStorage, 'access_token');
+        // Direct access to avoid recursion
+        try {
+            return localStorage['access_token'] || null;
+        } catch (e) {
+            return null;
+        }
     }
 }
 
