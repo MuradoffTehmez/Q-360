@@ -1,0 +1,124 @@
+{% load i18n %}
+<div class="info-card mt-3">
+    <form method="post" action="{% url 'pfile:employee_edit' employee.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="tab" value="professional">
+
+        <h5 class="mb-3"><i class="fas fa-briefcase mr-2"></i>{% trans "İş Məlumatları" %}</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Vəzifə" %}</label>
+                    <input type="text" class="form-control" name="position" value="{{ employee.position|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Bölmə" %}</label>
+                    <select class="form-control" name="department">
+                        <option value="">{% trans "Seçin" %}</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if employee.department_id == dept.id %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Rəhbər" %}</label>
+                    <select class="form-control" name="supervisor">
+                        <option value="">{% trans "Seçin" %}</option>
+                        {% for sup in supervisors %}
+                            <option value="{{ sup.id }}" {% if employee.supervisor_id == sup.id %}selected{% endif %}>
+                                {{ sup.get_full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "İşə Qəbul Tarixi" %}</label>
+                    <input type="date" class="form-control" name="hire_date" value="{{ employee.profile.hire_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Müqavilə Növü" %}</label>
+                    <select class="form-control" name="contract_type">
+                        <option value="">{% trans "Seçin" %}</option>
+                        <option value="permanent" {% if employee.profile.contract_type == 'permanent' %}selected{% endif %}>{% trans "Daimi" %}</option>
+                        <option value="temporary" {% if employee.profile.contract_type == 'temporary' %}selected{% endif %}>{% trans "Müvəqqəti" %}</option>
+                        <option value="contract" {% if employee.profile.contract_type == 'contract' %}selected{% endif %}>{% trans "Müqavilə" %}</option>
+                        <option value="probation" {% if employee.profile.contract_type == 'probation' %}selected{% endif %}>{% trans "Sınaq Müddəti" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Müqavilə Başlanğıc Tarixi" %}</label>
+                    <input type="date" class="form-control" name="contract_start_date" value="{{ employee.profile.contract_start_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Müqavilə Bitmə Tarixi" %}</label>
+                    <input type="date" class="form-control" name="contract_end_date" value="{{ employee.profile.contract_end_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Sınaq Müddəti Bitmə Tarixi" %}</label>
+                    <input type="date" class="form-control" name="probation_end_date" value="{{ employee.profile.probation_end_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <h5 class="mb-3"><i class="fas fa-graduation-cap mr-2"></i>{% trans "Təhsil Məlumatları" %}</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Təhsil Səviyyəsi" %}</label>
+                    <select class="form-control" name="education_level">
+                        <option value="">{% trans "Seçin" %}</option>
+                        <option value="high_school" {% if employee.profile.education_level == 'high_school' %}selected{% endif %}>{% trans "Orta Məktəb" %}</option>
+                        <option value="vocational" {% if employee.profile.education_level == 'vocational' %}selected{% endif %}>{% trans "Texniki" %}</option>
+                        <option value="bachelor" {% if employee.profile.education_level == 'bachelor' %}selected{% endif %}>{% trans "Bakalavr" %}</option>
+                        <option value="master" {% if employee.profile.education_level == 'master' %}selected{% endif %}>{% trans "Magistr" %}</option>
+                        <option value="phd" {% if employee.profile.education_level == 'phd' %}selected{% endif %}>{% trans "PhD/Doktorantura" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "İxtisas" %}</label>
+                    <input type="text" class="form-control" name="specialization" value="{{ employee.profile.specialization|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Universitet" %}</label>
+                    <input type="text" class="form-control" name="university" value="{{ employee.profile.university|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Məzuniyyət İli" %}</label>
+                    <input type="number" class="form-control" name="graduation_year" value="{{ employee.profile.graduation_year|default:'' }}" min="1950" max="2030">
+                </div>
+            </div>
+        </div>
+
+        <div class="text-right mt-3">
+            <a href="{% url 'pfile:employee_detail' employee.pk %}" class="btn btn-secondary">
+                <i class="fas fa-times mr-2"></i>{% trans "Ləğv Et" %}
+            </a>
+            <button type="submit" class="btn btn-primary btn-action">
+                <i class="fas fa-save mr-2"></i>{% trans "Yadda Saxla" %}
+            </button>
+        </div>
+    </form>
+</div>

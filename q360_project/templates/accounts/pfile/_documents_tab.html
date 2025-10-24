@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="row mb-3 mt-3">
+    <div class="col-md-12 text-right">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
+            <i class="fas fa-plus mr-1"></i>{% trans "Yeni Sənəd Əlavə Et" %}
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    {% for doc in documents %}
+    <div class="col-md-6">
+        <div class="info-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0">
+                    <i class="fas fa-file-alt mr-2 text-primary"></i>
+                    {{ doc.title }}
+                </h6>
+                <button class="btn btn-sm btn-danger" onclick="deleteDocument({{ doc.id }})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <p class="text-muted mb-2"><small>{{ doc.get_document_type_display }}</small></p>
+            <p class="mb-1"><small><strong>{% trans "Verilmə Tarixi" %}:</strong> {{ doc.issue_date|default:"N/A" }}</small></p>
+            <p class="mb-1"><small><strong>{% trans "Bitmə Tarixi" %}:</strong> {{ doc.expiry_date|default:"N/A" }}</small></p>
+            {% if doc.is_expired %}
+                <span class="badge badge-danger badge-status">{% trans "Müddəti Keçib" %}</span>
+            {% elif doc.days_until_expiry and doc.days_until_expiry < 30 %}
+                <span class="badge badge-warning badge-status">{{ doc.days_until_expiry }} gün qalıb</span>
+            {% elif doc.is_active %}
+                <span class="badge badge-success badge-status">{% trans "Aktiv" %}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="info-card text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <p class="text-muted">{% trans "Hələ ki sənəd yoxdur" %}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>

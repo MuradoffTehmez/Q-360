@@ -1,0 +1,172 @@
+{% load i18n %}
+<div class="info-card mt-3">
+    <form method="post" action="{% url 'pfile:employee_edit' employee.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="tab" value="personal">
+
+        <h5 class="mb-3"><i class="fas fa-user mr-2"></i>{% trans "Əsas Məlumat" %}</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ad" %} <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="first_name" value="{{ employee.first_name }}" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ata adı" %}</label>
+                    <input type="text" class="form-control" name="middle_name" value="{{ employee.middle_name|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Soyad" %} <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="last_name" value="{{ employee.last_name }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "İşçi ID" %}</label>
+                    <input type="text" class="form-control" name="employee_id" value="{{ employee.employee_id|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Cins" %}</label>
+                    <select class="form-control" name="gender">
+                        <option value="">{% trans "Seçin" %}</option>
+                        <option value="male" {% if employee.profile.gender == 'male' %}selected{% endif %}>{% trans "Kişi" %}</option>
+                        <option value="female" {% if employee.profile.gender == 'female' %}selected{% endif %}>{% trans "Qadın" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Doğum Tarixi" %}</label>
+                    <input type="date" class="form-control" name="date_of_birth" value="{{ employee.profile.date_of_birth|date:'Y-m-d' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Doğum Yeri" %}</label>
+                    <input type="text" class="form-control" name="place_of_birth" value="{{ employee.profile.place_of_birth|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Vətəndaşlıq" %}</label>
+                    <input type="text" class="form-control" name="nationality" value="{{ employee.profile.nationality|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Şəxsiyyət Vəsiqəsi" %}</label>
+                    <input type="text" class="form-control" name="national_id" value="{{ employee.profile.national_id|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ailə Vəziyyəti" %}</label>
+                    <select class="form-control" name="marital_status">
+                        <option value="">{% trans "Seçin" %}</option>
+                        <option value="single" {% if employee.profile.marital_status == 'single' %}selected{% endif %}>{% trans "Subay" %}</option>
+                        <option value="married" {% if employee.profile.marital_status == 'married' %}selected{% endif %}>{% trans "Evli" %}</option>
+                        <option value="divorced" {% if employee.profile.marital_status == 'divorced' %}selected{% endif %}>{% trans "Boşanmış" %}</option>
+                        <option value="widowed" {% if employee.profile.marital_status == 'widowed' %}selected{% endif %}>{% trans "Dul" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Uşaq Sayı" %}</label>
+                    <input type="number" class="form-control" name="number_of_children" value="{{ employee.profile.number_of_children|default:0 }}" min="0">
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <h5 class="mb-3"><i class="fas fa-phone mr-2"></i>{% trans "Əlaqə Məlumatları" %}</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "İş E-poçtu" %} <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" name="email" value="{{ employee.email }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "İş Telefonu" %}</label>
+                    <input type="text" class="form-control" name="phone_number" value="{{ employee.phone_number|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Şəxsi E-poçt" %}</label>
+                    <input type="email" class="form-control" name="personal_email" value="{{ employee.profile.personal_email|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>{% trans "Şəxsi Telefon" %}</label>
+                    <input type="text" class="form-control" name="personal_phone" value="{{ employee.profile.personal_phone|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ünvan" %}</label>
+                    <textarea class="form-control" name="address" rows="2">{{ employee.profile.address|default:'' }}</textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Şəhər" %}</label>
+                    <input type="text" class="form-control" name="city" value="{{ employee.profile.city|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Poçt Kodu" %}</label>
+                    <input type="text" class="form-control" name="postal_code" value="{{ employee.profile.postal_code|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ölkə" %}</label>
+                    <input type="text" class="form-control" name="country" value="{{ employee.profile.country|default:'' }}">
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <h5 class="mb-3"><i class="fas fa-exclamation-triangle mr-2"></i>{% trans "Fövqəladə Əlaqə" %}</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Ad Soyad" %}</label>
+                    <input type="text" class="form-control" name="emergency_contact_name" value="{{ employee.profile.emergency_contact_name|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Qohumluq Əlaqəsi" %}</label>
+                    <input type="text" class="form-control" name="emergency_contact_relationship" value="{{ employee.profile.emergency_contact_relationship|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label>{% trans "Telefon" %}</label>
+                    <input type="text" class="form-control" name="emergency_contact_phone" value="{{ employee.profile.emergency_contact_phone|default:'' }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="text-right mt-3">
+            <a href="{% url 'pfile:employee_detail' employee.pk %}" class="btn btn-secondary">
+                <i class="fas fa-times mr-2"></i>{% trans "Ləğv Et" %}
+            </a>
+            <button type="submit" class="btn btn-primary btn-action">
+                <i class="fas fa-save mr-2"></i>{% trans "Yadda Saxla" %}
+            </button>
+        </div>
+    </form>
+</div>

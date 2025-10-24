@@ -1,0 +1,38 @@
+{% load i18n %}
+<div class="row mb-3 mt-3">
+    <div class="col-md-12 text-right">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHistoryModal">
+            <i class="fas fa-plus mr-1"></i>{% trans "Yeni Qeyd Əlavə Et" %}
+        </button>
+    </div>
+</div>
+
+<div class="timeline">
+    {% for history in work_history %}
+    <div class="timeline-item">
+        <div class="info-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0">{{ history.get_change_type_display }}</h6>
+                <button class="btn btn-sm btn-danger" onclick="deleteHistory({{ history.id }})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <p class="text-muted mb-2"><small><i class="fas fa-calendar mr-2"></i>{{ history.effective_date }}</small></p>
+            {% if history.old_position %}
+                <p class="mb-1"><small><strong>{% trans "Köhnə Vəzifə" %}:</strong> {{ history.old_position }}</small></p>
+            {% endif %}
+            {% if history.new_position %}
+                <p class="mb-1"><small><strong>{% trans "Yeni Vəzifə" %}:</strong> {{ history.new_position }}</small></p>
+            {% endif %}
+            {% if history.reason %}
+                <p class="mb-0"><small><strong>{% trans "Səbəb" %}:</strong> {{ history.reason }}</small></p>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="info-card text-center py-5">
+        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+        <p class="text-muted">{% trans "Hələ ki tarixçə qeydi yoxdur" %}</p>
+    </div>
+    {% endfor %}
+</div>
