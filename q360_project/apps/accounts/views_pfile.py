@@ -54,10 +54,90 @@ def employee_detail(request, pk):
     # Get or create profile
     profile, created = Profile.objects.get_or_create(user=employee)
 
+    # Get documents and work history
+    documents = EmployeeDocument.objects.filter(user=employee).order_by('-created_at')
+    work_history = WorkHistory.objects.filter(user=employee).order_by('-effective_date')
+
     context = {
         'employee': employee,
+        'documents': documents,
+        'work_history': work_history,
     }
     return render(request, 'accounts/pfile/employee_detail.html', context)
+
+
+@login_required
+def employee_edit(request, pk):
+    """Edit employee P-File."""
+    employee = get_object_or_404(User.objects.select_related('profile', 'department', 'supervisor'), pk=pk)
+
+    # Get or create profile
+    profile, created = Profile.objects.get_or_create(user=employee)
+
+    if request.method == 'POST':
+        try:
+            # Update user fields
+            employee.first_name = request.POST.get('first_name', employee.first_name)
+            employee.last_name = request.POST.get('last_name', employee.last_name)
+            employee.email = request.POST.get('email', employee.email)
+            employee.phone_number = request.POST.get('phone_number', employee.phone_number)
+
+            department_id = request.POST.get('department')
+            if department_id:
+                employee.department_id = department_id
+
+            supervisor_id = request.POST.get('supervisor')
+            if supervisor_id:
+                employee.supervisor_id = supervisor_id
+
+            employee.save()
+
+            # Update profile fields
+            date_of_birth = request.POST.get('date_of_birth')
+            if date_of_birth:
+                profile.date_of_birth = date_of_birth
+
+            gender = request.POST.get('gender')
+            if gender:
+                profile.gender = gender
+
+            profile.address = request.POST.get('address', profile.address)
+            profile.city = request.POST.get('city', profile.city)
+            profile.country = request.POST.get('country', profile.country)
+
+            education_level = request.POST.get('education_level')
+            if education_level:
+                profile.education_level = education_level
+
+            profile.field_of_study = request.POST.get('field_of_study', profile.field_of_study)
+            profile.emergency_contact_name = request.POST.get('emergency_contact_name', profile.emergency_contact_name)
+            profile.emergency_contact_phone = request.POST.get('emergency_contact_phone', profile.emergency_contact_phone)
+            profile.save()
+
+            messages.success(request, 'Profil uğurla yeniləndi!')
+            return redirect('pfile:employee_detail', pk=pk)
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"ERROR in employee_edit: {error_details}")
+            messages.error(request, f'Xəta baş verdi: {str(e)}')
+
+    # Get documents and work history
+    documents = EmployeeDocument.objects.filter(user=employee).order_by('-created_at')
+    work_history = WorkHistory.objects.filter(user=employee).order_by('-effective_date')
+
+    # Get departments and users for dropdowns
+    departments = Department.objects.filter(is_active=True)
+    supervisors = User.objects.filter(is_active=True).exclude(pk=pk)
+
+    context = {
+        'employee': employee,
+        'documents': documents,
+        'work_history': work_history,
+        'departments': departments,
+        'supervisors': supervisors,
+    }
+    return render(request, 'accounts/pfile/employee_edit.html', context)
 
 
 @login_required

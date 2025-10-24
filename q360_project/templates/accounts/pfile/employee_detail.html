@@ -317,7 +317,7 @@
             </div>
 
             <div class="row">
-                {% for doc in employee.documents.all %}
+                {% for doc in documents %}
                 <div class="col-md-6">
                     <div class="document-card">
                         <div class="d-flex justify-content-between align-items-start">
@@ -374,7 +374,7 @@
             </div>
 
             <div class="timeline">
-                {% for history in employee.work_history.all %}
+                {% for history in work_history %}
                 <div class="info-card">
                     <div class="row">
                         <div class="col-md-3">
@@ -555,7 +555,8 @@ document.getElementById('addDocumentForm').addEventListener('submit', function(e
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            $('#addDocumentModal').modal('hide');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addDocumentModal'));
+            modal.hide();
             location.reload();
         } else {
             alert('Xəta: ' + data.message);
@@ -582,7 +583,8 @@ document.getElementById('addHistoryForm').addEventListener('submit', function(e)
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            $('#addHistoryModal').modal('hide');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addHistoryModal'));
+            modal.hide();
             location.reload();
         } else {
             alert('Xəta: ' + data.message);

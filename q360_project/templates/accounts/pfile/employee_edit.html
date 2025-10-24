@@ -1,0 +1,602 @@
+{% extends 'base/base.html' %}
+{% load i18n static %}
+
+{% block title %}{{ employee.get_full_name }} - Redaktə Et{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 0;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid white;
+        object-fit: cover;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .nav-tabs .nav-link:hover {
+        border: none;
+        color: #667eea;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #667eea;
+        border: none;
+        border-bottom: 3px solid #667eea;
+        background: transparent;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -35px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 3px solid white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                {% if employee.profile.profile_picture %}
+                    <img src="{{ employee.profile.profile_picture.url }}" alt="{{ employee.get_full_name }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.2);">
+                        <i class="fas fa-user fa-3x"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <h2 class="mb-2">{{ employee.get_full_name }}</h2>
+                <p class="mb-1">
+                    <i class="fas fa-briefcase mr-2"></i>{{ employee.position|default:"N/A" }}
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-building mr-2"></i>{{ employee.department.name|default:"N/A" }}
+                </p>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'pfile:employee_detail' employee.pk %}" class="btn btn-light">
+                    <i class="fas fa-eye mr-2"></i>{% trans "Baxış Rejimi" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="personal-tab" data-bs-toggle="tab" href="#personal" role="tab">
+                <i class="fas fa-user mr-1"></i>{% trans "Şəxsi Məlumat" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="professional-tab" data-bs-toggle="tab" href="#professional" role="tab">
+                <i class="fas fa-briefcase mr-1"></i>{% trans "Peşəkar Məlumat" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="documents-tab" data-bs-toggle="tab" href="#documents" role="tab">
+                <i class="fas fa-folder mr-1"></i>{% trans "Sənədlər" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history" role="tab">
+                <i class="fas fa-history mr-1"></i>{% trans "İş Tarixçəsi" %}
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="profileTabsContent">
+        <!-- Personal Information Tab -->
+        <div class="tab-pane fade show active" id="personal" role="tabpanel">
+            <div class="info-card mt-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Ad" %}</label>
+                                <input type="text" class="form-control" name="first_name" value="{{ employee.first_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Soyad" %}</label>
+                                <input type="text" class="form-control" name="last_name" value="{{ employee.last_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "E-poçt" %}</label>
+                                <input type="email" class="form-control" name="email" value="{{ employee.email }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Telefon" %}</label>
+                                <input type="text" class="form-control" name="phone_number" value="{{ employee.phone_number|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Doğum Tarixi" %}</label>
+                                <input type="date" class="form-control" name="date_of_birth" value="{{ employee.profile.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Cins" %}</label>
+                                <select class="form-control" name="gender">
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    <option value="male" {% if employee.profile.gender == 'male' %}selected{% endif %}>{% trans "Kişi" %}</option>
+                                    <option value="female" {% if employee.profile.gender == 'female' %}selected{% endif %}>{% trans "Qadın" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Ünvan" %}</label>
+                                <input type="text" class="form-control" name="address" value="{{ employee.profile.address|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Şəhər" %}</label>
+                                <input type="text" class="form-control" name="city" value="{{ employee.profile.city|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Ölkə" %}</label>
+                                <input type="text" class="form-control" name="country" value="{{ employee.profile.country|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Fövqəladə Hal Əlaqə Adı" %}</label>
+                                <input type="text" class="form-control" name="emergency_contact_name" value="{{ employee.profile.emergency_contact_name|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Fövqəladə Hal Əlaqə Telefonu" %}</label>
+                                <input type="text" class="form-control" name="emergency_contact_phone" value="{{ employee.profile.emergency_contact_phone|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right mt-3">
+                        <button type="submit" class="btn btn-primary btn-action">
+                            <i class="fas fa-save mr-2"></i>{% trans "Yadda Saxla" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Professional Information Tab -->
+        <div class="tab-pane fade" id="professional" role="tabpanel">
+            <div class="info-card mt-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Bölmə" %}</label>
+                                <select class="form-control" name="department">
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.id }}" {% if employee.department_id == dept.id %}selected{% endif %}>
+                                            {{ dept.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Rəhbər" %}</label>
+                                <select class="form-control" name="supervisor">
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    {% for sup in supervisors %}
+                                        <option value="{{ sup.id }}" {% if employee.supervisor_id == sup.id %}selected{% endif %}>
+                                            {{ sup.get_full_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Təhsil Səviyyəsi" %}</label>
+                                <select class="form-control" name="education_level">
+                                    <option value="">{% trans "Seçin" %}</option>
+                                    <option value="high_school" {% if employee.profile.education_level == 'high_school' %}selected{% endif %}>{% trans "Orta məktəb" %}</option>
+                                    <option value="associate" {% if employee.profile.education_level == 'associate' %}selected{% endif %}>{% trans "Kollec" %}</option>
+                                    <option value="bachelor" {% if employee.profile.education_level == 'bachelor' %}selected{% endif %}>{% trans "Bakalavr" %}</option>
+                                    <option value="master" {% if employee.profile.education_level == 'master' %}selected{% endif %}>{% trans "Magistr" %}</option>
+                                    <option value="doctorate" {% if employee.profile.education_level == 'doctorate' %}selected{% endif %}>{% trans "Doktorantura" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Təhsil Sahəsi" %}</label>
+                                <input type="text" class="form-control" name="field_of_study" value="{{ employee.profile.field_of_study|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right mt-3">
+                        <button type="submit" class="btn btn-primary btn-action">
+                            <i class="fas fa-save mr-2"></i>{% trans "Yadda Saxla" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div class="tab-pane fade" id="documents" role="tabpanel">
+            <div class="row mb-3 mt-3">
+                <div class="col-md-12 text-right">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Yeni Sənəd Əlavə Et" %}
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for doc in documents %}
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <i class="fas fa-file-alt mr-2 text-primary"></i>
+                                {{ doc.title }}
+                            </h6>
+                            <button class="btn btn-sm btn-danger" onclick="deleteDocument({{ doc.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted mb-2"><small>{{ doc.get_document_type_display }}</small></p>
+                        <p class="mb-1"><small><strong>{% trans "Verilmə Tarixi" %}:</strong> {{ doc.issue_date|default:"N/A" }}</small></p>
+                        <p class="mb-1"><small><strong>{% trans "Bitmə Tarixi" %}:</strong> {{ doc.expiry_date|default:"N/A" }}</small></p>
+                        {% if doc.is_expired %}
+                            <span class="badge badge-danger badge-status">{% trans "Müddəti Keçib" %}</span>
+                        {% elif doc.days_until_expiry and doc.days_until_expiry < 30 %}
+                            <span class="badge badge-warning badge-status">{{ doc.days_until_expiry }} gün qalıb</span>
+                        {% elif doc.is_active %}
+                            <span class="badge badge-success badge-status">{% trans "Aktiv" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="info-card text-center py-5">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "Hələ ki sənəd yoxdur" %}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Work History Tab -->
+        <div class="tab-pane fade" id="history" role="tabpanel">
+            <div class="row mb-3 mt-3">
+                <div class="col-md-12 text-right">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHistoryModal">
+                        <i class="fas fa-plus mr-1"></i>{% trans "Yeni Qeyd Əlavə Et" %}
+                    </button>
+                </div>
+            </div>
+
+            <div class="timeline">
+                {% for history in work_history %}
+                <div class="timeline-item">
+                    <div class="info-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">{{ history.get_change_type_display }}</h6>
+                            <button class="btn btn-sm btn-danger" onclick="deleteHistory({{ history.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted mb-2"><small><i class="fas fa-calendar mr-2"></i>{{ history.effective_date }}</small></p>
+                        {% if history.old_position %}
+                            <p class="mb-1"><small><strong>{% trans "Köhnə Vəzifə" %}:</strong> {{ history.old_position }}</small></p>
+                        {% endif %}
+                        {% if history.new_position %}
+                            <p class="mb-1"><small><strong>{% trans "Yeni Vəzifə" %}:</strong> {{ history.new_position }}</small></p>
+                        {% endif %}
+                        {% if history.reason %}
+                            <p class="mb-0"><small><strong>{% trans "Səbəb" %}:</strong> {{ history.reason }}</small></p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="info-card text-center py-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">{% trans "Hələ ki tarixçə qeydi yoxdur" %}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Document Modal -->
+<div class="modal fade" id="addDocumentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Yeni Sənəd Əlavə Et" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addDocumentForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label>{% trans "Sənəd Növü" %}</label>
+                        <select class="form-control" name="document_type" required>
+                            <option value="">{% trans "Seçin" %}</option>
+                            <option value="id_card">{% trans "Şəxsiyyət Vəsiqəsi" %}</option>
+                            <option value="passport">{% trans "Pasport" %}</option>
+                            <option value="resume">{% trans "CV/Rezume" %}</option>
+                            <option value="diploma">{% trans "Diplom" %}</option>
+                            <option value="certificate">{% trans "Sertifikat" %}</option>
+                            <option value="contract">{% trans "Əmək Müqaviləsi" %}</option>
+                            <option value="other">{% trans "Digər" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Başlıq" %}</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Təsvir" %}</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Verilmə Tarixi" %}</label>
+                                <input type="date" class="form-control" name="issue_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>{% trans "Bitmə Tarixi" %}</label>
+                                <input type="date" class="form-control" name="expiry_date">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Fayl" %}</label>
+                        <input type="file" class="form-control" name="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Work History Modal -->
+<div class="modal fade" id="addHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Yeni Tarixçə Qeydi" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addHistoryForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label>{% trans "Dəyişiklik Növü" %}</label>
+                        <select class="form-control" name="change_type" required>
+                            <option value="">{% trans "Seçin" %}</option>
+                            <option value="promotion">{% trans "Tərf" %}</option>
+                            <option value="transfer">{% trans "Transfer" %}</option>
+                            <option value="demotion">{% trans "Təqdir edilmə" %}</option>
+                            <option value="termination">{% trans "İşdən Çıxma" %}</option>
+                            <option value="other">{% trans "Digər" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Qüvvəyə Minmə Tarixi" %}</label>
+                        <input type="date" class="form-control" name="effective_date" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Köhnə Vəzifə" %}</label>
+                        <input type="text" class="form-control" name="old_position">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>{% trans "Yeni Vəzifə" %}</label>
+                        <input type="text" class="form-control" name="new_position">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Səbəb" %}</label>
+                        <textarea class="form-control" name="reason" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Ləğv Et" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Əlavə Et" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add Document Form Submit
+document.getElementById('addDocumentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch("{% url 'pfile:document_create' employee.id %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+
+// Add History Form Submit
+document.getElementById('addHistoryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch("{% url 'pfile:history_create' employee.id %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+
+// Delete Document
+function deleteDocument(id) {
+    if (confirm('Bu sənədi silmək istədiyinizdən əminsiniz?')) {
+        fetch(`/pfile/document/${id}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+// Delete History
+function deleteHistory(id) {
+    if (confirm('Bu qeydi silmək istədiyinizdən əminsiniz?')) {
+        fetch(`/pfile/history/${id}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xəta: ' + data.message);
+            }
+        });
+    }
+}
+
+// Handle tab navigation from URL hash
+window.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+        const tabTrigger = document.querySelector(`[href="${hash}"]`);
+        if (tabTrigger) {
+            const tab = new bootstrap.Tab(tabTrigger);
+            tab.show();
+        }
+    }
+});
+</script>
+{% endblock %}
