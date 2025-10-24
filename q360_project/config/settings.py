@@ -806,6 +806,10 @@ JAZZMIN_SETTINGS = {
     "custom_js": "js/admin_enhancements.js",
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,  # Disable UI builder in production
+    "site_logo": "images/favicon.svg",  # Q360 logo for admin panel
+    "login_logo": "images/favicon.svg",  # Logo on login page
+    "login_logo_dark": "images/favicon.svg",  # Dark version of login logo
+    "site_icon": "images/favicon.svg",  # Favicon for admin panel
 
     # ========== FORM LAYOUTS ==========
     "changeform_format": "horizontal_tabs",
