@@ -682,7 +682,15 @@ def security_settings(request):
         form = PasswordChangeForm(request.user)
 
     mfa_config = request.user.ensure_mfa_config()
-    backup_codes = ["••••••••" for _ in (mfa_config.backup_codes or [])]
+
+    # Show actual backup codes if just generated, otherwise mask them
+    if request.session.get('mfa_new_backup_codes'):
+        backup_codes = request.session.pop('mfa_new_backup_codes')
+    elif mfa_config.is_enabled and mfa_config.backup_codes:
+        backup_codes = mfa_config.backup_codes
+    else:
+        backup_codes = []
+
     user_agent = request.META.get("HTTP_USER_AGENT", "")
     sessions = [
         {
@@ -714,11 +722,35 @@ def security_settings(request):
         created_at__gte=timezone.now() - timedelta(hours=24),
     ).count()
 
+    # Generate QR code if MFA not enabled
+    mfa_qr_svg = None
+    if not mfa_config.is_enabled:
+        import pyotp
+        import qrcode
+        import io
+        import base64
+
+        totp = pyotp.TOTP(mfa_config.secret)
+        provisioning_uri = totp.provisioning_uri(
+            name=request.user.email,
+            issuer_name=getattr(settings, 'COMPANY_NAME', 'Q360')
+        )
+
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(provisioning_uri)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+        mfa_qr_svg = f'data:image/png;base64,{qr_code_base64}'
+
     context = {
         'form': form,
         'mfa_config': mfa_config,
         'backup_codes': backup_codes,
-        'mfa_qr_svg': None,
+        'mfa_qr_svg': mfa_qr_svg,
         'mfa_secret': mfa_config.secret,
         'encryption_available': CRYPTOGRAPHY_AVAILABLE,
         'encryption_key_loaded': bool(getattr(settings, "DATA_ENCRYPTION_KEY", "")),
@@ -790,16 +822,50 @@ def mfa_verify(request):
 
 def mfa_initiate(request):
     """Initiate MFA setup process."""
-    from django.shortcuts import render
+    from django.shortcuts import render, redirect
     from django.utils.translation import gettext_lazy as _
-    
+    import pyotp
+    import qrcode
+    import io
+    import base64
+
     mfa_config = request.user.ensure_mfa_config()
-    
+
+    # Generate new secret and backup codes if not exists
+    if not mfa_config.secret or not mfa_config.backup_codes:
+        from .mfa import generate_base32_secret, generate_backup_codes
+        mfa_config.secret = generate_base32_secret()
+        mfa_config.backup_codes = generate_backup_codes()
+        mfa_config.save()
+
+    # Generate QR code
+    totp = pyotp.TOTP(mfa_config.secret)
+    provisioning_uri = totp.provisioning_uri(
+        name=request.user.email,
+        issuer_name=getattr(settings, 'COMPANY_NAME', 'Q360')
+    )
+
+    # Create QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(provisioning_uri)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Convert to base64
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    # Store backup codes in session to show once
+    request.session['mfa_new_backup_codes'] = mfa_config.backup_codes
+
     context = {
         'mfa_config': mfa_config,
         'mfa_secret': mfa_config.secret,
+        'mfa_qr_svg': f'data:image/png;base64,{qr_code_base64}',
+        'backup_codes': mfa_config.backup_codes,
     }
-    
+
     return render(request, 'accounts/mfa_initiate.html', context)
 
 
@@ -827,15 +893,24 @@ def mfa_backup_regenerate(request):
     from django.shortcuts import redirect
     from django.utils.translation import gettext_lazy as _
 
-    if request.method == 'POST':
-        mfa_config = request.user.mfa_config
-        if mfa_config:
-            from .mfa import generate_backup_codes
-            mfa_config.backup_codes = generate_backup_codes()
-            mfa_config.save()
-            messages.success(request, _('Yedek kodlar uğurla yeniləndi.'))
-        else:
-            messages.error(request, _('MFA konfiqurasiya tapılmadı.'))
+    mfa_config = request.user.ensure_mfa_config()
+    from .mfa import generate_backup_codes
+    mfa_config.backup_codes = generate_backup_codes()
+    mfa_config.save()
+
+    # Store in session to show once
+    request.session['mfa_new_backup_codes'] = mfa_config.backup_codes
+
+    messages.success(request, _('Yedek kodlar uğurla yeniləndi.'))
+
+    # Log this action
+    AuditLog.objects.create(
+        user=request.user,
+        action='mfa_backup_regenerated',
+        model_name='UserMFAConfig',
+        severity='info',
+        ip_address=request.META.get('REMOTE_ADDR')
+    )
 
     return redirect('accounts:security')
 
