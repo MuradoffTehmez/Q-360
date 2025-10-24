@@ -683,6 +683,15 @@ def security_settings(request):
 
     mfa_config = request.user.ensure_mfa_config()
 
+    # Generate secret and backup codes if they don't exist
+    if not mfa_config.secret or not mfa_config.backup_codes:
+        from .mfa import generate_base32_secret, generate_backup_codes
+        if not mfa_config.secret:
+            mfa_config.secret = generate_base32_secret()
+        if not mfa_config.backup_codes:
+            mfa_config.backup_codes = generate_backup_codes()
+        mfa_config.save()
+
     # Show actual backup codes if just generated, otherwise mask them
     if request.session.get('mfa_new_backup_codes'):
         backup_codes = request.session.pop('mfa_new_backup_codes')
@@ -744,7 +753,8 @@ def security_settings(request):
         buffer = io.BytesIO()
         img.save(buffer, format='PNG')
         qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
-        mfa_qr_svg = f'data:image/png;base64,{qr_code_base64}'
+        # Wrap in img tag for template rendering
+        mfa_qr_svg = f'<img src="data:image/png;base64,{qr_code_base64}" alt="QR Code" class="img-fluid" style="max-width: 250px;">'
 
     context = {
         'form': form,
