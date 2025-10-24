@@ -290,7 +290,7 @@ if not DEBUG:
 # ==============================================================================
 
 COMPANY_NAME = os.environ.get('COMPANY_NAME', 'Q360 HR System')
-CONTACT_PHONE = os.environ.get('CONTACT_PHONE', '+994 XX XXX XX XX')
+CONTACT_PHONE = os.environ.get('CONTACT_PHONE', '+994 51 871 74 83')
 CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'info@q360.example.com')
 
 # ==============================================================================
