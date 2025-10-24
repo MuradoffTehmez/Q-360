@@ -338,13 +338,15 @@
                                 {% endif %}
                             </div>
                             <div class="btn-group-vertical ml-2">
-                                <a href="{{ doc.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-warning" onclick="editDocument({{ doc.id }})">
+                                {% if doc.file %}
+                                    <a href="{{ doc.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank" title="{% trans 'Yüklə' %}">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-sm btn-outline-warning" onclick="editDocument({{ doc.id }})" title="{% trans 'Redaktə' %}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteDocument({{ doc.id }})">
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteDocument({{ doc.id }})" title="{% trans 'Sil' %}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>

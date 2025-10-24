@@ -2,3 +2,4 @@
 [WARNING] 2025-10-22 12:08:26 | apps.accounts.signals:87 | log_login_failure | Login failure for username: Tahmaz from IP: 127.0.0.1
 [WARNING] 2025-10-23 22:00:04 | apps.accounts.signals:87 | log_login_failure | Login failure for username: Tahmaz from IP: 127.0.0.1
 [WARNING] 2025-10-24 12:21:14 | apps.accounts.signals:87 | log_login_failure | Login failure for username: admin from IP: 127.0.0.1
+[WARNING] 2025-10-25 02:01:55 | django.security.csrf:248 | log_response | Forbidden (CSRF token from the 'X-Csrftoken' HTTP header has incorrect length.): /pfile/document/1/delete/
