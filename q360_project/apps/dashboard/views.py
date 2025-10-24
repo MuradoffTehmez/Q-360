@@ -109,26 +109,27 @@ def kpi_dashboard(request):
 
     # Annotate departments with user counts and performance metrics
     # Note: 'users' is the related_name from User.department ForeignKey
-    # 'evaluation_results' is the related_name from Response.evaluatee ForeignKey
+    # 'received_evaluations' is from EvaluationAssignment.evaluatee ForeignKey
+    # 'responses' is from Response.assignment ForeignKey
     departments_with_stats = Department.objects.annotate(
         user_count=Count('users', distinct=True),
         avg_performance=Coalesce(
-            Avg('users__evaluation_results__score'),
+            Avg('users__received_evaluations__responses__score'),
             0.0,
             output_field=FloatField()
         ),
         recent_performance=Coalesce(
             Avg(
-                'users__evaluation_results__score',
-                filter=Q(users__evaluation_results__created_at__date__range=[start_date, end_date])
+                'users__received_evaluations__responses__score',
+                filter=Q(users__received_evaluations__responses__created_at__date__range=[start_date, end_date])
             ),
             0.0,
             output_field=FloatField()
         ),
         prev_performance=Coalesce(
             Avg(
-                'users__evaluation_results__score',
-                filter=Q(users__evaluation_results__created_at__date__range=[prev_start_date, start_date])
+                'users__received_evaluations__responses__score',
+                filter=Q(users__received_evaluations__responses__created_at__date__range=[prev_start_date, start_date])
             ),
             0.0,
             output_field=FloatField()
