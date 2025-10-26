@@ -279,7 +279,7 @@ const sentimentChart = new Chart(sentimentCtx, {
         labels: ['Pozitiv', 'Neytral', 'Neqativ'],
         datasets: [{
             label: 'Sentiment Paylanması',
-            data: {{ analytics.sentiment_data|safe }},
+            data: [{{ analytics.recognitions|default:0 }}, {{ analytics.improvements|default:0 }}, 0],
             backgroundColor: [
                 chartColors.success,
                 chartColors.warning,
@@ -306,12 +306,12 @@ const sentimentChart = new Chart(sentimentCtx, {
 // Competencies Chart
 const compCtx = document.getElementById('competenciesChart').getContext('2d');
 const compChart = new Chart(compCtx, {
-    type: 'horizontalBar',
+    type: 'bar',
     data: {
-        labels: {{ analytics.top_competencies_labels|safe }},
+        labels: {{ analytics.competency_labels|safe }},
         datasets: [{
             label: 'Qeyd Sayı',
-            data: {{ analytics.top_competencies_data|safe }},
+            data: {{ analytics.competency_data|safe }},
             backgroundColor: chartColors.info
         }]
     },
