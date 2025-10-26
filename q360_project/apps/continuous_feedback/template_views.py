@@ -480,6 +480,14 @@ def feedback_analytics(request):
         all_feedback.filter(message__icontains='yaradıcı').count(),
     ]
 
+    # Filter out zero values to avoid empty charts
+    filtered_competencies = [(label, data) for label, data in zip(competency_labels, competency_data) if data > 0]
+    if filtered_competencies:
+        competency_labels, competency_data = zip(*filtered_competencies) if filtered_competencies else ([], [])
+    else:
+        # Default values if no data
+        competency_labels, competency_data = (['Yoxdur'], [1])
+
     # Insights
     insights = []
 
@@ -516,8 +524,9 @@ def feedback_analytics(request):
             'trend_data': json.dumps(trend_data),
             'source_labels': json.dumps(source_labels),
             'source_data': json.dumps(source_data),
-            'competency_labels': json.dumps(competency_labels),
-            'competency_data': json.dumps(competency_data),
+            'competency_labels': json.dumps(list(competency_labels) if competency_labels else []),
+            'competency_data': json.dumps(list(competency_data) if competency_data else []),
+            'sentiment_data': json.dumps([recognitions, improvements, 0]),  # Pozitiv, Neytral, Neqativ
         },
         'insights': insights,
     }
